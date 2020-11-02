@@ -16,7 +16,10 @@ ACS Backend API
 
     ``` sh
     DB_CONNECTION=sqlsrv
-    DB_DATABASE=acsdb
+    DB_HOST=
+    DB_DATABASE=
+    DB_USERNAME=
+    DB_PASSWORD=
 
     PASSPORT_GRANT_TYPE=password
     PASSPORT_CLIENT_SECRET={client secret}
