@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\User; 
 use Validator;
 use Auth;
-// use Laravel\Passport\Client as OClient;
+use GuzzleHttp\Client;
 
 class UserController extends Controller
 {
@@ -27,15 +27,15 @@ class UserController extends Controller
     	try
     	{
     		$response = $http->post(
-    			'localhost/oauth/token',
+    			'localhost/acs-api/public/oauth/token',
     			[
     				'form_params' => [
 	    				'grant_type' => 'password',
-	    				'client_id' => 4,
-	    				'client_secret' => 'swYKxHKa1RjKoQprk1MrkVUoOmJx1YhTKtvEYWPY',
+	    				'client_id' => 2,
+	    				'client_secret' => 'ya6ZxRCgKBnsWJCnbLfTKVGrGW115YTDJU66eyDm',
 	    				'username' => $request->username,
 	    				'password' => $request->password
-    			]
+                    ]
     		]);
     		return $response->getBody();
     	}
@@ -49,43 +49,88 @@ class UserController extends Controller
     	}
     }
 
-    // public function register(Request $request) { 
-    //     $validator = Validator::make($request->all(), [ 
-    //         'name' => 'required', 
-    //         'email' => 'required|email|unique:users', 
-    //         'password' => 'required', 
-    //         'c_password' => 'required|same:password', 
-    //     ]);
+    function register(Request $request)
+    {
+        /**
+         * Get a validator for an incoming registration request.
+         *
+         * @param  array  $request
+         * @return \Illuminate\Contracts\Validation\Validator
+         */
+        $valid = validator($request->only('email', 'name', 'password'), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+        ]);
 
-    //     if ($validator->fails()) { 
-    //         return response()->json(['error'=>$validator->errors()], 401);            
-    //     }
+        if ($valid->fails()) {
+            $jsonError=response()->json($valid->errors()->all(), 400);
+            return \Response::json($jsonError);
+        }
 
-    //     $password = $request->password;
-    //     $input = $request->all(); 
-    //     $input['password'] = bcrypt($input['password']); 
-    //     $user = User::create($input); 
-    //     $oClient = OClient::where('password_client', 1)->first();
-    //     return $this->getTokenAndRefreshToken($oClient, $user->email, $password);
-    // }
+        $data = request()->only('email','name','password');
 
-    // public function getTokenAndRefreshToken(OClient $oClient, $email, $password) { 
-    //     $oClient = OClient::where('password_client', 1)->first();
-    //     $http = new OClient;
-    //     $response = $http->request('POST', 'http://localhost:8000/oauth/token', [
-    //         'form_params' => [
-    //             'grant_type' => 'password',
-    //             'client_id' => $oClient->id,
-    //             'client_secret' => $oClient->secret,
-    //             'username' => $email,
-    //             'password' => $password,
-    //             'scope' => '*',
-    //         ],
-    //     ]);
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+        ]);
 
-    //     $result = json_decode((string) $response->getBody(), true);
-    //     return response()->json($result, 200);
-    // }
+        // // And created user until here.
+
+        // $client = Client::where('password_client', 1)->first();
+
+        // // Is this $request the same request? I mean Request $request? Then wouldn't it mess the other $request stuff? Also how did you pass it on the $request in $proxy? Wouldn't Request::create() just create a new thing?
+
+        // $request->request->add([
+        //     'grant_type'    => 'password',
+        //     'client_id'     => $client->id,
+        //     'client_secret' => $client->secret,
+        //     'username'      => $data['email'],
+        //     'password'      => $data['password'],
+        //     'scope'         => null,
+        // ]);
+
+        // // Fire off the internal request. 
+        // $token = Request::create(
+        //     'oauth/token',
+        //     'POST'
+        // );
+
+        $http = new \GuzzleHttp\Client();
+
+        try
+        {
+            $response = $http->post(
+                'localhost/acs-api/public/oauth/token',
+                [
+                    'form_params' => [
+                        'grant_type' => 'password',
+                        'client_id' => 2,
+                        'client_secret' => 'ya6ZxRCgKBnsWJCnbLfTKVGrGW115YTDJU66eyDm',
+                        'username' => $request->email,
+                        'password' => $request->password
+                    ]
+            ]);
+            return $response->getBody();
+        }
+        catch(\GuzzleHttp\Exception\BadResponseException $e)
+        {
+            if($e->getCode() === 400)
+            {
+                return response()->json('Your credentials are incorrect. Please try again.', $e->getCode());
+            }
+            return response()->json('Something went wrong on the server.', $e->getCode());
+        }
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->token()->revoke();
+        return response()->json([
+            'message' => 'Successfully logged out'
+        ]);
+    }
 
     public function check()
     {

@@ -1,43 +1,151 @@
-# Laravel 6.0 for Laravel Shift
+## Laravel 7 + Vue CLI 4
+Example config your Laravel project with two builds (public and admin)
 
-This repository contains the latest version of Laravel 6.0. It is used as a reference by [Laravel Shift - the automated way to upgrade Laravel applications](https://laravelshift.com).
+## Steps for Scaffolding From Scratch
+1. Create Laravel Project
 
-## Laravel Shift
-*Laravel Shift* focuses on providing [automated Shifts](https://laravelshift.com/shifts) and [Human Shifts](https://laravelshift.com/human-shifts) for upgrading and improving your Laravel applications.
+   ``` sh
+   laravel new my-project
+   cd my-project
+   # remove existing frontend scaffold
+   rm -rf package.json webpack.mix.js yarn.lock resources/js resources/sass public/js public/css
+   ```
 
-Shifts for *Laravel* include:
+2. Create a Vue CLI 4 project in the Laravel '/resources/frontend/'
+   ``` sh
+   cd resources/frontend
+   vue create app
+   #and (if you need admin build)
+   vue create admin
+   ```
 
-- [Laravel 5.0 Shift - upgrade from Laravel 4.2 to 5.0](https://laravelshift.com/upgrade-laravel-4.2-to-laravel-5.0)
-- [Laravel 5.1 Shift - upgrade from Laravel 5.0 to 5.1](https://laravelshift.com/upgrade-laravel-5.0-to-laravel-5.1) 
-- [Laravel 5.2 Shift - upgrade from Laravel 5.1 to 5.2](https://laravelshift.com/upgrade-laravel-5.1-to-laravel-5.2) 
-- [Laravel 5.3 Shift - upgrade from Laravel 5.2 to 5.3](https://laravelshift.com/upgrade-laravel-5.2-to-laravel-5.3)
-- [Laravel 5.4 Shift - upgrade from Laravel 5.3 to 5.4](https://laravelshift.com/upgrade-laravel-5.3-to-laravel-5.4)
-- [Laravel 5.5 Shift - upgrade from Laravel 5.4 to 5.5](https://laravelshift.com/upgrade-laravel-5.4-to-laravel-5.5)
-- [Laravel 5.6 Shift - upgrade from Laravel 5.5 to 5.6](https://laravelshift.com/upgrade-laravel-5.5-to-laravel-5.6)
-- [Laravel 5.7 Shift - upgrade from Laravel 5.6 to 5.7](https://laravelshift.com/upgrade-laravel-5.6-to-laravel-5.7)
-- [Laravel 5.8 Shift - upgrade from Laravel 5.7 to 5.8](https://laravelshift.com/upgrade-laravel-5.7-to-laravel-5.8)
-- [Laravel 6.x Shift - upgrade from Laravel 5.8 to 6.x](https://laravelshift.com/upgrade-laravel-5.8-to-laravel-6.0)
-- [Laravel 7.x Shift - upgrade from Laravel 6.x to 7.x](https://laravelshift.com/upgrade-laravel-6-to-laravel-7)
-- [Laravel 8.x Shift - upgrade from Laravel 7.x to 8.x](https://laravelshift.com/upgrade-laravel-7-to-laravel-8)
-- [BrowserKit Tests Converter - upgrade tests from BrowserKit](https://laravelshift.com/upgrade-laravel-5.3-tests-to-laravel-5.4-tests)
-- [Laravel Linter - detect lint in your Laravel project](https://laravelshift.com/laravel-linter) 
-- [Laravel Analyzer - are you following the "Laravel Way"](https://laravelshift.com/opinionated-laravel-way-shift) 
-- [Laravel Fixer - automate changes to the "Laravel Way"](https://laravelshift.com/laravel-code-fixer)
-- [Laravel Tests Generator - generate HTTP tests for your Laravel application](https://laravelshift.com/laravel-test-generator) 
-- [Consolidate Namespace Shift - condense custom namespaces with Laravel](https://laravelshift.com/laravel-consolidate-custom-namespaces)
-- [Namespace Models Shift - move Models to app/Models](https://laravelshift.com/laravel-namespace-models)
+3. Configure Vue CLI 4 project
 
+    Create `/resources/frontend/app/vue.config.js`:
 
-Shifts for *Lumen* include:
+    ``` js
+    module.exports = {
+     devServer: {
+       proxy: 'http://laravel.test'
+     },
 
-- [Lumen to Laravel - convert a Lumen project to Laravel](https://laravelshift.com/convert-lumen-to-laravel) 
+      // output built static files to Laravel's public dir.
+      // note the "build" script in package.json needs to be modified as well.
+      outputDir: '../../../public/assets/app',
 
+      publicPath: process.env.NODE_ENV === 'production'
+        ? '/assets/app/'
+        : '/',
 
-Shifts for *PHP* include:
+      // modify the location of the generated HTML file.
+      indexPath: process.env.NODE_ENV === 'production'
+        ? '../../../resources/views/app.blade.php'
+        : 'index.html'
+    }
+    ```
+    Edit `/resources/frontend/app/package.json`
+    ``` diff
+    "scripts": {
+      "serve": "vue-cli-service serve",
+    - "build": "vue-cli-service build",
+    + "build": "rm -rf ../../../public/assets/app/{js,css,img} && vue-cli-service build --no-clean",
+      "lint": "vue-cli-service lint"
+    },
+    ```
+    # and (if you need admin build)
 
-- [PSR-2 - adopt the PSR-2 code style](https://laravelshift.com/upgrade-psr2-code-style-standard)
-- [PSR-4 - upgrade from PSR-0 to PSR-4](https://laravelshift.com/upgrade-namespace-psr0-psr4)
-- [Mysqli Shift - covert mysql to mysqli](https://laravelshift.com/upgrade-mysql-mysqli)
-- [PHPUnit 6 Shift - upgrade tests for PHPUnit 6](https://laravelshift.com/upgrade-phpunit-6)
-- [PHPUnit 8 Shift - upgrade tests for PHPUnit 8](https://laravelshift.com/upgrade-phpunit-8)
-- [PHPUnit 9 Shift - upgrade tests for PHPUnit 9](https://laravelshift.com/upgrade-phpunit-9)
+    Create `/resources/frontend/admin/vue.config.js`:
+    ```javascript
+    module.exports = {
+      // proxy API requests to Valet during development
+      devServer: {
+        proxy: 'http://laravel.test/admin'
+      },
+
+      // output built static files to Laravel's public dir.
+      // note the "build" script in package.json needs to be modified as well.
+      outputDir: '../../../public/assets/admin',
+
+      publicPath: process.env.NODE_ENV === 'production'
+        ? '/assets/admin/'
+        : '/admin',
+
+      // modify the location of the generated HTML file.
+      // make sure to do this only in production.
+      indexPath: process.env.NODE_ENV === 'production'
+        ? '../../../resources/views/admin.blade.php'
+        : 'index.html'
+    }
+    ```
+   
+    Edit `/resources/frontend/admin/package.json`
+    ``` diff
+    "scripts": {
+      "serve": "vue-cli-service serve",
+    - "build": "vue-cli-service build",
+    + "build": "rm -rf ../../../public/assets/admin/{js,css,img} && vue-cli-service build --no-clean",
+      "lint": "vue-cli-service lint"
+    },
+    ```
+4. Configure Laravel routes for SPA.
+
+    **routes/web.php**
+
+    ``` php
+    <?php
+    // For admin application
+    Route::get('/admin{any}', 'FrontendController@admin')->where('any', '.*');
+    // For public application
+    Route::any('/{any}', 'FrontendController@app')->where('any', '^(?!api).*$');
+    ```
+
+    **app/Http/Controllers/FrontendController.php**
+
+    ``` php
+    <?php
+    namespace App\Http\Controllers;
+    use Illuminate\Http\Request;
+
+    class FrontendController extends Controller
+    {
+        // For admin application
+        public function admin()
+        {
+            return view('admin');
+        }
+        // For public application
+        public function app()
+        {
+            return view('app');
+        }
+    }
+    ```
+5. Change `base: process.env.BASE_URL` in `router.js` for correct Vue Router
+    ``` js
+    // For App
+    base: '/',
+    // For Admin
+    base: '/admin/',
+    ```
+6. Add `package.json` in root (if you want use `yarn run` in root)
+    ``` js
+    {
+      "name": "laravel",
+      "version": "0.2.0",
+      "private": true,
+      "scripts": {
+        // For public application
+        "prepare:app": "cd resources/frontend/app && yarn install",
+        "serve:app": "cd resources/frontend/app && yarn run serve",
+        "build:app": "cd resources/frontend/app && yarn run build",
+        "lint:app": "cd resources/frontend/app && yarn run lint",
+        "test:app": "cd resources/frontend/app && yarn run test:unit",
+        // For admin application
+        "prepare:admin": "cd resources/frontend/admin && yarn install",
+        "serve:admin": "cd resources/frontend/admin && yarn run serve",
+        "build:admin": "cd resources/frontend/admin && yarn run build",
+        "lint:admin": "cd resources/frontend/admin && yarn run lint",
+        "test:admin": "cd resources/frontend/admin && yarn run test:unit"
+      }
+    }
+    ```
