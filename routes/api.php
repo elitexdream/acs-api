@@ -25,3 +25,8 @@ Route::post('auth/signup', 'UserController@register');
 Route::middleware('auth:api')->group(function () {
     Route::get('/auth/logout', 'UserController@logout');
 });
+
+Route::group(['middleware' => 'auth:acs_admin'], function () {
+	Route::get('/customers', 'ACSAdminController@index');
+	Route::post('/customers/add', 'ACSAdminController@addCustomer');
+});

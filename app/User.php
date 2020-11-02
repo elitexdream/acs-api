@@ -17,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'role_id'
     ];
 
     /**
@@ -37,4 +37,43 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+    * The roles that belong to the user.
+    *
+    * @return mixed
+    */
+    public function roles()
+    {
+        return $this->belongsToMany('App\Role', 'user_roles', 'user_id', 'role_id');
+    }
+
+    /**
+    * The companies that belong to the user.
+    *
+    * @return mixed
+    */
+    public function companies()
+    {
+        return $this->hasMany('App\Company');
+    }
+
+    /**
+    * Check if the user has a specific role.
+    *
+    * @param mixed $roles The roles to ckeck on.
+    * @return boolean
+    */
+    public function hasRole($roles = [])
+    {
+        $roles = (array) $roles;
+
+        foreach ($this->roles as $role) {
+            if (in_array($role->key, $roles)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

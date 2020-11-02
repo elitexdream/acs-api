@@ -3,7 +3,6 @@
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -14,10 +13,30 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('users')->insert([
-            'name' => Str::random(10),
-            'email' => Str::random(10).'@gmail.com',
-            'password' => Hash::make('password'),
-        ]);
+        DB::table('users')->delete();
+        DB::table('profiles')->delete();
+
+        $acs_administrator = [
+            'id' => 1,
+            'name' => 'ACS Manager',
+            'email' => 'acs@gmail.com',
+            'verified' => true,
+            'password' => bcrypt('password'),
+        ];
+
+        $acs_admin_profile = [
+            'id' => 1,
+            'user_id' => 1,
+            'address_1' => '',
+            'address_2' => '',
+            'zip' => '',
+            'state' => '',
+            'city' => '',
+            'country' => '',
+            'phone' => '',
+        ];
+
+        DB::table('users')->insert($acs_administrator);
+        DB::table('profiles')->insert($acs_admin_profile);
     }
 }
