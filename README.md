@@ -15,4 +15,14 @@ ACS Backend API
 3. Setup .env file
 
     ``` sh
+    DB_CONNECTION=sqlsrv
+    DB_DATABASE=acsdb
+
+    PASSPORT_GRANT_TYPE=password
+    PASSPORT_CLIENT_SECRET={client secret}
+    PASSPORT_CLIENT_ID={client id}
+    ```
+4. Run the server
+    ``` sh
+    php artisan serve
     ```
