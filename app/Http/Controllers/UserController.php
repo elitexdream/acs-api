@@ -13,7 +13,7 @@ class UserController extends Controller
 	public function login(Request $request)
 	{
 	    $validator = Validator::make($request->all(), [ 
-	        'username' => 'required|email', 
+	        'email' => 'required|email', 
 	        'password' => 'required', 
 	    ]);
 
@@ -30,10 +30,10 @@ class UserController extends Controller
     			'localhost/acs-api/public/oauth/token',
     			[
     				'form_params' => [
-	    				'grant_type' => 'password',
-	    				'client_id' => 2,
-	    				'client_secret' => 'ya6ZxRCgKBnsWJCnbLfTKVGrGW115YTDJU66eyDm',
-	    				'username' => $request->username,
+	    				'grant_type' => env('PASSPORT_GRANT_TYPE'),
+	    				'client_id' => env('PASSPORT_CLIENT_ID'),
+	    				'client_secret' => env('PASSPORT_CLIENT_SECRET'),
+	    				'username' => $request->email,
 	    				'password' => $request->password
                     ]
     		]);
@@ -83,7 +83,7 @@ class UserController extends Controller
         // // Is this $request the same request? I mean Request $request? Then wouldn't it mess the other $request stuff? Also how did you pass it on the $request in $proxy? Wouldn't Request::create() just create a new thing?
 
         // $request->request->add([
-        //     'grant_type'    => 'password',
+        //     'grant_type'    => env('PASSPORT_GRANT_TYPE'),
         //     'client_id'     => $client->id,
         //     'client_secret' => $client->secret,
         //     'username'      => $data['email'],
@@ -105,9 +105,9 @@ class UserController extends Controller
                 'localhost/acs-api/public/oauth/token',
                 [
                     'form_params' => [
-                        'grant_type' => 'password',
-                        'client_id' => 2,
-                        'client_secret' => 'ya6ZxRCgKBnsWJCnbLfTKVGrGW115YTDJU66eyDm',
+                        'grant_type' => env('PASSPORT_GRANT_TYPE'),
+                        'client_id' => env('PASSPORT_CLIENT_ID'),
+                        'client_secret' => env('PASSPORT_CLIENT_SECRET'),
                         'username' => $request->email,
                         'password' => $request->password
                     ]
