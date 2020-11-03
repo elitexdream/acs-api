@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\User;
 use App\Company;
+use App\Profile;
 
 class ACSAdminController extends Controller
 {
@@ -28,7 +29,7 @@ class ACSAdminController extends Controller
 	    $validator = Validator::make($request->all(), [ 
 	        'company_name' => 'required',
 	        'administrator_name' => 'required',
-	        'administrator_email' => 'required|email'
+	        'administrator_email' => 'required|email|max:255|unique:users'
 	    ]);
 
 	    if ($validator->fails())
@@ -49,6 +50,81 @@ class ACSAdminController extends Controller
             'name' => $request->company_name
         ]);
 
+		$profile = new Profile();
+
+        $user->profile()->save($profile);
+
         return response()->json('Created successfully.', 200);
     }
+
+    public function getCustomer(Request $request, $id)
+	{
+		$company = Company::findOrFail($id);
+		$company->administratorName = $company->customer()->name;
+		$company->administratorEmail = $company->customer()->email;
+		$profile = $company->customer()->profile;
+		$profile->id = $id;
+		
+		return response()->json([
+			'company' => $company,
+			'profile' => $profile,
+		], 200);
+	}
+
+	public function updateCustomerAccount(Request $request, $id)
+	{
+		$validator = Validator::make($request->all(), [ 
+	        'name' => 'required',
+	        'administrator_name' => 'required',
+	        'administrator_email' => 'required|email|max:255'
+	    ]);
+
+	    if ($validator->fails())
+	    {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
+        $company = Company::findOrFail($id);
+        $customer = $company->customer();
+
+        $company->name = $request->name;
+        $customer->name = $request->administrator_name;
+        $customer->email = $request->administrator_email;
+
+        $company->save();
+        $customer->save();
+
+        return response()->json([
+			'message' => 'Updated Successfully.'
+		], 200);
+	}
+
+	public function updateCustomerProfile(Request $request, $id)
+	{
+		$validator = Validator::make($request->all(), [
+	    ]);
+
+	    if ($validator->fails())
+	    {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
+        $company = Company::findOrFail($id);
+        $profile = $company->customer()->profile;
+
+
+        $profile->address_1 = $request->address_1;
+		$profile->address_2 = $request->address_2;
+		$profile->zip = $request->zip;
+		$profile->state = $request->state;
+		$profile->city = $request->city;
+		$profile->country = $request->country;
+		$profile->phone = $request->phone;
+
+        $profile->save();
+
+        return response()->json([
+			'message' => 'Updated Successfully.'
+		], 200);
+	}
 }

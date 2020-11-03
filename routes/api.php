@@ -14,19 +14,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::post('auth/check', 'UserController@check');
 Route::post('auth/signin', 'UserController@login');
 Route::post('auth/signup', 'UserController@register');
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/auth/logout', 'UserController@logout');
 });
 
 Route::group(['middleware' => 'auth:acs_admin'], function () {
 	Route::get('/customers', 'ACSAdminController@index');
 	Route::post('/customers/add', 'ACSAdminController@addCustomer');
+	Route::get('/customers/{id}', 'ACSAdminController@getCustomer');
+	Route::post('/customers/update-account/{id}', 'ACSAdminController@updateCustomerAccount');
+	Route::post('/customers/update-profile/{id}', 'ACSAdminController@updateCustomerProfile');
 });

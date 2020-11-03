@@ -59,6 +59,16 @@ class User extends Authenticatable
     }
 
     /**
+    * The profile that belong to the user.
+    *
+    * @return mixed
+    */
+    public function profile()
+    {
+        return $this->hasOne('App\Profile');
+    }
+
+    /**
     * Check if the user has a specific role.
     *
     * @param mixed $roles The roles to ckeck on.
