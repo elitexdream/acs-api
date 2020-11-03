@@ -20,10 +20,11 @@ Route::post('auth/signup', 'UserController@register');
 
 Route::middleware('auth')->group(function () {
     Route::get('/auth/logout', 'UserController@logout');
+	Route::post('/auth/update-password', 'UserController@updatePassword');
 });
 
-// Route::group(['prefix' => 'customers', 'middleware' => 'auth:acs_admin'], function () {
-Route::group(['prefix' => 'customers'], function () {
+Route::group(['prefix' => 'customers', 'middleware' => 'auth:acs_admin'], function () {
+// Route::group(['prefix' => 'customers'], function () {
 	Route::get('/', 'CustomerController@index')->name('customers');
 	Route::post('/add', 'CustomerController@addCustomer')->name('customers.store');
 	Route::get('/{id}', 'CustomerController@getCustomer')->name('customers.show');

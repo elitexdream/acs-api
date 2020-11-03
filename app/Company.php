@@ -12,7 +12,6 @@ class Company extends Model
 
     public function customer()
     {
-    	// return $this->belongsTo('App\User');
-    	return User::find($this->user_id);
+    	return $this->belongsTo('App\User', 'user_id');
     }
 }

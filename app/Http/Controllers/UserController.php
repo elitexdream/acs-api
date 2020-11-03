@@ -7,6 +7,7 @@ use App\User;
 use Validator;
 use Auth;
 use GuzzleHttp\Client;
+use Hash;
 
 class UserController extends Controller
 {
@@ -132,15 +133,42 @@ class UserController extends Controller
         ]);
     }
 
-    public function check()
+    public function check(Request $request)
     {
     	if (Auth::guard('api')->check())
     	{
-	        return response()->json(true);
+            return response()->json($request->user('api'));
     	}
     	else
     	{
     		return response()->json(false);
     	}
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [ 
+            'current_password' => 'required|min:6|max:200',
+            'new_password' => 'required|min:6|max:200',
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['error'=>$validator->errors()], 422);
+        }
+
+        $user = $request->user('api');
+
+        if(!Hash::check($request->current_password, $user->password))
+        {
+            return response()->json(['error' => 'Current password incorrect.'], 400);
+        }
+        else
+        {
+            $user->password = bcrypt($request->new_password);
+            $user->save();
+
+            return response()->json(['message' => 'Successfully updated.'], 200);
+        }
     }
 }

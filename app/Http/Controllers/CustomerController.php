@@ -15,7 +15,7 @@ class CustomerController extends Controller
 		$companies = Company::select('id', 'name', 'user_id')->get();
 
 		foreach ($companies as $company) {
-			$company->administratorName = $company->customer()->name;
+			$company->administratorName = $company->customer->name;
 		}
 
 		return response()->json(compact('companies'), 200);
@@ -57,9 +57,9 @@ class CustomerController extends Controller
     public function getCustomer(Request $request, $id)
 	{
 		$company = Company::findOrFail($id);
-		$company->administratorName = $company->customer()->name;
-		$company->administratorEmail = $company->customer()->email;
-		$profile = $company->customer()->profile;
+		$company->administratorName = $company->customer->name;
+		$company->administratorEmail = $company->customer->email;
+		$profile = $company->customer->profile;
 		$profile->id = $id;
 		
 		return response()->json([
@@ -82,7 +82,7 @@ class CustomerController extends Controller
         }
 
         $company = Company::findOrFail($id);
-        $customer = $company->customer();
+        $customer = $company->customer;
 
         $company->name = $request->name;
         $customer->name = $request->administrator_name;
@@ -107,7 +107,7 @@ class CustomerController extends Controller
         }
 
         $company = Company::findOrFail($id);
-        $profile = $company->customer()->profile;
+        $profile = $company->customer->profile;
 
 
         $profile->address_1 = $request->address_1;
