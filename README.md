@@ -25,8 +25,18 @@ ACS Backend API
    php artisan migrate
    ```
 
+4. Populate passport auth clients
+   ``` sh
+   php artisan passport:install
+   ```
+
+5. Seed ACS admin and roles
+   ``` sh
+   php artisan db:seed
+   ```
+
     ```
-4. Run the server
+6. Run the server
     ``` sh
     php artisan serve
     ```
