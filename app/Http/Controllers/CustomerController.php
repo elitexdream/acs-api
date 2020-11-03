@@ -8,20 +8,17 @@ use App\User;
 use App\Company;
 use App\Profile;
 
-class ACSAdminController extends Controller
+class CustomerController extends Controller
 {
 	public function index()
 	{
-		$companies = Company::all();
+		$companies = Company::select('id', 'name', 'user_id')->get();
 
-		for ($i=0; $i < $companies->count(); $i++)
-		{
-			$companies[$i]->administratorName = $companies[$i]->customer()->name;
+		foreach ($companies as $company) {
+			$company->administratorName = $company->customer()->name;
 		}
 
-		return response()->json([
-			'companies' => $companies
-		], 200);
+		return response()->json(compact('companies'), 200);
 	}
 
     public function addCustomer(Request $request)
@@ -29,7 +26,7 @@ class ACSAdminController extends Controller
 	    $validator = Validator::make($request->all(), [ 
 	        'company_name' => 'required',
 	        'administrator_name' => 'required',
-	        'administrator_email' => 'required|email|max:255|unique:users'
+	        'administrator_email' => 'required|email|max:255|unique:users,email'
 	    ]);
 
 	    if ($validator->fails())
@@ -54,7 +51,7 @@ class ACSAdminController extends Controller
 
         $user->profile()->save($profile);
 
-        return response()->json('Created successfully.', 200);
+        return response()->json('Created successfully.', 201);
     }
 
     public function getCustomer(Request $request, $id)

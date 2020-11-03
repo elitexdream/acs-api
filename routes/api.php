@@ -22,10 +22,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/auth/logout', 'UserController@logout');
 });
 
-Route::group(['middleware' => 'auth:acs_admin'], function () {
-	Route::get('/customers', 'ACSAdminController@index');
-	Route::post('/customers/add', 'ACSAdminController@addCustomer');
-	Route::get('/customers/{id}', 'ACSAdminController@getCustomer');
-	Route::post('/customers/update-account/{id}', 'ACSAdminController@updateCustomerAccount');
-	Route::post('/customers/update-profile/{id}', 'ACSAdminController@updateCustomerProfile');
+// Route::group(['prefix' => 'customers', 'middleware' => 'auth:acs_admin'], function () {
+Route::group(['prefix' => 'customers'], function () {
+	Route::get('/', 'CustomerController@index')->name('customers');
+	Route::post('/add', 'CustomerController@addCustomer')->name('customers.store');
+	Route::get('/{id}', 'CustomerController@getCustomer')->name('customers.show');
+	Route::post('/update-account/{id}', 'CustomerController@updateCustomerAccount');
+	Route::post('/update-profile/{id}', 'CustomerController@updateCustomerProfile');
 });
