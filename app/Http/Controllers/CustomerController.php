@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Mail\CustomerInvitation;
+use Illuminate\Support\Facades\Mail;
 use Validator;
 use App\User;
 use App\Company;
@@ -50,6 +52,8 @@ class CustomerController extends Controller
 		$profile = new Profile();
 
         $user->profile()->save($profile);
+
+        Mail::to($user->email)->send(new CustomerInvitation());
 
         return response()->json('Created successfully.', 201);
     }
