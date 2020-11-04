@@ -31,3 +31,5 @@ Route::group(['prefix' => 'customers', 'middleware' => 'auth:acs_admin'], functi
 	Route::post('/update-account/{id}', 'CustomerController@updateCustomerAccount');
 	Route::post('/update-profile/{id}', 'CustomerController@updateCustomerProfile')->name('customers.update.profile');
 });
+
+Route::post('test/send-mail', 'CustomerController@testMail');

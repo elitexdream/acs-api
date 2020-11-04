@@ -53,7 +53,7 @@ class CustomerController extends Controller
 
         $user->profile()->save($profile);
 
-        Mail::to($user->email)->send(new CustomerInvitation());
+        // Mail::to($user->email)->send(new CustomerInvitation());
 
         return response()->json('Created successfully.', 201);
     }
@@ -127,5 +127,10 @@ class CustomerController extends Controller
         return response()->json([
 			'message' => 'Updated Successfully.'
 		], 200);
+	}
+
+	public function testMail()
+	{
+		Mail::to('ahmadyasser7@outlook.com')->send(new CustomerInvitation());
 	}
 }
