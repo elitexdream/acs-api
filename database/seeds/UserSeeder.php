@@ -15,6 +15,7 @@ class UserSeeder extends Seeder
     {
         DB::table('users')->delete();
         DB::table('profiles')->delete();
+        DB::table('oauth_clients')->delete();
 
         $acs_administrator = [
             'id' => 1,
@@ -36,7 +37,31 @@ class UserSeeder extends Seeder
             'phone' => '',
         ];
 
+        $oauth_clients = [
+            [
+                'id' => 1,
+                'name' => 'Personal Access Client',
+                'secret' => 'UQh78CdJMzLCRIahYYkH5Ema7wbJuFjj6OEDxXlm',
+                'personal_access_client' => 1,
+                'password_client' => 0,
+                'revoked' => 0,
+                'provider' => null,
+                'redirect' => 'http://localhost'
+            ],
+            [
+                'id' => 2,
+                'name' => 'Password Grant Client',
+                'secret' => 'Q1gSfctPvXvxCzh8iIbQ3niH5SUHiSJko0gGo9cy',
+                'personal_access_client' => 0,
+                'password_client' => 1,
+                'revoked' => 0,
+                'provider' => 'users',
+                'redirect' => 'http://localhost'
+            ]
+        ];
+
         DB::table('users')->insert($acs_administrator);
         DB::table('profiles')->insert($acs_admin_profile);
+        DB::table('oauth_clients')->insert($oauth_clients);
     }
 }

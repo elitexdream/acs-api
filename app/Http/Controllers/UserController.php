@@ -137,7 +137,10 @@ class UserController extends Controller
     {
     	if (Auth::guard('api')->check())
     	{
-            return response()->json($request->user('api'));
+            $user = $request->user('api');
+            $user->role = $user->roles->first()->key;
+            
+            return response()->json($user);
     	}
     	else
     	{
