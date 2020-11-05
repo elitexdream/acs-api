@@ -33,3 +33,4 @@ Route::group(['prefix' => 'customers', 'middleware' => 'auth:acs_admin'], functi
 });
 
 Route::post('test/send-mail', 'CustomerController@testMail');
+Route::post('test/blender-json', 'TestController@store');

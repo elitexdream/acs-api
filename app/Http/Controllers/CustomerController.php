@@ -14,7 +14,7 @@ class CustomerController extends Controller
 {
 	public function index()
 	{
-		$companies = Company::select('id', 'name', 'user_id')->get();
+		$companies = Company::select('id', 'name', 'user_id', 'created_at')->get();
 
 		foreach ($companies as $company) {
 			$company->administratorName = $company->customer->name;
@@ -53,7 +53,7 @@ class CustomerController extends Controller
 
         $user->profile()->save($profile);
 
-        Mail::to($user->email)->send(new CustomerInvitation());
+        // Mail::to($user->email)->send(new CustomerInvitation());
 
         return response()->json('Created successfully.', 201);
     }
@@ -74,19 +74,19 @@ class CustomerController extends Controller
 
 	public function updateCustomerAccount(Request $request, $id)
 	{
+		$company = Company::findOrFail($id);
+        $customer = $company->customer;
+
 		$validator = Validator::make($request->all(), [ 
 	        'name' => 'required',
 	        'administrator_name' => 'required',
-	        'administrator_email' => 'required|email|max:255'
+	        'administrator_email' => 'required|email|max:255|unique:users,email,' . $customer->id
 	    ]);
 
 	    if ($validator->fails())
 	    {
             return response()->json(['error'=>$validator->errors()], 422);            
         }
-
-        $company = Company::findOrFail($id);
-        $customer = $company->customer;
 
         $company->name = $request->name;
         $customer->name = $request->administrator_name;
@@ -95,9 +95,7 @@ class CustomerController extends Controller
         $company->save();
         $customer->save();
 
-        return response()->json([
-			'message' => 'Updated Successfully.'
-		], 200);
+        return response()->json('Updated Successfully.', 200);
 	}
 
 	public function updateCustomerProfile(Request $request, $id)
@@ -124,9 +122,7 @@ class CustomerController extends Controller
 
         $profile->save();
 
-        return response()->json([
-			'message' => 'Updated Successfully.'
-		], 200);
+        return response()->json('Updated Successfully.', 200);
 	}
 
 	public function testMail()
