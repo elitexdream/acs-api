@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function() {
-	return 'ok';
+use App\Mail\CustomerInvitation;
+
+Route::get('/email', function () {
+    return new CustomerInvitation();
 });

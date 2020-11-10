@@ -12,7 +12,10 @@ ACS Backend API
     ``` sh
 
     ```
-6. Run the server
+3. populate db
+
     ``` sh
-    php artisan serve
+    php artisan migrate:fresh
+    php artisan db:seed
+
     ```
