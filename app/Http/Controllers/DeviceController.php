@@ -14,6 +14,7 @@ class DeviceController extends Controller
 	}
 
     public function uploadDevices(Request $request) {
+    	$numAdded = 0;
     	$devices = Excel::toArray(new DevicesImport, $request->devicesFile);
         foreach ($devices[0] as $key => $device) {
         	if($key == 0)
@@ -24,11 +25,14 @@ class DeviceController extends Controller
 	           'lan_mac_address' => $device[2],
 	           'iccid' => $device[3]
         	]);
+        	$numAdded++;
         }
+
+
     	return response()->json([
     		'devices' => Device::get(),
-    		'numAdded' => 2,
-    		'numDuplicates' => 5
+    		'numAdded' => $numAdded,
+    		'numDuplicates' => 0
     	], 200);
     }
 }
