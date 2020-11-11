@@ -30,6 +30,12 @@ Route::group(['prefix' => 'customers', 'middleware' => 'auth:acs_admin'], functi
 	Route::get('/{id}', 'CustomerController@getCustomer')->name('customers.show');
 	Route::post('/update-account/{id}', 'CustomerController@updateCustomerAccount');
 	Route::post('/update-profile/{id}', 'CustomerController@updateCustomerProfile')->name('customers.update.profile');
+
+});
+
+Route::group(['middleware' => 'auth:acs_admin'], function () {
+	Route::get('/devices', 'DeviceController@getDevices')->name('devices');
+	Route::post('/devices/upload', 'DeviceController@uploadDevices')->name('devices.uplad');
 });
 
 Route::post('test/send-mail', 'CustomerController@testMail');
