@@ -19,3 +19,7 @@ ACS Backend API
     php artisan db:seed
 
     ```
+4. run the server
+	``` sh
+	php artisan serve
+	```
