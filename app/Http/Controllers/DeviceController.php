@@ -14,11 +14,17 @@ class DeviceController extends Controller
 	}
 
     public function uploadDevices(Request $request) {
+    	$existing_devices = Device::all();
     	$numAdded = 0;
+    	$numDuplicates = 0;
     	$devices = Excel::toArray(new DevicesImport, $request->devicesFile);
         foreach ($devices[0] as $key => $device) {
         	if($key == 0)
         		continue;
+        	if ($existing_devices->where('serial_number', $device[0])->count() > 0) {
+        		$numDuplicates++;
+        		continue;
+        	}
         	Device::create([
 	           'serial_number' => $device[0],
 	           'imei' => $device[1], 
@@ -28,11 +34,10 @@ class DeviceController extends Controller
         	$numAdded++;
         }
 
-
     	return response()->json([
     		'devices' => Device::get(),
     		'numAdded' => $numAdded,
-    		'numDuplicates' => 0
+    		'numDuplicates' => $numDuplicates
     	], 200);
     }
 }
