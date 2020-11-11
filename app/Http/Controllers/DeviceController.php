@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Device;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Validator;
 
 class DeviceController extends Controller
 {
@@ -14,6 +15,15 @@ class DeviceController extends Controller
 	}
 
     public function uploadDevices(Request $request) {
+    	$validator = Validator::make($request->all(), [ 
+	        'devicesFile' => 'required|file',
+	    ]);
+
+	    if ($validator->fails())
+	    {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
     	$existing_devices = Device::all();
     	$numAdded = 0;
     	$numDuplicates = 0;
