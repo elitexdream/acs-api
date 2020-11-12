@@ -19,6 +19,13 @@ class CreateDevicesTable extends Migration
             $table->string('imei', 20);
             $table->string('lan_mac_address', 20);
             $table->string('iccid', 30);
+            $table->boolean('registered')->default(false);
+            $table->unsignedBigInteger('company_id')->nullable();
+            $table->unsignedBigInteger('machine_id')->nullable();
+
+            $table->foreign('company_id')->references('id')->on('companies');
+            $table->foreign('machine_id')->references('id')->on('machines');
+            
             $table->timestamps();
         });
     }

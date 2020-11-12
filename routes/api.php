@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
 Route::post('auth/check', 'UserController@check');
 Route::post('auth/signin', 'UserController@login');
 Route::post('auth/signup', 'UserController@register');
@@ -34,7 +33,7 @@ Route::group(['prefix' => 'customers', 'middleware' => 'auth:acs_admin'], functi
 });
 
 Route::group(['middleware' => 'auth:acs_admin'], function () {
-	Route::get('/devices', 'DeviceController@getDevices')->name('devices');
+	Route::get('/devices/{pageNum}', 'DeviceController@getDevices')->name('devices');
 	Route::post('/devices/upload', 'DeviceController@uploadDevices')->name('devices.uplad');
 });
 

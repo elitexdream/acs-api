@@ -10,8 +10,8 @@ use Validator;
 
 class DeviceController extends Controller
 {
-	public function getDevices() {
-		return response()->json(Device::get(), 200);
+	public function getDevices($pageNumber = 1) {
+        return response()->json(Device::paginate(7, ['*'], 'page', $pageNumber));
 	}
 
     public function uploadDevices(Request $request) {
@@ -39,15 +39,17 @@ class DeviceController extends Controller
 	           'serial_number' => $device[0],
 	           'imei' => $device[1], 
 	           'lan_mac_address' => $device[2],
-	           'iccid' => $device[3]
+	           'iccid' => $device[3],
+               'machine_id' => null,
+               'company_id' => null,
+               'registered' => false
         	]);
         	$numAdded++;
         }
 
-    	return response()->json([
-    		'devices' => Device::get(),
+        return response()->json([
     		'numAdded' => $numAdded,
     		'numDuplicates' => $numDuplicates
-    	], 200);
+        ]);
     }
 }
