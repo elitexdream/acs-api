@@ -75,4 +75,14 @@ class DeviceController extends Controller
 
         return response()->json('Successfully assigned.');
     }
+
+    public function updateRegistered(Request $request) {
+        $device = Device::findOrFail($request->device_id);
+
+        $device->registered = $request->register;
+
+        $device->save();
+
+        return response()->json('Successfully updated.');
+    }
 }
