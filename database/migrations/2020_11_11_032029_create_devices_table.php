@@ -24,9 +24,6 @@ class CreateDevicesTable extends Migration
 
             $table->unsignedBigInteger('company_id')->nullable();
             $table->unsignedBigInteger('machine_id')->nullable();
-
-            $table->foreign('company_id')->references('id')->on('companies');
-            $table->foreign('machine_id')->references('id')->on('machines');
             
             $table->timestamps();
         });

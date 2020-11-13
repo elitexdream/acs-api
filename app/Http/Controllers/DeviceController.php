@@ -13,7 +13,7 @@ use Validator;
 class DeviceController extends Controller
 {
 	public function getDevices($pageNumber = 1) {
-        $devices = Device::select('serial_number', 'registered', 'company_id')->paginate(7, ['*'], 'page', $pageNumber);
+        $devices = Device::select('id', 'serial_number', 'registered', 'company_id', 'machine_id')->paginate(7, ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
         $machines = Machine::select('id', 'name')->get();
 
@@ -63,5 +63,16 @@ class DeviceController extends Controller
     		'numAdded' => $numAdded,
     		'numDuplicates' => $numDuplicates
         ]);
+    }
+
+    public function deviceAssigned(Request $request) {
+        $device = Device::findOrFail($request->device_id);
+
+        $device->company_id = $request->company_id;
+        $device->machine_id = $request->machine_id;
+
+        $device->save();
+
+        return response()->json('Successfully assigned.');
     }
 }
