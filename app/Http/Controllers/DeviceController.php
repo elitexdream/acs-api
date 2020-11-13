@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Device;
+use App\Company;
+use App\Machine;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Validator;
@@ -11,7 +13,16 @@ use Validator;
 class DeviceController extends Controller
 {
 	public function getDevices($pageNumber = 1) {
-        return response()->json(Device::paginate(7, ['*'], 'page', $pageNumber));
+        $devices = Device::select('serial_number', 'registered', 'company_id')->paginate(7, ['*'], 'page', $pageNumber);
+        $companies = Company::select('id', 'name')->get();
+        $machines = Machine::select('id', 'name')->get();
+
+        return response()->json([
+            'devices' => $devices->items(),
+            'companies' => $companies,
+            'machines' => $machines,
+            'last_page' => $devices->lastPage()
+        ]);
 	}
 
     public function uploadDevices(Request $request) {
@@ -40,6 +51,7 @@ class DeviceController extends Controller
 	           'imei' => $device[1], 
 	           'lan_mac_address' => $device[2],
 	           'iccid' => $device[3],
+               'public_ip_sim' => $device[4],
                'machine_id' => null,
                'company_id' => null,
                'registered' => false

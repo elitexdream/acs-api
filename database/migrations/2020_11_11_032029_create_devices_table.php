@@ -16,10 +16,12 @@ class CreateDevicesTable extends Migration
         Schema::create('devices', function (Blueprint $table) {
             $table->id();
             $table->string('serial_number', 12);
-            $table->string('imei', 20);
-            $table->string('lan_mac_address', 20);
-            $table->string('iccid', 30);
+            $table->string('imei', 20)->nullable();
+            $table->string('lan_mac_address', 20)->nullable();
+            $table->string('iccid', 30)->nullable();
             $table->boolean('registered')->default(false);
+            $table->string('public_ip_sim')->nullable();
+
             $table->unsignedBigInteger('company_id')->nullable();
             $table->unsignedBigInteger('machine_id')->nullable();
 
