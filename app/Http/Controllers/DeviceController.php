@@ -13,7 +13,7 @@ use Validator;
 class DeviceController extends Controller
 {
 	public function getDevices($pageNumber = 1) {
-        $devices = Device::select('id', 'serial_number', 'registered', 'company_id', 'machine_id')->paginate(7, ['*'], 'page', $pageNumber);
+        $devices = Device::select('id', 'iccid', 'serial_number', 'registered', 'company_id', 'machine_id')->paginate(7, ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
         $machines = Machine::select('id', 'name')->get();
 
