@@ -39,5 +39,7 @@ Route::group(['middleware' => 'auth:acs_admin'], function () {
 	Route::post('/devices/device-register-update', 'DeviceController@updateRegistered')->name('devices.update.registered');
 });
 
+Route::get('/zones', 'ZoneController@index');
+
 Route::post('test/send-mail', 'CompanyController@testMail');
 Route::post('test/blender-json', 'TestController@store');

@@ -127,6 +127,6 @@ class CompanyController extends Controller
 
 	public function testMail()
 	{
-		Mail::to('ahmadyasser7@outlook.com')->send(new CustomerInvitation());
+		Mail::to('scar20181228@gmail.com')->send(new CustomerInvitation());
 	}
 }

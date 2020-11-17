@@ -1,25 +1,40 @@
-ACS Backend API
+# ACS Backend REST API
+[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
-## Steps
-1. Install vendor
+ACS backend REST API powered by laravel
 
-   ``` sh
-   composer install
-   ```
+### Tech
+* [Laravel 7.2](https://laravel.com) - PHP MVC framework
 
-2. Setup .env file
+### Installation
 
-    ``` sh
+Download code from github
+``` sh
+    $ git clone https://github.com/MachineCDN/acs-api.git
+```
+Install libraries
+``` sh
+    $ cd acs-api
+    $ composer install
+```
+Create a database
+    
+Config envirenment variables in .env file
+- Create a new .env file from .env.example file
+- Set variables
+    DB_CONNECTION={database driver - mysql/pgsql/sqlite/sqlsrv}
+    DB_HOST={hosting server that hosts database}
+    DB_DATABASE={database name created above}
+    DB_USERNAME={username of database connection}
+    DB_PASSWORD={password of database connection}
 
-    ```
-3. populate db
+Create tables and populate basic information
+``` sh
+    $ php artisan migrate
+    $ php artisan db:seed
+```
 
-    ``` sh
-    php artisan migrate:fresh
-    php artisan db:seed
-
-    ```
-4. run the server
-	``` sh
-	php artisan serve
-	```
+Create personal access client or install passport
+``` sh
+    $ php artisan passport:client --personal
+```

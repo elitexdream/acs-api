@@ -8,6 +8,7 @@ use Validator;
 use Auth;
 use GuzzleHttp\Client;
 use Hash;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -21,27 +22,25 @@ class UserController extends Controller
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 
-    	$http = new \GuzzleHttp\Client();
+        $credentials = request(['email', 'password']);
+        if(!Auth::attempt($credentials))
+            return response()->json([
+                'message' => 'Email and password incorrect.'
+            ], 401);
 
-    	try {
-    		$response = $http->post(
-    			'localhost/acs-api/public/oauth/token',
-    			[
-    				'form_params' => [
-	    				'grant_type' => env('PASSPORT_GRANT_TYPE'),
-	    				'client_id' => env('PASSPORT_CLIENT_ID'),
-	    				'client_secret' => env('PASSPORT_CLIENT_SECRET'),
-	    				'username' => $request->email,
-	    				'password' => $request->password
-                    ]
-    		]);
-    		return $response->getBody();
-    	} catch(\GuzzleHttp\Exception\BadResponseException $e) {
-    		if ($e->getCode() === 400) {
-    			return response()->json('Your credentials are incorrect. Please try again.', $e->getCode());
-    		}
-    		return response()->json('Something went wrong on the server.', $e->getCode());
-    	}
+        $user = $request->user();
+        $tokenResult = $user->createToken('acs');
+        $token = $tokenResult->token;
+        if ($request->remember_me)
+            $token->expires_at = Carbon::now()->addWeeks(1);
+        $token->save();
+        return response()->json([
+            'access_token' => $tokenResult->accessToken,
+            'token_type' => 'Bearer',
+            'expires_at' => Carbon::parse(
+                $tokenResult->token->expires_at
+            )->toDateTimeString()
+        ]);
     }
 
     public function logout(Request $request) {
