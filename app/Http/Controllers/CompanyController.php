@@ -10,7 +10,7 @@ use App\User;
 use App\Company;
 use App\Profile;
 
-class CustomerController extends Controller
+class CompanyController extends Controller
 {
 	public function index()
 	{

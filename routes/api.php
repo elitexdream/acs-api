@@ -24,11 +24,11 @@ Route::middleware('auth')->group(function () {
 
 Route::group(['prefix' => 'customers', 'middleware' => 'auth:acs_admin'], function () {
 // Route::group(['prefix' => 'customers'], function () {
-	Route::get('/', 'CustomerController@index')->name('customers');
-	Route::post('/add', 'CustomerController@addCustomer')->name('customers.store');
-	Route::get('/{id}', 'CustomerController@getCustomer')->name('customers.show');
-	Route::post('/update-account/{id}', 'CustomerController@updateCustomerAccount');
-	Route::post('/update-profile/{id}', 'CustomerController@updateCustomerProfile')->name('customers.update.profile');
+	Route::get('/', 'CompanyController@index')->name('customers');
+	Route::post('/add', 'CompanyController@addCustomer')->name('customers.store');
+	Route::get('/{id}', 'CompanyController@getCustomer')->name('customers.show');
+	Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount');
+	Route::post('/update-profile/{id}', 'CompanyController@updateCustomerProfile')->name('customers.update.profile');
 
 });
 
@@ -39,5 +39,5 @@ Route::group(['middleware' => 'auth:acs_admin'], function () {
 	Route::post('/devices/device-register-update', 'DeviceController@updateRegistered')->name('devices.update.registered');
 });
 
-Route::post('test/send-mail', 'CustomerController@testMail');
+Route::post('test/send-mail', 'CompanyController@testMail');
 Route::post('test/blender-json', 'TestController@store');
