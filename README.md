@@ -21,11 +21,11 @@ Create a database
 Config envirenment variables in .env file
 - Create a new .env file from .env.example file
 - Set variables
-    DB_CONNECTION={database driver - mysql/pgsql/sqlite/sqlsrv}
-    DB_HOST={hosting server that hosts database}
-    DB_DATABASE={database name created above}
-    DB_USERNAME={username of database connection}
-    DB_PASSWORD={password of database connection}
+    -- DB_CONNECTION={database driver - mysql/pgsql/sqlite/sqlsrv}
+    -- DB_HOST={hosting server that hosts database}
+    -- DB_DATABASE={database name created above}
+    -- DB_USERNAME={username of database connection}
+    -- DB_PASSWORD={password of database connection}
 
 Create tables and populate basic information
 ``` sh
