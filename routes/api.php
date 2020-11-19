@@ -40,6 +40,7 @@ Route::group(['middleware' => 'auth:acs_admin'], function () {
 	Route::post('/devices/suspend-device', 'DeviceController@suspendDevice');
 
 	Route::post('/devices/query-sim/{iccid}', 'DeviceController@querySIM');
+	Route::post('/devices/suspend-sim/{iccid}', 'DeviceController@suspendSIM');
 });
 
 Route::get('/zones', 'ZoneController@index');

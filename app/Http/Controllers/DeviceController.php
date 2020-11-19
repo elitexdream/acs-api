@@ -105,17 +105,8 @@ class DeviceController extends Controller
         return response()->json('Successfully updated.');
     }
 
-    public function suspendDevice(Request $request) {
-        $validator = Validator::make($request->all(), [ 
-            'deviceNumber' => 'required',
-        ]);
-
-        if ($validator->fails())
-        {
-            return response()->json(['error'=>$validator->errors()], 422);            
-        }
-
-        $device = Device::where('iccid', $request->deviceNumber)->first();
+    public function suspendSIM($iccid) {
+        $device = Device::where('iccid', $iccid)->first();
 
         if(!$device) {
             return response()->json('Device Not Found', 404);
@@ -132,15 +123,12 @@ class DeviceController extends Controller
                         'HBSMYJM2'
                     ],
                     'json' => [
-                        "deviceNumber" => $request->deviceNumber,
+                        "deviceNumber" => $device->iccid,
                     ], 
 
                 ]
             );
             
-            $device->sim_status = 3;
-            $device->save();
-
             return $response->getBody();
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
