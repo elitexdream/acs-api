@@ -16,5 +16,6 @@ class DatabaseSeeder extends Seeder
         $this->call(UserRoleSeeder::class);
         $this->call(MachineSeeder::class);
         // $this->call(ZoneSeeder::class);
+        $this->call(SimStatusSeeder::class);
     }
 }

@@ -15,20 +15,25 @@ class DeviceController extends Controller
 {
     /*
     SIM status:
-        -1: Not initialized
-        0: Active
+        1: Not initialized
+        2: Active
         1: Suspended
-        2: Activating
-        3: Suspending
+        4: Scrapped
     */
     private $suspendURL = "https://prismproapi.sandbox.koretelematics.com/4/TransactionalAPI.svc/json/suspendDevice";
     private $activateURL = "https://prismproapi.sandbox.koretelematics.com/4/TransactionalAPI.svc/json/activateDevice";
-    private $queryURL = "https://prismproapi.koretelematics.com/4/TransactionalAPI.svc/json/queryDevice";
+    private $queryURL = "https://prismproapi.sandbox.koretelematics.com/4/TransactionalAPI.svc/json/queryDevice";
 
 	public function getDevices($pageNumber = 1) {
         $devices = Device::select('id', 'iccid', 'serial_number', 'registered', 'company_id', 'machine_id', 'sim_status', 'public_ip_sim')->paginate(7, ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
         $machines = Machine::select('id', 'name')->get();
+
+        foreach ($devices as $key => $device) {
+            if($device->sim_status === 1) {
+                $device->sim_status = $this->querySIM($device->iccid)->sim_status;
+            }
+        }
 
         return response()->json([
             'devices' => $devices->items(),
@@ -68,7 +73,7 @@ class DeviceController extends Controller
                'machine_id' => null,
                'company_id' => null,
                'registered' => false,
-               'sim_status' => -1
+               'sim_status' => 1
         	]);
         	$numAdded++;
         }
@@ -113,7 +118,7 @@ class DeviceController extends Controller
         $device = Device::where('iccid', $request->deviceNumber)->first();
 
         if(!$device) {
-            return response()->json('Device Not Found', 401);
+            return response()->json('Device Not Found', 404);
         }
 
         $client = new Client();
@@ -137,6 +142,34 @@ class DeviceController extends Controller
             $device->save();
 
             return $response->getBody();
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
+        }
+    }
+
+    public function querySIM($iccid) {
+        $device = Device::where('iccid', $iccid)->first();
+
+        $client = new Client();
+        try {
+            $response = $client->post(
+                $this->queryURL,
+                [
+                    'headers' => ['Content-type' => 'application/json'],
+                    'auth' => [
+                        'ACSGroup_API', 
+                        'HBSMYJM2'
+                    ],
+                    'json' => [
+                        "deviceNumber" => $iccid,
+                    ], 
+
+                ]
+            );
+
+            $device->setSimStatus(json_decode($response->getBody())->d->status);
+
+            return $device;
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
         }

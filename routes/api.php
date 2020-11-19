@@ -39,6 +39,7 @@ Route::group(['middleware' => 'auth:acs_admin'], function () {
 	Route::post('/devices/device-register-update', 'DeviceController@updateRegistered')->name('devices.update.registered');
 	Route::post('/devices/suspend-device', 'DeviceController@suspendDevice');
 
+	Route::post('/devices/query-sim/{iccid}', 'DeviceController@querySIM');
 });
 
 Route::get('/zones', 'ZoneController@index');
