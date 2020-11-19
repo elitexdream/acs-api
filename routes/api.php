@@ -42,6 +42,8 @@ Route::group(['middleware' => 'auth:acs_admin'], function () {
 });
 
 Route::get('/zones', 'ZoneController@index');
+Route::post('/zones/add', 'ZoneController@store');
+Route::patch('/zones/update', 'ZoneController@update');
 
 Route::post('test/send-mail', 'CompanyController@testMail');
 Route::post('test/blender-json', 'TestController@store');

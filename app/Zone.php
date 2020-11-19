@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Zone extends Model
 {
     public $fillable = [
-    	'zone_name'
+    	'name', 'location_id'
     ];
 }

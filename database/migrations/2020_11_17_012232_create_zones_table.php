@@ -15,7 +15,7 @@ class CreateZonesTable extends Migration
     {
         Schema::create('zones', function (Blueprint $table) {
             $table->id();
-            $table->string('zone_name', 100);
+            $table->string('name', 100);
             $table->unsignedBigInteger('location_id')->nullable();
             $table->timestamps();
         });
