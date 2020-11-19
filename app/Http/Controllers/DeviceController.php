@@ -8,10 +8,23 @@ use App\Company;
 use App\Machine;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
+use GuzzleHttp\Client;
 use Validator;
 
 class DeviceController extends Controller
 {
+    /*
+    SIM status:
+        -1: Not initialized
+        0: Active
+        1: Suspended
+        2: Activating
+        3: Suspending
+    */
+    private $suspendURL = "https://prismproapi.sandbox.koretelematics.com/4/TransactionalAPI.svc/json/suspendDevice";
+    private $activateURL = "https://prismproapi.sandbox.koretelematics.com/4/TransactionalAPI.svc/json/activateDevice";
+    private $queryURL = "https://prismproapi.koretelematics.com/4/TransactionalAPI.svc/json/queryDevice";
+
 	public function getDevices($pageNumber = 1) {
         $devices = Device::select('id', 'iccid', 'serial_number', 'registered', 'company_id', 'machine_id', 'sim_status', 'public_ip_sim')->paginate(7, ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
@@ -50,11 +63,12 @@ class DeviceController extends Controller
 	           'serial_number' => $device[0],
 	           'imei' => $device[1], 
 	           'lan_mac_address' => $device[2],
-	           'iccid' => $device[3],
+	           'iccid' => substr($device[3], 0, -1),
                'public_ip_sim' => $device[4],
                'machine_id' => null,
                'company_id' => null,
-               'registered' => false
+               'registered' => false,
+               'sim_status' => -1
         	]);
         	$numAdded++;
         }
@@ -84,5 +98,47 @@ class DeviceController extends Controller
         $device->save();
 
         return response()->json('Successfully updated.');
+    }
+
+    public function suspendDevice(Request $request) {
+        $validator = Validator::make($request->all(), [ 
+            'deviceNumber' => 'required',
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
+        $device = Device::where('iccid', $request->deviceNumber)->first();
+
+        if(!$device) {
+            return response()->json('Device Not Found', 401);
+        }
+
+        $client = new Client();
+        try {
+            $response = $client->post(
+                $this->suspendURL,
+                [
+                    'headers' => ['Content-type' => 'application/json'],
+                    'auth' => [
+                        'ACSGroup_API', 
+                        'HBSMYJM2'
+                    ],
+                    'json' => [
+                        "deviceNumber" => $request->deviceNumber,
+                    ], 
+
+                ]
+            );
+            
+            $device->sim_status = 3;
+            $device->save();
+
+            return $response->getBody();
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
+        }
     }
 }

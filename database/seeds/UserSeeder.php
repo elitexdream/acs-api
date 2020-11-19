@@ -20,9 +20,9 @@ class UserSeeder extends Seeder
         $acs_administrator = [
             'id' => 1,
             'name' => 'ACS Manager',
-            'email' => 'acs@gmail.com',
+            'email' => 'acsdev@acsgroup.com',
             'verified' => true,
-            'password' => bcrypt('password'),
+            'password' => bcrypt('gJwsEqpdYjbDFapAH4nVTstW'),
         ];
 
         $acs_admin_profile = [
