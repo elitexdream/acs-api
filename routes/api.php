@@ -63,6 +63,10 @@ Route::group(['middleware' => 'auth:acs_admin'], function () {
 	});
 });
 
+Route::group(['prefix' => 'cities'], function () {
+	Route::get('/{state}', 'CityController@citiesForState');
+});
+
 Route::post('test/send-mail', 'CompanyController@testMail');
 Route::post('test/send-sms', 'CompanyController@testSMS');
 Route::post('test/blender-json', 'TestController@store');
