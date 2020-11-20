@@ -125,12 +125,12 @@ class CompanyController extends Controller
         return response()->json('Updated Successfully.', 200);
 	}
 
-	public function testMail()
+	public function testMail(Request $request)
 	{
 		$email = new \SendGrid\Mail\Mail();
 		$email->setFrom("ena@machinecdn.com", "ACS");
 		$email->setSubject("Sending with Twilio SendGrid is Fun");
-		$email->addTo("ahmadyasser7@outlook.com", "Example User");
+		$email->addTo($request->to, "Example User");
 		$email->addContent("text/plain", "and easy to do anywhere, even with PHP");
 		$email->addContent(
 		    "text/html", "<strong>and easy to do anywhere, even with PHP</strong>"
@@ -144,6 +144,22 @@ class CompanyController extends Controller
 		} catch (Exception $e) {
 		    echo 'Caught exception: '. $e->getMessage() ."\n";
 		}
-		// Mail::to('ahmadyasser7@outlook.com')->send(new CustomerInvitation());
+	}
+
+	public function testSMS(Request $request)
+	{
+		$sid = env('TWILIO_ACCOUNT_SID');
+		$token = env('TWILIO_AUTH_TOKEN');
+
+		$twilio_number = "18622256236";
+		$client = new \Twilio\Rest\Client($sid, $token);
+
+		$client->messages->create(
+    		$request->to,
+		    array(
+		        'from' => $twilio_number,
+		        'body' => 'I sent this message in under 10 minutes!'
+		    )
+		);
 	}
 }
