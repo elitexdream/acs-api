@@ -44,8 +44,8 @@ Route::group(['middleware' => 'auth:acs_admin'], function () {
 		Route::post('/device-register-update', 'DeviceController@updateRegistered')->name('devices.update.registered');
 		Route::post('/suspend-device', 'DeviceController@suspendDevice');
 
-		Route::post('/devices/query-sim/{iccid}', 'DeviceController@querySIM');
-		Route::post('/devices/suspend-sim/{iccid}', 'DeviceController@suspendSIM');
+		Route::post('/query-sim/{iccid}', 'DeviceController@querySIM');
+		Route::post('/suspend-sim/{iccid}', 'DeviceController@suspendSIM');
 	});
 });
 
