@@ -26,6 +26,20 @@ Route::group(['middleware' => 'auth:customer_admin'], function () {
 	Route::group(['prefix' => 'devices'], function () {
 		Route::get('/customer-devices', 'DeviceController@getCustomerDevices');
 	});
+
+	Route::group(['prefix' => 'locations'], function () {
+		Route::get('/', 'LocationController@index');
+		Route::post('/add', 'LocationController@store');
+		Route::patch('/update', 'LocationController@update');
+	});
+
+	Route::get('/locations-zones', 'ZoneController@initLocationsAndZones');
+	
+	Route::group(['prefix' => 'zones'], function () {
+		Route::get('/', 'ZoneController@index');
+		Route::post('/add', 'ZoneController@store');
+		Route::patch('/update', 'ZoneController@update');
+	});
 });
 
 Route::group(['middleware' => 'auth:acs_admin'], function () {
@@ -48,12 +62,6 @@ Route::group(['middleware' => 'auth:acs_admin'], function () {
 		Route::post('/suspend-sim/{iccid}', 'DeviceController@suspendSIM');
 	});
 });
-
-
-
-Route::get('/zones', 'ZoneController@index');
-Route::post('/zones/add', 'ZoneController@store');
-Route::patch('/zones/update', 'ZoneController@update');
 
 Route::post('test/send-mail', 'CompanyController@testMail');
 Route::post('test/blender-json', 'TestController@store');

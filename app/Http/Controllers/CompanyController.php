@@ -130,7 +130,7 @@ class CompanyController extends Controller
 		$email = new \SendGrid\Mail\Mail();
 		$email->setFrom("al@machinecdn.com", "ACS");
 		$email->setSubject("Sending with Twilio SendGrid is Fun");
-		$email->addTo("scar20181228@gmail.com", "Example User");
+		$email->addTo("ahmadyasser7@outlook.com", "Example User");
 		$email->addContent("text/plain", "and easy to do anywhere, even with PHP");
 		$email->addContent(
 		    "text/html", "<strong>and easy to do anywhere, even with PHP</strong>"
@@ -144,6 +144,6 @@ class CompanyController extends Controller
 		} catch (Exception $e) {
 		    echo 'Caught exception: '. $e->getMessage() ."\n";
 		}
-		// Mail::to('scar20181228@gmail.com')->send(new CustomerInvitation());
+		// Mail::to('ahmadyasser7@outlook.com')->send(new CustomerInvitation());
 	}
 }

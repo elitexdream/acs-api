@@ -9,7 +9,7 @@ use App\Zone;
 
 class ZoneController extends Controller
 {
-    public function index() {
+    public function initLocationsAndZones() {
         $locations = Location::select('id', 'location')->get();
         $zones = Zone::select('id', 'name', 'location_id')->get();
 
@@ -17,6 +17,12 @@ class ZoneController extends Controller
             'locations' => $locations,
             'zones' => $zones
         ]);
+    }
+
+    public function index() {
+        $zones = Zone::select('id', 'name', 'location_id')->get();
+
+        return response()->json($zones);
     }
 
     public function store(Request $request) {

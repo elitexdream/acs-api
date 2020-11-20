@@ -17,7 +17,6 @@ class CreateZonesTable extends Migration
             $table->id();
             $table->string('name', 100);
             $table->unsignedBigInteger('location_id')->nullable();
-            $table->timestamps();
         });
     }
 
