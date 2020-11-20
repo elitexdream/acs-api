@@ -128,7 +128,7 @@ class CompanyController extends Controller
 	public function testMail()
 	{
 		$email = new \SendGrid\Mail\Mail();
-		$email->setFrom("al@machinecdn.com", "ACS");
+		$email->setFrom("ena@machinecdn.com", "ACS");
 		$email->setSubject("Sending with Twilio SendGrid is Fun");
 		$email->addTo("ahmadyasser7@outlook.com", "Example User");
 		$email->addContent("text/plain", "and easy to do anywhere, even with PHP");
