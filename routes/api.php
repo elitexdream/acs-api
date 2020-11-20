@@ -22,24 +22,51 @@ Route::middleware('auth')->group(function () {
 	Route::post('/auth/update-password', 'UserController@updatePassword');
 });
 
-Route::group(['prefix' => 'customers', 'middleware' => 'auth:acs_admin'], function () {
-// Route::group(['prefix' => 'customers'], function () {
-	Route::get('/', 'CompanyController@index')->name('customers');
-	Route::post('/add', 'CompanyController@addCustomer')->name('customers.store');
-	Route::get('/{id}', 'CompanyController@getCustomer')->name('customers.show');
-	Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount');
-	Route::post('/update-profile/{id}', 'CompanyController@updateCustomerProfile')->name('customers.update.profile');
+Route::group(['middleware' => 'auth:customer_admin'], function () {
+	Route::group(['prefix' => 'devices'], function () {
+		Route::get('/customer-devices', 'DeviceController@getCustomerDevices');
+	});
 
+	Route::group(['prefix' => 'locations'], function () {
+		Route::get('/', 'LocationController@index');
+		Route::post('/add', 'LocationController@store');
+		Route::patch('/update', 'LocationController@update');
+	});
+
+	Route::get('/locations-zones', 'ZoneController@initLocationsAndZones');
+	
+	Route::group(['prefix' => 'zones'], function () {
+		Route::get('/', 'ZoneController@index');
+		Route::post('/add', 'ZoneController@store');
+		Route::patch('/update', 'ZoneController@update');
+	});
 });
 
 Route::group(['middleware' => 'auth:acs_admin'], function () {
-	Route::get('/devices/{pageNum}', 'DeviceController@getDevices')->name('devices');
-	Route::post('/devices/upload', 'DeviceController@uploadDevices')->name('devices.uplad');
-	Route::post('/devices/device-assigned', 'DeviceController@deviceAssigned')->name('devices.device.assigned');
-	Route::post('/devices/device-register-update', 'DeviceController@updateRegistered')->name('devices.update.registered');
+	Route::group(['prefix' => 'customers'], function () {
+		Route::get('/', 'CompanyController@index')->name('customers');
+		Route::post('/add', 'CompanyController@addCustomer')->name('customers.store');
+		Route::get('/{id}', 'CompanyController@getCustomer')->name('customers.show');
+		Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount');
+		Route::post('/update-profile/{id}', 'CompanyController@updateCustomerProfile')->name('customers.update.profile');
+	});
+
+	Route::group(['prefix' => 'devices'], function () {
+		Route::get('/{pageNum}', 'DeviceController@getDevices')->name('devices');
+		Route::post('/import', 'DeviceController@importDevices');
+		Route::post('/device-assigned', 'DeviceController@deviceAssigned')->name('devices.device.assigned');
+		Route::post('/device-register-update', 'DeviceController@updateRegistered')->name('devices.update.registered');
+		Route::post('/suspend-device', 'DeviceController@suspendDevice');
+
+		Route::post('/query-sim/{iccid}', 'DeviceController@querySIM');
+		Route::post('/suspend-sim/{iccid}', 'DeviceController@suspendSIM');
+	});
 });
 
-Route::get('/zones', 'ZoneController@index');
+Route::group(['prefix' => 'cities'], function () {
+	Route::get('/{state}', 'CityController@citiesForState');
+});
 
 Route::post('test/send-mail', 'CompanyController@testMail');
+Route::post('test/send-sms', 'CompanyController@testSMS');
 Route::post('test/blender-json', 'TestController@store');

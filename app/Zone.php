@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Zone extends Model
 {
+	public $timestamps = false;
     public $fillable = [
-    	'zone_name'
+    	'name', 'location_id'
     ];
 }
