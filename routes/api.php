@@ -22,26 +22,34 @@ Route::middleware('auth')->group(function () {
 	Route::post('/auth/update-password', 'UserController@updatePassword');
 });
 
-Route::group(['prefix' => 'customers', 'middleware' => 'auth:acs_admin'], function () {
-// Route::group(['prefix' => 'customers'], function () {
-	Route::get('/', 'CompanyController@index')->name('customers');
-	Route::post('/add', 'CompanyController@addCustomer')->name('customers.store');
-	Route::get('/{id}', 'CompanyController@getCustomer')->name('customers.show');
-	Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount');
-	Route::post('/update-profile/{id}', 'CompanyController@updateCustomerProfile')->name('customers.update.profile');
-
+Route::group(['middleware' => 'auth:customer_admin'], function () {
+	Route::group(['prefix' => 'devices'], function () {
+		Route::get('/customer-devices', 'DeviceController@getCustomerDevices');
+	});
 });
 
 Route::group(['middleware' => 'auth:acs_admin'], function () {
-	Route::get('/devices/{pageNum}', 'DeviceController@getDevices')->name('devices');
-	Route::post('/devices/upload', 'DeviceController@uploadDevices')->name('devices.uplad');
-	Route::post('/devices/device-assigned', 'DeviceController@deviceAssigned')->name('devices.device.assigned');
-	Route::post('/devices/device-register-update', 'DeviceController@updateRegistered')->name('devices.update.registered');
-	Route::post('/devices/suspend-device', 'DeviceController@suspendDevice');
+	Route::group(['prefix' => 'customers'], function () {
+		Route::get('/', 'CompanyController@index')->name('customers');
+		Route::post('/add', 'CompanyController@addCustomer')->name('customers.store');
+		Route::get('/{id}', 'CompanyController@getCustomer')->name('customers.show');
+		Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount');
+		Route::post('/update-profile/{id}', 'CompanyController@updateCustomerProfile')->name('customers.update.profile');
+	});
 
-	Route::post('/devices/query-sim/{iccid}', 'DeviceController@querySIM');
-	Route::post('/devices/suspend-sim/{iccid}', 'DeviceController@suspendSIM');
+	Route::group(['prefix' => 'devices'], function () {
+		Route::get('/{pageNum}', 'DeviceController@getDevices')->name('devices');
+		Route::post('/import', 'DeviceController@importDevices');
+		Route::post('/device-assigned', 'DeviceController@deviceAssigned')->name('devices.device.assigned');
+		Route::post('/device-register-update', 'DeviceController@updateRegistered')->name('devices.update.registered');
+		Route::post('/suspend-device', 'DeviceController@suspendDevice');
+
+		Route::post('/devices/query-sim/{iccid}', 'DeviceController@querySIM');
+		Route::post('/devices/suspend-sim/{iccid}', 'DeviceController@suspendSIM');
+	});
 });
+
+
 
 Route::get('/zones', 'ZoneController@index');
 Route::post('/zones/add', 'ZoneController@store');

@@ -24,16 +24,23 @@ class DeviceController extends Controller
     private $activateURL = "https://prismproapi.sandbox.koretelematics.com/4/TransactionalAPI.svc/json/activateDevice";
     private $queryURL = "https://prismproapi.sandbox.koretelematics.com/4/TransactionalAPI.svc/json/queryDevice";
 
+    private $teltonika_import_url = "https://rms.teltonika-networks.com/api/devices?limit=100";
+    private $bearer_token = env('TELTONIKA_TOKEN');
+
 	public function getDevices($pageNumber = 1) {
         $devices = Device::select('id', 'iccid', 'serial_number', 'registered', 'company_id', 'machine_id', 'sim_status', 'public_ip_sim')->paginate(7, ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
         $machines = Machine::select('id', 'name')->get();
 
-        foreach ($devices as $key => $device) {
-            if($device->sim_status === 1) {
-                $device->sim_status = $this->querySIM($device->iccid)->sim_status;
+            foreach ($devices as $key => $device) {
+                if(!$device->sim_status) {
+                    try {
+                        $device->sim_status = $this->querySIM($device->iccid)->sim_status;
+                    } catch( \Exception $e ) {
+
+                    }
+                }
             }
-        }
 
         return response()->json([
             'devices' => $devices->items(),
@@ -43,40 +50,44 @@ class DeviceController extends Controller
         ]);
 	}
 
-    public function uploadDevices(Request $request) {
-    	$validator = Validator::make($request->all(), [ 
-	        'devicesFile' => 'required|file',
-	    ]);
-
-	    if ($validator->fails())
-	    {
-            return response()->json(['error'=>$validator->errors()], 422);            
-        }
-
+    public function importDevices(Request $request) {
     	$existing_devices = Device::all();
     	$numAdded = 0;
     	$numDuplicates = 0;
-    	$devices = Excel::toArray(new DevicesImport, $request->devicesFile);
-        foreach ($devices[0] as $key => $device) {
-        	if($key == 0)
-        		continue;
-        	if ($existing_devices->where('serial_number', $device[0])->count() > 0) {
-        		$numDuplicates++;
-        		continue;
-        	}
-        	Device::create([
-	           'serial_number' => $device[0],
-	           'imei' => $device[1], 
-	           'lan_mac_address' => $device[2],
-	           'iccid' => substr($device[3], 0, -1),
-               'public_ip_sim' => $device[4],
-               'machine_id' => null,
-               'company_id' => null,
-               'registered' => false,
-               'sim_status' => 1
-        	]);
-        	$numAdded++;
+
+        $client = new Client();
+        try {
+            $response = $client->get(
+                $this->teltonika_import_url,
+                [
+                    'headers' => [
+                        'Authorization' => "Bearer " . $this->bearer_token
+                    ]
+                ]
+            );
+            
+        	$devices = json_decode($response->getBody())->data;
+            foreach ($devices as $key => $device) {
+            	if ($existing_devices->where('serial_number', $device->serial)->count() > 0) {
+            		$numDuplicates++;
+            		continue;
+            	}
+            	Device::create([
+    	           'serial_number' => $device->serial,
+    	           'imei' => $device->imei, 
+    	           'lan_mac_address' => $device->mac,
+                   'iccid' => substr($device->iccid, 0, -1),
+                   'public_ip_sim' => null,
+                   'machine_id' => null,
+                   'company_id' => null,
+                   'registered' => false
+            	]);
+            	$numAdded++;
+            }
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
         }
+
 
         return response()->json([
     		'numAdded' => $numAdded,
@@ -136,7 +147,15 @@ class DeviceController extends Controller
     }
 
     public function querySIM($iccid) {
+        if(!$iccid) {
+            return response()->json('Invalid ICCID', 404);
+        }
+
         $device = Device::where('iccid', $iccid)->first();
+
+        if(!$device) {
+            return response()->json('Device Not Found', 404);
+        }
 
         $client = new Client();
         try {
@@ -155,11 +174,21 @@ class DeviceController extends Controller
                 ]
             );
 
-            $device->setSimStatus(json_decode($response->getBody())->d->status);
+            $device->sim_status = json_decode($response->getBody())->d->status;
+            $device->save();
 
             return $device;
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
         }
+    }
+
+    public function getCustomerDevices(Request $request) {
+        $user = $request->user('api');
+        $devices = $user->companies()->first()->devices;
+
+        return response()->json([
+            'devices' => $devices
+        ]);
     }
 }

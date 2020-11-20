@@ -21,8 +21,10 @@ class CreateDevicesTable extends Migration
             $table->string('iccid', 30)->nullable();
             $table->boolean('registered')->default(false);
             $table->string('public_ip_sim')->nullable();
-            $table->integer('sim_status')->default(1);
+            $table->string('sim_status', 20)->nullable();
 
+            $table->unsignedBigInteger('location_id')->nullable();
+            $table->unsignedBigInteger('zone_id')->nullable();
             $table->unsignedBigInteger('company_id')->nullable();
             $table->unsignedBigInteger('machine_id')->nullable();
             

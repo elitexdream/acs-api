@@ -10,8 +10,11 @@ class Company extends Model
         'user_id', 'name'
     ];
 
-    public function customer()
-    {
+    public function customer() {
     	return $this->belongsTo('App\User', 'user_id');
+    }
+
+    public function devices() {
+    	return $this->hasMany('App\Device', 'company_id');
     }
 }
