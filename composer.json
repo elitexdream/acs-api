@@ -15,6 +15,7 @@
         "laravel/framework": "^7.2.8",
         "laravel/passport": "^9.0",
         "laravel/tinker": "^2.3",
+        "s-ichikawa/laravel-sendgrid-driver": "^3.0",
         "sendgrid/sendgrid": "^7.9",
         "twilio/sdk": "^6.13"
     },
