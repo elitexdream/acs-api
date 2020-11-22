@@ -40,6 +40,8 @@ Route::group(['middleware' => 'auth:customer_admin'], function () {
 		Route::post('/add', 'ZoneController@store');
 		Route::patch('/update', 'ZoneController@update');
 	});
+
+	Route::get('/company-users', 'UserController@getCompanyUsers');
 });
 
 Route::group(['middleware' => 'auth:acs_admin'], function () {

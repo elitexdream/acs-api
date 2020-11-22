@@ -82,4 +82,12 @@ class UserController extends Controller
             return response()->json(['message' => 'Successfully updated.'], 200);
         }
     }
+
+    // public function getCompanyUsers(Request $request) {
+    //     $customer_admin = $request->user('api');
+
+    //     $company_users = $customer_admin->getCompanyUsers();
+
+    //     return response()->json($company_users);
+    // }
 }
