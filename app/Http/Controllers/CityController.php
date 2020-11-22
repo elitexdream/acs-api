@@ -8,7 +8,7 @@ use App\City;
 class CityController extends Controller
 {
     public function citiesForState($state) {
-    	$cities = City::where('state', $state)->get();
+    	$cities = City::select('id', 'zip', 'city')->where('state', $state)->get();
 
     	return response()->json($cities);
     }

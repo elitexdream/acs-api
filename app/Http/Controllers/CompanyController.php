@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Mail\CustomerInvitation;
-use Illuminate\Support\Facades\Mail;
+use Mail;
 use Validator;
 use App\User;
 use App\Company;
@@ -36,12 +36,13 @@ class CompanyController extends Controller
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 
+		$password_string = md5(uniqid($request->email, true));
+		
         $user = User::create([
             'name' => $request->administrator_name,
             'email' => $request->administrator_email,
-            'password' => bcrypt('password'),
+            'password' => bcrypt($password_string),
         ]);
-
 		$user->roles()->attach(3);
 
 		$company = Company::create([
@@ -53,7 +54,7 @@ class CompanyController extends Controller
 
         $user->profile()->save($profile);
 
-        // Mail::to($user->email)->send(new CustomerInvitation());
+        Mail::to($user->email)->send(new CustomerInvitation($password_string));
 
         return response()->json('Created successfully.', 201);
     }
@@ -127,23 +128,8 @@ class CompanyController extends Controller
 
 	public function testMail(Request $request)
 	{
-		$email = new \SendGrid\Mail\Mail();
-		$email->setFrom("ena@machinecdn.com", "ACS");
-		$email->setSubject("Sending with Twilio SendGrid is Fun");
-		$email->addTo($request->to, "Example User");
-		$email->addContent("text/plain", "and easy to do anywhere, even with PHP");
-		$email->addContent(
-		    "text/html", "<strong>and easy to do anywhere, even with PHP</strong>"
-		);
-		$sendgrid = new \SendGrid(env('SENDGRID_API'));
-		try {
-		    $response = $sendgrid->send($email);
-		    print $response->statusCode() . "\n";
-		    print_r($response->headers());
-		    print $response->body() . "\n";
-		} catch (Exception $e) {
-		    echo 'Caught exception: '. $e->getMessage() ."\n";
-		}
+
+		Mail::to($request->to)->send(new CustomerInvitation);
 	}
 
 	public function testSMS(Request $request)

@@ -10,15 +10,15 @@ use Illuminate\Queue\SerializesModels;
 class CustomerInvitation extends Mailable
 {
     use Queueable, SerializesModels;
-
+    public $password;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($password)
     {
-        //
+        $this->password = $password;
     }
 
     /**
@@ -28,6 +28,7 @@ class CustomerInvitation extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.customer-invitation');
+        return $this->from(env('SENDGRID_FROM_EMAIL'))
+                ->markdown('emails.customer-invitation', ['password' => $this->password]);
     }
 }
