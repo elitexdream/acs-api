@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('auth/check', 'UserController@check');
 Route::post('auth/signin', 'UserController@login');
 Route::post('auth/signup', 'UserController@register');
+Route::post('auth/password-reset', 'UserController@passwordReset');
 
 Route::middleware('auth')->group(function () {
     Route::get('/auth/logout', 'UserController@logout');

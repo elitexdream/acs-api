@@ -8,6 +8,9 @@ use Auth;
 use GuzzleHttp\Client;
 use Hash;
 use Carbon\Carbon;
+use Mail;
+
+use App\Mail\PasswordReset;
 
 use App\User;
 use App\Company;
@@ -53,6 +56,30 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Successfully logged out'
         ]);
+    }
+
+    public function passwordReset(Request $request) {
+        $validator = Validator::make($request->all(), [ 
+            'email' => 'required|email'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error'=>$validator->errors()], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if(!$user) {
+            return response()->json('Email not found', 422);
+        }
+
+        $password_string = md5(uniqid($request->email, true));
+        $user->password = bcrypt($password_string);
+        $user->save();
+
+        Mail::to($request->email)->send(new PasswordReset($password_string));
+
+        return response()->json('Email sent successfully.', 201);
     }
 
     public function check(Request $request) {
