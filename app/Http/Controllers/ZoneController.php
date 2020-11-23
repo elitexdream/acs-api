@@ -36,7 +36,7 @@ class ZoneController extends Controller
         }
         $zone = Zone::create([
             'name' => $request->name,
-            'location_id' => $request->locationId
+            'location_id' => $request->location_id
         ]);
 
         return response()->json('Successfully created.');

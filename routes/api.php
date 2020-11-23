@@ -42,6 +42,8 @@ Route::group(['middleware' => 'auth:customer_admin'], function () {
 	});
 
 	Route::get('/company-users', 'UserController@getCompanyUsers');
+	Route::get('/company-user/init-create-account', 'UserController@initCreateAccount');
+	Route::post('/company-users/store', 'UserController@addCompanyUser');
 });
 
 Route::group(['middleware' => 'auth:acs_admin'], function () {

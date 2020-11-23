@@ -37,6 +37,7 @@ class CompanyController extends Controller
         }
 
 		$password_string = md5(uniqid($request->email, true));
+		// $password_string = 'password';
 		
         $user = User::create([
             'name' => $request->administrator_name,
@@ -49,10 +50,6 @@ class CompanyController extends Controller
             'user_id' => $user->id,
             'name' => $request->company_name
         ]);
-
-		$profile = new Profile();
-
-        $user->profile()->save($profile);
 
         Mail::to($user->email)->send(new CustomerInvitation($password_string));
 

@@ -18,8 +18,4 @@ class Device extends Model
         'location_id',
         'zone_id'
     ];
-
-    public function simStatus() {
-    	return $this->belongsTo('App\SimStatus');
-    }
 }

@@ -3,12 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\User; 
 use Validator;
 use Auth;
 use GuzzleHttp\Client;
 use Hash;
 use Carbon\Carbon;
+
+use App\User;
+use App\Company;
+use App\Role;
+use App\Location;
+use App\Zone;
 
 class UserController extends Controller
 {
@@ -83,11 +88,56 @@ class UserController extends Controller
         }
     }
 
-    // public function getCompanyUsers(Request $request) {
-    //     $customer_admin = $request->user('api');
 
-    //     $company_users = $customer_admin->getCompanyUsers();
+    public function initCreateAccount() {
+        $roles = Role::whereIn('key', ['customer_manager', 'customer_operator'])->get();
+        $locations = Location::get();
+        $zones = Zone::get();
 
-    //     return response()->json($company_users);
-    // }
+        return response()->json(compact('roles', 'locations', 'zones'));
+    }
+
+    public function getCompanyUsers(Request $request) {
+        $company = Company::where('user_id', $request->user('api')->id)->first();
+
+        $users = $company->users;
+        foreach ($users as $key => $user) {
+            $user->role = $user->roles->first();
+        }
+
+        return response()->json(compact('users'));
+    }
+
+    public function addCompanyUser(Request $request) {
+        $validator = Validator::make($request->all(), [ 
+            'name' => 'required',
+            'email' => 'required|email|max:255|unique:users,email',
+            'role' => 'required',
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
+
+        $password_string = md5(uniqid($request->email, true));
+        
+        // need some changes on user_id
+        $company = Company::where('user_id', $request->user('api')->id)->first();
+
+        $password_string = md5(uniqid($request->email, true));
+        
+        $user = $company->users()->create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($password_string),
+        ]);
+
+        $user->roles()->attach($request->role);
+
+        Mail::to($user->email)->send(new CustomerInvitation($password_string));
+
+        return response()->json('Created successfully.', 201);
+    }
 }
