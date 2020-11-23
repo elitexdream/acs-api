@@ -70,7 +70,7 @@ class UserController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if(!$user) {
-            return response()->json('Email not found', 422);
+            return response()->json('Email not found', 404);
         }
 
         $password_string = md5(uniqid($request->email, true));
