@@ -16,6 +16,7 @@ class CreateDeviceDataTable extends Migration
         Schema::create('device_data', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('device_id');
+            $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('tag_id');
             $table->unsignedBigInteger('timestamp');
             $table->json('values');
