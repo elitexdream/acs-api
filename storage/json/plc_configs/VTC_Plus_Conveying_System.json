@@ -1,0 +1,195 @@
+{
+    "cmd": "config_full",
+    "plc_ip"        : "192.168.5.5",
+    "format"        : "binary",
+    "batch_size"    : 4000,
+    "batch_timeout" : 60,
+    "config_hash"   : "VTCPCS_123456",
+    "plctags"       :[
+        {
+            "name"    : "device_type",
+            "id"      : 1,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"    : "capacity_utilization",
+            "id"      : 2,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : false
+        },
+        {
+            "name"    : "energy_consumption",
+            "id"      : 3,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : false
+        },
+        {
+            "name"    : "N23_0_0_plc_versio",
+            "id"      : 4,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "N23_1_0_build_numb",
+            "id"      : 5,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "serial_number_month",
+            "id"      : 6,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "serial_number_year",
+            "id"      : 7,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "B50_6_0_ramp_to_st",
+            "id"      : 8,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "vactrac_model",
+            "id"      : 9,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "station_online",
+            "id"      : 11,
+            "type"    : "int32",
+            "sindex"  : 1,
+            "ecount"  : 44,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "pump_online",
+            "id"      : 12,
+            "type"    : "int32",
+            "sindex"  : 1,
+            "ecount"  : 12,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "station_loading_valve_on",
+            "id"      : 13,
+            "type"    : "int32",
+            "sindex"  : 1,
+            "ecount"  : 44,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "pump_blowback_on",
+            "id"      : 14,
+            "type"    : "int32",
+            "sindex"  : 1,
+            "ecount"  : 12,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "pump_hours",
+            "id"      : 15,
+            "type"    : "int32",
+            "sindex"  : 1,
+            "ecount"  : 12,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "pump_hours_for_oil_change",
+            "id"      : 16,
+            "type"    : "int32",
+            "sindex"  : 1,
+            "ecount"  : 12,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "pump_hours_oil_change_target",
+            "id"      : 17,
+            "type"    : "uint32",
+            "sindex"  : 1,
+            "ecount"  : 12,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "pump_oil_change_needed",
+            "id"      : 18,
+            "type"    : "int32",
+            "sindex"  : 1,
+            "ecount"  : 12,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"      : "alarm_word_1",
+            "id"      : 19,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"      : "alarm_word_5",
+            "id"      : 20,
+            "type"    : "uint32",
+            "sindex"  : 1,
+            "ecount"  : 12,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"      : "vacuum_level",
+            "id"      : 21,
+            "type"    : "uint32",
+            "sindex"  : 1,
+            "ecount"  : 12,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        }
+        
+    ]
+}

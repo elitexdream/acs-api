@@ -16,7 +16,12 @@ class CreateMachinesTable extends Migration
         Schema::create('machines', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->timestamps();
+            $table->string('plc_ip', 50);
+            $table->string('format', 20);
+            $table->unsignedInteger('batch_size');
+            $table->unsignedInteger('batch_timeout');
+            $table->string('config_hash', 20);
+            $table->json('plgtags');
         });
     }
 

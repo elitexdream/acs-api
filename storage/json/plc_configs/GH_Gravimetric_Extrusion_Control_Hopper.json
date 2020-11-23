@@ -1,0 +1,281 @@
+{
+    "cmd": "config_full",
+    "plc_ip"        : "192.168.5.5",
+    "format"        : "binary",
+    "batch_size"    : 4000,
+    "batch_timeout" : 60,
+    "config_hash"   : "GHGECH_123456",
+    "plctags"       :[
+        {
+            "name"    : "device_type",
+            "id"      : 1,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"    : "capacity_utilization",
+            "id"      : 2,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : false
+        },
+        {
+            "name"    : "energy_consumption",
+            "id"      : 3,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : false
+        },
+        {
+            "name"    : "N23_0_0_plc_versio",
+            "id"      : 4,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "N23_1_0_build_numb",
+            "id"      : 5,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "serial_number_month",
+            "id"      : 6,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "serial_number_year",
+            "id"      : 7,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "serial_number_unit",
+            "id"      : 8,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "B50_6_0_ramp_to_st",
+            "id"      : 9,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "B50_6_1_monitor_mo",
+            "id"      : 10,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "B50_6_2_control_by",
+            "id"      : 11,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "B50_6_3_control_by",
+            "id"      : 12,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "F13_4_0_ext_rpm_ta",
+            "id"      : 13,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "F13_1_0_ext_rpm_in",
+            "id"      : 14,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "F11_16_0_target_ext",
+            "id"      : 15,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "F11_3_0_ext_wtp_av",
+            "id"      : 16,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "F11_2_0_ext_wtp_rp",
+            "id"      : 17,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "F18_3_0_hauloff_sp",
+            "id"      : 18,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "F18_1_0_current_me",
+            "id"      : 19,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "F19_0_0_recipe_inp",
+            "id"      : 20,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "F19_4_0_recip_inpu",
+            "id"      : 21,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "F19_3_0_layflat",
+            "id"      : 22,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "F25_0_0_hopper_inv",
+            "id"      : 23,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "F31_4_0_hauloff_ac",
+            "id"      : 24,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "B50_2_5_system_sta",
+            "id"      : 25,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "B50_2_0_ext_wtp_st",
+            "id"      : 26,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "B50_1_14_ext_rpm_st",
+            "id"      : 27,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "B50_2_1_haul_off_s",
+            "id"      : 28,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "_IO_EM_DO_00",
+            "id"      : 29,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "alarm_word_1",
+            "id"      : 30,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        }        
+    ]
+}

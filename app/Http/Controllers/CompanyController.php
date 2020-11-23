@@ -44,7 +44,7 @@ class CompanyController extends Controller
             'email' => $request->administrator_email,
             'password' => bcrypt($password_string),
         ]);
-		$user->roles()->attach(3);
+		$user->roles()->attach(ROLE_CUSTOMER_ADMIN);
 
 		$company = Company::create([
             'user_id' => $user->id,

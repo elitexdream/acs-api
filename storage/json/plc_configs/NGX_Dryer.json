@@ -1,0 +1,571 @@
+{
+    "cmd": "config_full",
+    "plc_ip"        : "192.168.5.5",
+    "format"        : "binary",
+    "batch_size"    : 4000,
+    "batch_timeout" : 60,
+    "config_hash"   : "NGXD_123456",
+    "plctags"       :[
+        {
+            "name"    : "device_type",
+            "id"      : 1,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"    : "capacity_utilization",
+            "id"      : 2,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : false
+        },
+        {
+            "name"    : "energy_consumption",
+            "id"      : 3,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : false
+        },
+        {
+            "name"    : "HMI_PROGRAM_REV",
+            "id"      : 4,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_PROGRAM_REV_BUILD",
+            "id"      : 5,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "serial_number_month",
+            "id"      : 6,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "serial_number_year",
+            "id"      : 7,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "serial_number_unit",
+            "id"      : 8,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DH1_TEMP",
+            "id"      : 9,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DH1_SP",
+            "id"      : 10,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DH1_RETURN_TEMP",
+            "id"      : 11,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DH2_TEMP",
+            "id"      : 12,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DH2_SP",
+            "id"      : 13,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DH2_RETURN_TEMP",
+            "id"      : 14,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DH3_TEMP",
+            "id"      : 15,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DH3_SP",
+            "id"      : 16,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DH3_RETURN_TEMP",
+            "id"      : 17,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DP_TEMP",
+            "id"      : 18,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DP_SW_SP",
+            "id"      : 19,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_REG_LEFT_TEMP",
+            "id"      : 20,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_REG_RIGHT_TEMP",
+            "id"      : 21,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_REG_TEMP_SP",
+            "id"      : 22,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_EXHAUST_TEMP",
+            "id"      : 23,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_BED_BREAK_TEMP_SP",
+            "id"      : 24,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_COOL_BREAK_TEMP_SP",
+            "id"      : 25,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "R16_LB_IN_REGEN",
+            "id"      : 26,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "R02_LB_REG_HEATING",
+            "id"      : 27,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "R06_LB_REG_COOLING",
+            "id"      : 28,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "R17_RB_IN_REGEN",
+            "id"      : 29,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "R03_RB_REG_HEATING",
+            "id"      : 30,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "R07_RB_REG_COOLING",
+            "id"      : 31,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_NOTIFICATION_1",
+            "id"      : 32,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DH1_STATUS",
+            "id"      : 33,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DH2_STATUS",
+            "id"      : 34,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DH3_STATUS",
+            "id"      : 35,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_SYSTEM_ONLINE",
+            "id"      : 36,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_SYSTEM_SHUTDOWN",
+            "id"      : 37,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_AFTERCOOL_TEMP_F",
+            "id"      : 38,
+            "type"    : "float",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_DIRTY_FILTER",
+            "id"      : 39,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_DH1_MNT_HRS",
+            "id"      : 40,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_DH1_TOT_HRS",
+            "id"      : 41,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_DH2_MNT_HRS",
+            "id"      : 42,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_DH2_TOT_HRS",
+            "id"      : 43,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_DH3_MNT_HRS",
+            "id"      : 44,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_DH3_TOT_HRS",
+            "id"      : 45,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_FLTR_MNT_HRS",
+            "id"      : 46,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_REG_VLV_TOT_CYC",
+            "id"      : 47,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_RIGHT_REG_TOT_CYC",
+            "id"      : 48,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_LEFT_REG_TOT_CYC",
+            "id"      : 49,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_ONLINE_MAINT_HRS",
+            "id"      : 50,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_ONLINE_TOT_HRS",
+            "id"      : 51,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_PROC_BLWR_MNT_HRS",
+            "id"      : 52,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_PROC_BLWR_TOT_HRS",
+            "id"      : 53,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_PROC_VLV_TOT_CYC",
+            "id"      : 54,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_PWR_HRS_TOTAL",
+            "id"      : 55,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_REG_LT_MNT_HRS",
+            "id"      : 56,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_REG_LT_TOT_HRS",
+            "id"      : 57,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_REG_RT_MNT_HRS",
+            "id"      : 58,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "STATS_REG_RT_TOT_HRS",
+            "id"      : 59,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "HMI_ALARMS_1",
+            "id"      : 60,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"      : "HMI_ALARMS_2",
+            "id"      : 61,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"      : "HMI_NOTIFICATION_1",
+            "id"      : 62,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        }        
+    ]
+}
