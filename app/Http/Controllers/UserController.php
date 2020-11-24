@@ -11,12 +11,14 @@ use Carbon\Carbon;
 use Mail;
 
 use App\Mail\PasswordReset;
+use App\Mail\CustomerInvitation;
 
 use App\User;
 use App\Company;
 use App\Role;
 use App\Location;
 use App\Zone;
+use App\UserRole;
 
 class UserController extends Controller
 {
@@ -124,6 +126,18 @@ class UserController extends Controller
         return response()->json(compact('roles', 'locations', 'zones'));
     }
 
+    public function initEditAccount($id) {
+        $user = User::findOrFail($id);
+        $roles = Role::whereIn('key', ['customer_manager', 'customer_operator'])->get();
+        $locations = Location::get();
+        $zones = Zone::get();
+        $user->role = $user->roles->first()->id;
+        $user->selected_locations = $user->locations->pluck('id');
+        $user->selected_zones = $user->zones->pluck('id');
+
+        return response()->json(compact('roles', 'locations', 'zones', 'user'));
+    }
+
     public function getCompanyUsers(Request $request) {
         $company = Company::where('user_id', $request->user('api')->id)->first();
 
@@ -163,8 +177,41 @@ class UserController extends Controller
 
         $user->roles()->attach($request->role);
 
+        $user->locations()->attach($request->locations);
+
+        //need updates
+        $user->zones()->attach($request->zones);
+
         Mail::to($user->email)->send(new CustomerInvitation($password_string));
 
         return response()->json('Created successfully.', 201);
+    }
+
+    public function updateCompanyUserAccount(Request $request, $id) {
+        $user = User::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [ 
+            'name' => 'required',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'role' => 'required',
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        
+        $user->save();
+
+        $user->roles()->sync([$request->role]);
+        $user->locations()->sync($request->locations);
+
+        //need updates
+        $user->zones()->sync($request->zones);
+
+        return response()->json('Updated successfully.');
     }
 }

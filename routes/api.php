@@ -42,9 +42,13 @@ Route::group(['middleware' => 'auth:customer_admin'], function () {
 		Route::patch('/update', 'ZoneController@update');
 	});
 
-	Route::get('/company-users', 'UserController@getCompanyUsers');
-	Route::get('/company-user/init-create-account', 'UserController@initCreateAccount');
-	Route::post('/company-users/store', 'UserController@addCompanyUser');
+	Route::group(['prefix' => 'company-users'], function () {
+		Route::get('/', 'UserController@getCompanyUsers');
+		Route::post('/store', 'UserController@addCompanyUser');
+		Route::get('/init-create-account', 'UserController@initCreateAccount');
+		Route::get('/init-edit-account/{id}', 'UserController@initEditAccount');
+		Route::post('/update-account/{id}', 'UserController@updateCompanyUserAccount');
+	});
 });
 
 Route::group(['middleware' => 'auth:acs_admin'], function () {
