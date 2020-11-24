@@ -28,7 +28,14 @@ class CompanyController extends Controller
 	    $validator = Validator::make($request->all(), [ 
 	        'company_name' => 'required',
 	        'administrator_name' => 'required',
-	        'administrator_email' => 'required|email|max:255|unique:users,email'
+	        'administrator_email' => 'required|email|max:255|unique:users,email',
+	        'address_1' => 'required',
+	        'address_2' => 'required',
+	        'zip' => 'required',
+	        'state' => 'required',
+	        'city' => 'required',
+	        'country' => 'required',
+	        'phone' => 'required'
 	    ]);
 
 	    if ($validator->fails())
@@ -44,6 +51,16 @@ class CompanyController extends Controller
             'email' => $request->administrator_email,
             'password' => bcrypt($password_string),
         ]);
+
+		$user->profile->update([
+			'address_1' => $request->address_1,
+	        'address_2' => $request->address_2,
+	        'zip' => $request->zip,
+	        'state' => $request->state,
+	        'city' => $request->city,
+	        'country' => $request->country,
+	        'phone' => $request->phone
+		]);
 		$user->roles()->attach(ROLE_CUSTOMER_ADMIN);
 
 		$company = Company::create([
@@ -99,6 +116,13 @@ class CompanyController extends Controller
 	public function updateCustomerProfile(Request $request, $id)
 	{
 		$validator = Validator::make($request->all(), [
+			'address_1' => 'required',
+	        'address_2' => 'required',
+	        'zip' => 'required',
+	        'state' => 'required',
+	        'city' => 'required',
+	        'country' => 'required',
+	        'phone' => 'required'
 	    ]);
 
 	    if ($validator->fails())
