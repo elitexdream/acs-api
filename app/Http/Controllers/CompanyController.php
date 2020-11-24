@@ -81,7 +81,7 @@ class CompanyController extends Controller
 		$company->administratorEmail = $company->customer->email;
 		$profile = $company->customer->profile;
 		$profile->id = $id;
-		$cities = City::where('state', $profile->state);
+		$cities = City::where('state', $profile->state)->get();
 		
 		return response()->json(compact('company', 'profile', 'cities'));
 	}
