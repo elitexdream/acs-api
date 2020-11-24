@@ -89,7 +89,7 @@ class CompanyController extends Controller
 	public function updateCustomerAccount(Request $request, $id)
 	{
 		$company = Company::findOrFail($id);
-        $customer = $company->customer;
+        $customer = $company->customerAdmins()->first();
 
 		$validator = Validator::make($request->all(), [ 
 	        'name' => 'required',
