@@ -10,18 +10,30 @@ use App\User;
 use App\Company;
 use App\Profile;
 use App\City;
+use App\UserRole;
 
 class CompanyController extends Controller
 {
 	public function index()
 	{
-		$companies = Company::select('id', 'name', 'user_id', 'created_at')->get();
+		$customer_admin_ids = UserRole::where('role_id', ROLE_CUSTOMER_ADMIN)->pluck('user_id');
 
-		foreach ($companies as $company) {
-			$company->administratorName = $company->customerAdmins()->first()->name;
+		$customer_admins = User::whereIn('id', $customer_admin_ids)->get();
+
+		$companies = Company::select('id', 'name', 'created_at')->get();
+
+		foreach ($customer_admins as $customer_admin) {
+			$customer_admin->companyName = $customer_admin->company->name;
+			$customer_admin->administratorName = $customer_admin->name;
 		}
 
-		return response()->json(compact('companies'), 200);
+		return response()->json(compact('customer_admins'), 200);
+	}
+
+	public function getCompanies() {
+		$companies = Company::get();
+
+		return response()->json(compact('companies'));
 	}
 
     public function addCustomer(Request $request)
@@ -44,9 +56,12 @@ class CompanyController extends Controller
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 
-        $company = Company::create([
-            'name' => $request->company_name
-        ]);
+        $company = Company::where('name', $request->company_name)->first();
+        if(!$company) {
+	        $company = Company::create([
+	            'name' => $request->company_name
+	        ]);
+        }
 
 		$password_string = md5(uniqid($request->email, true));
 		// $password_string = 'password';
@@ -76,20 +91,19 @@ class CompanyController extends Controller
 
     public function getCustomer(Request $request, $id)
 	{
-		$company = Company::findOrFail($id);
-		$company->administratorName = $company->customerAdmins()->first()->name;
-		$company->administratorEmail = $company->customerAdmins()->first()->email;
-		$profile = $company->customerAdmins()->first()->profile;
-		$profile->id = $id;
-		$cities = City::where('state', $profile->state)->get();
+		$customer = User::findOrFail($id);
+		$customer->companyName = $customer->company->name;
+		$profile = $customer->profile;
+		$companies = Company::get();
+		$cities = City::where('state', $profile->state)->orderBy('city')->get();
 		
-		return response()->json(compact('company', 'profile', 'cities'));
+		return response()->json(compact('customer', 'profile', 'companies', 'cities'));
 	}
 
 	public function updateCustomerAccount(Request $request, $id)
 	{
-		$company = Company::findOrFail($id);
-        $customer = $company->customerAdmins()->first();
+        $customer = User::findOrFail($id);
+		$company = $customer->company;
 
 		$validator = Validator::make($request->all(), [ 
 	        'name' => 'required',
@@ -129,8 +143,7 @@ class CompanyController extends Controller
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 
-        $company = Company::findOrFail($id);
-        $profile = $company->customer->profile;
+        $profile = User::findOrFail($id)->profile;
 
         $profile->address_1 = $request->address_1;
 		$profile->address_2 = $request->address_2;

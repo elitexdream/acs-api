@@ -65,10 +65,6 @@ class User extends Authenticatable
     *
     * @return mixed
     */
-    public function companies()
-    {
-        return $this->hasMany('App\Company', 'user_id');
-    }
 
     public function company()
     {

@@ -55,6 +55,7 @@ Route::group(['middleware' => 'auth:customer_admin'], function () {
 Route::group(['middleware' => 'auth:acs_admin'], function () {
 	Route::group(['prefix' => 'customers'], function () {
 		Route::get('/', 'CompanyController@index')->name('customers');
+		Route::get('/init-add-company', 'CompanyController@getCompanies');
 		Route::post('/add', 'CompanyController@addCustomer')->name('customers.store');
 		Route::get('/{id}', 'CompanyController@getCustomer')->name('customers.show');
 		Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount');

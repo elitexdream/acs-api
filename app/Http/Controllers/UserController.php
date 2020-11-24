@@ -150,7 +150,7 @@ class UserController extends Controller
 
     public function getCompanyUsers(Request $request) {
         // need change
-        $company = Company::where('user_id', $request->user('api')->id)->first();
+        $company = $request->user('api')->company;
 
         $users = $company->users;
         foreach ($users as $key => $user) {

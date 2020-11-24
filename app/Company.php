@@ -10,10 +10,6 @@ class Company extends Model
         'user_id', 'name'
     ];
 
-    public function customer() {
-    	return $this->hasMany('App\User');
-    }
-
     public function devices() {
     	return $this->hasMany('App\Device', 'company_id');
     }
