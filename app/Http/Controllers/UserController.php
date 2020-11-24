@@ -182,7 +182,8 @@ class UserController extends Controller
         $password_string = md5(uniqid($request->email, true));
         
         // need some changes on user_id
-        $company = Company::where('user_id', $request->user('api')->id)->first();
+        
+        $company = $request->user('api')->company;
 
         $password_string = md5(uniqid($request->email, true));
         
