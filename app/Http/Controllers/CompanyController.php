@@ -43,7 +43,6 @@ class CompanyController extends Controller
 	        'administrator_name' => 'required',
 	        'administrator_email' => 'required|email|max:255|unique:users,email',
 	        'address_1' => 'required',
-	        'address_2' => 'required',
 	        'zip' => 'required',
 	        'state' => 'required',
 	        'city' => 'required',
@@ -75,7 +74,6 @@ class CompanyController extends Controller
 
 		$user->profile->update([
 			'address_1' => $request->address_1,
-	        'address_2' => $request->address_2,
 	        'zip' => $request->zip,
 	        'state' => $request->state,
 	        'city' => $request->city,
@@ -130,7 +128,6 @@ class CompanyController extends Controller
 	{
 		$validator = Validator::make($request->all(), [
 			'address_1' => 'required',
-	        'address_2' => 'required',
 	        'zip' => 'required',
 	        'state' => 'required',
 	        'city' => 'required',
@@ -146,7 +143,6 @@ class CompanyController extends Controller
         $profile = User::findOrFail($id)->profile;
 
         $profile->address_1 = $request->address_1;
-		$profile->address_2 = $request->address_2;
 		$profile->zip = $request->zip;
 		$profile->state = $request->state;
 		$profile->city = $request->city;

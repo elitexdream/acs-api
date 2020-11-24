@@ -53,6 +53,9 @@ Route::group(['middleware' => 'auth:customer_admin'], function () {
 });
 
 Route::group(['middleware' => 'auth:acs_admin'], function () {
+	Route::group(['prefix' => 'acs-machines'], function () {
+		Route::get('/', 'MachineController@index');
+	});
 	Route::group(['prefix' => 'customers'], function () {
 		Route::get('/', 'CompanyController@index')->name('customers');
 		Route::get('/init-add-company', 'CompanyController@getCompanies');

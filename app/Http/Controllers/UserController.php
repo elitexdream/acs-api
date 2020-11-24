@@ -138,7 +138,6 @@ class UserController extends Controller
         $profile = $user->profile;
 
         $user->address_1 = $profile->address_1;
-        $user->address_2 = $profile->address_2;
         $user->zip = $profile->zip;
         $user->state = $profile->state;
         $user->city = $profile->city;
@@ -166,7 +165,6 @@ class UserController extends Controller
             'email' => 'required|email|max:255|unique:users,email',
             'role' => 'required',
             'address_1' => 'required',
-            'address_2' => 'required',
             'zip' => 'required',
             'state' => 'required',
             'city' => 'required',
@@ -202,7 +200,6 @@ class UserController extends Controller
 
         $user->profile->update([
             'address_1' => $request->address_1,
-            'address_2' => $request->address_2,
             'zip' => $request->zip,
             'state' => $request->state,
             'city' => $request->city,
@@ -248,7 +245,6 @@ class UserController extends Controller
 
         $validator = Validator::make($request->all(), [ 
             'address_1' => 'required',
-            'address_2' => 'required',
             'zip' => 'required',
             'state' => 'required',
             'city' => 'required',
@@ -262,7 +258,6 @@ class UserController extends Controller
         }
 
         $profile->address_1 = $request->address_1;
-        $profile->address_2 = $request->address_2;
         $profile->zip = $request->zip;
         $profile->state = $request->state;
         $profile->city = $request->city;
