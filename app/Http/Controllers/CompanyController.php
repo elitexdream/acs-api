@@ -9,6 +9,7 @@ use Validator;
 use App\User;
 use App\Company;
 use App\Profile;
+use App\City;
 
 class CompanyController extends Controller
 {
@@ -80,11 +81,9 @@ class CompanyController extends Controller
 		$company->administratorEmail = $company->customer->email;
 		$profile = $company->customer->profile;
 		$profile->id = $id;
+		$cities = City::where('state', $profile->state);
 		
-		return response()->json([
-			'company' => $company,
-			'profile' => $profile,
-		], 200);
+		return response()->json(compact('company', 'profile', 'cities'));
 	}
 
 	public function updateCustomerAccount(Request $request, $id)
@@ -132,7 +131,6 @@ class CompanyController extends Controller
 
         $company = Company::findOrFail($id);
         $profile = $company->customer->profile;
-
 
         $profile->address_1 = $request->address_1;
 		$profile->address_2 = $request->address_2;
