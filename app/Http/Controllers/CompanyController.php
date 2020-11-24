@@ -18,7 +18,7 @@ class CompanyController extends Controller
 		$companies = Company::select('id', 'name', 'user_id', 'created_at')->get();
 
 		foreach ($companies as $company) {
-			$company->administratorName = $company->customer->name;
+			$company->administratorName = $company->customerAdmins()->first()->name;
 		}
 
 		return response()->json(compact('companies'), 200);
@@ -44,6 +44,10 @@ class CompanyController extends Controller
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 
+        $company = Company::create([
+            'name' => $request->company_name
+        ]);
+
 		$password_string = md5(uniqid($request->email, true));
 		// $password_string = 'password';
 		
@@ -51,6 +55,7 @@ class CompanyController extends Controller
             'name' => $request->administrator_name,
             'email' => $request->administrator_email,
             'password' => bcrypt($password_string),
+            'company_id' => $company->id,
         ]);
 
 		$user->profile->update([
@@ -64,11 +69,6 @@ class CompanyController extends Controller
 		]);
 		$user->roles()->attach(ROLE_CUSTOMER_ADMIN);
 
-		$company = Company::create([
-            'user_id' => $user->id,
-            'name' => $request->company_name
-        ]);
-
         Mail::to($user->email)->send(new CustomerInvitation($password_string));
 
         return response()->json('Created successfully.', 201);
@@ -77,9 +77,9 @@ class CompanyController extends Controller
     public function getCustomer(Request $request, $id)
 	{
 		$company = Company::findOrFail($id);
-		$company->administratorName = $company->customer->name;
-		$company->administratorEmail = $company->customer->email;
-		$profile = $company->customer->profile;
+		$company->administratorName = $company->customerAdmins()->first()->name;
+		$company->administratorEmail = $company->customerAdmins()->first()->email;
+		$profile = $company->customerAdmins()->first()->profile;
 		$profile->id = $id;
 		$cities = City::where('state', $profile->state)->get();
 		

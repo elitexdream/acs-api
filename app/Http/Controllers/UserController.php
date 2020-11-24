@@ -119,7 +119,7 @@ class UserController extends Controller
 
 
     public function initCreateAccount() {
-        $roles = Role::whereIn('key', ['customer_manager', 'customer_operator'])->get();
+        $roles = Role::whereIn('key', ['customer_manager', 'customer_operator', 'customer_admin'])->get();
         $locations = Location::get();
         $zones = Zone::get();
 
@@ -128,17 +128,28 @@ class UserController extends Controller
 
     public function initEditAccount($id) {
         $user = User::findOrFail($id);
-        $roles = Role::whereIn('key', ['customer_manager', 'customer_operator'])->get();
+        $roles = Role::whereIn('key', ['customer_manager', 'customer_operator', 'customer_admin'])->get();
         $locations = Location::get();
         $zones = Zone::get();
         $user->role = $user->roles->first()->id;
         $user->selected_locations = $user->locations->pluck('id');
         $user->selected_zones = $user->zones->pluck('id');
 
+        $profile = $user->profile;
+
+        $user->address_1 = $profile->address_1;
+        $user->address_2 = $profile->address_2;
+        $user->zip = $profile->zip;
+        $user->state = $profile->state;
+        $user->city = $profile->city;
+        $user->country = $profile->country;
+        $user->phone = $profile->phone;
+
         return response()->json(compact('roles', 'locations', 'zones', 'user'));
     }
 
     public function getCompanyUsers(Request $request) {
+        // need change
         $company = Company::where('user_id', $request->user('api')->id)->first();
 
         $users = $company->users;
@@ -154,13 +165,19 @@ class UserController extends Controller
             'name' => 'required',
             'email' => 'required|email|max:255|unique:users,email',
             'role' => 'required',
+            'address_1' => 'required',
+            'address_2' => 'required',
+            'zip' => 'required',
+            'state' => 'required',
+            'city' => 'required',
+            'country' => 'required',
+            'phone' => 'required'
         ]);
 
         if ($validator->fails())
         {
             return response()->json(['error'=>$validator->errors()], 422);            
         }
-
 
         $password_string = md5(uniqid($request->email, true));
         
@@ -182,6 +199,16 @@ class UserController extends Controller
         //need updates
         $user->zones()->attach($request->zones);
 
+        $user->profile->update([
+            'address_1' => $request->address_1,
+            'address_2' => $request->address_2,
+            'zip' => $request->zip,
+            'state' => $request->state,
+            'city' => $request->city,
+            'country' => $request->country,
+            'phone' => $request->phone
+        ]);
+
         Mail::to($user->email)->send(new CustomerInvitation($password_string));
 
         return response()->json('Created successfully.', 201);
@@ -192,7 +219,7 @@ class UserController extends Controller
 
         $validator = Validator::make($request->all(), [ 
             'name' => 'required',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,' . $id,
             'role' => 'required',
         ]);
 
@@ -211,6 +238,37 @@ class UserController extends Controller
 
         //need updates
         $user->zones()->sync($request->zones);
+
+        return response()->json('Updated successfully.');
+    }
+
+    public function updateCompanyUserInformation(Request $request, $id) {
+        $profile = User::findOrFail($id)->profile;
+
+        $validator = Validator::make($request->all(), [ 
+            'address_1' => 'required',
+            'address_2' => 'required',
+            'zip' => 'required',
+            'state' => 'required',
+            'city' => 'required',
+            'country' => 'required',
+            'phone' => 'required'
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
+        $profile->address_1 = $request->address_1;
+        $profile->address_2 = $request->address_2;
+        $profile->zip = $request->zip;
+        $profile->state = $request->state;
+        $profile->city = $request->city;
+        $profile->country = $request->country;
+        $profile->phone = $request->phone;
+        
+        $profile->save();
 
         return response()->json('Updated successfully.');
     }

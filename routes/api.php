@@ -48,6 +48,7 @@ Route::group(['middleware' => 'auth:customer_admin'], function () {
 		Route::get('/init-create-account', 'UserController@initCreateAccount');
 		Route::get('/init-edit-account/{id}', 'UserController@initEditAccount');
 		Route::post('/update-account/{id}', 'UserController@updateCompanyUserAccount');
+		Route::post('/update-information/{id}', 'UserController@updateCompanyUserInformation');
 	});
 });
 
