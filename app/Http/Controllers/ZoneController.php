@@ -10,7 +10,7 @@ use App\Zone;
 class ZoneController extends Controller
 {
     public function initLocationsAndZones() {
-        $locations = Location::select('id', 'location')->get();
+        $locations = Location::get();
         $zones = Zone::select('id', 'name', 'location_id')->get();
 
         return response()->json([

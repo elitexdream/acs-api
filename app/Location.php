@@ -8,6 +8,6 @@ class Location extends Model
 {
 	public $timestamps = false;
     public $fillable = [
-    	'location'
+    	'name', 'state', 'city', 'zip'
     ];
 }

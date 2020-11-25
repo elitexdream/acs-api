@@ -16,24 +16,28 @@ class LocationController extends Controller
 
 	public function store(Request $request) {
     	$validator = Validator::make($request->all(), [ 
-	        'location' => 'required',
+	        'name' => 'required',
+            'state' => 'required',
+            'city' => 'required',
+            'zip' => 'required'
 	    ]);
 
 	    if ($validator->fails())
 	    {
-            return response()->json(['error'=>$validator->errors()], 422);            
+            return response()->json(['error' => $validator->errors()], 422);            
         }
 
-        $location = Location::create([
-            'location' => $request->location
-        ]);
+        Location::create($request->all());
 
         return response()->json('Successfully created.');
     }
 
 	public function update(Request $request) {
         $validator = Validator::make($request->all(), [ 
-            'location' => 'required',
+            'name' => 'required',
+            'state' => 'required',
+            'city' => 'required',
+            'zip' => 'required'
         ]);
 
         if ($validator->fails())
@@ -43,7 +47,11 @@ class LocationController extends Controller
 
         $location = Location::findOrFail($request->id);
 
-        $location->location = $request->location;
+        $location->name = $request->name;
+        $location->state = $request->state;
+        $location->city = $request->city;
+        $location->zip = $request->zip;
+
         $location->save();
 
         return response()->json('Successfully updated.');
