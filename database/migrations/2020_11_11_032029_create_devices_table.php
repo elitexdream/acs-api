@@ -15,7 +15,8 @@ class CreateDevicesTable extends Migration
     {
         Schema::create('devices', function (Blueprint $table) {
             $table->id();
-            $table->string('serial_number', 12);
+            $table->string('device_id', 12);
+            $table->string('serial_number', 20);
             $table->string('imei', 20)->nullable();
             $table->string('lan_mac_address', 20)->nullable();
             $table->string('iccid', 30)->nullable();
