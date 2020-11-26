@@ -73,7 +73,8 @@ class DeviceController extends Controller
             		continue;
             	}
             	Device::create([
-    	           'serial_number' => $device->serial,
+    	           'device_id' => $device->id,
+                   'serial_number' => $device->serial,
     	           'imei' => $device->imei, 
     	           'lan_mac_address' => $device->mac,
                    'iccid' => substr($device->iccid, 0, -1),
