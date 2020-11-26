@@ -8,6 +8,7 @@ use App\SimStatus;
 class Device extends Model
 {
     protected $fillable = [
+        'device_id',
         'serial_number',
         'imei',
         'lan_mac_address',
