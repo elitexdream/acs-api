@@ -81,12 +81,16 @@ class UserController extends Controller
 
         Mail::to($request->email)->send(new PasswordReset($password_string));
 
-        return response()->json('Email sent successfully.', 201);
+        return response()->json('Email sent successfully.');
     }
 
     public function check(Request $request) {
     	if (Auth::guard('api')->check()) {
             $user = $request->user('api');
+            if(!empty($request->role)) {
+                if(!$user->hasRole($request->role))
+                    return response()->json(false);
+            }
             $user->role = $user->roles->first()->key;
             
             return response()->json($user);
@@ -163,7 +167,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [ 
             'name' => 'required',
             'email' => 'required|email|max:255|unique:users,email',
-            'role' => 'required',
+            'role' => 'required|exists:roles,id',
             'address_1' => 'required',
             'zip' => 'required',
             'state' => 'required',
@@ -179,12 +183,8 @@ class UserController extends Controller
 
         $password_string = md5(uniqid($request->email, true));
         
-        // need some changes on user_id
-        
         $company = $request->user('api')->company;
 
-        $password_string = md5(uniqid($request->email, true));
-        
         $user = $company->users()->create([
             'name' => $request->name,
             'email' => $request->email,
@@ -218,7 +218,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [ 
             'name' => 'required',
             'email' => 'required|email|max:255|unique:users,email,' . $id,
-            'role' => 'required',
+            'role' => 'required|exists:roles,id',
         ]);
 
         if ($validator->fails())

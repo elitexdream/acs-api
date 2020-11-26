@@ -10,15 +10,15 @@ use App\User;
 use App\Company;
 use App\Profile;
 use App\City;
+use App\Role;
 use App\UserRole;
 
 class CompanyController extends Controller
 {
 	public function index()
 	{
-		$customer_admin_ids = UserRole::where('role_id', ROLE_CUSTOMER_ADMIN)->pluck('user_id');
-
-		$customer_admins = User::whereIn('id', $customer_admin_ids)->get();
+		$customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
+		$customer_admins = $customer_admin_role->users;
 
 		$companies = Company::select('id', 'name', 'created_at')->get();
 
@@ -27,7 +27,7 @@ class CompanyController extends Controller
 			$customer_admin->administratorName = $customer_admin->name;
 		}
 
-		return response()->json(compact('customer_admins'), 200);
+		return response()->json(compact('customer_admins'));
 	}
 
 	public function getCompanies() {

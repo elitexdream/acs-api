@@ -16,7 +16,7 @@ class UserRoleSeeder extends Seeder
         $user_roles = [
         	[
 	            'user_id' => 1,
-	            'role_id' => 1,
+	            'role_id' => ROLE_ACS_ADMIN,
         	]
         ];
         DB::table('user_roles')->insert($user_roles);
