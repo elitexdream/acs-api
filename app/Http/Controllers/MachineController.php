@@ -5,12 +5,75 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Company;
+use DB;
 
 class MachineController extends Controller
 {
+	private $num_chunks = 16;
+
 	public function index() {
     	$companies = Company::orderBy('name')->get();
 
 		return response()->json(compact('companies'));
+	}
+
+	private function parseValid($raw_array, $i) {
+		$width = $raw_array->count() / $this->num_chunks;
+		$chunks = array_chunk(json_decode($raw_array), $width);
+		return array_map(function($chunk) use ($i, $width) {
+			$sum = 0; $count = 0;
+			foreach ($chunk as $key => $item) {
+				$sum += json_decode($item)[$i];
+				$count ++;
+			}
+
+			return $sum / $count;
+		}, $chunks);
+	}
+
+	public function initProductAnalytics() {
+		$targetValues = DB::table('device_data')
+						->where('machine_id', 1)
+						->where('tag_id', 13)
+						->where('timestamp', '>', strtotime("-1 week"))
+						->orderBy('timestamp')
+						->pluck('values');
+		$actualValues = DB::table('device_data')
+						->where('machine_id', 1)
+						->where('tag_id', 14)
+						->where('timestamp', '>', strtotime("-1 week"))
+						->orderBy('timestamp')
+						->pluck('values');
+
+		$targets = $this->parseValid($targetValues, 0);
+		$actuals = $this->parseValid($actualValues, 0);
+
+		return response()->json(compact('targets', 'actuals'));
+	}
+
+	public function getProductWeight(Request $request) {
+		if($request->mode === 'Monthly')
+			$duration = strtotime("-1 month");
+		else {
+			$duration = strtotime("-1 week");
+		}
+
+		$targetValues = DB::table('device_data')
+						->where('machine_id', 1)
+						->where('tag_id', 13)
+						->where('timestamp', '>', $duration)
+						->orderBy('timestamp')
+						->pluck('values');
+		$actualValues = DB::table('device_data')
+						->where('machine_id', 1)
+						->where('tag_id', 14)
+						->where('timestamp', '>', $duration)
+						->orderBy('timestamp')
+						->pluck('values');
+
+		$targets = $this->parseValid($targetValues, 0);
+		$actuals = $this->parseValid($actualValues, 0);
+
+		return response()->json(compact('targets', 'actuals'));
 	}
 }

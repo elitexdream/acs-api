@@ -77,6 +77,11 @@ Route::group(['middleware' => 'auth:acs_admin'], function () {
 	});
 });
 
+Route::group(['prefix' => 'analytics'], function () {
+	Route::get('/init-product', 'MachineController@initProductAnalytics');
+	Route::post('/product-weight', 'MachineController@getProductWeight');
+});
+
 Route::group(['prefix' => 'cities'], function () {
 	Route::get('/{state}', 'CityController@citiesForState');
 });
