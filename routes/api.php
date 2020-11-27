@@ -86,7 +86,7 @@ Route::group(['middleware' => 'auth:acs_admin'], function () {
 });
 
 Route::group(['prefix' => 'analytics'], function () {
-	Route::get('/init-product', 'MachineController@initProductAnalytics');
+	Route::post('/init-product', 'MachineController@initProductAnalytics');
 	Route::post('/product-weight', 'MachineController@getProductWeight');
 });
 

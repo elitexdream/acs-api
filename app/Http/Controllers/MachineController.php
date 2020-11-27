@@ -31,22 +31,28 @@ class MachineController extends Controller
 		}, $chunks);
 	}
 
-	public function initProductAnalytics() {
+	public function initProductAnalytics(Request $request) {
+		if($request->mode === 'Monthly')
+			$duration = strtotime("-1 month");
+		else {
+			$duration = strtotime("-1 week");
+		}
+
 		$targetValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 13)
-						->where('timestamp', '>', strtotime("-1 week"))
+						->where('timestamp', '>', $duration)
 						->orderBy('timestamp')
 						->pluck('values');
 		$actualValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 14)
-						->where('timestamp', '>', strtotime("-1 week"))
+						->where('timestamp', '>', $duration)
 						->orderBy('timestamp')
 						->pluck('values');
 
-		$targets = $this->parseValid($targetValues, 0);
-		$actuals = $this->parseValid($actualValues, 0);
+		$targets = $this->parseValid($targetValues, $request->param);
+		$actuals = $this->parseValid($actualValues, $request->param);
 
 		return response()->json(compact('targets', 'actuals'));
 	}
@@ -71,8 +77,8 @@ class MachineController extends Controller
 						->orderBy('timestamp')
 						->pluck('values');
 
-		$targets = $this->parseValid($targetValues, 0);
-		$actuals = $this->parseValid($actualValues, 0);
+		$targets = $this->parseValid($targetValues, $request->param);
+		$actuals = $this->parseValid($actualValues, $request->param);
 
 		return response()->json(compact('targets', 'actuals'));
 	}
