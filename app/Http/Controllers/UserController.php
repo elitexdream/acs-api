@@ -19,6 +19,7 @@ use App\Role;
 use App\Location;
 use App\Zone;
 use App\UserRole;
+use App\City;
 
 class UserController extends Controller
 {
@@ -241,6 +242,138 @@ class UserController extends Controller
     }
 
     public function updateCompanyUserInformation(Request $request, $id) {
+        $profile = User::findOrFail($id)->profile;
+
+        $validator = Validator::make($request->all(), [ 
+            'address_1' => 'required',
+            'zip' => 'required',
+            'state' => 'required',
+            'city' => 'required',
+            'country' => 'required',
+            'phone' => 'required'
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
+        $profile->address_1 = $request->address_1;
+        $profile->zip = $request->zip;
+        $profile->state = $request->state;
+        $profile->city = $request->city;
+        $profile->country = $request->country;
+        $profile->phone = $request->phone;
+        
+        $profile->save();
+
+        return response()->json('Updated successfully.');
+    }
+
+    public function initAcsUsers() {
+        $ids = UserRole::whereIn('role_id', [ROLE_ACS_MANAGER, ROLE_ACS_VIEWER])->pluck('user_id');
+        $users = User::whereIn('id', $ids)->get();
+
+        foreach ($users as $key => $user) {
+            $user->role = $user->roles->first();
+        }
+        
+        return response()->json(compact('users'));
+    }
+
+    public function initCreateAcsUser() {
+        $roles = Role::whereIn('key', ['acs_manager', 'acs_viewer'])->get();
+
+        return response()->json(compact('roles'));
+    }
+
+    public function addAcsUser(Request $request) {
+        $validator = Validator::make($request->all(), [ 
+            'name' => 'required',
+            'email' => 'required|email|max:255|unique:users,email',
+            'role' => 'required|exists:roles,id',
+            'address_1' => 'required',
+            'zip' => 'required',
+            'state' => 'required',
+            'city' => 'required',
+            'country' => 'required',
+            'phone' => 'required'
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
+        $password_string = md5(uniqid($request->email, true));
+        
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($password_string),
+            'company_id' => 0,
+        ]);
+
+        $user->roles()->attach($request->role);
+
+        $user->profile->update([
+            'address_1' => $request->address_1,
+            'zip' => $request->zip,
+            'state' => $request->state,
+            'city' => $request->city,
+            'country' => $request->country,
+            'phone' => $request->phone
+        ]);
+
+        Mail::to($user->email)->send(new CustomerInvitation($password_string));
+
+        return response()->json('Created successfully.', 201);
+    }
+
+    public function initEditAcsUser($id) {
+        $user = User::findOrFail($id);
+        $roles = Role::whereIn('key', ['acs_manager', 'acs_viewer'])->get();
+        $user->role = $user->roles->first()->id;
+
+        $profile = $user->profile;
+
+        $user->address_1 = $profile->address_1;
+        $user->zip = $profile->zip;
+        $user->state = $profile->state;
+        $user->city = $profile->city;
+        $user->country = $profile->country;
+        $user->phone = $profile->phone;
+
+        $cities = City::where('state', $profile->state)->orderBy('city')->get();
+
+        return response()->json(compact('roles', 'user', 'cities'));
+    }
+
+    public function updateAcsUserAccount(Request $request, $id) {
+        $user = User::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [ 
+            'name' => 'required',
+            'email' => 'required|email|max:255|unique:users,email,' . $id,
+            'role' => 'required|exists:roles,id',
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        
+        $user->save();
+
+        $user->roles()->sync([$request->role]);
+
+        return response()->json('Updated successfully.');
+    }
+
+    public function updateAcsUserInformation(Request $request, $id) {
         $profile = User::findOrFail($id)->profile;
 
         $validator = Validator::make($request->all(), [ 

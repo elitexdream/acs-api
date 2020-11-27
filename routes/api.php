@@ -56,6 +56,14 @@ Route::group(['middleware' => 'auth:acs_admin'], function () {
 	Route::group(['prefix' => 'acs-machines'], function () {
 		Route::get('/', 'MachineController@index');
 	});
+	Route::group(['prefix' => 'acs-users'], function () {
+		Route::get('/', 'UserController@initAcsUsers');
+		Route::get('/init-create', 'UserController@initCreateAcsUser');
+		Route::get('/init-edit/{id}', 'UserController@initEditAcsUser');
+		Route::post('/store', 'UserController@addAcsUser');
+		Route::post('/update-account/{id}', 'UserController@updateAcsUserAccount');
+		Route::post('/update-information/{id}', 'UserController@updateAcsUserInformation');
+	});
 	Route::group(['prefix' => 'customers'], function () {
 		Route::get('/', 'CompanyController@index')->name('customers');
 		Route::get('/init-add-company', 'CompanyController@getCompanies');
