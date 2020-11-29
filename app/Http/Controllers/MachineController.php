@@ -64,8 +64,8 @@ class MachineController extends Controller
 						->orderBy('timestamp')
 						->pluck('values');
 
-		$targets = $this->parseValid($hopValues, $request->param);
-		$actuals = $this->parseValid($frtValues, $request->param);
+		$targets = $this->parseValid($targetValues, $request->param);
+		$actuals = $this->parseValid($actualValues, $request->param);
 		$hops = $this->parseValid($hopValues, $request->param);
 		$fractions = $this->parseValid($frtValues, $request->param);
 
