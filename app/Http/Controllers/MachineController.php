@@ -51,10 +51,25 @@ class MachineController extends Controller
 						->orderBy('timestamp')
 						->pluck('values');
 
-		$targets = $this->parseValid($targetValues, $request->param);
-		$actuals = $this->parseValid($actualValues, $request->param);
+		$hopValues = DB::table('device_data')
+						->where('machine_id', 1)
+						->where('tag_id', 15)
+						->where('timestamp', '>', $duration)
+						->orderBy('timestamp')
+						->pluck('values');
+		$frtValues = DB::table('device_data')
+						->where('machine_id', 1)
+						->where('tag_id', 16)
+						->where('timestamp', '>', $duration)
+						->orderBy('timestamp')
+						->pluck('values');
 
-		return response()->json(compact('targets', 'actuals'));
+		$targets = $this->parseValid($hopValues, $request->param);
+		$actuals = $this->parseValid($frtValues, $request->param);
+		$hops = $this->parseValid($hopValues, $request->param);
+		$fractions = $this->parseValid($frtValues, $request->param);
+
+		return response()->json(compact('targets', 'actuals', 'hops', 'fractions'));
 	}
 
 	public function getProductWeight(Request $request) {
@@ -81,5 +96,31 @@ class MachineController extends Controller
 		$actuals = $this->parseValid($actualValues, $request->param);
 
 		return response()->json(compact('targets', 'actuals'));
+	}
+
+	public function getProductInventory(Request $request) {
+		if($request->mode === 'Monthly')
+			$duration = strtotime("-1 month");
+		else {
+			$duration = strtotime("-1 week");
+		}
+
+		$hopValues = DB::table('device_data')
+						->where('machine_id', 1)
+						->where('tag_id', 15)
+						->where('timestamp', '>', $duration)
+						->orderBy('timestamp')
+						->pluck('values');
+		$frtValues = DB::table('device_data')
+						->where('machine_id', 1)
+						->where('tag_id', 16)
+						->where('timestamp', '>', $duration)
+						->orderBy('timestamp')
+						->pluck('values');
+
+		$hops = $this->parseValid($hopValues, $request->param);
+		$fractions = $this->parseValid($frtValues, $request->param);
+
+		return response()->json(compact('hops', 'fractions'));
 	}
 }
