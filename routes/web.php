@@ -16,5 +16,5 @@ use Illuminate\Support\Facades\Route;
 use App\Mail\CustomerInvitation;
 
 Route::get('/email', function () {
-    return new CustomerInvitation();
+    return new CustomerInvitation("123");
 });

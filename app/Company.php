@@ -10,11 +10,17 @@ class Company extends Model
         'user_id', 'name'
     ];
 
-    public function customer() {
-    	return $this->belongsTo('App\User', 'user_id');
-    }
-
     public function devices() {
     	return $this->hasMany('App\Device', 'company_id');
+    }
+
+    public function users() {
+    	return $this->hasMany('App\User', 'company_id');
+    }
+
+    public function customerAdmins() {
+        $admin_ids = UserRole::where('role_id', ROLE_CUSTOMER_ADMIN)->pluck('user_id');
+
+        return User::where('company_id', $this->id)->whereIn('id', $admin_ids)->get();
     }
 }

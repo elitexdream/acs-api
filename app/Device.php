@@ -8,6 +8,7 @@ use App\SimStatus;
 class Device extends Model
 {
     protected $fillable = [
+        'device_id',
         'serial_number',
         'imei',
         'lan_mac_address',
@@ -18,8 +19,4 @@ class Device extends Model
         'location_id',
         'zone_id'
     ];
-
-    public function simStatus() {
-    	return $this->belongsTo('App\SimStatus');
-    }
 }

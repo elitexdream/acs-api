@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('auth/check', 'UserController@check');
 Route::post('auth/signin', 'UserController@login');
 Route::post('auth/signup', 'UserController@register');
+Route::post('auth/password-reset', 'UserController@passwordReset');
 
 Route::middleware('auth')->group(function () {
     Route::get('/auth/logout', 'UserController@logout');
@@ -40,11 +41,32 @@ Route::group(['middleware' => 'auth:customer_admin'], function () {
 		Route::post('/add', 'ZoneController@store');
 		Route::patch('/update', 'ZoneController@update');
 	});
+
+	Route::group(['prefix' => 'company-users'], function () {
+		Route::get('/', 'UserController@getCompanyUsers');
+		Route::post('/store', 'UserController@addCompanyUser');
+		Route::get('/init-create-account', 'UserController@initCreateAccount');
+		Route::get('/init-edit-account/{id}', 'UserController@initEditAccount');
+		Route::post('/update-account/{id}', 'UserController@updateCompanyUserAccount');
+		Route::post('/update-information/{id}', 'UserController@updateCompanyUserInformation');
+	});
 });
 
 Route::group(['middleware' => 'auth:acs_admin'], function () {
+	Route::group(['prefix' => 'acs-machines'], function () {
+		Route::get('/', 'MachineController@index');
+	});
+	Route::group(['prefix' => 'acs-users'], function () {
+		Route::get('/', 'UserController@initAcsUsers');
+		Route::get('/init-create', 'UserController@initCreateAcsUser');
+		Route::get('/init-edit/{id}', 'UserController@initEditAcsUser');
+		Route::post('/store', 'UserController@addAcsUser');
+		Route::post('/update-account/{id}', 'UserController@updateAcsUserAccount');
+		Route::post('/update-information/{id}', 'UserController@updateAcsUserInformation');
+	});
 	Route::group(['prefix' => 'customers'], function () {
 		Route::get('/', 'CompanyController@index')->name('customers');
+		Route::get('/init-add-company', 'CompanyController@getCompanies');
 		Route::post('/add', 'CompanyController@addCustomer')->name('customers.store');
 		Route::get('/{id}', 'CompanyController@getCustomer')->name('customers.show');
 		Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount');
@@ -61,6 +83,12 @@ Route::group(['middleware' => 'auth:acs_admin'], function () {
 		Route::post('/query-sim/{iccid}', 'DeviceController@querySIM');
 		Route::post('/suspend-sim/{iccid}', 'DeviceController@suspendSIM');
 	});
+});
+
+Route::group(['prefix' => 'analytics'], function () {
+	Route::post('/init-product', 'MachineController@initProductAnalytics');
+	Route::post('/product-weight', 'MachineController@getProductWeight');
+	Route::post('/product-inventory', 'MachineController@getProductInventory');
 });
 
 Route::group(['prefix' => 'cities'], function () {

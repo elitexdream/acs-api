@@ -15,7 +15,6 @@ class UserSeeder extends Seeder
     {
         DB::table('users')->delete();
         DB::table('profiles')->delete();
-        DB::table('oauth_clients')->delete();
 
         $acs_administrator = [
             'id' => 1,
