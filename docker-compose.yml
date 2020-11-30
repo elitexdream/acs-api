@@ -23,15 +23,15 @@ services:
   #Nginx Service
   webserver:
     image: nginx:1.16-alpine
-    container_name: webserver
+    container_name: acs-webserver
     restart: unless-stopped
     tty: true
     ports:
       - "8000:80"
       # - "8001:443"
     volumes:
-      - ./:/var/www/html/acs-api
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./src/acs-api:/var/www/html/acs-api
+      - ./nginx/:/etc/nginx/sites-available
     networks:
       - app-network
 
