@@ -29,22 +29,17 @@ class Authenticate extends Middleware
      * @param  string|null  $guard
      * @return mixed
      */
-    public function handle($request, Closure $next, $role = null, $guard = null)
+    public function handle($request, Closure $next, ...$roles)
     {
-        // dd(Auth::guard('api')->guest());
-
         if (Auth::guard('api')->guest()) {
             return response('Unauthorized.', 401);
         }
 
-        if ($role) {
-            $user = $request->user('api');
-            // Check the user role.
-            if (!$user->hasRole($role)) {
-                return response('Unauthorized.', 401);
-            }
+        $user = $request->user('api');
+        foreach($roles as $role) {
+            if($user->hasRole($role))
+                return $next($request);
         }
-
-        return $next($request);
+        return response('Unauthorized.', 401);
     }
 }

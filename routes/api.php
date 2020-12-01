@@ -52,37 +52,37 @@ Route::group(['middleware' => 'auth:customer_admin'], function () {
 	});
 });
 
-Route::group(['middleware' => 'auth:acs_admin'], function () {
-	Route::group(['prefix' => 'acs-machines'], function () {
-		Route::get('/', 'MachineController@index');
-	});
-	Route::group(['prefix' => 'acs-users'], function () {
-		Route::get('/', 'UserController@initAcsUsers');
-		Route::get('/init-create', 'UserController@initCreateAcsUser');
-		Route::get('/init-edit/{id}', 'UserController@initEditAcsUser');
-		Route::post('/store', 'UserController@addAcsUser');
-		Route::post('/update-account/{id}', 'UserController@updateAcsUserAccount');
-		Route::post('/update-information/{id}', 'UserController@updateAcsUserInformation');
-	});
-	Route::group(['prefix' => 'customers'], function () {
-		Route::get('/', 'CompanyController@index')->name('customers');
-		Route::get('/init-add-company', 'CompanyController@getCompanies');
-		Route::post('/add', 'CompanyController@addCustomer')->name('customers.store');
-		Route::get('/{id}', 'CompanyController@getCustomer')->name('customers.show');
-		Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount');
-		Route::post('/update-profile/{id}', 'CompanyController@updateCustomerProfile')->name('customers.update.profile');
-	});
+Route::group(['prefix' => 'acs-users'], function () {
+	Route::get('/', 'UserController@initAcsUsers')->middleware('auth:acs_admin,acs_manager,acs_viewer');
+	Route::get('/init-create', 'UserController@initCreateAcsUser')->middleware('auth:acs_admin');
+	Route::get('/init-edit/{id}', 'UserController@initEditAcsUser')->middleware('auth:acs_admin');
+	Route::post('/store', 'UserController@addAcsUser')->middleware('auth:acs_admin');
+	Route::post('/update-account/{id}', 'UserController@updateAcsUserAccount')->middleware('auth:acs_admin');
+	Route::post('/update-information/{id}', 'UserController@updateAcsUserInformation')->middleware('auth:acs_admin');
+});
 
-	Route::group(['prefix' => 'devices'], function () {
-		Route::get('/{pageNum}', 'DeviceController@getDevices')->name('devices');
-		Route::post('/import', 'DeviceController@importDevices');
-		Route::post('/device-assigned', 'DeviceController@deviceAssigned')->name('devices.device.assigned');
-		Route::post('/device-register-update', 'DeviceController@updateRegistered')->name('devices.update.registered');
-		Route::post('/suspend-device', 'DeviceController@suspendDevice');
+Route::group(['prefix' => 'acs-machines'], function () {
+	Route::get('/', 'MachineController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer');
+});
 
-		Route::post('/query-sim/{iccid}', 'DeviceController@querySIM');
-		Route::post('/suspend-sim/{iccid}', 'DeviceController@suspendSIM');
-	});
+Route::group(['prefix' => 'customers'], function () {
+	Route::get('/', 'CompanyController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer');
+	Route::get('/init-add-company', 'CompanyController@getCompanies')->middleware('auth:acs_admin,acs_manager');
+	Route::post('/add', 'CompanyController@addCustomer')->middleware('auth:acs_admin,acs_manager');
+	Route::get('/{id}', 'CompanyController@getCustomer')->middleware('auth:acs_admin,acs_manager');
+	Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount')->middleware('auth:acs_admin,acs_manager');
+	Route::post('/update-profile/{id}', 'CompanyController@updateCustomerProfile')->middleware('auth:acs_admin,acs_manager');
+});
+
+Route::group(['prefix' => 'devices'], function () {
+	Route::get('/{pageNum}', 'DeviceController@getDevices')->middleware('auth:acs_admin,acs_manager');
+	Route::post('/import', 'DeviceController@importDevices')->middleware('auth:acs_admin,acs_manager');
+	Route::post('/device-assigned', 'DeviceController@deviceAssigned')->middleware('auth:acs_admin,acs_manager');
+	Route::post('/device-register-update', 'DeviceController@updateRegistered')->middleware('auth:acs_admin,acs_manager');
+	Route::post('/suspend-device', 'DeviceController@suspendDevice')->middleware('auth:acs_admin,acs_manager');
+
+	Route::post('/query-sim/{iccid}', 'DeviceController@querySIM')->middleware('auth:acs_admin,acs_manager');
+	Route::post('/suspend-sim/{iccid}', 'DeviceController@suspendSIM')->middleware('auth:acs_admin,acs_manager');
 });
 
 Route::group(['prefix' => 'analytics'], function () {
@@ -102,3 +102,7 @@ Route::group(['prefix' => 'cities'], function () {
 Route::post('test/send-mail', 'CompanyController@testMail');
 Route::post('test/send-sms', 'CompanyController@testSMS');
 Route::post('test/blender-json', 'TestController@store');
+
+Route::get('test', function() {
+	return 'ok';
+});
