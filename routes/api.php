@@ -23,33 +23,31 @@ Route::middleware('auth')->group(function () {
 	Route::post('/auth/update-password', 'UserController@updatePassword');
 });
 
-Route::group(['middleware' => 'auth:customer_admin'], function () {
-	Route::group(['prefix' => 'devices'], function () {
-		Route::get('/customer-devices', 'DeviceController@getCustomerDevices');
-	});
+Route::group(['prefix' => 'locations'], function () {
+	Route::get('/', 'LocationController@index')->middleware('auth:customer_admin,customer_manager');
+	Route::post('/add', 'LocationController@store')->middleware('auth:customer_admin,customer_manager');
+	Route::patch('/update', 'LocationController@update')->middleware('auth:customer_admin,customer_manager');
+});
 
-	Route::group(['prefix' => 'locations'], function () {
-		Route::get('/', 'LocationController@index');
-		Route::post('/add', 'LocationController@store');
-		Route::patch('/update', 'LocationController@update');
-	});
+Route::get('/locations-zones', 'ZoneController@initLocationsAndZones')->middleware('auth:customer_admin,customer_manager');
 
-	Route::get('/locations-zones', 'ZoneController@initLocationsAndZones');
-	
-	Route::group(['prefix' => 'zones'], function () {
-		Route::get('/', 'ZoneController@index');
-		Route::post('/add', 'ZoneController@store');
-		Route::patch('/update', 'ZoneController@update');
-	});
+Route::group(['prefix' => 'zones'], function () {
+	Route::get('/', 'ZoneController@index')->middleware('auth:customer_admin,customer_manager');
+	Route::post('/add', 'ZoneController@store')->middleware('auth:customer_admin,customer_manager');
+	Route::patch('/update', 'ZoneController@update')->middleware('auth:customer_admin,customer_manager');
+});
 
-	Route::group(['prefix' => 'company-users'], function () {
-		Route::get('/', 'UserController@getCompanyUsers');
-		Route::post('/store', 'UserController@addCompanyUser');
-		Route::get('/init-create-account', 'UserController@initCreateAccount');
-		Route::get('/init-edit-account/{id}', 'UserController@initEditAccount');
-		Route::post('/update-account/{id}', 'UserController@updateCompanyUserAccount');
-		Route::post('/update-information/{id}', 'UserController@updateCompanyUserInformation');
-	});
+Route::group(['prefix' => 'devices'], function () {
+	Route::get('/customer-devices', 'DeviceController@getCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
+});
+
+Route::group(['prefix' => 'company-users'], function () {
+	Route::get('/', 'UserController@getCompanyUsers')->middleware('auth:customer_admin,customer_manager,customer_operator');
+	Route::post('/store', 'UserController@addCompanyUser')->middleware('auth:customer_admin');
+	Route::get('/init-create-account', 'UserController@initCreateAccount')->middleware('auth:customer_admin');
+	Route::get('/init-edit-account/{id}', 'UserController@initEditAccount')->middleware('auth:customer_admin');
+	Route::post('/update-account/{id}', 'UserController@updateCompanyUserAccount')->middleware('auth:customer_admin');
+	Route::post('/update-information/{id}', 'UserController@updateCompanyUserInformation')->middleware('auth:customer_admin');
 });
 
 Route::group(['prefix' => 'acs-users'], function () {
@@ -62,7 +60,7 @@ Route::group(['prefix' => 'acs-users'], function () {
 });
 
 Route::group(['prefix' => 'acs-machines'], function () {
-	Route::get('/', 'MachineController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer');
+	Route::get('/', 'MachineController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 });
 
 Route::group(['prefix' => 'customers'], function () {
