@@ -194,10 +194,12 @@ class UserController extends Controller
 
         $user->roles()->attach($request->role);
 
-        $user->locations()->attach($request->locations);
+        if($request->role != ROLE_CUSTOMER_ADMIN) {
+            $user->locations()->attach($request->locations);
 
-        //need updates
-        $user->zones()->attach($request->zones);
+            //need updates
+            $user->zones()->attach($request->zones);
+        }
 
         $user->profile->update([
             'address_1' => $request->address_1,
@@ -233,10 +235,14 @@ class UserController extends Controller
         $user->save();
 
         $user->roles()->sync([$request->role]);
-        $user->locations()->sync($request->locations);
-
-        //need updates
-        $user->zones()->sync($request->zones);
+        
+        if($request->role == ROLE_CUSTOMER_ADMIN) {
+            $user->locations()->sync([]);
+            $user->zones()->sync([]);
+        } else {
+            $user->locations()->sync($request->locations);
+            $user->zones()->sync($request->zones);
+        }
 
         return response()->json('Updated successfully.');
     }
@@ -271,7 +277,7 @@ class UserController extends Controller
     }
 
     public function initAcsUsers() {
-        $ids = UserRole::whereIn('role_id', [ROLE_ACS_MANAGER, ROLE_ACS_VIEWER])->pluck('user_id');
+        $ids = UserRole::whereIn('role_id', [ROLE_ACS_ADMIN, ROLE_ACS_MANAGER, ROLE_ACS_VIEWER])->pluck('user_id');
         $users = User::whereIn('id', $ids)->get();
 
         foreach ($users as $key => $user) {
@@ -282,7 +288,7 @@ class UserController extends Controller
     }
 
     public function initCreateAcsUser() {
-        $roles = Role::whereIn('key', ['acs_manager', 'acs_viewer'])->get();
+        $roles = Role::whereIn('key', ['acs_admin', 'acs_manager', 'acs_viewer'])->get();
 
         return response()->json(compact('roles'));
     }
@@ -332,7 +338,7 @@ class UserController extends Controller
 
     public function initEditAcsUser($id) {
         $user = User::findOrFail($id);
-        $roles = Role::whereIn('key', ['acs_manager', 'acs_viewer'])->get();
+        $roles = Role::whereIn('key', ['acs_admin', 'acs_manager', 'acs_viewer'])->get();
         $user->role = $user->roles->first()->id;
 
         $profile = $user->profile;
