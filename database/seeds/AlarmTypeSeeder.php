@@ -16,21 +16,69 @@ class AlarmTypeSeeder extends Seeder
         $alarm_types = [
             [
           		'id' => 1,
-	          	'name' => 'Power Loss'
-
+	          	'name' => 'Power Loss',
+                'machine_id' => 1,
             ], [
 	          	'id' => 2,
-	          	'name' => 'Out of Material'
+	          	'name' => 'Out of Material',
+                'machine_id' => 1,
 	      	], [
 	          	'id' => 3,
-	          	'name' => 'Hopper Unstable'
+	          	'name' => 'Hopper Unstable',
+                'machine_id' => 1,
 	      	], [
 				'id' => 4,
-				'name' => 'Mixer Failure'
+				'name' => 'Mixer Failure',
+                'machine_id' => 1,
 	      	], [
 				'id' => 5,
-				'name' => 'Unable to make rate'
-	      	]
+				'name' => 'Unable to make rate',
+                'machine_id' => 1,
+	      	], [
+                'id' => 6,
+                'name' => 'System Not Stable',
+                'machine_id' => 3,
+            ], [
+                'id' => 7,
+                'name' => 'Out Of Material',
+                'machine_id' => 3,
+            ], [
+                'id' => 8,
+                'name' => 'Load Cell Failure',
+                'machine_id' => 3,
+            ], [
+                'id' => 9,
+                'name' => 'No Extruder Flow',
+                'machine_id' => 3,
+            ], [
+                'id' => 10,
+                'name' => 'Extruder Drive Failure',
+                'machine_id' => 3,
+            ], [
+                'id' => 11,
+                'name' => 'Hauloff Drive Failure',
+                'machine_id' => 3,
+            ], [
+                'id' => 12,
+                'name' => 'Extruder Underspeed',
+                'machine_id' => 3,
+            ], [
+                'id' => 13,
+                'name' => 'Extruder Overspeed',
+                'machine_id' => 3,
+            ], [
+                'id' => 14,
+                'name' => 'Hauloff Underspeed',
+                'machine_id' => 3,
+            ], [
+                'id' => 15,
+                'name' => 'Hauloff Overspeed',
+                'machine_id' => 3,
+            ], [
+                'id' => 16,
+                'name' => 'Hopper Over Max Flow',
+                'machine_id' => 3,
+            ]
         ];
         DB::table('alarm_types')->insert($alarm_types);
     }

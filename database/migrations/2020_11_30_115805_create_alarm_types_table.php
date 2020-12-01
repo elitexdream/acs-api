@@ -16,6 +16,7 @@ class CreateAlarmTypesTable extends Migration
         Schema::create('alarm_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->unsignedBigInteger('machine_id');
             $table->timestamps();
         });
     }

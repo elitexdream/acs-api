@@ -24,65 +24,78 @@ class MachineController extends Controller
 		$id = $request->machineId;
 		$machine = Machine::where('id', $id)->select('id', 'name')->first();
 
-		if($request->mode === 'Monthly')
-			$duration = strtotime("-1 month");
-		else {
-			$duration = strtotime("-1 week");
+		// machine version
+		if($version_object = DeviceData::where('machine_id', $id)->where('tag_id', 4)->latest('timestamp')->first()) {
+			$machine->version = json_decode($version_object->values)[0];
 		}
 
-		$targetValues = DB::table('device_data')
-						->where('machine_id', 1)
-						->where('tag_id', 13)
-						->where('timestamp', '>', $duration)
-						->orderBy('timestamp')
-						->pluck('values');
-		$actualValues = DB::table('device_data')
-						->where('machine_id', 1)
-						->where('tag_id', 14)
-						->where('timestamp', '>', $duration)
-						->orderBy('timestamp')
-						->pluck('values');
+		if($id == MACHINE_BD_Batch_Blender) {
+			if($request->mode === 'Monthly')
+				$duration = strtotime("-1 month");
+			else {
+				$duration = strtotime("-1 week");
+			}
 
-		$hopValues = DB::table('device_data')
-						->where('machine_id', 1)
-						->where('tag_id', 15)
-						->where('timestamp', '>', $duration)
+			$targetValues = DB::table('device_data')
+							->where('machine_id', $id)
+							->where('tag_id', 13)
+							->where('timestamp', '>', $duration)
+							->orderBy('timestamp')
+							->pluck('values');
+			$actualValues = DB::table('device_data')
+							->where('machine_id', $id)
+							->where('tag_id', 14)
+							->where('timestamp', '>', $duration)
+							->orderBy('timestamp')
+							->pluck('values');
+
+			$hopValues = DB::table('device_data')
+							->where('machine_id', $id)
+							->where('tag_id', 15)
+							->where('timestamp', '>', $duration)
+							->orderBy('timestamp')
+							->pluck('values');
+			$frtValues = DB::table('device_data')
+							->where('machine_id', $id)
+							->where('tag_id', 16)
+							->where('timestamp', '>', $duration)
+							->orderBy('timestamp')
+							->pluck('values');
+
+			$targets = $this->parseValid($targetValues, $request->param);
+			$actuals = $this->parseValid($actualValues, $request->param);
+			$hops = $this->parseValid($hopValues, $request->param);
+			$fractions = $this->parseValid($frtValues, $request->param);
+
+			$alarm_types = AlarmType::where('machine_id', $id)->get();
+			$alarms = DeviceData::where('machine_id', $id)
+						->whereIn('tag_id', [27, 28, 31, 32, 33, 34, 35, 36, 37, 38])
+						// ->where('timestamp', '>', $duration)
 						->orderBy('timestamp')
-						->pluck('values');
-		$frtValues = DB::table('device_data')
-						->where('machine_id', 1)
-						->where('tag_id', 16)
-						->where('timestamp', '>', $duration)
+						->get();
+
+			return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
+		} else if($id == MACHINE_GH_Gravimetric_Extrusion_Control_Hopper) {
+			$hopper_inventory_values = DeviceData::where('machine_id', $id)
+							->where('tag_id', 23)
+							->orderBy('timestamp')
+							->pluck('values');
+			$hopper_inventories = $this->parseValid1($hopper_inventory_values, true);
+
+			$hauloff_length_values = DeviceData::where('machine_id', $id)
+							->where('tag_id', 24)
+							->orderBy('timestamp')
+							->pluck('values');
+			$hauloff_lengths = $this->parseValid1($hauloff_length_values, true);
+
+			$alarm_types = AlarmType::where('machine_id', $id)->get();
+			$alarms = DeviceData::where('machine_id', $id)
+						->where('tag_id', 30)
 						->orderBy('timestamp')
-						->pluck('values');
-
-		$targets = $this->parseValid($targetValues, $request->param);
-		$actuals = $this->parseValid($actualValues, $request->param);
-		$hops = $this->parseValid($hopValues, $request->param);
-		$fractions = $this->parseValid($frtValues, $request->param);
-
-		$alarm_types = AlarmType::get();
-		$alarms = DeviceData::where('machine_id', 6)
-					->whereIn('tag_id', [27, 28, 31, 32, 33, 34, 35, 36, 37, 38])
-					// ->where('timestamp', '>', $duration)
-					->orderBy('timestamp')
-					->get();
-
-		switch ($id) {
-			case 1:
-				return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
-			case 2:
-				return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
-			case 3:
-				return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
-			case 4:
-				return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
-			case 5:
-				return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
-			case 6:
-				return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
-			default:
-				return response()->json('Not found', 404);
+						->get();
+			return response()->json(compact('machine', 'hopper_inventories', 'hauloff_lengths', 'alarm_types', 'alarms'));
+		} else {
+			return response()->json(compact('machine'));
 		}
 	}
 
@@ -93,6 +106,21 @@ class MachineController extends Controller
 			$sum = 0; $count = 0;
 			foreach ($chunk as $key => $item) {
 				$sum += json_decode($item)[$i];
+				$count ++;
+			}
+
+			return (int)($sum / $count);
+		}, $chunks);
+	}
+
+	private function parseValid1($raw_array, $is_float = false) {
+		$width = $raw_array->count() / $this->num_chunks;
+		$chunks = array_chunk(json_decode($raw_array), $width);
+		return array_map(function($chunk) use ($is_float, $width) {
+			$sum = 0; $count = 0;
+			foreach ($chunk as $key => $item) {
+				$tmp = json_decode($item)[0];
+				$sum += $tmp;
 				$count ++;
 			}
 
