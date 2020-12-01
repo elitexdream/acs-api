@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Company;
 use App\AlarmType;
 use App\DeviceData;
+use App\Machine;
 use DB;
 
 class MachineController extends Controller
@@ -20,6 +21,9 @@ class MachineController extends Controller
 	}
 
 	public function initProductPage(Request $request) {
+		$id = $request->machineId;
+		$machine = Machine::where('id', $id)->select('id', 'name')->first();
+
 		if($request->mode === 'Monthly')
 			$duration = strtotime("-1 month");
 		else {
@@ -64,7 +68,22 @@ class MachineController extends Controller
 					->orderBy('timestamp')
 					->get();
 
-		return response()->json(compact('targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
+		switch ($id) {
+			case 1:
+				return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
+			case 2:
+				return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
+			case 3:
+				return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
+			case 4:
+				return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
+			case 5:
+				return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
+			case 6:
+				return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
+			default:
+				return response()->json('Not found', 404);
+		}
 	}
 
 	private function parseValid($raw_array, $i) {
