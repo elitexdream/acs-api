@@ -152,10 +152,15 @@ class UserController extends Controller
         return response()->json(compact('roles', 'locations', 'zones', 'user'));
     }
 
+
+    /*
+        Get company users
+    */
     public function getCompanyUsers(Request $request) {
-        // need change
+        // get company that the user belongs to
         $company = $request->user('api')->company;
 
+        // get all users that belongs to the company above
         $users = $company->users;
         foreach ($users as $key => $user) {
             $user->role = $user->roles->first();
@@ -195,9 +200,8 @@ class UserController extends Controller
         $user->roles()->attach($request->role);
 
         if($request->role != ROLE_CUSTOMER_ADMIN) {
+            // add locations and zones only to customer operator and customer manager, not customer admin
             $user->locations()->attach($request->locations);
-
-            //need updates
             $user->zones()->attach($request->zones);
         }
 
@@ -237,6 +241,7 @@ class UserController extends Controller
         $user->roles()->sync([$request->role]);
         
         if($request->role == ROLE_CUSTOMER_ADMIN) {
+            // remove locations and zones because customer admin can access to all locations and zones
             $user->locations()->sync([]);
             $user->zones()->sync([]);
         } else {

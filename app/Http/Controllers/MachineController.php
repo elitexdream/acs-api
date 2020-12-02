@@ -30,6 +30,11 @@ class MachineController extends Controller
 		}
 
 		if($id == MACHINE_BD_Batch_Blender) {
+			$energy_consumption_values = DeviceData::where('machine_id', $id)
+							->where('tag_id', 3)
+							->pluck('values');
+			$energy_consumption = $this->parseValid1($energy_consumption_values);
+
 			if($request->mode === 'Monthly')
 				$duration = strtotime("-1 month");
 			else {
@@ -74,26 +79,42 @@ class MachineController extends Controller
 						->orderBy('timestamp')
 						->get();
 
-			return response()->json(compact('machine', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
+			return response()->json(compact('machine', 'energy_consumption', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
 		} else if($id == MACHINE_GH_Gravimetric_Extrusion_Control_Hopper) {
+			$energy_consumption_values = DeviceData::where('machine_id', $id)
+							->where('tag_id', 3)
+							->pluck('values');
+			$energy_consumption = $this->parseValid1($energy_consumption_values);
+
 			$hopper_inventory_values = DeviceData::where('machine_id', $id)
 							->where('tag_id', 23)
 							->orderBy('timestamp')
 							->pluck('values');
-			$hopper_inventories = $this->parseValid1($hopper_inventory_values, true);
+			$hopper_inventories = $this->parseValid1($hopper_inventory_values);
 
 			$hauloff_length_values = DeviceData::where('machine_id', $id)
 							->where('tag_id', 24)
 							->orderBy('timestamp')
 							->pluck('values');
-			$hauloff_lengths = $this->parseValid1($hauloff_length_values, true);
+			$hauloff_lengths = $this->parseValid1($hauloff_length_values);
+
+			$actual_points_values = DeviceData::where('machine_id', $id)
+							->where('tag_id', 20)
+							->pluck('values');
+			$actual_points = $this->parseValid1($actual_points_values);
+
+			$set_points_values = DeviceData::where('machine_id', $id)
+							->where('tag_id', 21)
+							->pluck('values');
+			$set_points = $this->parseValid1($set_points_values);
 
 			$alarm_types = AlarmType::where('machine_id', $id)->get();
 			$alarms = DeviceData::where('machine_id', $id)
 						->where('tag_id', 30)
 						->orderBy('timestamp')
 						->get();
-			return response()->json(compact('machine', 'hopper_inventories', 'hauloff_lengths', 'alarm_types', 'alarms'));
+
+			return response()->json(compact('machine', 'energy_consumption', 'hopper_inventories', 'hauloff_lengths', 'alarm_types', 'alarms', 'set_points', 'actual_points'));
 		} else {
 			return response()->json(compact('machine'));
 		}
@@ -113,10 +134,10 @@ class MachineController extends Controller
 		}, $chunks);
 	}
 
-	private function parseValid1($raw_array, $is_float = false) {
-		$width = $raw_array->count() / $this->num_chunks;
+	private function parseValid1($raw_array) {
+		$width = $raw_array->count() / $this->num_chunks + 1;
 		$chunks = array_chunk(json_decode($raw_array), $width);
-		return array_map(function($chunk) use ($is_float, $width) {
+		return array_map(function($chunk) use ($width) {
 			$sum = 0; $count = 0;
 			foreach ($chunk as $key => $item) {
 				$tmp = json_decode($item)[0];
