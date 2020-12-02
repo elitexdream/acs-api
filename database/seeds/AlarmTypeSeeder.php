@@ -78,6 +78,34 @@ class AlarmTypeSeeder extends Seeder
                 'id' => 16,
                 'name' => 'Hopper Over Max Flow',
                 'machine_id' => 3,
+            ], [
+                'id' => 17,
+                'name' => 'Out Of Material',
+                'machine_id' => 2,
+            ], [
+                'id' => 18,
+                'name' => 'Load Cell Failure',
+                'machine_id' => 2,
+            ], [
+                'id' => 19,
+                'name' => 'Load Cell Overload',
+                'machine_id' => 2,
+            ], [
+                'id' => 20,
+                'name' => 'No Flow',
+                'machine_id' => 2,
+            ], [
+                'id' => 21,
+                'name' => 'Unable to make rate',
+                'machine_id' => 2,
+            ], [
+                'id' => 22,
+                'name' => 'Bad Blend',
+                'machine_id' => 2,
+            ], [
+                'id' => 23,
+                'name' => 'Blender Rate Out Of Range',
+                'machine_id' => 2,
             ]
         ];
         DB::table('alarm_types')->insert($alarm_types);

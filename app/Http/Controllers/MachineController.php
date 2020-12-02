@@ -80,6 +80,23 @@ class MachineController extends Controller
 						->get();
 
 			return response()->json(compact('machine', 'energy_consumption', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
+		} else if($id == MACHINE_Accumeter_Ovation_Continuous_Blender) {
+			$energy_consumption_values = DeviceData::where('machine_id', $id)
+							->where('tag_id', 3)
+							->pluck('values');
+			$energy_consumption = $this->parseValid1($energy_consumption_values);
+
+			$alarm_types = AlarmType::where('machine_id', $id)->get();
+			$alarms = [];
+
+			return response()->json(
+				compact(
+					'machine',
+					'energy_consumption',
+					'alarm_types',
+					'alarms'
+				)
+			);
 		} else if($id == MACHINE_GH_Gravimetric_Extrusion_Control_Hopper) {
 			$energy_consumption_values = DeviceData::where('machine_id', $id)
 							->where('tag_id', 3)
