@@ -18,8 +18,8 @@ jobs:
       uses: Azure/pipelines@v1
       with:
     # Fullyqualified URL to the Azure DevOps organization along with project name(eg, https://dev.azure.com/organization/project-name or https://server.example.com:8080/tfs/DefaultCollection/project-name)
-         azure-devops-project-url: ${{DEVOPS_PROJECT_URL}}
+         azure-devops-project-url: ${{ secrets.DEVOPS_PROJECT_URL }}
     # Name of the Azure Pipline to be triggered
-         azure-pipeline-name: ${{DEVOPS_PIPELINE_NAME}}
+         azure-pipeline-name: ${{ secrets.DEVOPS_PIPELINE_NAME }}
     # Paste personal access token of the user as value of secret variable:AZURE_DEVOPS_TOKEN
-         azure-devops-token: ${{DEVOPS_TOKEN}}
+         azure-devops-token: ${{ secrets.DEVOPS_TOKEN }}
