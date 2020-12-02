@@ -81,6 +81,7 @@ Route::group(['prefix' => 'devices'], function () {
 
 	Route::post('/query-sim/{iccid}', 'DeviceController@querySIM')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/suspend-sim/{iccid}', 'DeviceController@suspendSIM')->middleware('auth:acs_admin,acs_manager');
+	Route::post('/remote-control/{deviceid}', 'DeviceController@remoteControl')->middleware('auth:acs_admin,acs_manager');
 });
 
 Route::group(['prefix' => 'analytics'], function () {
