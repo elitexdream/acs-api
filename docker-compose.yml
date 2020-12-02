@@ -2,7 +2,7 @@ version: '3'
 services:
 
   #PHP Service
-  app:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
@@ -19,6 +19,8 @@ services:
       - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
       - app-network
+    links:
+      - db
 
   #Nginx Service
   webserver:
@@ -30,17 +32,33 @@ services:
       - "8000:80"
       # - "8001:443"
     volumes:
-      - ./src/acs-api:/var/www/html/acs-api
-      - ./nginx/:/etc/nginx/sites-available
+      - ./:/var/www/html/acs-api
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
     networks:
       - app-network
 
   #Postgres Service
   db:
     image: postgres:12-alpine
-    container_name: db
+    container_name: acs-db
     restart: unless-stopped
     tty: true
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+      - SERVICE_TAGS=dev
+      - SERVICE_NAME=postgresql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: your_mysql_root_password
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+      
     volumes:
          - "./sourcefiles/postgres:/var/lib/postgresql/data"
     environment:
@@ -58,6 +76,7 @@ services:
 networks:
   app-network:
     driver: bridge
+
 #Volumes
 volumes:
   dbdata:
