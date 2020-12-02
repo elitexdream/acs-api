@@ -17,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password'
+        'name', 'email', 'password', 'company_id'
     ];
 
     /**
@@ -38,6 +38,18 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($user) {
+            $user->profile()->create([
+            ]);
+
+            // Mail::to($user->email)->send(new NewUserWelcomeMail());
+        });
+    }
+    
     /**
     * The roles that belong to the user.
     *
@@ -53,9 +65,10 @@ class User extends Authenticatable
     *
     * @return mixed
     */
-    public function companies()
+
+    public function company()
     {
-        return $this->hasMany('App\Company', 'user_id');
+        return $this->belongsTo('App\Company');
     }
 
     /**
@@ -85,5 +98,15 @@ class User extends Authenticatable
         }
 
         return false;
+    }
+
+    public function locations()
+    {
+        return $this->belongsToMany('App\Location', 'user_locations', 'user_id', 'location_id');
+    }
+
+    public function zones()
+    {
+        return $this->belongsToMany('App\Zone', 'user_zones', 'user_id', 'zone_id');
     }
 }

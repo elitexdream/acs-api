@@ -1,10 +1,8 @@
 @component('mail::message')
-# Introduction
+Your password is <i>{{ $password }}</i>
 
-The body of your message.
-
-@component('mail::button', ['url' => ''])
-Button Text
+@component('mail::button', ['url' => env('APP_URL') . '/auth/signin'])
+SignIn
 @endcomponent
 
 Thanks,<br>

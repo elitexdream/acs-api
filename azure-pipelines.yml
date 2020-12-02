@@ -1,0 +1,19 @@
+trigger:
+- main
+pool:
+  vmImage: 'ubuntu-latest'
+steps:
+- task: CopyFiles@2
+  inputs:
+    targetFolder: '$(Build.ArtifactStagingDirectory)'    
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
+- task: PublishBuildArtifacts@1    
+  displayName: 'Publish Artifact: $(Build.BuildId).zip'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)/$(Build.BuildId).zip'

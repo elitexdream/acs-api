@@ -4,23 +4,36 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Mail\CustomerInvitation;
-use Illuminate\Support\Facades\Mail;
+use Mail;
 use Validator;
 use App\User;
 use App\Company;
 use App\Profile;
+use App\City;
+use App\Role;
+use App\UserRole;
 
 class CompanyController extends Controller
 {
 	public function index()
 	{
-		$companies = Company::select('id', 'name', 'user_id', 'created_at')->get();
+		$customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
+		$customer_admins = $customer_admin_role->users;
 
-		foreach ($companies as $company) {
-			$company->administratorName = $company->customer->name;
+		$companies = Company::select('id', 'name', 'created_at')->get();
+
+		foreach ($customer_admins as $customer_admin) {
+			$customer_admin->companyName = $customer_admin->company->name;
+			$customer_admin->administratorName = $customer_admin->name;
 		}
 
-		return response()->json(compact('companies'), 200);
+		return response()->json(compact('customer_admins'));
+	}
+
+	public function getCompanies() {
+		$companies = Company::get();
+
+		return response()->json(compact('companies'));
 	}
 
     public function addCustomer(Request $request)
@@ -28,7 +41,13 @@ class CompanyController extends Controller
 	    $validator = Validator::make($request->all(), [ 
 	        'company_name' => 'required',
 	        'administrator_name' => 'required',
-	        'administrator_email' => 'required|email|max:255|unique:users,email'
+	        'administrator_email' => 'required|email|max:255|unique:users,email',
+	        'address_1' => 'required',
+	        'zip' => 'required',
+	        'state' => 'required',
+	        'city' => 'required',
+	        'country' => 'required',
+	        'phone' => 'required'
 	    ]);
 
 	    if ($validator->fails())
@@ -36,46 +55,53 @@ class CompanyController extends Controller
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 
+        $company = Company::where('name', $request->company_name)->first();
+        if(!$company) {
+	        $company = Company::create([
+	            'name' => $request->company_name
+	        ]);
+        }
+
+		$password_string = md5(uniqid($request->email, true));
+		// $password_string = 'password';
+		
         $user = User::create([
             'name' => $request->administrator_name,
             'email' => $request->administrator_email,
-            'password' => bcrypt('password'),
+            'password' => bcrypt($password_string),
+            'company_id' => $company->id,
         ]);
 
-		$user->roles()->attach(3);
+		$user->profile->update([
+			'address_1' => $request->address_1,
+	        'zip' => $request->zip,
+	        'state' => $request->state,
+	        'city' => $request->city,
+	        'country' => $request->country,
+	        'phone' => $request->phone
+		]);
+		$user->roles()->attach(ROLE_CUSTOMER_ADMIN);
 
-		$company = Company::create([
-            'user_id' => $user->id,
-            'name' => $request->company_name
-        ]);
-
-		$profile = new Profile();
-
-        $user->profile()->save($profile);
-
-        // Mail::to($user->email)->send(new CustomerInvitation());
+        Mail::to($user->email)->send(new CustomerInvitation($password_string));
 
         return response()->json('Created successfully.', 201);
     }
 
     public function getCustomer(Request $request, $id)
 	{
-		$company = Company::findOrFail($id);
-		$company->administratorName = $company->customer->name;
-		$company->administratorEmail = $company->customer->email;
-		$profile = $company->customer->profile;
-		$profile->id = $id;
+		$customer = User::findOrFail($id);
+		$customer->companyName = $customer->company->name;
+		$profile = $customer->profile;
+		$companies = Company::get();
+		$cities = City::where('state', $profile->state)->orderBy('city')->get();
 		
-		return response()->json([
-			'company' => $company,
-			'profile' => $profile,
-		], 200);
+		return response()->json(compact('customer', 'profile', 'companies', 'cities'));
 	}
 
 	public function updateCustomerAccount(Request $request, $id)
 	{
-		$company = Company::findOrFail($id);
-        $customer = $company->customer;
+        $customer = User::findOrFail($id);
+		$company = $customer->company;
 
 		$validator = Validator::make($request->all(), [ 
 	        'name' => 'required',
@@ -101,6 +127,12 @@ class CompanyController extends Controller
 	public function updateCustomerProfile(Request $request, $id)
 	{
 		$validator = Validator::make($request->all(), [
+			'address_1' => 'required',
+	        'zip' => 'required',
+	        'state' => 'required',
+	        'city' => 'required',
+	        'country' => 'required',
+	        'phone' => 'required'
 	    ]);
 
 	    if ($validator->fails())
@@ -108,12 +140,9 @@ class CompanyController extends Controller
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 
-        $company = Company::findOrFail($id);
-        $profile = $company->customer->profile;
-
+        $profile = User::findOrFail($id)->profile;
 
         $profile->address_1 = $request->address_1;
-		$profile->address_2 = $request->address_2;
 		$profile->zip = $request->zip;
 		$profile->state = $request->state;
 		$profile->city = $request->city;
@@ -125,8 +154,26 @@ class CompanyController extends Controller
         return response()->json('Updated Successfully.', 200);
 	}
 
-	public function testMail()
+	public function testMail(Request $request)
 	{
-		Mail::to('scar20181228@gmail.com')->send(new CustomerInvitation());
+
+		Mail::to($request->to)->send(new CustomerInvitation);
+	}
+
+	public function testSMS(Request $request)
+	{
+		$sid = env('TWILIO_ACCOUNT_SID');
+		$token = env('TWILIO_AUTH_TOKEN');
+
+		$twilio_number = "18622256236";
+		$client = new \Twilio\Rest\Client($sid, $token);
+
+		$client->messages->create(
+    		$request->to,
+		    array(
+		        'from' => $twilio_number,
+		        'body' => 'I sent this message in under 10 minutes!'
+		    )
+		);
 	}
 }

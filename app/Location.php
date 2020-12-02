@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Location extends Model
 {
+	public $timestamps = false;
     public $fillable = [
-    	'location'
+    	'name', 'state', 'city', 'zip'
     ];
 }

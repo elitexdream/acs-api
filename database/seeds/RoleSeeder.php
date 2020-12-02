@@ -18,24 +18,24 @@ class RoleSeeder extends Seeder
                 'id' => 1,
                 'key' => 'acs_admin',
                 'name' => 'ACS Administrator',
-            ],
-            [
+            ], [
                 'id' => 2,
                 'key' => 'acs_manager',
                 'name' => 'ACS Manager',
-            ],
-            [
+            ], [
                 'id' => 3,
+                'key' => 'acs_viewer',
+                'name' => 'ACS Viewer',
+            ], [
+                'id' => 4,
                 'key' => 'customer_admin',
                 'name' => 'Customer Administrator',
-            ],
-            [
-                'id' => 4,
+            ], [
+                'id' => 5,
                 'key' => 'customer_manager',
                 'name' => 'Customer Manager',
-            ],
-            [
-                'id' => 5,
+            ], [
+                'id' => 6,
                 'key' => 'customer_operator',
                 'name' => 'Customer Operator',
             ]

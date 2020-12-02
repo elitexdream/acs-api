@@ -1,0 +1,410 @@
+{
+    "cmd": "config_full",
+    "plc_ip"        : "192.168.5.5",
+    "format"        : "binary",
+    "batch_size"    : 4000,
+    "batch_timeout" : 60,
+    "config_hash"   : "1234567890",
+    "plctags"       :[
+        {
+            "name"    : "device_type",
+            "id"      : 1,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"    : "capacity_utilization",
+            "id"      : 2,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : false
+        },
+        {
+            "name"    : "energy_consumption",
+            "id"      : 3,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : false
+        },
+        {
+            "name"    : "N23_0_0_plc_versio",
+            "id"      : 4,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "N23_1_0_plc_build_numb",
+            "id"      : 5,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "serial_number_month",
+            "id"      : 6,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "serial_number_year",
+            "id"      : 7,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },
+        {
+            "name"      : "serial_number_unit",
+            "id"      : 8,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 3600,
+            "compare" : true
+        },        
+        {
+            "name"      : "B3_0_0_blender_st_INT",
+            "id"      : 9,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L21_0_11_RecipeVal",
+            "id"      : 10,
+            "type"    : "uint32",
+            "sindex"  : 1,
+            "ecount"  : 8,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L21_0_11_RecipeVal[10]",
+            "id"      : 11,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L30_31_0_batch_coun",
+            "id"      : 12,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L18_0_8_TargetWeight",
+            "id"      : 13,
+            "type"    : "uint32",
+            "sindex"  : 1,
+            "ecount"  : 8,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L19_0_8_DispActWeight",
+            "id"      : 14,
+            "type"    : "uint32",
+            "sindex"  : 1,
+            "ecount"  : 8,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L30_0_8_HopInv",
+            "id"      : 15,
+            "type"    : "uint32",
+            "sindex"  : 1,
+            "ecount"  : 8,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L30_16_23_FracInv",
+            "id"      : 16,
+            "type"    : "uint32",
+            "sindex"  : 1,
+            "ecount"  : 8,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L15_24_0_max_throug",
+            "id"      : 17,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L30_30_0_average_pr",
+            "id"      : 18,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L51_0_8_AvgFeedCal",
+            "id"      : 19,
+            "type"    : "uint32",
+            "sindex"  : 1,
+            "ecount"  : 8,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L31_4_0_lca_zero_c",
+            "id"      : 20,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L31_5_0_lca_test_w",
+            "id"      : 21,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L31_20_0_lcb_zero_c",
+            "id"      : 22,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L31_20_0_lcb_zero_c",
+            "id"      : 23,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "L31_33_0_hopper_tar",
+            "id"      : 24,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "B3_17_8_15_FIFOStable",
+            "id"      : 25,
+            "type"    : "bool",
+            "sindex"  : 1,
+            "ecount"  : 8,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"      : "cnv_station_loading_valve_on",
+            "id"      : 26,
+            "type"    : "int32",
+            "sindex"  : 1,
+            "ecount"  : 9,
+            "interval"   : 1,
+            "compare" : true
+        },
+
+        {
+            "name"      : "B28_0_15_improper_p_INT",
+            "id"      : 27,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"      : "B28_0_0_8_MatAlarm_INT",
+            "id"      : 28,
+            "type"    : "int32",
+            "sindex"  : 1,
+            "ecount"  : 8,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"      : "B28_0_15_improper_p_INT",
+            "id"      : 29,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B28_0_0_8_MatAlarm_INT",
+            "id"      : 30,
+            "type"    : "int32",
+            "sindex"  : 1,
+            "ecount"  : 8,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B28_2_14_hop1_unsta",
+            "id"      : 31,
+            "type"    : "bool",
+            "ecount"  : 1,
+            "sindex"  : 0,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B28_3_0_hop2_unsta",
+            "id"      : 32,
+            "type"    : "bool",
+            "ecount"  : 1,
+            "sindex"  : 0,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B28_3_2_hop3_unsta",
+            "id"      : 33,
+            "type"    : "bool",
+            "ecount"  : 1,
+            "sindex"  : 0,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B28_3_4_hop4_unsta",
+            "id"      : 34,
+            "type"    : "bool",
+            "ecount"  : 1,
+            "sindex"  : 0,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B28_3_6_hop5_unsta",
+            "id"      : 35,
+            "type"    : "bool",
+            "ecount"  : 1,
+            "sindex"  : 0,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B28_3_8_hop6_unsta",
+            "id"      : 36,
+            "type"    : "bool",
+            "ecount"  : 1,
+            "sindex"  : 0,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B28_3_10_hop7_unsta",
+            "id"      : 37,
+            "type"    : "bool",
+            "ecount"  : 1,
+            "sindex"  : 0,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B28_3_12_hop8_unsta",
+            "id"      : 38,
+            "type"    : "bool",
+            "ecount"  : 1,
+            "sindex"  : 0,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B3_11_4_11_OverfeedAlarm",
+            "id"      : 39,
+            "type"    : "bool",
+            "sindex"  : 1,
+            "ecount"  : 8,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B28_0_9_hopper_ove_INT",
+            "id"      : 40,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B28_0_10_empty_weig_INT",
+            "id"      : 41,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B3_10_10_mixer_fail",
+            "id"      : 42,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "B3_10_11_unable_to",
+            "id"      : 43,
+            "type"    : "bool",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },{
+            "name"      : "cnv_pump_starter_fault_alarm",
+            "id"      : 44,
+            "type"    : "int32",
+            "ecount"  : 1,
+            "sindex"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        }
+    ]
+}
