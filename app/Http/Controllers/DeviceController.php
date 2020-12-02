@@ -147,7 +147,7 @@ class DeviceController extends Controller
         }
     }
 
-    public function remoteControl($deviceid) {
+    public function remoteWeb($deviceid) {
         $device = Device::where('device_id', $deviceid)->first();
         if(!$device) {
             return response()->json('Device Not Found', 404);
@@ -158,7 +158,7 @@ class DeviceController extends Controller
         $client = new Client();
         
         try {
-            $client->post(
+            $res = $client->post(
                 $postControl,
                 [
                     'headers' => [
@@ -169,20 +169,63 @@ class DeviceController extends Controller
                     ],
                 ]
             );
+            if ($res) {
+                $response = $client->get(
+                    $getLink,
+                    [
+                        'headers' => [
+                            'Authorization' => "Bearer " . $this->bearer_token
+                        ],
+                        'json' => [
+                            "type" => "webui"
+                        ],
+                    ]
+                );
+                
+                return $response->getBody();
+            }
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
+        }
+    }
 
-            $response = $client->get(
-                $getLink,
+    public function remoteCli($deviceid) {
+        $device = Device::where('device_id', $deviceid)->first();
+        if(!$device) {
+            return response()->json('Device Not Found', 404);
+        }
+        $postControl = 'https://rms.teltonika-networks.com/api/devices/' . $deviceid . '/connect/cli';
+        $getLink = 'https://rms.teltonika-networks.com/api/devices/' . $deviceid . '/links';
+
+        $client = new Client();
+        
+        try {
+            $res = $client->post(
+                $postControl,
                 [
                     'headers' => [
                         'Authorization' => "Bearer " . $this->bearer_token
                     ],
                     'json' => [
-                        "type" => "webui"
+                        "duration" => 400
                     ],
                 ]
             );
-            
-            return $response->getBody();
+            if ($res) {
+                $response = $client->get(
+                    $getLink,
+                    [
+                        'headers' => [
+                            'Authorization' => "Bearer " . $this->bearer_token
+                        ],
+                        'json' => [
+                            "type" => "webui"
+                        ],
+                    ]
+                );
+                
+                return $response->getBody();
+            }
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
         }
