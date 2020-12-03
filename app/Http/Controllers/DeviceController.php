@@ -136,8 +136,7 @@ class DeviceController extends Controller
                     ],
                     'json' => [
                         "deviceNumber" => $device->iccid,
-                    ], 
-
+                    ]
                 ]
             );
             
@@ -166,23 +165,26 @@ class DeviceController extends Controller
                     ],
                     'json' => [
                         "duration" => 400
-                    ],
+                    ]
                 ]
             );
             if ($res) {
-                $response = $client->get(
-                    $getLink,
-                    [
-                        'headers' => [
-                            'Authorization' => "Bearer " . $this->bearer_token
-                        ],
-                        'json' => [
-                            "type" => "webui"
-                        ],
-                    ]
-                );
-                
-                return $response->getBody();
+                do {
+                    $response = $client->get(
+                        $getLink,
+                        [
+                            'headers' => [
+                                'Authorization' => "Bearer " . $this->bearer_token
+                            ],
+                            'json' => [
+                                "type" => "webui"
+                            ],
+                        ]
+                    );
+                    $data = json_decode($response->getBody()->getContents())->data;
+                } while (count($data) === 0);
+
+                return response()->json($data);
             }
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
@@ -212,19 +214,22 @@ class DeviceController extends Controller
                 ]
             );
             if ($res) {
-                $response = $client->get(
-                    $getLink,
-                    [
-                        'headers' => [
-                            'Authorization' => "Bearer " . $this->bearer_token
-                        ],
-                        'json' => [
-                            "type" => "webui"
-                        ],
-                    ]
-                );
-                
-                return $response->getBody();
+                do {
+                    $response = $client->get(
+                        $getLink,
+                        [
+                            'headers' => [
+                                'Authorization' => "Bearer " . $this->bearer_token
+                            ],
+                            'json' => [
+                                "type" => "cli"
+                            ],
+                        ]
+                    );
+                    $data = json_decode($response->getBody()->getContents())->data;
+                } while (count($data) === 0);
+
+                return response()->json($data);
             }
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
@@ -260,6 +265,42 @@ class DeviceController extends Controller
             );
 
             $device->sim_status = json_decode($response->getBody())->d->status;
+            $device->save();
+
+            return $device;
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
+        }
+    }
+
+    public function publicIP($iccid) {
+        if(!$iccid) {
+            return response()->json('Invalid ICCID', 404);
+        }
+
+        $device = Device::where('iccid', $iccid)->first();
+
+        if(!$device) {
+            return response()->json('Device Not Found', 404);
+        }
+
+        $client = new Client();
+        try {
+            $response = $client->post(
+                $this->queryURL,
+                [
+                    'headers' => ['Content-type' => 'application/json'],
+                    'auth' => [
+                        'ACSGroup_API', 
+                        'HBSMYJM2'
+                    ],
+                    'json' => [
+                        "deviceNumber" => $iccid,
+                    ], 
+                ]
+            );
+
+            $device->public_ip_sim = json_decode($response->getBody())->d->staticIP;
             $device->save();
 
             return $device;
