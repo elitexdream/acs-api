@@ -36,6 +36,7 @@ class DeviceController extends Controller
                 if(!$device->sim_status) {
                     try {
                         $device->sim_status = $this->querySIM($device->iccid)->sim_status;
+                        $device->public_ip_sim = $this->publicIP($device->iccid)->public_ip_sim;
                     } catch( \Exception $e ) {
 
                     }
@@ -78,7 +79,7 @@ class DeviceController extends Controller
     	           'imei' => $device->imei, 
     	           'lan_mac_address' => $device->mac,
                    'iccid' => substr($device->iccid, 0, -1),
-                   'public_ip_sim' => $device->wan_ip || $device->mobile_ip,
+                   'public_ip_sim' => null,
                    'machine_id' => null,
                    'company_id' => null,
                    'registered' => false
