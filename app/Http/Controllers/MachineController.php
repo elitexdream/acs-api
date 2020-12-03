@@ -138,7 +138,7 @@ class MachineController extends Controller
 	}
 
 	private function parseValid($raw_array, $i) {
-		$width = $raw_array->count() / $this->num_chunks;
+		$width = $raw_array->count() / $this->num_chunks + 1;
 		$chunks = array_chunk(json_decode($raw_array), $width);
 		return array_map(function($chunk) use ($i, $width) {
 			$sum = 0; $count = 0;
