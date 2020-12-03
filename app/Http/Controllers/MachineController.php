@@ -29,6 +29,28 @@ class MachineController extends Controller
 			$machine->version = json_decode($version_object->values)[0];
 		}
 
+		// software build
+		if($software_build_object = DeviceData::where('machine_id', $id)->where('tag_id', 5)->latest('timestamp')->first()) {
+			$machine->software_build = json_decode($software_build_object->values)[0];
+		}
+
+		// serial number
+		$serial_year = "";
+		$serial_month = "";
+		$serial_unit = "";
+
+		if($serial_year_object = DeviceData::where('machine_id', $id)->where('tag_id', 7)->latest('timestamp')->first()) {
+			$serial_year = json_decode($serial_year_object->values)[0];
+		}
+		if($serial_month_object = DeviceData::where('machine_id', $id)->where('tag_id', 6)->latest('timestamp')->first()) {
+			$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
+		}
+		if($serial_unit_object = DeviceData::where('machine_id', $id)->where('tag_id', 8)->latest('timestamp')->first()) {
+			$serial_unit = json_decode($serial_unit_object->values)[0];
+		}
+
+		$machine->serial_number = $serial_year . $serial_month . $serial_unit;
+
 		if($id == MACHINE_BD_Batch_Blender) {
 			$energy_consumption_values = DeviceData::where('machine_id', $id)
 							->where('tag_id', 3)
