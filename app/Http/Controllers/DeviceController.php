@@ -33,10 +33,17 @@ class DeviceController extends Controller
         $machines = Machine::select('id', 'name')->get();
 
             foreach ($devices as $key => $device) {
+                if(!$device->public_ip_sim) {
+                    try {
+                        $device->public_ip_sim = $this->publicIP($device->iccid)->public_ip_sim;
+                    }
+                    catch( \Exception $e ) {
+                    }
+                }
                 if(!$device->sim_status) {
+
                     try {
                         $device->sim_status = $this->querySIM($device->iccid)->sim_status;
-                        $device->public_ip_sim = $this->publicIP($device->iccid)->public_ip_sim;
                     } catch( \Exception $e ) {
 
                     }
