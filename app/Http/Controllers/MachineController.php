@@ -94,6 +94,11 @@ class MachineController extends Controller
 							->where('tag_id', 9)
 							->get();
 
+			$recipe_values = DB::table('device_data')
+							->where('machine_id', $id)
+							->where('tag_id', 10)
+							->first();
+
 			$targets = $this->parseValid($targetValues, $request->param);
 			$actuals = $this->parseValid($actualValues, $request->param);
 			$hops = $this->parseValid($hopValues, $request->param);
@@ -107,6 +112,7 @@ class MachineController extends Controller
 						// ->where('timestamp', '>', $duration)
 						->orderBy('timestamp')
 						->get();
+			$recipe_values = json_decode($recipe_values->values);
 
 			return response()->json(
 				compact(
@@ -119,7 +125,8 @@ class MachineController extends Controller
 					'alarm_types',
 					'alarms',
 					'weekly_running_hours',
-					'total_running_percentage'
+					'total_running_percentage',
+					'recipe_values'
 				)
 			);
 		} else if($id == MACHINE_Accumeter_Ovation_Continuous_Blender) {
