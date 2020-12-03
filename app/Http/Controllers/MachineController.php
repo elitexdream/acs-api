@@ -29,6 +29,28 @@ class MachineController extends Controller
 			$machine->version = json_decode($version_object->values)[0];
 		}
 
+		// software build
+		if($software_build_object = DeviceData::where('machine_id', $id)->where('tag_id', 5)->latest('timestamp')->first()) {
+			$machine->software_build = json_decode($software_build_object->values)[0];
+		}
+
+		// serial number
+		$serial_year = "";
+		$serial_month = "";
+		$serial_unit = "";
+
+		if($serial_year_object = DeviceData::where('machine_id', $id)->where('tag_id', 7)->latest('timestamp')->first()) {
+			$serial_year = json_decode($serial_year_object->values)[0];
+		}
+		if($serial_month_object = DeviceData::where('machine_id', $id)->where('tag_id', 6)->latest('timestamp')->first()) {
+			$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
+		}
+		if($serial_unit_object = DeviceData::where('machine_id', $id)->where('tag_id', 8)->latest('timestamp')->first()) {
+			$serial_unit = json_decode($serial_unit_object->values)[0];
+		}
+
+		$machine->serial_number = $serial_year . $serial_month . $serial_unit;
+
 		if($id == MACHINE_BD_Batch_Blender) {
 			$energy_consumption_values = DeviceData::where('machine_id', $id)
 							->where('tag_id', 3)
@@ -67,10 +89,22 @@ class MachineController extends Controller
 							->orderBy('timestamp')
 							->pluck('values');
 
+			$running_values = DB::table('device_data')
+							->where('machine_id', $id)
+							->where('tag_id', 9)
+							->get();
+
+			$recipe_values = DB::table('device_data')
+							->where('machine_id', $id)
+							->where('tag_id', 10)
+							->first();
+
 			$targets = $this->parseValid($targetValues, $request->param);
 			$actuals = $this->parseValid($actualValues, $request->param);
 			$hops = $this->parseValid($hopValues, $request->param);
 			$fractions = $this->parseValid($frtValues, $request->param);
+			$weekly_running_hours = $this->weeklyRunningHours($running_values);
+			$total_running_percentage = $this->totalRunningPercentage($running_values);
 
 			$alarm_types = AlarmType::where('machine_id', $id)->get();
 			$alarms = DeviceData::where('machine_id', $id)
@@ -78,8 +112,23 @@ class MachineController extends Controller
 						// ->where('timestamp', '>', $duration)
 						->orderBy('timestamp')
 						->get();
+			$recipe_values = json_decode($recipe_values->values);
 
-			return response()->json(compact('machine', 'energy_consumption', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
+			return response()->json(
+				compact(
+					'machine',
+					'energy_consumption',
+					'targets',
+					'actuals',
+					'hops',
+					'fractions',
+					'alarm_types',
+					'alarms',
+					'weekly_running_hours',
+					'total_running_percentage',
+					'recipe_values'
+				)
+			);
 		} else if($id == MACHINE_Accumeter_Ovation_Continuous_Blender) {
 			$energy_consumption_values = DeviceData::where('machine_id', $id)
 							->where('tag_id', 3)
@@ -138,7 +187,7 @@ class MachineController extends Controller
 	}
 
 	private function parseValid($raw_array, $i) {
-		$width = $raw_array->count() / $this->num_chunks;
+		$width = $raw_array->count() / $this->num_chunks + 1;
 		$chunks = array_chunk(json_decode($raw_array), $width);
 		return array_map(function($chunk) use ($i, $width) {
 			$sum = 0; $count = 0;
@@ -216,5 +265,52 @@ class MachineController extends Controller
 		$fractions = $this->parseValid($frtValues, $request->param);
 
 		return response()->json(compact('hops', 'fractions'));
+	}
+
+	/*
+		Get running hours on every weekday
+		Machine: BD Batch Blender
+		params: data entries with running tag
+		return: 7 length array
+	*/
+	private function weeklyRunningHours($data) {
+		$ret = [0, 0, 0, 0, 0, 0, 0];
+
+		foreach ($data as $key => $item) {
+			if($key) {
+				$weekday = date('N', $item->timestamp);
+				$seconds_diff = $item->timestamp - $data[$key - 1]->timestamp;
+				$hours_diff = (int)($seconds_diff / 3600);
+				$is_previous_running = json_decode($data[$key - 1]->values)[0] == 1;
+				if ($is_previous_running) {
+					$ret[$weekday - 1] += $hours_diff;
+				}
+			}
+		}
+		return $ret;
+	}
+
+	/*
+		Get total running and stopped hours
+		Machine: BD Batch Blender
+		params: data entries with running tag
+		return: 2 length array - [0] is running hours, [1] is stopped hours
+	*/
+	private function totalRunningPercentage($data) {
+		$ret = [0, 0];
+
+		foreach ($data as $key => $item) {
+			if($key) {
+				$seconds_diff = $item->timestamp - $data[$key - 1]->timestamp;
+				$hours_diff = (int)($seconds_diff / 3600);
+				$is_previous_running = json_decode($data[$key - 1]->values)[0] == 1;
+				if ($is_previous_running) {
+					$ret[0] += $hours_diff;
+				} else {
+					$ret[1] += $hours_diff;
+				}
+			}
+		}
+		return $ret[0] / ($ret[0] + $ret[1]);
 	}
 }
