@@ -89,10 +89,16 @@ class MachineController extends Controller
 							->orderBy('timestamp')
 							->pluck('values');
 
+			$running_values = DB::table('device_data')
+							->where('machine_id', $id)
+							->where('tag_id', 9)
+							->get();
+
 			$targets = $this->parseValid($targetValues, $request->param);
 			$actuals = $this->parseValid($actualValues, $request->param);
 			$hops = $this->parseValid($hopValues, $request->param);
 			$fractions = $this->parseValid($frtValues, $request->param);
+			$weekly_running_hours = $this->getRunningHoursByWeek($running_values);
 
 			$alarm_types = AlarmType::where('machine_id', $id)->get();
 			$alarms = DeviceData::where('machine_id', $id)
@@ -101,7 +107,19 @@ class MachineController extends Controller
 						->orderBy('timestamp')
 						->get();
 
-			return response()->json(compact('machine', 'energy_consumption', 'targets', 'actuals', 'hops', 'fractions', 'alarm_types', 'alarms'));
+			return response()->json(
+				compact(
+					'machine',
+					'energy_consumption',
+					'targets',
+					'actuals',
+					'hops',
+					'fractions',
+					'alarm_types',
+					'alarms',
+					'weekly_running_hours'
+				)
+			);
 		} else if($id == MACHINE_Accumeter_Ovation_Continuous_Blender) {
 			$energy_consumption_values = DeviceData::where('machine_id', $id)
 							->where('tag_id', 3)
@@ -238,5 +256,19 @@ class MachineController extends Controller
 		$fractions = $this->parseValid($frtValues, $request->param);
 
 		return response()->json(compact('hops', 'fractions'));
+	}
+
+	private function getRunningHoursByWeek($data) {
+		$ret = [0, 0, 0, 0, 0, 0, 0];
+
+		foreach ($data as $key => $item) {
+			if($key) {
+				$weekday = date('N', $item->timestamp);
+				$seconds_diff = $item->timestamp - $data[$key - 1]->timestamp;                            
+				$hours_diff = (int)($seconds_diff / 3600);
+				$ret[$weekday - 1] += $hours_diff;
+			}
+		}
+		return $ret;
 	}
 }
