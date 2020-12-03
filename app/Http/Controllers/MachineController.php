@@ -98,7 +98,8 @@ class MachineController extends Controller
 			$actuals = $this->parseValid($actualValues, $request->param);
 			$hops = $this->parseValid($hopValues, $request->param);
 			$fractions = $this->parseValid($frtValues, $request->param);
-			$weekly_running_hours = $this->getRunningHoursByWeek($running_values);
+			$weekly_running_hours = $this->weeklyRunningHours($running_values);
+			$total_running_percentage = $this->totalRunningPercentage($running_values);
 
 			$alarm_types = AlarmType::where('machine_id', $id)->get();
 			$alarms = DeviceData::where('machine_id', $id)
@@ -117,7 +118,8 @@ class MachineController extends Controller
 					'fractions',
 					'alarm_types',
 					'alarms',
-					'weekly_running_hours'
+					'weekly_running_hours',
+					'total_running_percentage'
 				)
 			);
 		} else if($id == MACHINE_Accumeter_Ovation_Continuous_Blender) {
@@ -258,17 +260,50 @@ class MachineController extends Controller
 		return response()->json(compact('hops', 'fractions'));
 	}
 
-	private function getRunningHoursByWeek($data) {
+	/*
+		Get running hours on every weekday
+		Machine: BD Batch Blender
+		params: data entries with running tag
+		return: 7 length array
+	*/
+	private function weeklyRunningHours($data) {
 		$ret = [0, 0, 0, 0, 0, 0, 0];
 
 		foreach ($data as $key => $item) {
 			if($key) {
 				$weekday = date('N', $item->timestamp);
-				$seconds_diff = $item->timestamp - $data[$key - 1]->timestamp;                            
+				$seconds_diff = $item->timestamp - $data[$key - 1]->timestamp;
 				$hours_diff = (int)($seconds_diff / 3600);
-				$ret[$weekday - 1] += $hours_diff;
+				$is_previous_running = json_decode($data[$key - 1]->values)[0] == 1;
+				if ($is_previous_running) {
+					$ret[$weekday - 1] += $hours_diff;
+				}
 			}
 		}
 		return $ret;
+	}
+
+	/*
+		Get total running and stopped hours
+		Machine: BD Batch Blender
+		params: data entries with running tag
+		return: 2 length array - [0] is running hours, [1] is stopped hours
+	*/
+	private function totalRunningPercentage($data) {
+		$ret = [0, 0];
+
+		foreach ($data as $key => $item) {
+			if($key) {
+				$seconds_diff = $item->timestamp - $data[$key - 1]->timestamp;
+				$hours_diff = (int)($seconds_diff / 3600);
+				$is_previous_running = json_decode($data[$key - 1]->values)[0] == 1;
+				if ($is_previous_running) {
+					$ret[0] += $hours_diff;
+				} else {
+					$ret[1] += $hours_diff;
+				}
+			}
+		}
+		return $ret[0] / ($ret[0] + $ret[1]);
 	}
 }
