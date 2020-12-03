@@ -242,22 +242,15 @@ class MachineController extends Controller
 	}
 
 	public function getProductInventory(Request $request) {
-		if($request->mode === 'Monthly')
-			$duration = strtotime("-1 month");
-		else {
-			$duration = strtotime("-1 week");
-		}
 
 		$hopValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 15)
-						->where('timestamp', '>', $duration)
 						->orderBy('timestamp')
 						->pluck('values');
 		$frtValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 16)
-						->where('timestamp', '>', $duration)
 						->orderBy('timestamp')
 						->pluck('values');
 
@@ -312,5 +305,64 @@ class MachineController extends Controller
 			}
 		}
 		return $ret[0] / ($ret[0] + $ret[1]);
+	}
+
+	public function getFromTo($data) {
+
+		switch ($data["timeRange"]) {
+			case 'last30Min':
+				return [
+					"from" => strtotime("-30 min"),
+					"to" => time()
+				];
+			case 'lastHour':
+				return [
+					"from" => strtotime("-1 hour"),
+					"to" => time()
+				];
+			case 'last4Hours':
+				return [
+					"from" => strtotime("-4 hours"),
+					"to" => time()
+				];
+			case 'last12Hours':
+				return [
+					"from" => strtotime("-12 hours"),
+					"to" => time()
+				];
+			case 'last24Hours':
+				return [
+					"from" => strtotime("-1 day"),
+					"to" => time()
+				];
+			case 'last48Hours':
+				return [
+					"from" => strtotime("-2 days"),
+					"to" => time()
+				];
+			case 'last3Days':
+				return [
+					"from" => strtotime("-3 days"),
+					"to" => time()
+				];
+			case 'last7Days':
+				return [
+					"from" => strtotime("-1 week"),
+					"to" => time()
+				];
+			case 'last24Days':
+				return [
+					"from" => strtotime("-24 days"),
+					"to" => time()
+				];
+			case 'custom':
+				return [
+					"from" => strtotime($data["dateFrom"]),
+					"to" => strtotime($data["dateTo"])
+				];
+				break;
+			default:
+				break;
+		}
 	}
 }
