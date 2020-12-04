@@ -76,15 +76,15 @@ class MachineController extends Controller
 			$hopValues = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 15)
-							->where('timestamp', '>', $from)
-							->where('timestamp', '<', $to)
+							->where('timestamp', '>', $fromInventory)
+							->where('timestamp', '<', $toInventory)
 							->orderBy('timestamp')
 							->pluck('values');
 			$frtValues = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 16)
-							->where('timestamp', '>', $from)
-							->where('timestamp', '<', $to)
+							->where('timestamp', '>', $fromInventory)
+							->where('timestamp', '<', $toInventory)
 							->orderBy('timestamp')
 							->pluck('values');
 
