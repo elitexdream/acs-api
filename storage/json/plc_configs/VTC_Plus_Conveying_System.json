@@ -9,7 +9,7 @@
         {
             "name"    : "device_type",
             "id"      : 1,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -18,7 +18,7 @@
         {
             "name"    : "capacity_utilization",
             "id"      : 2,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -54,7 +54,7 @@
         {
             "name"      : "serial_number_month",
             "id"      : 6,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -63,7 +63,7 @@
         {
             "name"      : "serial_number_year",
             "id"      : 7,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -81,16 +81,24 @@
         {
             "name"      : "vactrac_model",
             "id"      : 9,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
             "compare" : true
         },
         {
+            "name"      : "system_started",
+            "id"      : 10,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },        {
             "name"      : "station_online",
             "id"      : 11,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 1,
             "ecount"  : 44,
             "interval"   : 1,
@@ -99,7 +107,7 @@
         {
             "name"      : "pump_online",
             "id"      : 12,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 1,
             "ecount"  : 12,
             "interval"   : 1,
@@ -108,7 +116,7 @@
         {
             "name"      : "station_loading_valve_on",
             "id"      : 13,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 1,
             "ecount"  : 44,
             "interval"   : 1,
@@ -117,7 +125,7 @@
         {
             "name"      : "pump_blowback_on",
             "id"      : 14,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 1,
             "ecount"  : 12,
             "interval"   : 1,
@@ -126,7 +134,7 @@
         {
             "name"      : "pump_hours",
             "id"      : 15,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 1,
             "ecount"  : 12,
             "interval"   : 1,
@@ -135,7 +143,7 @@
         {
             "name"      : "pump_hours_for_oil_change",
             "id"      : 16,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 1,
             "ecount"  : 12,
             "interval"   : 1,
@@ -153,7 +161,7 @@
         {
             "name"      : "pump_oil_change_needed",
             "id"      : 18,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 1,
             "ecount"  : 12,
             "interval"   : 1,

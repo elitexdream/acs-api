@@ -9,7 +9,7 @@
         {
             "name"    : "device_type",
             "id"      : 1,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -18,7 +18,7 @@
         {
             "name"    : "capacity_utilization",
             "id"      : 2,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -54,7 +54,7 @@
         {
             "name"      : "serial_number_month",
             "id"      : 6,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -63,7 +63,7 @@
         {
             "name"      : "serial_number_year",
             "id"      : 7,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,

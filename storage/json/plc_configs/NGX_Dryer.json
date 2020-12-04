@@ -9,7 +9,7 @@
         {
             "name"    : "device_type",
             "id"      : 1,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -18,7 +18,7 @@
         {
             "name"    : "capacity_utilization",
             "id"      : 2,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -54,7 +54,7 @@
         {
             "name"      : "serial_number_month",
             "id"      : 6,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -63,7 +63,7 @@
         {
             "name"      : "serial_number_year",
             "id"      : 7,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -72,7 +72,7 @@
         {
             "name"      : "serial_number_unit",
             "id"      : 8,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -90,7 +90,7 @@
         {
             "name"      : "HMI_DH1_SP",
             "id"      : 10,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -117,7 +117,7 @@
         {
             "name"      : "HMI_DH2_SP",
             "id"      : 13,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -144,7 +144,7 @@
         {
             "name"      : "HMI_DH3_SP",
             "id"      : 16,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -198,7 +198,7 @@
         {
             "name"      : "HMI_REG_TEMP_SP",
             "id"      : 22,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -216,7 +216,7 @@
         {
             "name"      : "HMI_BED_BREAK_TEMP_SP",
             "id"      : 24,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -225,7 +225,7 @@
         {
             "name"      : "HMI_COOL_BREAK_TEMP_SP",
             "id"      : 25,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -288,7 +288,7 @@
         {
             "name"      : "HMI_NOTIFICATION_1",
             "id"      : 32,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -297,7 +297,7 @@
         {
             "name"      : "HMI_DH1_STATUS",
             "id"      : 33,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -306,7 +306,7 @@
         {
             "name"      : "HMI_DH2_STATUS",
             "id"      : 34,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -315,7 +315,7 @@
         {
             "name"      : "HMI_DH3_STATUS",
             "id"      : 35,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,

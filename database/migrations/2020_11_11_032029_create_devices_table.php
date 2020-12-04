@@ -23,6 +23,7 @@ class CreateDevicesTable extends Migration
             $table->boolean('registered')->default(false);
             $table->string('public_ip_sim')->nullable();
             $table->string('sim_status', 20)->nullable();
+            $table->string('carrier', 100)->nullable();
 
             $table->unsignedBigInteger('location_id')->nullable();
             $table->unsignedBigInteger('zone_id')->nullable();

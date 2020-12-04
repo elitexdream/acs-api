@@ -13,6 +13,7 @@ class Device extends Model
         'imei',
         'lan_mac_address',
         'iccid',
+        'carrier',
         'registered',
         'public_ip_sim',
         'sim_status',

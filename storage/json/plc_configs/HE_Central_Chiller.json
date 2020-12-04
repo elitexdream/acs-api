@@ -1,0 +1,2028 @@
+{
+    "cmd": "config_full",
+    "plc_ip"        : "192.168.5.5",
+    "tcp_port"      : 502,
+    "format"        : "binary",
+    "batch_size"    : 4000,
+    "batch_timeout" : 60,
+    "config_hash"   : "HECC_123456",
+    "protocol"      : "modbus-tcp",
+    "plctags"       :[
+        {
+            "name"    : "Tank Temperature",
+            "id"      : 1,
+            "addr"    : 300001,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Approach Temperature",
+            "id"      : 2,
+            "addr"    : 300002,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Chill In Temperature",
+            "id"      : 3,
+            "addr"    : 300003,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Chill Out Temperature",
+            "id"      : 4,
+            "addr"    : 300004,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Condenser Inlet Temperature",
+            "id"      : 5,
+            "addr"    : 300005,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Discharge Pressure",
+            "id"      : 6,
+            "addr"    : 300006,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Electronic Expansion",
+            "id"      : 7,
+            "addr"    : 300007,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Fan VFD/Water Cooled",
+            "id"      : 8,
+            "addr"    : 300008,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Fluid Flow",
+            "id"      : 9,
+            "addr"    : 300009,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Hot Gas Bypass",
+            "id"      : 10,
+            "addr"    : 300010,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Refrigerant Liquid Temp",
+            "id"      : 11,
+            "addr"    : 300011,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Refrigerant Suction Temperature",
+            "id"      : 12,
+            "addr"    : 300012,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Saturated Discharge Temperature",
+            "id"      : 13,
+            "addr"    : 300013,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Saturated Suction Temperature",
+            "id"      : 14,
+            "addr"    : 300014,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Subcool Temperature",
+            "id"      : 15,
+            "addr"    : 300015,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Suction Pressure",
+            "id"      : 16,
+            "addr"    : 300016,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 1 Superheat Temperature",
+            "id"      : 17,
+            "addr"    : 300017,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Approach Temperature",
+            "id"      : 18,
+            "addr"    : 300018,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Chill In Temperature",
+            "id"      : 19,
+            "addr"    : 300019,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Chill Out Temperature",
+            "id"      : 20,
+            "addr"    : 300020,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Condenser Inlet Temperature",
+            "id"      : 21,
+            "addr"    : 300021,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Discharge Pressure",
+            "id"      : 22,
+            "addr"    : 300022,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Electronic Expansion",
+            "id"      : 23,
+            "addr"    : 300023,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Fan VFD/Water Cooled",
+            "id"      : 24,
+            "addr"    : 300024,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Fluid Flow",
+            "id"      : 25,
+            "addr"    : 300025,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Hot Gas Bypass",
+            "id"      : 26,
+            "addr"    : 300026,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Refrigerant Liquid Temp",
+            "id"      : 27,
+            "addr"    : 300027,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Refrigerant Suction Temperature",
+            "id"      : 28,
+            "addr"    : 300028,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Saturated Discharge Temperature",
+            "id"      : 29,
+            "addr"    : 300029,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Saturated Suction Temperature",
+            "id"      : 30,
+            "addr"    : 300030,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Subcool Temperature",
+            "id"      : 31,
+            "addr"    : 300031,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Suction Pressure",
+            "id"      : 32,
+            "addr"    : 300032,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 2 Superheat Temperature",
+            "id"      : 33,
+            "addr"    : 300033,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+
+
+        {
+            "name"    : "Circuit 3 Approach Temperature",
+            "id"      : 34,
+            "addr"    : 300034,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Chill In Temperature",
+            "id"      : 35,
+            "addr"    : 300035,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Chill Out Temperature",
+            "id"      : 36,
+            "addr"    : 300036,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Condenser Inlet Temperature",
+            "id"      : 37,
+            "addr"    : 300037,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Discharge Pressure",
+            "id"      : 38,
+            "addr"    : 300038,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Electronic Expansion",
+            "id"      : 39,
+            "addr"    : 300039,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Fan VFD/Water Cooled",
+            "id"      : 40,
+            "addr"    : 300040,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Fluid Flow",
+            "id"      : 41,
+            "addr"    : 300041,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Hot Gas Bypass",
+            "id"      : 42,
+            "addr"    : 300042,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Refrigerant Liquid Temp",
+            "id"      : 43,
+            "addr"    : 300043,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Refrigerant Suction Temperature",
+            "id"      : 44,
+            "addr"    : 300044,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Saturated Discharge Temperature",
+            "id"      : 45,
+            "addr"    : 300045,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Saturated Suction Temperature",
+            "id"      : 46,
+            "addr"    : 300046,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Subcool Temperature",
+            "id"      : 47,
+            "addr"    : 300047,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Suction Pressure",
+            "id"      : 48,
+            "addr"    : 300048,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 3 Superheat Temperature",
+            "id"      : 49,
+            "addr"    : 300049,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+
+
+
+        {
+            "name"    : "Circuit 4 Approach Temperature",
+            "id"      : 50,
+            "addr"    : 300050,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Chill In Temperature",
+            "id"      : 51,
+            "addr"    : 300051,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Chill Out Temperature",
+            "id"      : 52,
+            "addr"    : 300052,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Condenser Inlet Temperature",
+            "id"      : 53,
+            "addr"    : 300053,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Discharge Pressure",
+            "id"      : 54,
+            "addr"    : 300054,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Electronic Expansion",
+            "id"      : 55,
+            "addr"    : 300055,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Fan VFD/Water Cooled",
+            "id"      : 56,
+            "addr"    : 300056,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Fluid Flow",
+            "id"      : 57,
+            "addr"    : 300057,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Hot Gas Bypass",
+            "id"      : 58,
+            "addr"    : 300058,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Refrigerant Liquid Temp",
+            "id"      : 59,
+            "addr"    : 300059,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Refrigerant Suction Temperature",
+            "id"      : 60,
+            "addr"    : 300060,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Saturated Discharge Temperature",
+            "id"      : 61,
+            "addr"    : 300061,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Saturated Suction Temperature",
+            "id"      : 62,
+            "addr"    : 300062,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Subcool Temperature",
+            "id"      : 63,
+            "addr"    : 300063,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Suction Pressure",
+            "id"      : 64,
+            "addr"    : 300064,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 4 Superheat Temperature",
+            "id"      : 65,
+            "addr"    : 300065,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+
+
+
+
+
+        {
+            "name"    : "Circuit 5 Approach Temperature",
+            "id"      : 66,
+            "addr"    : 300066,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Chill In Temperature",
+            "id"      : 67,
+            "addr"    : 300067,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Chill Out Temperature",
+            "id"      : 68,
+            "addr"    : 300068,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Condenser Inlet Temperature",
+            "id"      : 69,
+            "addr"    : 300069,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Discharge Pressure",
+            "id"      : 70,
+            "addr"    : 300070,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Electronic Expansion",
+            "id"      : 71,
+            "addr"    : 300071,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Fan VFD/Water Cooled",
+            "id"      : 72,
+            "addr"    : 300072,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Fluid Flow",
+            "id"      : 73,
+            "addr"    : 300073,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Hot Gas Bypass",
+            "id"      : 74,
+            "addr"    : 300074,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Refrigerant Liquid Temp",
+            "id"      : 75,
+            "addr"    : 300075,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Refrigerant Suction Temperature",
+            "id"      : 76,
+            "addr"    : 300076,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Saturated Discharge Temperature",
+            "id"      : 77,
+            "addr"    : 300077,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Saturated Suction Temperature",
+            "id"      : 78,
+            "addr"    : 300078,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Subcool Temperature",
+            "id"      : 79,
+            "addr"    : 300079,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Suction Pressure",
+            "id"      : 80,
+            "addr"    : 300080,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 5 Superheat Temperature",
+            "id"      : 81,
+            "addr"    : 300081,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+
+
+
+
+
+
+        {
+            "name"    : "Circuit 6 Approach Temperature",
+            "id"      : 82,
+            "addr"    : 300082,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Chill In Temperature",
+            "id"      : 83,
+            "addr"    : 300083,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Chill Out Temperature",
+            "id"      : 84,
+            "addr"    : 300084,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Condenser Inlet Temperature",
+            "id"      : 85,
+            "addr"    : 300085,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Discharge Pressure",
+            "id"      : 86,
+            "addr"    : 300086,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Electronic Expansion",
+            "id"      : 87,
+            "addr"    : 300087,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Fan VFD/Water Cooled",
+            "id"      : 88,
+            "addr"    : 300088,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Fluid Flow",
+            "id"      : 89,
+            "addr"    : 300089,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Hot Gas Bypass",
+            "id"      : 90,
+            "addr"    : 300090,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Refrigerant Liquid Temp",
+            "id"      : 91,
+            "addr"    : 300091,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Refrigerant Suction Temperature",
+            "id"      : 92,
+            "addr"    : 300092,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Saturated Discharge Temperature",
+            "id"      : 93,
+            "addr"    : 300093,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Saturated Suction Temperature",
+            "id"      : 94,
+            "addr"    : 300094,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Subcool Temperature",
+            "id"      : 95,
+            "addr"    : 300095,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Suction Pressure",
+            "id"      : 96,
+            "addr"    : 300096,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 6 Superheat Temperature",
+            "id"      : 97,
+            "addr"    : 300097,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+
+
+
+
+
+
+        {
+            "name"    : "Circuit 7 Approach Temperature",
+            "id"      : 98,
+            "addr"    : 300098,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Chill In Temperature",
+            "id"      : 99,
+            "addr"    : 300099,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Chill Out Temperature",
+            "id"      : 100,
+            "addr"    : 300100,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Condenser Inlet Temperature",
+            "id"      : 101,
+            "addr"    : 300101,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Discharge Pressure",
+            "id"      : 102,
+            "addr"    : 300102,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Electronic Expansion",
+            "id"      : 103,
+            "addr"    : 300103,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Fan VFD/Water Cooled",
+            "id"      : 104,
+            "addr"    : 300104,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Fluid Flow",
+            "id"      : 105,
+            "addr"    : 300105,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Hot Gas Bypass",
+            "id"      : 106,
+            "addr"    : 300106,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Refrigerant Liquid Temp",
+            "id"      : 107,
+            "addr"    : 300107,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Refrigerant Suction Temperature",
+            "id"      : 108,
+            "addr"    : 300108,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Saturated Discharge Temperature",
+            "id"      : 109,
+            "addr"    : 300109,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Saturated Suction Temperature",
+            "id"      : 110,
+            "addr"    : 300110,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Subcool Temperature",
+            "id"      : 111,
+            "addr"    : 300111,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Suction Pressure",
+            "id"      : 112,
+            "addr"    : 300112,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 7 Superheat Temperature",
+            "id"      : 113,
+            "addr"    : 300113,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+
+
+
+
+
+        {
+            "name"    : "Circuit 8 Approach Temperature",
+            "id"      : 114,
+            "addr"    : 300114,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Chill In Temperature",
+            "id"      : 115,
+            "addr"    : 300115,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Chill Out Temperature",
+            "id"      : 116,
+            "addr"    : 300116,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Condenser Inlet Temperature",
+            "id"      : 117,
+            "addr"    : 300117,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Discharge Pressure",
+            "id"      : 118,
+            "addr"    : 300118,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Electronic Expansion",
+            "id"      : 119,
+            "addr"    : 300119,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Fan VFD/Water Cooled",
+            "id"      : 120,
+            "addr"    : 300120,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Fluid Flow",
+            "id"      : 121,
+            "addr"    : 300121,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Hot Gas Bypass",
+            "id"      : 122,
+            "addr"    : 300122,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Refrigerant Liquid Temp",
+            "id"      : 123,
+            "addr"    : 300123,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Refrigerant Suction Temperature",
+            "id"      : 124,
+            "addr"    : 300124,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Saturated Discharge Temperature",
+            "id"      : 125,
+            "addr"    : 300125,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Saturated Suction Temperature",
+            "id"      : 126,
+            "addr"    : 300126,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Subcool Temperature",
+            "id"      : 127,
+            "addr"    : 300127,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Suction Pressure",
+            "id"      : 128,
+            "addr"    : 300128,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 8 Superheat Temperature",
+            "id"      : 129,
+            "addr"    : 300129,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+
+
+
+
+        {
+            "name"    : "Circuit 9 Approach Temperature",
+            "id"      : 130,
+            "addr"    : 300130,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Chill In Temperature",
+            "id"      : 131,
+            "addr"    : 300131,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Chill Out Temperature",
+            "id"      : 132,
+            "addr"    : 300132,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Condenser Inlet Temperature",
+            "id"      : 133,
+            "addr"    : 300133,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Discharge Pressure",
+            "id"      : 134,
+            "addr"    : 300134,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Electronic Expansion",
+            "id"      : 135,
+            "addr"    : 300135,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Fan VFD/Water Cooled",
+            "id"      : 136,
+            "addr"    : 300136,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Fluid Flow",
+            "id"      : 137,
+            "addr"    : 300137,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Hot Gas Bypass",
+            "id"      : 138,
+            "addr"    : 300138,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Refrigerant Liquid Temp",
+            "id"      : 139,
+            "addr"    : 300139,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Refrigerant Suction Temperature",
+            "id"      : 140,
+            "addr"    : 300140,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Saturated Discharge Temperature",
+            "id"      : 141,
+            "addr"    : 300141,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Saturated Suction Temperature",
+            "id"      : 142,
+            "addr"    : 300142,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Subcool Temperature",
+            "id"      : 143,
+            "addr"    : 300143,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Suction Pressure",
+            "id"      : 144,
+            "addr"    : 300144,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 9 Superheat Temperature",
+            "id"      : 145,
+            "addr"    : 300145,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+
+
+
+
+        {
+            "name"    : "Circuit 10 Approach Temperature",
+            "id"      : 146,
+            "addr"    : 300146,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Chill In Temperature",
+            "id"      : 147,
+            "addr"    : 300147,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Chill Out Temperature",
+            "id"      : 148,
+            "addr"    : 300148,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Condenser Inlet Temperature",
+            "id"      : 149,
+            "addr"    : 300149,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Discharge Pressure",
+            "id"      : 150,
+            "addr"    : 300150,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Electronic Expansion",
+            "id"      : 151,
+            "addr"    : 300151,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Fan VFD/Water Cooled",
+            "id"      : 152,
+            "addr"    : 300152,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Fluid Flow",
+            "id"      : 153,
+            "addr"    : 300153,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Hot Gas Bypass",
+            "id"      : 154,
+            "addr"    : 300154,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Refrigerant Liquid Temp",
+            "id"      : 155,
+            "addr"    : 300155,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Refrigerant Suction Temperature",
+            "id"      : 156,
+            "addr"    : 300156,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Saturated Discharge Temperature",
+            "id"      : 157,
+            "addr"    : 300157,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Saturated Suction Temperature",
+            "id"      : 158,
+            "addr"    : 300158,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Subcool Temperature",
+            "id"      : 159,
+            "addr"    : 300159,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Suction Pressure",
+            "id"      : 160,
+            "addr"    : 300160,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+        {
+            "name"    : "Circuit 10 Superheat Temperature",
+            "id"      : 161,
+            "addr"    : 300161,
+            "type"    : "int16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 60,
+            "compare" : false
+        },
+
+
+        {
+            "name"    : "Chiller Alarm Word",
+            "id"      : 162,
+            "addr"    : 300162,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+
+
+
+        {
+            "name"    : "Circuit 1 Alarm Word 1",
+            "id"      : 163,
+            "addr"    : 300163,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 1 Alarm Word 2",
+            "id"      : 164,
+            "addr"    : 300164,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 1 Alarm Word 3",
+            "id"      : 165,
+            "addr"    : 300165,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+
+
+        {
+            "name"    : "Circuit 2 Alarm Word 1",
+            "id"      : 166,
+            "addr"    : 300166,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 2 Alarm Word 2",
+            "id"      : 167,
+            "addr"    : 300167,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 2 Alarm Word 3",
+            "id"      : 168,
+            "addr"    : 300168,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+
+
+        
+        {
+            "name"    : "Circuit 3 Alarm Word 1",
+            "id"      : 169,
+            "addr"    : 300169,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 3 Alarm Word 2",
+            "id"      : 170,
+            "addr"    : 300170,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 3 Alarm Word 3",
+            "id"      : 171,
+            "addr"    : 300171,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+
+        {
+            "name"    : "Circuit 4 Alarm Word 1",
+            "id"      : 172,
+            "addr"    : 300172,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 4 Alarm Word 2",
+            "id"      : 173,
+            "addr"    : 300173,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 4 Alarm Word 3",
+            "id"      : 174,
+            "addr"    : 300174,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+
+        {
+            "name"    : "Circuit 5 Alarm Word 1",
+            "id"      : 175,
+            "addr"    : 300175,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 5 Alarm Word 2",
+            "id"      : 176,
+            "addr"    : 300176,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 5 Alarm Word 3",
+            "id"      : 177,
+            "addr"    : 300177,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+
+
+
+        {
+            "name"    : "Circuit 6 Alarm Word 1",
+            "id"      : 178,
+            "addr"    : 300178,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 6 Alarm Word 2",
+            "id"      : 179,
+            "addr"    : 300179,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 6 Alarm Word 3",
+            "id"      : 180,
+            "addr"    : 300180,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+
+
+
+
+        {
+            "name"    : "Circuit 7 Alarm Word 1",
+            "id"      : 181,
+            "addr"    : 300181,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 7 Alarm Word 2",
+            "id"      : 182,
+            "addr"    : 300182,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 7 Alarm Word 3",
+            "id"      : 183,
+            "addr"    : 300183,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+
+
+
+        {
+            "name"    : "Circuit 8 Alarm Word 1",
+            "id"      : 184,
+            "addr"    : 300184,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 8 Alarm Word 2",
+            "id"      : 185,
+            "addr"    : 300185,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 8 Alarm Word 3",
+            "id"      : 186,
+            "addr"    : 300186,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+
+
+
+        {
+            "name"    : "Circuit 9 Alarm Word 1",
+            "id"      : 187,
+            "addr"    : 300187,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 9 Alarm Word 2",
+            "id"      : 188,
+            "addr"    : 300188,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 9 Alarm Word 3",
+            "id"      : 189,
+            "addr"    : 300189,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+
+
+
+        {
+            "name"    : "Circuit 10 Alarm Word 1",
+            "id"      : 190,
+            "addr"    : 300190,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 10 Alarm Word 2",
+            "id"      : 191,
+            "addr"    : 300191,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        },
+        {
+            "name"    : "Circuit 10 Alarm Word 3",
+            "id"      : 192,
+            "addr"    : 300192,
+            "type"    : "uint16",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true,
+            "do_not_batch" : true
+        }
+
+
+    ]
+}

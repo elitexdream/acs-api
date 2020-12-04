@@ -75,7 +75,6 @@ Route::group(['prefix' => 'devices'], function () {
 	Route::post('/suspend-sim/{iccid}', 'DeviceController@suspendSIM')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/remote-web/{deviceid}', 'DeviceController@remoteWeb')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/remote-cli/{deviceid}', 'DeviceController@remoteCli')->middleware('auth:acs_admin,acs_manager');
-	Route::post('/public-ip/{iccid}', 'DeviceController@publicIp')->middleware('auth:acs_admin,acs_manager');
 });
 
 Route::group(['prefix' => 'analytics'], function () {
@@ -97,3 +96,4 @@ Route::post('test/send-sms', 'CompanyController@testSMS');
 Route::post('test/blender-json', 'TestController@store');
 
 Route::get('test/azure', 'DeviceController@testAzureJson');
+Route::post('test/carrier/{id}', 'DeviceController@carrierFromKoreAPI');
