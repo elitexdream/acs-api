@@ -96,6 +96,4 @@ Route::post('test/send-mail', 'CompanyController@testMail');
 Route::post('test/send-sms', 'CompanyController@testSMS');
 Route::post('test/blender-json', 'TestController@store');
 
-Route::get('test', function() {
-	return 'ok';
-});
+Route::get('test/azure', 'DeviceController@testAzureJson');

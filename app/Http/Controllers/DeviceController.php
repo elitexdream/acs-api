@@ -325,4 +325,16 @@ class DeviceController extends Controller
             'devices' => $devices
         ]);
     }
+
+    public function testAzureJson(Request $request) {
+        $client = new Client();
+        try {
+            $response = $client->post('localhost:3000/', {
+            });
+            
+            return $response->getBody();
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
+        }
+    }
 }
