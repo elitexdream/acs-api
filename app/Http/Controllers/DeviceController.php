@@ -329,8 +329,13 @@ class DeviceController extends Controller
     public function testAzureJson(Request $request) {
         $client = new Client();
         try {
-            $response = $client->post('localhost:3000/', {
-            });
+            $response = $client->post(
+                'localhost:3000/',
+                [
+                    'json' => [
+                    ]
+                ]
+            );
             
             return $response->getBody();
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
