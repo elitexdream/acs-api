@@ -55,6 +55,8 @@ class MachineController extends Controller
 			$num_points = 12;
 			$fromInventory = $this->getFromTo($request->inventoryTimeRange)["from"];
 			$toInventory = $this->getFromTo($request->inventoryTimeRange)["to"];
+			$fromWeight = $this->getFromTo($request->weightTimeRange)["from"];
+			$toWeight = $this->getFromTo($request->weightTimeRange)["to"];
 
 			$energy_consumption_values = DeviceData::where('machine_id', $id)
 							->where('tag_id', 3)
@@ -98,8 +100,8 @@ class MachineController extends Controller
 							->where('tag_id', 10)
 							->first();
 
-			$targets = $this->parseValid($targetValues, $request->param);
-			$actuals = $this->parseValid($actualValues, $request->param);
+			$targets = $this->parseValidWithTime($targetValues, $request->param, $fromWeight, $toWeight);
+			$actuals = $this->parseValidWithTime($actualValues, $request->param, $fromWeight, $toWeight);
 			$hops = $this->parseValidWithTime($hopValues, $request->param, $fromInventory, $toInventory);
 			$fractions = $this->parseValidWithTime($frtValues, $request->param, $fromInventory, $toInventory);
 			$weekly_running_hours = $this->weeklyRunningHours($running_values);
@@ -228,27 +230,26 @@ class MachineController extends Controller
 	}
 
 	public function getProductWeight(Request $request) {
-		if($request->mode === 'Monthly')
-			$duration = strtotime("-1 month");
-		else {
-			$duration = strtotime("-1 week");
-		}
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
 
 		$targetValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 13)
-						->where('timestamp', '>', $duration)
+						->where('timestamp', '>', $from)
+						->where('timestamp', '<', $to)
 						->orderBy('timestamp')
 						->pluck('values');
 		$actualValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 14)
-						->where('timestamp', '>', $duration)
+						->where('timestamp', '>', $from)
+						->where('timestamp', '<', $to)
 						->orderBy('timestamp')
 						->pluck('values');
 
-		$targets = $this->parseValid($targetValues, $request->param);
-		$actuals = $this->parseValid($actualValues, $request->param);
+		$targets = $this->parseValidWithTime($targetValues, $request->param, $from, $to);
+		$actuals = $this->parseValidWithTime($actualValues, $request->param, $from, $to);
 
 		return response()->json(compact('targets', 'actuals'));
 	}
