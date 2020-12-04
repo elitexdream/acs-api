@@ -333,6 +333,7 @@ class DeviceController extends Controller
                 'localhost:3000/',
                 [
                     'json' => [
+                        json_encode($request->all())
                     ]
                 ]
             );
