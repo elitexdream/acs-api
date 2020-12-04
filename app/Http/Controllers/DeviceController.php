@@ -332,9 +332,7 @@ class DeviceController extends Controller
             $response = $client->post(
                 'localhost:3000/',
                 [
-                    'json' => [
-                        json_encode($request->all())
-                    ]
+                    'json' => json_encode($request->all())
                 ]
             );
             
