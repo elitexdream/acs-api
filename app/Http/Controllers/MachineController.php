@@ -12,7 +12,7 @@ use DB;
 
 class MachineController extends Controller
 {
-	private $num_chunks = 16;
+	private $num_chunks = 12;
 
 	public function index() {
     	$companies = Company::orderBy('name')->get();
@@ -52,40 +52,39 @@ class MachineController extends Controller
 		$machine->serial_number = $serial_year . $serial_month . $serial_unit;
 
 		if($id == MACHINE_BD_Batch_Blender) {
+			$num_points = 12;
+			$fromInventory = $this->getFromTo($request->inventoryTimeRange)["from"];
+			$toInventory = $this->getFromTo($request->inventoryTimeRange)["to"];
+
 			$energy_consumption_values = DeviceData::where('machine_id', $id)
 							->where('tag_id', 3)
 							->pluck('values');
-			$energy_consumption = $this->parseValid1($energy_consumption_values);
 
-			if($request->mode === 'Monthly')
-				$duration = strtotime("-1 month");
-			else {
-				$duration = strtotime("-1 week");
-			}
+			$energy_consumption = $this->parseValid1($energy_consumption_values);
 
 			$targetValues = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 13)
-							->where('timestamp', '>', $duration)
 							->orderBy('timestamp')
 							->pluck('values');
 			$actualValues = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 14)
-							->where('timestamp', '>', $duration)
 							->orderBy('timestamp')
 							->pluck('values');
 
 			$hopValues = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 15)
-							->where('timestamp', '>', $duration)
+							->where('timestamp', '>', $from)
+							->where('timestamp', '<', $to)
 							->orderBy('timestamp')
 							->pluck('values');
 			$frtValues = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 16)
-							->where('timestamp', '>', $duration)
+							->where('timestamp', '>', $from)
+							->where('timestamp', '<', $to)
 							->orderBy('timestamp')
 							->pluck('values');
 
@@ -101,8 +100,8 @@ class MachineController extends Controller
 
 			$targets = $this->parseValid($targetValues, $request->param);
 			$actuals = $this->parseValid($actualValues, $request->param);
-			$hops = $this->parseValid($hopValues, $request->param);
-			$fractions = $this->parseValid($frtValues, $request->param);
+			$hops = $this->parseValidWithTime($hopValues, $request->param, $fromInventory, $toInventory);
+			$fractions = $this->parseValidWithTime($frtValues, $request->param, $fromInventory, $toInventory);
 			$weekly_running_hours = $this->weeklyRunningHours($running_values);
 			$total_running_percentage = $this->totalRunningPercentage($running_values);
 
@@ -195,8 +194,8 @@ class MachineController extends Controller
 				$sum += json_decode($item)[$i];
 				$count ++;
 			}
-
 			return (int)($sum / $count);
+			// return (int)($sum / $count);
 		}, $chunks);
 	}
 
@@ -213,6 +212,19 @@ class MachineController extends Controller
 
 			return (int)($sum / $count);
 		}, $chunks);
+	}
+
+	public function parseValidWithTime($raw_array, $i, $from, $to) {
+		$width = $raw_array->count() / 12 + 1;
+		$chunks = array_chunk(json_decode($raw_array), $width);
+		return array_map(function($chunk, $index) use ($i, $width, $from, $to) {
+			$sum = 0; $count = 0;
+			foreach ($chunk as $key => $item) {
+				$sum += json_decode($item)[$i];
+				$count ++;
+			}
+			return [($from + $index * ($to - $from) / 12) * 1000, (int)($sum / $count)];
+		}, $chunks, array_keys($chunks));
 	}
 
 	public function getProductWeight(Request $request) {
@@ -242,20 +254,26 @@ class MachineController extends Controller
 	}
 
 	public function getProductInventory(Request $request) {
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
 
 		$hopValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 15)
+						->where('timestamp', '>', $from)
+						->where('timestamp', '<', $to)
 						->orderBy('timestamp')
 						->pluck('values');
 		$frtValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 16)
+						->where('timestamp', '>', $from)
+						->where('timestamp', '<', $to)
 						->orderBy('timestamp')
 						->pluck('values');
 
-		$hops = $this->parseValid($hopValues, $request->param);
-		$fractions = $this->parseValid($frtValues, $request->param);
+		$hops = $this->parseValidWithTime($hopValues, $request->param, $from, $to);
+		$fractions = $this->parseValidWithTime($frtValues, $request->param, $from, $to);
 
 		return response()->json(compact('hops', 'fractions'));
 	}
@@ -309,7 +327,7 @@ class MachineController extends Controller
 
 	public function getFromTo($data) {
 
-		switch ($data["timeRange"]) {
+		switch ($data["timeRangeOption"]) {
 			case 'last30Min':
 				return [
 					"from" => strtotime("-30 min"),
@@ -357,8 +375,8 @@ class MachineController extends Controller
 				];
 			case 'custom':
 				return [
-					"from" => strtotime($data["dateFrom"]),
-					"to" => strtotime($data["dateTo"])
+					"from" => strtotime($data["dateFrom"] . ' ' . $data["timeFrom"]),
+					"to" => strtotime($data["dateTo"] . ' ' . $data["timeTo"])
 				];
 				break;
 			default:
