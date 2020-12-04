@@ -38,6 +38,10 @@ class RoleSeeder extends Seeder
                 'id' => 6,
                 'key' => 'customer_operator',
                 'name' => 'Customer Operator',
+            ], [
+                'id' => 100,
+                'key' => 'super_admin',
+                'name' => 'Super Admin',
             ]
         ];
         DB::table('roles')->insert($roles);
