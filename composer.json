@@ -47,7 +47,8 @@
             "database/factories"
         ],
         "files": [
-            "app/helpers/defines.php"
+            "app/helpers/defines.php",
+            "vendor/bluerhinos/phpmqtt/phpMQTT.php"
         ]
     },
     "autoload-dev": {

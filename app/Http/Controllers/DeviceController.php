@@ -28,7 +28,7 @@ class DeviceController extends Controller
     private $bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI2MjQxODgwMjFiMWIwY2UwNTA5ZDE3OWUzY2IxMDgxOGM2YmUzMjlhNjY3NTMwOGU0ZGI4NTEwODU4OThlZGUzNjY0NDQwODA1MDkwZWJjNSIsImlzcyI6Imh0dHBzOlwvXC9ybXMudGVsdG9uaWthLW5ldHdvcmtzLmNvbVwvYWNjb3VudCIsImlhdCI6MTYwNTY2NzMyNywibmJmIjoxNjA1NjY3MzI3LCJleHAiOjE2MzcyMDMzMjcsInN1YiI6IjI3OTcwIiwiY2xpZW50X2lkIjoiOTEyM2VhNjYtMmYxZC00MzljLWIxYzItMzExYWMwMTBhYWFkIiwiZmlyc3RfcGFydHkiOmZhbHNlfQ.I0kEBbsYDzIsBr3KFY9utxhSuKLM0zRgrPUBcUUNrIU3V58tce3LUgfV6r8yip5_pOe3ybVQdEoyIXNuehPUDIa8ZxJYadGw15cs9PLDyvM00ipAggnCgi0QinxUcb_5QjaMqfemhTlil9Zquly-P9tGy8GuT-QKAxMMCwGgou_LA3JH-5c7hoImbINMMyWQaHIrK3IiSVXyb0k_tP2tczy7TIjM5NFdzTMZXlVYEwTRZJ7U-_Vyb0ZnyyTJ_Y6_6CNp79vtQ8kVD_Xs_MVCQ0vQbO9qPRAxNu8noq7ZVo1eRdc1Q411puyzm3MeVSg1bWqqG4QboGiMYTyYclwhqA";
 
 	public function getDevices($pageNumber = 1) {
-        $devices = Device::select('id', 'iccid', 'serial_number', 'registered', 'device_id', 'company_id', 'machine_id', 'sim_status', 'public_ip_sim', 'carrier')->orderBy('sim_status', 'ASC')->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
+        $devices = Device::select('id', 'name', 'iccid', 'serial_number', 'registered', 'device_id', 'company_id', 'machine_id', 'sim_status', 'public_ip_sim', 'carrier')->orderBy('sim_status', 'ASC')->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
         $machines = Machine::select('id', 'name')->get();
 
@@ -90,6 +90,7 @@ class DeviceController extends Controller
             	}
             	Device::create([
     	           'device_id' => $device->id,
+                   'name' => $device->name,
                    'serial_number' => $device->serial,
     	           'imei' => $device->imei, 
     	           'lan_mac_address' => $device->mac,
@@ -397,24 +398,6 @@ class DeviceController extends Controller
             return $response->getBody();
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
-        }
-    }
-
-    public function testMqttPHP(Request $request) {
-        $server   = ' ACSIoTHubProd.azure-devices.net';
-        $port     = 8883;
-        $username = "ACSIoTHubProd.azure-devices.net/1106336786/?api-version=2018-06-30";
-        $password = "SharedAccessSignature sr=ACSIoTHubProd.azure-devices.net%2Fdevices%2F1106336786&sig=8FhboXOvP9dJqfVChSs3VFCfWr3fpVzWjt%2BNtDz40j4%3D&se=1609713794";
-
-        $client_id = uniqid();
-
-        $mqtt = new phpMQTT($server, $port, $client_id);
-
-        if ($mqtt->connect(true, NULL, $username, $password)) {
-            $mqtt->publish('devices/{deviceid}/messages/events/', 'Hello World! at ' . date('r'), 0, false);
-            $mqtt->close();
-        } else {
-            echo "Time out!\n";
         }
     }
 }
