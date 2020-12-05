@@ -406,11 +406,9 @@ class DeviceController extends Controller
         $username = "ACSIoTHubProd.azure-devices.net/1106336786/?api-version=2018-06-30";
         $password = "SharedAccessSignature sr=ACSIoTHubProd.azure-devices.net%2Fdevices%2F1106336786&sig=8FhboXOvP9dJqfVChSs3VFCfWr3fpVzWjt%2BNtDz40j4%3D&se=1609713794";
 
-        require('../phpMQTT.php');
-
         $client_id = uniqid();
 
-        $mqtt = new Bluerhinos\phpMQTT($server, $port, $client_id);
+        $mqtt = new phpMQTT($server, $port, $client_id);
 
         if ($mqtt->connect(true, NULL, $username, $password)) {
             $mqtt->publish('devices/{deviceid}/messages/events/', 'Hello World! at ' . date('r'), 0, false);
