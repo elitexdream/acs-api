@@ -51,6 +51,8 @@ class MachineController extends Controller
 
 		$machine->serial_number = $serial_year . $serial_month . $serial_unit;
 
+		$notes = $machine->notes;
+		
 		if($id == MACHINE_BD_Batch_Blender) {
 			$num_points = 12;
 			$fromInventory = $this->getFromTo($request->inventoryTimeRange)["from"];
@@ -127,7 +129,8 @@ class MachineController extends Controller
 					'alarms',
 					'weekly_running_hours',
 					'total_running_percentage',
-					'recipe_values'
+					'recipe_values',
+					'notes'
 				)
 			);
 		} else if($id == MACHINE_Accumeter_Ovation_Continuous_Blender) {
@@ -144,7 +147,8 @@ class MachineController extends Controller
 					'machine',
 					'energy_consumption',
 					'alarm_types',
-					'alarms'
+					'alarms',
+					'notes'
 				)
 			);
 		} else if($id == MACHINE_GH_Gravimetric_Extrusion_Control_Hopper) {
@@ -181,7 +185,19 @@ class MachineController extends Controller
 						->orderBy('timestamp')
 						->get();
 
-			return response()->json(compact('machine', 'energy_consumption', 'hopper_inventories', 'hauloff_lengths', 'alarm_types', 'alarms', 'set_points', 'actual_points'));
+			return response()->json(
+				compact(
+					'machine',
+					'energy_consumption',
+					'hopper_inventories',
+					'hauloff_lengths',
+					'alarm_types',
+					'alarms',
+					'set_points',
+					'actual_points',
+					'notes'
+				)
+			);
 		} else {
 			return response()->json(compact('machine'));
 		}
