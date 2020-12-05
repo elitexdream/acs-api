@@ -4,6 +4,7 @@
  */
 
 // Role
+define('ROLE_SUPER_ADMIN', 100);
 define('ROLE_ACS_ADMIN', 1);
 define('ROLE_ACS_MANAGER', 2);
 define('ROLE_ACS_VIEWER', 3);

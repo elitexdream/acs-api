@@ -9,4 +9,8 @@ class Machine extends Model
     protected $fillable = [
         'name'
     ];
+
+    public function notes() {
+    	return $this->hasMany('App\Note');
+    }
 }

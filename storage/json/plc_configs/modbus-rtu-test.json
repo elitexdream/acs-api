@@ -1,0 +1,99 @@
+{
+    "cmd": "config_full",
+    "plc_ip"        : "/dev/ttyUSB0",
+    "format"        : "json",
+    "batch_size"    : 4000,
+    "batch_timeout" : 60,
+    "config_hash"   : "modbus-rtu-test-hash",
+    "protocol"      : "modbus-rtu",
+    "base_addr"     : 48,
+    "baud"          : 9600,
+    "parity"        : "even",    
+    "data_bits"     : 8,
+    "stop_bits"     : 1,
+    "byte_timeout"  : 4,
+    "resp_timeout"  : 100,
+    "plctags"       :[
+        {
+            "name"    : "tag1",
+            "id"      : 300201,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"    : "tag2",
+            "id"      : 300202,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"    : "tag3",
+            "id"      : 300004,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"    : "tag4",
+            "id"      : 300005,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 2,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"    : "tag5",
+            "id"      : 400006,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"    : "coil1",
+            "id"      : 5,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"    : "coil2",
+            "id"      : 7,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"    : "coil3",
+            "id"      : 100009,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"    : "coil4",
+            "id"      : 100010,
+            "type"    : "int32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        }
+    ]
+}

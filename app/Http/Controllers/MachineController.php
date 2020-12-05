@@ -12,7 +12,7 @@ use DB;
 
 class MachineController extends Controller
 {
-	private $num_chunks = 16;
+	private $num_chunks = 12;
 
 	public function index() {
     	$companies = Company::orderBy('name')->get();
@@ -51,41 +51,44 @@ class MachineController extends Controller
 
 		$machine->serial_number = $serial_year . $serial_month . $serial_unit;
 
+		$notes = $machine->notes;
+		
 		if($id == MACHINE_BD_Batch_Blender) {
+			$num_points = 12;
+			$fromInventory = $this->getFromTo($request->inventoryTimeRange)["from"];
+			$toInventory = $this->getFromTo($request->inventoryTimeRange)["to"];
+			$fromWeight = $this->getFromTo($request->weightTimeRange)["from"];
+			$toWeight = $this->getFromTo($request->weightTimeRange)["to"];
+
 			$energy_consumption_values = DeviceData::where('machine_id', $id)
 							->where('tag_id', 3)
 							->pluck('values');
-			$energy_consumption = $this->parseValid1($energy_consumption_values);
 
-			if($request->mode === 'Monthly')
-				$duration = strtotime("-1 month");
-			else {
-				$duration = strtotime("-1 week");
-			}
+			$energy_consumption = $this->parseValid1($energy_consumption_values);
 
 			$targetValues = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 13)
-							->where('timestamp', '>', $duration)
 							->orderBy('timestamp')
 							->pluck('values');
 			$actualValues = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 14)
-							->where('timestamp', '>', $duration)
 							->orderBy('timestamp')
 							->pluck('values');
 
 			$hopValues = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 15)
-							->where('timestamp', '>', $duration)
+							->where('timestamp', '>', $fromInventory)
+							->where('timestamp', '<', $toInventory)
 							->orderBy('timestamp')
 							->pluck('values');
 			$frtValues = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 16)
-							->where('timestamp', '>', $duration)
+							->where('timestamp', '>', $fromInventory)
+							->where('timestamp', '<', $toInventory)
 							->orderBy('timestamp')
 							->pluck('values');
 
@@ -99,10 +102,10 @@ class MachineController extends Controller
 							->where('tag_id', 10)
 							->first();
 
-			$targets = $this->parseValid($targetValues, $request->param);
-			$actuals = $this->parseValid($actualValues, $request->param);
-			$hops = $this->parseValid($hopValues, $request->param);
-			$fractions = $this->parseValid($frtValues, $request->param);
+			$targets = $this->parseValidWithTime($targetValues, $request->param, $fromWeight, $toWeight);
+			$actuals = $this->parseValidWithTime($actualValues, $request->param, $fromWeight, $toWeight);
+			$hops = $this->parseValidWithTime($hopValues, $request->param, $fromInventory, $toInventory);
+			$fractions = $this->parseValidWithTime($frtValues, $request->param, $fromInventory, $toInventory);
 			$weekly_running_hours = $this->weeklyRunningHours($running_values);
 			$total_running_percentage = $this->totalRunningPercentage($running_values);
 
@@ -126,7 +129,8 @@ class MachineController extends Controller
 					'alarms',
 					'weekly_running_hours',
 					'total_running_percentage',
-					'recipe_values'
+					'recipe_values',
+					'notes'
 				)
 			);
 		} else if($id == MACHINE_Accumeter_Ovation_Continuous_Blender) {
@@ -143,7 +147,8 @@ class MachineController extends Controller
 					'machine',
 					'energy_consumption',
 					'alarm_types',
-					'alarms'
+					'alarms',
+					'notes'
 				)
 			);
 		} else if($id == MACHINE_GH_Gravimetric_Extrusion_Control_Hopper) {
@@ -180,7 +185,19 @@ class MachineController extends Controller
 						->orderBy('timestamp')
 						->get();
 
-			return response()->json(compact('machine', 'energy_consumption', 'hopper_inventories', 'hauloff_lengths', 'alarm_types', 'alarms', 'set_points', 'actual_points'));
+			return response()->json(
+				compact(
+					'machine',
+					'energy_consumption',
+					'hopper_inventories',
+					'hauloff_lengths',
+					'alarm_types',
+					'alarms',
+					'set_points',
+					'actual_points',
+					'notes'
+				)
+			);
 		} else {
 			return response()->json(compact('machine'));
 		}
@@ -195,8 +212,8 @@ class MachineController extends Controller
 				$sum += json_decode($item)[$i];
 				$count ++;
 			}
-
 			return (int)($sum / $count);
+			// return (int)($sum / $count);
 		}, $chunks);
 	}
 
@@ -215,54 +232,65 @@ class MachineController extends Controller
 		}, $chunks);
 	}
 
+	public function parseValidWithTime($raw_array, $i, $from, $to) {
+		$width = $raw_array->count() / 12 + 1;
+		$chunks = array_chunk(json_decode($raw_array), $width);
+		return array_map(function($chunk, $index) use ($i, $width, $from, $to) {
+			$sum = 0; $count = 0;
+			foreach ($chunk as $key => $item) {
+				$sum += json_decode($item)[$i];
+				$count ++;
+			}
+			return [($from + $index * ($to - $from) / 12) * 1000, (int)($sum / $count)];
+		}, $chunks, array_keys($chunks));
+	}
+
 	public function getProductWeight(Request $request) {
-		if($request->mode === 'Monthly')
-			$duration = strtotime("-1 month");
-		else {
-			$duration = strtotime("-1 week");
-		}
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
 
 		$targetValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 13)
-						->where('timestamp', '>', $duration)
+						->where('timestamp', '>', $from)
+						->where('timestamp', '<', $to)
 						->orderBy('timestamp')
 						->pluck('values');
 		$actualValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 14)
-						->where('timestamp', '>', $duration)
+						->where('timestamp', '>', $from)
+						->where('timestamp', '<', $to)
 						->orderBy('timestamp')
 						->pluck('values');
 
-		$targets = $this->parseValid($targetValues, $request->param);
-		$actuals = $this->parseValid($actualValues, $request->param);
+		$targets = $this->parseValidWithTime($targetValues, $request->param, $from, $to);
+		$actuals = $this->parseValidWithTime($actualValues, $request->param, $from, $to);
 
 		return response()->json(compact('targets', 'actuals'));
 	}
 
 	public function getProductInventory(Request $request) {
-		if($request->mode === 'Monthly')
-			$duration = strtotime("-1 month");
-		else {
-			$duration = strtotime("-1 week");
-		}
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
 
 		$hopValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 15)
-						->where('timestamp', '>', $duration)
+						->where('timestamp', '>', $from)
+						->where('timestamp', '<', $to)
 						->orderBy('timestamp')
 						->pluck('values');
 		$frtValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 16)
-						->where('timestamp', '>', $duration)
+						->where('timestamp', '>', $from)
+						->where('timestamp', '<', $to)
 						->orderBy('timestamp')
 						->pluck('values');
 
-		$hops = $this->parseValid($hopValues, $request->param);
-		$fractions = $this->parseValid($frtValues, $request->param);
+		$hops = $this->parseValidWithTime($hopValues, $request->param, $from, $to);
+		$fractions = $this->parseValidWithTime($frtValues, $request->param, $from, $to);
 
 		return response()->json(compact('hops', 'fractions'));
 	}
@@ -312,5 +340,64 @@ class MachineController extends Controller
 			}
 		}
 		return $ret[0] / ($ret[0] + $ret[1]);
+	}
+
+	public function getFromTo($data) {
+
+		switch ($data["timeRangeOption"]) {
+			case 'last30Min':
+				return [
+					"from" => strtotime("-30 min"),
+					"to" => time()
+				];
+			case 'lastHour':
+				return [
+					"from" => strtotime("-1 hour"),
+					"to" => time()
+				];
+			case 'last4Hours':
+				return [
+					"from" => strtotime("-4 hours"),
+					"to" => time()
+				];
+			case 'last12Hours':
+				return [
+					"from" => strtotime("-12 hours"),
+					"to" => time()
+				];
+			case 'last24Hours':
+				return [
+					"from" => strtotime("-1 day"),
+					"to" => time()
+				];
+			case 'last48Hours':
+				return [
+					"from" => strtotime("-2 days"),
+					"to" => time()
+				];
+			case 'last3Days':
+				return [
+					"from" => strtotime("-3 days"),
+					"to" => time()
+				];
+			case 'last7Days':
+				return [
+					"from" => strtotime("-1 week"),
+					"to" => time()
+				];
+			case 'last24Days':
+				return [
+					"from" => strtotime("-24 days"),
+					"to" => time()
+				];
+			case 'custom':
+				return [
+					"from" => strtotime($data["dateFrom"] . ' ' . $data["timeFrom"]),
+					"to" => strtotime($data["dateTo"] . ' ' . $data["timeTo"])
+				];
+				break;
+			default:
+				break;
+		}
 	}
 }

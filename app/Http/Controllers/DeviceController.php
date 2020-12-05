@@ -28,14 +28,30 @@ class DeviceController extends Controller
     private $bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI2MjQxODgwMjFiMWIwY2UwNTA5ZDE3OWUzY2IxMDgxOGM2YmUzMjlhNjY3NTMwOGU0ZGI4NTEwODU4OThlZGUzNjY0NDQwODA1MDkwZWJjNSIsImlzcyI6Imh0dHBzOlwvXC9ybXMudGVsdG9uaWthLW5ldHdvcmtzLmNvbVwvYWNjb3VudCIsImlhdCI6MTYwNTY2NzMyNywibmJmIjoxNjA1NjY3MzI3LCJleHAiOjE2MzcyMDMzMjcsInN1YiI6IjI3OTcwIiwiY2xpZW50X2lkIjoiOTEyM2VhNjYtMmYxZC00MzljLWIxYzItMzExYWMwMTBhYWFkIiwiZmlyc3RfcGFydHkiOmZhbHNlfQ.I0kEBbsYDzIsBr3KFY9utxhSuKLM0zRgrPUBcUUNrIU3V58tce3LUgfV6r8yip5_pOe3ybVQdEoyIXNuehPUDIa8ZxJYadGw15cs9PLDyvM00ipAggnCgi0QinxUcb_5QjaMqfemhTlil9Zquly-P9tGy8GuT-QKAxMMCwGgou_LA3JH-5c7hoImbINMMyWQaHIrK3IiSVXyb0k_tP2tczy7TIjM5NFdzTMZXlVYEwTRZJ7U-_Vyb0ZnyyTJ_Y6_6CNp79vtQ8kVD_Xs_MVCQ0vQbO9qPRAxNu8noq7ZVo1eRdc1Q411puyzm3MeVSg1bWqqG4QboGiMYTyYclwhqA";
 
 	public function getDevices($pageNumber = 1) {
-        $devices = Device::select('id', 'iccid', 'serial_number', 'registered', 'device_id', 'company_id', 'machine_id', 'sim_status', 'public_ip_sim')->orderBy('sim_status', 'ASC')->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
+        $devices = Device::select('id', 'name', 'iccid', 'serial_number', 'registered', 'device_id', 'company_id', 'machine_id', 'sim_status', 'public_ip_sim', 'carrier')->orderBy('sim_status', 'ASC')->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
         $machines = Machine::select('id', 'name')->get();
 
             foreach ($devices as $key => $device) {
+                if(!$device->public_ip_sim) {
+                    try {
+                        $device->public_ip_sim = $this->publicIP($device->iccid)->public_ip_sim;
+                    }
+                    catch( \Exception $e ) {
+                    }
+                }
                 if(!$device->sim_status) {
+
                     try {
                         $device->sim_status = $this->querySIM($device->iccid)->sim_status;
+                    } catch( \Exception $e ) {
+
+                    }
+                }
+                if(!$device->carrier) {
+
+                    try {
+                        $device->carrier = $this->carrierFromKoreAPI($device->iccid)->carrier;
                     } catch( \Exception $e ) {
 
                     }
@@ -74,11 +90,12 @@ class DeviceController extends Controller
             	}
             	Device::create([
     	           'device_id' => $device->id,
+                   'name' => $device->name,
                    'serial_number' => $device->serial,
     	           'imei' => $device->imei, 
     	           'lan_mac_address' => $device->mac,
                    'iccid' => substr($device->iccid, 0, -1),
-                   'public_ip_sim' => $device->wan_ip || $device->mobile_ip,
+                   'public_ip_sim' => null,
                    'machine_id' => null,
                    'company_id' => null,
                    'registered' => false
@@ -136,8 +153,7 @@ class DeviceController extends Controller
                     ],
                     'json' => [
                         "deviceNumber" => $device->iccid,
-                    ], 
-
+                    ]
                 ]
             );
             
@@ -166,23 +182,26 @@ class DeviceController extends Controller
                     ],
                     'json' => [
                         "duration" => 400
-                    ],
+                    ]
                 ]
             );
             if ($res) {
-                $response = $client->get(
-                    $getLink,
-                    [
-                        'headers' => [
-                            'Authorization' => "Bearer " . $this->bearer_token
-                        ],
-                        'json' => [
-                            "type" => "webui"
-                        ],
-                    ]
-                );
-                
-                return $response->getBody();
+                do {
+                    $response = $client->get(
+                        $getLink,
+                        [
+                            'headers' => [
+                                'Authorization' => "Bearer " . $this->bearer_token
+                            ],
+                            'json' => [
+                                "type" => "webui"
+                            ],
+                        ]
+                    );
+                    $data = json_decode($response->getBody()->getContents())->data;
+                } while (count($data) === 0);
+
+                return response()->json($data);
             }
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
@@ -212,19 +231,22 @@ class DeviceController extends Controller
                 ]
             );
             if ($res) {
-                $response = $client->get(
-                    $getLink,
-                    [
-                        'headers' => [
-                            'Authorization' => "Bearer " . $this->bearer_token
-                        ],
-                        'json' => [
-                            "type" => "webui"
-                        ],
-                    ]
-                );
-                
-                return $response->getBody();
+                do {
+                    $response = $client->get(
+                        $getLink,
+                        [
+                            'headers' => [
+                                'Authorization' => "Bearer " . $this->bearer_token
+                            ],
+                            'json' => [
+                                "type" => "cli"
+                            ],
+                        ]
+                    );
+                    $data = json_decode($response->getBody()->getContents())->data;
+                } while (count($data) === 0);
+
+                return response()->json($data);
             }
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
@@ -268,6 +290,92 @@ class DeviceController extends Controller
         }
     }
 
+    public function publicIP($iccid) {
+        if(!$iccid) {
+            return response()->json('Invalid ICCID', 404);
+        }
+
+        $device = Device::where('iccid', $iccid)->first();
+
+        if(!$device) {
+            return response()->json('Device Not Found', 404);
+        }
+
+        $client = new Client();
+        try {
+            $response = $client->post(
+                $this->queryURL,
+                [
+                    'headers' => ['Content-type' => 'application/json'],
+                    'auth' => [
+                        'ACSGroup_API', 
+                        'HBSMYJM2'
+                    ],
+                    'json' => [
+                        "deviceNumber" => $iccid,
+                    ], 
+                ]
+            );
+
+            $device->public_ip_sim = json_decode($response->getBody())->d->staticIP;
+            $device->save();
+
+            return $device;
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
+        }
+    }
+
+    public function carrierFromKoreAPI($iccid) {
+        if(!$iccid) {
+            return response()->json('Invalid ICCID', 404);
+        }
+
+        $device = Device::where('iccid', $iccid)->first();
+
+        if(!$device) {
+            return response()->json('Device Not Found', 404);
+        }
+
+        $client = new Client();
+        try {
+            $response = $client->post(
+                $this->queryURL,
+                [
+                    'headers' => ['Content-type' => 'application/json'],
+                    'auth' => [
+                        'ACSGroup_API', 
+                        'HBSMYJM2'
+                    ],
+                    'json' => [
+                        "deviceNumber" => $iccid,
+                    ], 
+                ]
+            );
+            $features = json_decode($response->getBody())->d->lstFeatures;
+            foreach ($features as $key => $feature) {
+                if (strpos($feature, 'FEAT015100') !== false) {
+                    $feature = str_replace("FEAT015100: ", "", $feature);
+
+                    if(strpos($feature, 'KTUSA') !== false) {
+                        $device->carrier = str_replace("KTUSA", "T-Mobile", $feature);
+                    } else if(strpos($feature, 'KUSG') !== false) {
+                        $device->carrier = str_replace("KUSG", "AT&T", $feature);
+                    } else if(strpos($feature, 'VZWLTE') !== false) {
+                        $device->carrier = str_replace("VZWLTE", "Verizon", $feature);
+                    }
+                    break;
+                }
+            }
+            
+            $device->save();
+
+            return $device;
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
+        }
+    }
+
     public function getCustomerDevices(Request $request) {
         $user = $request->user('api');
         $devices = $user->companies()->first()->devices;
@@ -275,5 +383,21 @@ class DeviceController extends Controller
         return response()->json([
             'devices' => $devices
         ]);
+    }
+
+    public function testAzureJson(Request $request) {
+        $client = new Client();
+        try {
+            $response = $client->post(
+                'localhost:3000/',
+                [
+                    'json' => $request->all()
+                ]
+            );
+            
+            return $response->getBody();
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
+        }
     }
 }

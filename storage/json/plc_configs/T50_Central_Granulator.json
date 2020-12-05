@@ -9,7 +9,7 @@
         {
             "name"    : "device_type",
             "id"      : 1,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -18,7 +18,7 @@
         {
             "name"    : "capacity_utilization",
             "id"      : 2,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -36,7 +36,7 @@
         {
             "name"    : "HMI_PROGRAM_REV",
             "id"      : 4,
-            "type"    : "uint32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -45,7 +45,7 @@
         {
             "name"      : "HMI_PROGRAM_REV_BUILD",
             "id"      : 5,
-            "type"    : "uint32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -54,7 +54,7 @@
         {
             "name"      : "serial_number_month",
             "id"      : 6,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -63,7 +63,7 @@
         {
             "name"      : "serial_number_year",
             "id"      : 7,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -72,7 +72,7 @@
         {
             "name"      : "serial_number_unit",
             "id"      : 8,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -234,7 +234,7 @@
         {
             "name"      : "HI014_Bearing_One_Temp",
             "id"      : 26,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -243,7 +243,7 @@
         {
             "name"      : "HI015_Bearing_Two_Temp",
             "id"      : 27,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -369,7 +369,7 @@
         {
             "name"      : "HI005_BANNER_MSG",
             "id"      : 41,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -378,7 +378,7 @@
         {
             "name"      : "HI028_Motor_Status_Gran",
             "id"      : 42,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -387,7 +387,7 @@
         {
             "name"      : "HI027_Motor_Status_Cnvr",
             "id"      : 43,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -396,7 +396,7 @@
         {
             "name"      : "HI026_Motor_Status_Blwr",
             "id"      : 44,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -405,7 +405,7 @@
         {
             "name"      : "HI024_Motor_Status_Aux1",
             "id"      : 45,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -414,7 +414,7 @@
         {
             "name"      : "HI025_Motor_Status_Aux2",
             "id"      : 46,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -423,7 +423,7 @@
         {
             "name"      : "HI012_Alarm_Word",
             "id"      : 47,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,
@@ -433,7 +433,7 @@
         {
             "name"      : "HI008_NOTIF_WORD",
             "id"      : 48,
-            "type"    : "int32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 1,

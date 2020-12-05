@@ -82,6 +82,10 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/product-weight', 'MachineController@getProductWeight');
 	Route::post('/product-inventory', 'MachineController@getProductInventory');
 });
+Route::group(['prefix' => 'notes'], function () {
+	Route::post('/store', 'NoteController@store');
+	Route::get('/index/{machine_id}', 'NoteController@getMachineNotes');
+});
 
 Route::group(['prefix' => 'alarms'], function () {
 	Route::post('/', 'AlarmController@getProductAlarms');
@@ -95,6 +99,6 @@ Route::post('test/send-mail', 'CompanyController@testMail');
 Route::post('test/send-sms', 'CompanyController@testSMS');
 Route::post('test/blender-json', 'TestController@store');
 
-Route::get('test', function() {
-	return 'ok';
-});
+Route::post('test/azure', 'DeviceController@testAzureJson');
+Route::post('test/mqtt', 'DeviceController@testMqttPHP');
+Route::post('test/carrier/{id}', 'DeviceController@carrierFromKoreAPI');

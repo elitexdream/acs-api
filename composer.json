@@ -9,12 +9,14 @@
     "license": "MIT",
     "require": {
         "php": "^7.2.5",
+        "bluerhinos/phpmqtt": "@dev",
         "fideloper/proxy": "^4.3",
         "fruitcake/laravel-cors": "^1.0",
         "guzzlehttp/guzzle": "^7.1",
         "laravel/framework": "^7.2.8",
         "laravel/passport": "^9.0",
         "laravel/tinker": "^2.3",
+        "php-mqtt/client": "^0.3.0",
         "s-ichikawa/laravel-sendgrid-driver": "^3.0",
         "sendgrid/sendgrid": "^7.9",
         "twilio/sdk": "^6.13"
@@ -45,7 +47,8 @@
             "database/factories"
         ],
         "files": [
-            "app/helpers/defines.php"
+            "app/helpers/defines.php",
+            "vendor/bluerhinos/phpmqtt/phpMQTT.php"
         ]
     },
     "autoload-dev": {
