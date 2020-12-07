@@ -41,6 +41,8 @@ return [
     |
     */
 
+    
+
     'disks' => [
 
         'local' => [
@@ -53,6 +55,11 @@ return [
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
+        ],
+
+        'public_uploads' => [
+            'driver' => 'local',
+            'root'   => public_path() . '/assets/app/img',
         ],
 
         's3' => [

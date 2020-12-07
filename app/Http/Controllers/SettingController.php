@@ -19,26 +19,28 @@ class SettingController extends Controller
 
     public function uploadLogo(Request $request)
     {
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
             $file_name = $file->getClientOriginalName();
-            $file->storeAs('assets', $file_name);
-
-            $logo_filename = Setting::where('type', 'logo_file_name')->first();
+            $file->storeAs('', $file_name, 'public_uploads');
+            $file_path = asset('assets/app/img'). '/' . $file_name;
+            $logo_filename = Setting::where('type', 'logo_filepath')->first();
             if (!$logo_filename) {
                 Setting::create([
-                    'type' => 'logo_file_name',
-                    'value' => $file_name
+                    'type' => 'logo_filepath',
+                    'value' => $file_path
                 ]);
             } else {
-                $logo_filename->value = $file_name;
+                $logo_filename->value = $file_path;
                 $logo_filename->save();
             }
-            /* Storage::disk('local')->put($file_name, $file); */
         } else {
             return response()->json(['error'=>'File not exist!']);
         }
-        return response()->json(['filename'=>$file_name, 'success'=>'Uploaded Successfully.']);
+        return response()->json([
+            'filepath'=>$file_path,
+            'success'=>'Uploaded Successfully.'
+        ]);
     }
 
     public function downloadLogo()
@@ -110,10 +112,10 @@ class SettingController extends Controller
             
             $idx = rand(0, count($results) - 1);
             $image_url = $results[$idx]->urls->regular;            
-            $auth_background = Setting::where('type', 'auth_background')->first();
+            $auth_background = Setting::where('type', 'auth_background_filepath')->first();
             if(!$auth_background) {
                 Setting::create([
-                    'type' => 'auth_background',
+                    'type' => 'auth_background_filepath',
                     'value' => $image_url
                 ]);
             } else {

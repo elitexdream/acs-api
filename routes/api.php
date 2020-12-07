@@ -56,7 +56,6 @@ Route::group(['prefix' => 'app-settings'], function () {
 	Route::post('/get-setting', 'SettingController@getSetting');
 	Route::post('/set-private-colors', 'SettingController@setPrivateColors');
 	Route::post('/upload-logo', 'SettingController@uploadLogo');
-	Route::get('/download-logo', 'SettingController@downloadLogo');
 	Route::post('/update-auth-background', 'SettingController@updateAuthBackground');
 });
 
