@@ -54,7 +54,9 @@ Route::group(['prefix' => 'acs-users'], function () {
 Route::group(['prefix' => 'app-settings'], function () {
 	Route::post('/grab-colors', 'SwatchController@grabColors');
 	Route::post('/get-setting', 'SettingController@getSetting');
-	Route::post('/set-private-color', 'SettingController@setPrivateColor');
+	Route::post('/set-private-colors', 'SettingController@setPrivateColors');
+	Route::post('/upload-logo', 'SettingController@uploadLogo');
+	Route::get('/download-logo', 'SettingController@downloadLogo');
 });
 
 Route::group(['prefix' => 'acs-machines'], function () {
