@@ -39,7 +39,7 @@ class MachineSeeder extends Seeder
                 'batch_size' => $json_bd_batch_blender['batch_size'],
                 'batch_timeout' => $json_bd_batch_blender['batch_timeout'],
                 'config_hash' => $json_bd_batch_blender['config_hash'],
-                'plgtags' => json_encode($json_bd_batch_blender['plctags'])
+                'full_json' => json_encode($json_bd_batch_blender)
             ], [
                 'id' => 2,
                 'name' => 'Accumeter Ovation Continuous Blender',
@@ -48,7 +48,7 @@ class MachineSeeder extends Seeder
                 'batch_size' => $json_accumeter_ovation_continuous_blender['batch_size'],
                 'batch_timeout' => $json_accumeter_ovation_continuous_blender['batch_timeout'],
                 'config_hash' => $json_accumeter_ovation_continuous_blender['config_hash'],
-                'plgtags' => json_encode($json_accumeter_ovation_continuous_blender['plctags'])
+                'full_json' => json_encode($json_accumeter_ovation_continuous_blender)
             ], [
                 'id' => 3,
                 'name' => 'GH Gravimetric Extrusion Control Hopper',
@@ -57,7 +57,7 @@ class MachineSeeder extends Seeder
                 'batch_size' => $json_gh_gravimetric_extrusion_control_hopper['batch_size'],
                 'batch_timeout' => $json_gh_gravimetric_extrusion_control_hopper['batch_timeout'],
                 'config_hash' => $json_gh_gravimetric_extrusion_control_hopper['config_hash'],
-                'plgtags' => json_encode($json_gh_gravimetric_extrusion_control_hopper['plctags'])
+                'full_json' => json_encode($json_gh_gravimetric_extrusion_control_hopper)
             ], [
                 'id' => 4,
                 'name' => 'GH-F Gravimetric Additive Feeder',
@@ -66,7 +66,7 @@ class MachineSeeder extends Seeder
                 'batch_size' => $json_gh_f_gravimetric_additive_feeder['batch_size'],
                 'batch_timeout' => $json_gh_f_gravimetric_additive_feeder['batch_timeout'],
                 'config_hash' => $json_gh_f_gravimetric_additive_feeder['config_hash'],
-                'plgtags' => json_encode($json_gh_f_gravimetric_additive_feeder['plctags'])
+                'full_json' => json_encode($json_gh_f_gravimetric_additive_feeder)
             ], [
                 'id' => 5,
                 'name' => 'VTC Plus Conveying System',
@@ -75,7 +75,7 @@ class MachineSeeder extends Seeder
                 'batch_size' => $json_vtc_plus_conveying_system['batch_size'],
                 'batch_timeout' => $json_vtc_plus_conveying_system['batch_timeout'],
                 'config_hash' => $json_vtc_plus_conveying_system['config_hash'],
-                'plgtags' => json_encode($json_vtc_plus_conveying_system['plctags'])
+                'full_json' => json_encode($json_vtc_plus_conveying_system)
             ], [
                 'id' => 6,
                 'name' => 'NGX Dryer',
@@ -84,7 +84,7 @@ class MachineSeeder extends Seeder
                 'batch_size' => $json_ngx_dryer['batch_size'],
                 'batch_timeout' => $json_ngx_dryer['batch_timeout'],
                 'config_hash' => $json_ngx_dryer['config_hash'],
-                'plgtags' => json_encode($json_ngx_dryer['plctags'])
+                'full_json' => json_encode($json_ngx_dryer)
             ], [
                 'id' => 7,
                 'name' => 'NGX Nomad Dryer',
@@ -93,7 +93,7 @@ class MachineSeeder extends Seeder
                 'batch_size' => $json_ngx_nomad_dryer['batch_size'],
                 'batch_timeout' => $json_ngx_nomad_dryer['batch_timeout'],
                 'config_hash' => $json_ngx_nomad_dryer['config_hash'],
-                'plgtags' => json_encode($json_ngx_nomad_dryer['plctags'])
+                'full_json' => json_encode($json_ngx_nomad_dryer)
             ], [
                 'id' => 8,
                 'name' => 'T50 Central Granulator',
@@ -102,7 +102,7 @@ class MachineSeeder extends Seeder
                 'batch_size' => $json_t50_central_granulator['batch_size'],
                 'batch_timeout' => $json_t50_central_granulator['batch_timeout'],
                 'config_hash' => $json_t50_central_granulator['config_hash'],
-                'plgtags' => json_encode($json_t50_central_granulator['plctags'])
+                'full_json' => json_encode($json_t50_central_granulator)
             ]
         ];
         DB::table('machines')->insert($machines);

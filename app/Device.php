@@ -22,4 +22,8 @@ class Device extends Model
         'zone_id',
         'checkin'
     ];
+
+    public function configuration() {
+        return $this->belongsTo('App\Machine', 'machine_id');
+    }
 }

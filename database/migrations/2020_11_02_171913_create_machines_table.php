@@ -21,7 +21,7 @@ class CreateMachinesTable extends Migration
             $table->unsignedInteger('batch_size');
             $table->unsignedInteger('batch_timeout');
             $table->string('config_hash', 20);
-            $table->json('plgtags');
+            $table->json('full_json');
         });
     }
 

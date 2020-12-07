@@ -127,11 +127,40 @@ class DeviceController extends Controller
     public function updateRegistered(Request $request) {
         $device = Device::findOrFail($request->device_id);
 
-        $device->registered = $request->register;
+        $configuration = $device->configuration;
 
-        $device->save();
+        if(!$configuration) {
+            return response()->json([
+                'message' => 'Configuration Not Assinged'
+            ], 422);
+        }
 
-        return response()->json('Successfully updated.');
+        $configuration = $configuration->full_json;
+        if(!$request->register) {
+            $configuration->plctags = [];
+        }
+
+        $req = [
+            "targetDevice" => $request->device_id,
+            "requestJson" => $configuration
+        ];
+
+        $client = new Client();
+
+        try {
+            $response = $client->post(
+                'localhost:3000/',
+                [
+                    'json' => $req
+                ]
+            );
+
+            $device->registered = $request->register;
+            $device->save();
+            return response()->json('Successfully updated.');
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
+        }
     }
 
     public function suspendSIM($iccid) {
