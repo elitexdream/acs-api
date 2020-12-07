@@ -19,6 +19,7 @@ class Device extends Model
         'public_ip_sim',
         'sim_status',
         'location_id',
-        'zone_id'
+        'zone_id',
+        'checkin'
     ];
 }
