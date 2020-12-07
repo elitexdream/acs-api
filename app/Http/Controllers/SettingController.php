@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Setting;
 use Illuminate\Http\Request;
+use GuzzleHttp\Client;
 
 class SettingController extends Controller
 {
@@ -89,5 +90,42 @@ class SettingController extends Controller
         return response()->json([
     		'private_colors' => $request->colors
         ]);
+    }
+
+    public function updateAuthBackground(Request $request)
+    {
+        $client = new Client();
+        try {
+            $url = 'https://api.unsplash.com/search/photos?query=Industry 4.0&client_id=a5b68mEtkbahjcG-fvv-R8jw8_YM6lHhOmbloIhvVwE';
+            $response = $client->get(
+                urldecode($url)
+            );            
+            $results = json_decode($response->getBody()->getContents())->results;
+            
+            $url = 'https://api.unsplash.com/search/photos?query=manufacturing&client_id=a5b68mEtkbahjcG-fvv-R8jw8_YM6lHhOmbloIhvVwE';
+            $response = $client->get(
+                urldecode($url)
+            );
+            $results = array_merge($results, json_decode($response->getBody()->getContents())->results);
+            
+            $idx = rand(0, count($results) - 1);
+            $image_url = $results[$idx]->urls->regular;            
+            $auth_background = Setting::where('type', 'auth_background')->first();
+            if(!$auth_background) {
+                Setting::create([
+                    'type' => 'auth_background',
+                    'value' => $image_url
+                ]);
+            } else {
+                $auth_background->value = $image_url;
+                $auth_background->save();
+            }
+
+            return response()->json([
+                'filepath' => $image_url
+            ]);
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
+        }
     }
 }
