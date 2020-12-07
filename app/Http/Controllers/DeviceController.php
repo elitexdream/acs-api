@@ -135,13 +135,13 @@ class DeviceController extends Controller
             ], 422);
         }
 
-        $configuration = $configuration->full_json;
+        $configuration = json_decode($configuration->full_json);
         if(!$request->register) {
             $configuration->plctags = [];
         }
 
         $req = [
-            "targetDevice" => $request->device_id,
+            "targetDevice" => $device->serial_number,
             "requestJson" => $configuration
         ];
 
