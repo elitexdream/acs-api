@@ -51,6 +51,14 @@ Route::group(['prefix' => 'acs-users'], function () {
 	Route::post('/update-information/{id}', 'UserController@updateAcsUserInformation')->middleware('auth:acs_admin');
 });
 
+Route::group(['prefix' => 'app-settings'], function () {
+	Route::post('/grab-colors', 'SwatchController@grabColors');
+	Route::post('/get-setting', 'SettingController@getSetting');
+	Route::post('/set-private-colors', 'SettingController@setPrivateColors');
+	Route::post('/upload-logo', 'SettingController@uploadLogo');
+	Route::get('/download-logo', 'SettingController@downloadLogo');
+});
+
 Route::group(['prefix' => 'acs-machines'], function () {
 	Route::get('/', 'MachineController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 });
