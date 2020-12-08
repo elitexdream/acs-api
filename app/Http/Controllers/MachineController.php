@@ -8,6 +8,7 @@ use App\Company;
 use App\AlarmType;
 use App\DeviceData;
 use App\Machine;
+use App\DowntimePlan;
 use DB;
 
 class MachineController extends Controller
@@ -384,6 +385,127 @@ class MachineController extends Controller
 			return $ret[0] / ($ret[0] + $ret[1]);
 		else
 			return 0;
+	}
+
+	public function getLocationsTableData() {
+		$downtime_distribution = $this->getDowntimeDistribution(1);
+
+		return response()->json(compact('downtime_distribution'));
+	}
+
+	/*
+		Get downtime distribution of a machine in seconds
+		Defalt start time is a week ago and default end time is now
+	*/
+	public function getDowntimeDistribution($id, $start = 0, $end = 0) {
+
+		if(!$start) $start = strtotime("-7 days");
+		if(!$end) $end = time();
+
+		$ret = [0, 0, 0];	// 0 - Planned
+							// 1 - Unplanned
+							// 2 - Idle
+
+		$running_values = DB::table('device_data')
+							->where('machine_id', $id)
+							->where('tag_id', 9)
+							->where('timestamp', '>', $start)
+							->where('timestamp', '<', $end)
+							->get();
+
+		$last_before_start = DeviceData::where('machine_id', $id)
+							->where('tag_id', 9)
+							->where('timestamp', '<', $start)
+							->orderBy('timestamp')
+							->first();
+
+		if ($last_before_start) {
+			$last_before_start_running = json_decode($last_before_start->values)[0];
+		} else {
+			$last_before_start_running = 1;
+		}
+
+		$count = $running_values->count();
+		
+		// No entry
+		if(!$last_before_start && $count <= 0)
+			return $ret;
+
+		$downtime_plans = DowntimePlan::where('machine_id', $id)->get();
+
+		foreach ($running_values as $KEY => $item) {
+			if(!$KEY) {
+				if($last_before_start_running == 0) {
+					// calculate downtime seconds
+					$planned = 0;
+					foreach ($downtime_plans as $key => $downtime_plan) {
+						$planned += $this->overlapInSeconds(
+							$start,
+							$item->timestamp,
+							strtotime($downtime_plan->dateFrom . ' ' . $downtime_plan->timeFrom),
+							strtotime($downtime_plan->dateTo . ' ' . $downtime_plan->timeTo)
+						);
+					}
+					$ret[0] += $planned;
+					$ret[1] += ($item->timestamp - $start - $planned);
+				}
+			} else {
+				if(json_decode($running_values[$KEY - 1]->values)[0] == 0) {
+					$planned = 0;
+					foreach ($downtime_plans as $key => $downtime_plan) {
+						$planned += $this->overlapInSeconds(
+							$running_values[$key - 1]->timestamp,
+							$item->timestamp,
+							strtotime($downtime_plan->dateFrom . ' ' . $downtime_plan->timeFrom),
+							strtotime($downtime_plan->dateTo . ' ' . $downtime_plan->timeTo)
+						);
+					}
+					$ret[0] += $planned;
+					$ret[1] += ($item->timestamp - $running_values[$KEY - 1]->timestamp - $planned);
+				}
+			}
+		}
+		
+		if(json_decode($running_values[$count - 1]->values)[0] == 0) {
+			$planned = 0;
+			foreach ($downtime_plans as $key => $downtime_plan) {
+				$planned += $this->overlapInSeconds(
+					$running_values[$count - 1]->timestamp,
+					$end,
+					strtotime($downtime_plan->dateFrom . ' ' . $downtime_plan->timeFrom),
+					strtotime($downtime_plan->dateTo . ' ' . $downtime_plan->timeTo)
+				);
+			}
+			$ret[0] += $planned;
+			$ret[1] += ($item->timestamp - $start - $planned);
+		}
+		
+		return $ret;
+	}
+
+	/**
+	 * What is the overlap, in seconds, of two time periods?
+	 *
+	 * @param $start1   string
+	 * @param $end1     string
+	 * @param $start2   string
+	 * @param $end2     string
+	 * @returns int     Overlap in seconds
+	 */
+	function overlapInSeconds($start1, $end1, $start2, $end2)
+	{
+	    // Figure out which is the later start time
+	    $lastStart = $start1 >= $start2 ? $start1 : $start2;
+
+	    // Figure out which is the earlier end time
+	    $firstEnd = $end1 <= $end2 ? $end1 : $end2;
+
+	    // Subtract the two, and round down
+	    $overlap = floor($firstEnd - $lastStart);
+
+	    // If the answer is greater than 0 use it.
+	    // If not, there is no overlap.
+	    return $overlap > 0 ? $overlap : 0;
 	}
 
 	public function getFromTo($data) {
