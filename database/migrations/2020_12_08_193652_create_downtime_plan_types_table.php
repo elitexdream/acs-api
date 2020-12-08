@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAlarmTypesTable extends Migration
+class CreateDowntimePlanTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,9 @@ class CreateAlarmTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('alarm_types', function (Blueprint $table) {
+        Schema::create('downtime_plan_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->unsignedBigInteger('machine_id');
-            $table->timestamps();
         });
     }
 
@@ -28,6 +26,6 @@ class CreateAlarmTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('alarm_types');
+        Schema::dropIfExists('downtime_plan_types');
     }
 }

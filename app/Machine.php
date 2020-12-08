@@ -13,4 +13,8 @@ class Machine extends Model
     public function notes() {
     	return $this->hasMany('App\Note');
     }
+
+    public function downtimePlans() {
+    	$this->hasMany('App\DowntimePlan', 'machine_id');
+    }
 }
