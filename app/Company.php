@@ -23,4 +23,8 @@ class Company extends Model
 
         return User::where('company_id', $this->id)->whereIn('id', $admin_ids)->get();
     }
+
+    public function downtimePlans() {
+        return $this->hasMany('App\DowntimePlan');
+    }
 }

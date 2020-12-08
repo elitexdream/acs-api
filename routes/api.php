@@ -32,6 +32,11 @@ Route::group(['prefix' => 'zones'], function () {
 Route::group(['prefix' => 'devices'], function () {
 	Route::get('/customer-devices', 'DeviceController@getCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
 });
+Route::group(['prefix' => 'downtime-plans'], function () {
+	Route::get('/', 'DowntimePlanController@index')->middleware('auth:customer_admin,customer_manager,customer_operator');
+	Route::post('/store', 'DowntimePlanController@store')->middleware('auth:customer_admin,customer_manager,customer_operator');
+	Route::post('/update/{id}', 'DowntimePlanController@update')->middleware('auth:customer_admin,customer_manager,customer_operator');
+});
 
 Route::group(['prefix' => 'company-users'], function () {
 	Route::get('/', 'UserController@getCompanyUsers')->middleware('auth:customer_admin,customer_manager,customer_operator');
@@ -49,6 +54,14 @@ Route::group(['prefix' => 'acs-users'], function () {
 	Route::post('/store', 'UserController@addAcsUser')->middleware('auth:acs_admin');
 	Route::post('/update-account/{id}', 'UserController@updateAcsUserAccount')->middleware('auth:acs_admin');
 	Route::post('/update-information/{id}', 'UserController@updateAcsUserInformation')->middleware('auth:acs_admin');
+});
+
+Route::group(['prefix' => 'app-settings'], function () {
+	Route::post('/grab-colors', 'SwatchController@grabColors');
+	Route::post('/get-setting', 'SettingController@getSetting');
+	Route::post('/set-private-colors', 'SettingController@setPrivateColors');
+	Route::post('/upload-logo', 'SettingController@uploadLogo');
+	Route::post('/update-auth-background', 'SettingController@updateAuthBackground');
 });
 
 Route::group(['prefix' => 'acs-machines'], function () {
@@ -78,6 +91,8 @@ Route::group(['prefix' => 'devices'], function () {
 });
 
 Route::group(['prefix' => 'analytics'], function () {
+	Route::get('/product-overview/{id}', 'MachineController@getProductOverview');
+	Route::get('/weekly-running-hours/{id}', 'MachineController@getWeeklyRunningHours');
 	Route::post('/init-product', 'MachineController@initProductPage');
 	Route::post('/product-weight', 'MachineController@getProductWeight');
 	Route::post('/product-inventory', 'MachineController@getProductInventory');
