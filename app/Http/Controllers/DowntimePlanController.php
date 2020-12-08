@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\downtimePlan;
+use App\DowntimePlan;
 use App\Machine;
 use Validator;
 
@@ -37,7 +37,7 @@ class DowntimePlanController extends Controller
 
         $user = $request->user('api');
 
-        downtimePlan::create([
+        DowntimePlan::create([
             'company_id' => $user->company->id,
             'machine_id' => $request->machine,
             'reason' => $request->reason,
@@ -53,7 +53,7 @@ class DowntimePlanController extends Controller
     }
 
     public function update(Request $request, $id) {
-        $plan = downtimePlan::findOrFail($id);
+        $plan = DowntimePlan::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
             'machine' => 'required',
