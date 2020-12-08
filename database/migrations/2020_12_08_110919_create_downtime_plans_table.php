@@ -15,9 +15,12 @@ class CreateDowntimePlansTable extends Migration
     {
         Schema::create('downtime_plans', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('device_id');
-            $table->unsignedBigInteger('from');
-            $table->unsignedBigInteger('to');
+            $table->unsignedBigInteger('company_id');
+            $table->unsignedBigInteger('machine_id');
+            $table->string('date_from');
+            $table->string('date_to');
+            $table->string('time_from');
+            $table->string('time_to');
             $table->string('reason');
         });
     }
