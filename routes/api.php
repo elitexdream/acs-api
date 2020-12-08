@@ -86,6 +86,8 @@ Route::group(['prefix' => 'devices'], function () {
 });
 
 Route::group(['prefix' => 'analytics'], function () {
+	Route::get('/product-overview/{id}', 'MachineController@getProductOverview');
+	Route::get('/weekly-running-hours/{id}', 'MachineController@getWeeklyRunningHours');
 	Route::post('/init-product', 'MachineController@initProductPage');
 	Route::post('/product-weight', 'MachineController@getProductWeight');
 	Route::post('/product-inventory', 'MachineController@getProductInventory');

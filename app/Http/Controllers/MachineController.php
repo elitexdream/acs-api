@@ -20,9 +20,13 @@ class MachineController extends Controller
 		return response()->json(compact('companies'));
 	}
 
-	public function initProductPage(Request $request) {
-		$id = $request->machineId;
-		$machine = Machine::where('id', $id)->select('id', 'name')->first();
+	/*
+		Get general information of machine
+		They are Name, Serial number, Software build, and version
+		return: Object
+	*/
+	public function getProductOverview($id) {
+		$machine = Machine::findOrFail($id);
 
 		// machine version
 		if($version_object = DeviceData::where('machine_id', $id)->where('tag_id', 4)->latest('timestamp')->first()) {
@@ -50,6 +54,61 @@ class MachineController extends Controller
 		}
 
 		$machine->serial_number = $serial_year . $serial_month . $serial_unit;
+
+		return response()->json([
+			"overview" => $machine
+		]);
+	}
+
+	/*
+		Get running hours of weekdays
+		return: 7 length array
+	*/
+	public function getWeeklyRunningHours($id) {
+		$ret = [0, 0, 0, 0, 0, 0, 0];
+
+		$running_values = DB::table('device_data')
+							->where('machine_id', $id)
+							->where('tag_id', 9)
+							->get()
+							->toArray();
+
+		$count = count($running_values);
+		
+		if($count <= 0)
+			return $ret;
+
+		$current_object = [
+			"timestamp" => time(),
+			"values" => $running_values[$count - 1]->values,
+		];
+
+		array_push($running_values, (object)$current_object);
+
+		$start_timestamp = $running_values[0]->timestamp;
+		$end_timestamp = $running_values[$count]->timestamp;
+
+		for ($i = $start_timestamp; $i < $end_timestamp; $i += 3600) { 
+			$weekday = date('N', $i); //1, 2, 3, 4, 5, 6, 7
+			$ret[$weekday - 1] += 1;
+		}
+		// foreach ($running_values as $key => $item) {
+		// 	$weekday = date('N', $item->timestamp); //1, 2, 3, 4, 5, 6, 7
+		// 	$seconds_diff = $item->timestamp - $running_values[$key - 1]->timestamp;
+		// 	$hours_diff = round($seconds_diff / 3600, 1);
+		// 	$is_previous_running = json_decode($running_values[$key - 1]->values)[0] == 1;
+		// 	if ($is_previous_running) {
+		// 		$ret[$weekday - 1] += $hours_diff;
+		// 	}
+		// }
+		return response()->json([
+			'hours' => $ret
+		]);
+	}
+
+	public function initProductPage(Request $request) {
+		$id = $request->machineId;
+		$machine = Machine::where('id', $id)->select('id', 'name')->first();
 
 		$notes = $machine->notes;
 		
@@ -97,39 +156,38 @@ class MachineController extends Controller
 							->where('tag_id', 9)
 							->get();
 
-			$recipe_values = DB::table('device_data')
-							->where('machine_id', $id)
-							->where('tag_id', 10)
-							->first();
+			// $recipe_values = DB::table('device_data')
+			// 				->where('machine_id', $id)
+			// 				->where('tag_id', 10)
+			// 				->first();
 
 			$targets = $this->parseValidWithTime($targetValues, $request->param, $fromWeight, $toWeight);
 			$actuals = $this->parseValidWithTime($actualValues, $request->param, $fromWeight, $toWeight);
 			$hops = $this->parseValidWithTime($hopValues, $request->param, $fromInventory, $toInventory);
 			$fractions = $this->parseValidWithTime($frtValues, $request->param, $fromInventory, $toInventory);
-			$weekly_running_hours = $this->weeklyRunningHours($running_values);
+			// $weekly_running_hours = $this->weeklyRunningHours($running_values);
 			$total_running_percentage = $this->totalRunningPercentage($running_values);
 
 			$alarm_types = AlarmType::where('machine_id', $id)->get();
-			$alarms = DeviceData::where('machine_id', $id)
-						->whereIn('tag_id', [27, 28, 31, 32, 33, 34, 35, 36, 37, 38])
-						// ->where('timestamp', '>', $duration)
-						->orderBy('timestamp')
-						->get();
-			$recipe_values = json_decode($recipe_values->values);
+			// $alarms = DeviceData::where('machine_id', $id)
+			// 			->whereIn('tag_id', [27, 28, 31, 32, 33, 34, 35, 36, 37, 38])
+			// 			// ->where('timestamp', '>', $duration)
+			// 			->orderBy('timestamp')
+			// 			->get();
+			// $recipe_values = json_decode($recipe_values->values);
 
 			return response()->json(
 				compact(
-					'machine',
 					'energy_consumption',
 					'targets',
 					'actuals',
 					'hops',
 					'fractions',
 					'alarm_types',
-					'alarms',
-					'weekly_running_hours',
+					// 'alarms',
+					// 'weekly_running_hours',
 					'total_running_percentage',
-					'recipe_values',
+					// 'recipe_values',
 					'notes'
 				)
 			);
@@ -144,7 +202,6 @@ class MachineController extends Controller
 
 			return response()->json(
 				compact(
-					'machine',
 					'energy_consumption',
 					'alarm_types',
 					'alarms',
@@ -180,19 +237,18 @@ class MachineController extends Controller
 			$set_points = $this->parseValid1($set_points_values);
 
 			$alarm_types = AlarmType::where('machine_id', $id)->get();
-			$alarms = DeviceData::where('machine_id', $id)
-						->where('tag_id', 30)
-						->orderBy('timestamp')
-						->get();
+			// $alarms = DeviceData::where('machine_id', $id)
+			// 			->where('tag_id', 30)
+			// 			->orderBy('timestamp')
+			// 			->get();
 
 			return response()->json(
 				compact(
-					'machine',
 					'energy_consumption',
 					'hopper_inventories',
 					'hauloff_lengths',
 					'alarm_types',
-					'alarms',
+					// 'alarms',
 					'set_points',
 					'actual_points',
 					'notes'
@@ -204,32 +260,40 @@ class MachineController extends Controller
 	}
 
 	private function parseValid($raw_array, $i) {
-		$width = $raw_array->count() / $this->num_chunks + 1;
-		$chunks = array_chunk(json_decode($raw_array), $width);
-		return array_map(function($chunk) use ($i, $width) {
-			$sum = 0; $count = 0;
-			foreach ($chunk as $key => $item) {
-				$sum += json_decode($item)[$i];
-				$count ++;
-			}
-			return (int)($sum / $count);
-			// return (int)($sum / $count);
-		}, $chunks);
+		try {
+			$width = $raw_array->count() / $this->num_chunks + 1;
+			$chunks = array_chunk(json_decode($raw_array), $width);
+			return array_map(function($chunk) use ($i, $width) {
+				$sum = 0; $count = 0;
+				foreach ($chunk as $key => $item) {
+					$sum += json_decode($item)[$i];
+					$count ++;
+				}
+				return (int)($sum / $count);
+				// return (int)($sum / $count);
+			}, $chunks);
+		} catch (\Exception $e) {
+			return 0;
+		}
 	}
 
 	private function parseValid1($raw_array) {
-		$width = $raw_array->count() / $this->num_chunks + 1;
-		$chunks = array_chunk(json_decode($raw_array), $width);
-		return array_map(function($chunk) use ($width) {
-			$sum = 0; $count = 0;
-			foreach ($chunk as $key => $item) {
-				$tmp = json_decode($item)[0];
-				$sum += $tmp;
-				$count ++;
-			}
+		try {
+			$width = $raw_array->count() / $this->num_chunks + 1;
+			$chunks = array_chunk(json_decode($raw_array), $width);
+			return array_map(function($chunk) use ($width) {
+				$sum = 0; $count = 0;
+				foreach ($chunk as $key => $item) {
+					$tmp = json_decode($item)[0];
+					$sum += $tmp;
+					$count ++;
+				}
 
-			return (int)($sum / $count);
-		}, $chunks);
+				return (int)($sum / $count);
+			}, $chunks);
+		} catch (\Exception $e) {
+			return 0;
+		}
 	}
 
 	public function parseValidWithTime($raw_array, $i, $from, $to) {
@@ -296,29 +360,6 @@ class MachineController extends Controller
 	}
 
 	/*
-		Get running hours on every weekday
-		Machine: BD Batch Blender
-		params: data entries with running tag
-		return: 7 length array
-	*/
-	private function weeklyRunningHours($data) {
-		$ret = [0, 0, 0, 0, 0, 0, 0];
-
-		foreach ($data as $key => $item) {
-			if($key) {
-				$weekday = date('N', $item->timestamp);
-				$seconds_diff = $item->timestamp - $data[$key - 1]->timestamp;
-				$hours_diff = (int)($seconds_diff / 3600);
-				$is_previous_running = json_decode($data[$key - 1]->values)[0] == 1;
-				if ($is_previous_running) {
-					$ret[$weekday - 1] += $hours_diff;
-				}
-			}
-		}
-		return $ret;
-	}
-
-	/*
 		Get total running and stopped hours
 		Machine: BD Batch Blender
 		params: data entries with running tag
@@ -339,7 +380,10 @@ class MachineController extends Controller
 				}
 			}
 		}
-		return $ret[0] / ($ret[0] + $ret[1]);
+		if($ret[0] + $ret[1])
+			return $ret[0] / ($ret[0] + $ret[1]);
+		else
+			return 0;
 	}
 
 	public function getFromTo($data) {
