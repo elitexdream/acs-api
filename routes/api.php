@@ -9,6 +9,7 @@ Route::post('auth/signin', 'UserController@login');
 Route::post('auth/signup', 'UserController@register');
 Route::post('auth/password-reset', 'UserController@passwordReset');
 
+Route::get('/configurations/index', 'MachineController@getAllConfigurations');
 
 Route::middleware('auth')->group(function () {
     Route::get('/auth/logout', 'UserController@logout');
@@ -31,6 +32,7 @@ Route::group(['prefix' => 'zones'], function () {
 
 Route::group(['prefix' => 'devices'], function () {
 	Route::get('/customer-devices', 'DeviceController@getCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
+	Route::post('/assign-zone', 'DeviceController@assignZoneToDevice')->middleware('auth:customer_admin,customer_manager,customer_operator');
 });
 Route::group(['prefix' => 'downtime-plans'], function () {
 	Route::get('/', 'DowntimePlanController@index')->middleware('auth:customer_admin,customer_manager,customer_operator');
