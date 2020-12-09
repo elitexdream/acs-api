@@ -62,6 +62,7 @@ Route::group(['prefix' => 'app-settings'], function () {
 	Route::post('/set-private-colors', 'SettingController@setPrivateColors');
 	Route::post('/upload-logo', 'SettingController@uploadLogo');
 	Route::post('/update-auth-background', 'SettingController@updateAuthBackground');
+	Route::post('/reset', 'SettingController@resetSettings');
 });
 
 Route::group(['prefix' => 'acs-machines'], function () {

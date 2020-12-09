@@ -17,6 +17,18 @@ class SettingController extends Controller
         ]);
     }
 
+    public function resetSettings()
+    {
+        Setting::where('type', 'logo_filepath')
+                    ->orWhere('type', 'auth_background_filepath')
+                    ->orWhere('type', 'LIKE', 'private_color_%')
+                    ->delete();
+
+        return response()->json([
+            'success'=>'Reset Successfully.'
+        ]);
+    }
+
     public function uploadLogo(Request $request)
     {
         if ($request->hasFile('logo')) {
