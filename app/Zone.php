@@ -10,4 +10,8 @@ class Zone extends Model
     public $fillable = [
     	'name', 'location_id'
     ];
+
+    public function location() {
+    	return $this->belongsTo('App\Location', 'location_id');
+    }
 }

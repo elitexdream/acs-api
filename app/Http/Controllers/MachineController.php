@@ -22,6 +22,15 @@ class MachineController extends Controller
 	}
 
 	/*
+		Get all configurations
+	*/
+	public function getAllConfigurations() {
+		$configurations = Machine::select('id', 'name')->get();
+
+		return response()->json(compact('configurations'));
+	}
+
+	/*
 		Get general information of machine
 		They are Name, Serial number, Software build, and version
 		return: Object

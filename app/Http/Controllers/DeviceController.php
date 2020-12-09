@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Device;
 use App\Company;
 use App\Machine;
+use App\Zone;
+use App\Location;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
@@ -118,6 +120,36 @@ class DeviceController extends Controller
 
         $device->company_id = $request->company_id;
         $device->machine_id = $request->machine_id;
+
+        $device->save();
+
+        return response()->json('Successfully assigned.');
+    }
+
+    /*
+        Assign zone to a device in machine mapping page
+    */
+    public function assignZoneToDevice(Request $request) {
+
+        $validator = Validator::make($request->all(), [ 
+            'id' => 'required'
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
+        $device = Device::findOrFail($request->id);
+
+        if($request->zone_id) {
+            $location = Zone::findOrFail($request->zone_id)->location;
+            $device->location_id = $location->id;
+        } else {
+            $device->location_id = null;
+        }
+
+        $device->zone_id = $request->zone_id;
 
         $device->save();
 
@@ -407,7 +439,7 @@ class DeviceController extends Controller
 
     public function getCustomerDevices(Request $request) {
         $user = $request->user('api');
-        $devices = $user->companies()->first()->devices;
+        $devices = $user->company->devices;
 
         return response()->json([
             'devices' => $devices
