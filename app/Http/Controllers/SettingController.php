@@ -109,18 +109,21 @@ class SettingController extends Controller
     public function updateAuthBackground(Request $request)
     {
         $client = new Client();
+        $keywords = [
+            'Industry 4.0',
+            'IOT',
+            'factory'
+        ];
+        $API_KEY = 'a5b68mEtkbahjcG-fvv-R8jw8_YM6lHhOmbloIhvVwE';  // suck@machinecdn.com
         try {
-            $url = 'https://api.unsplash.com/search/photos?query=Industry 4.0&client_id=a5b68mEtkbahjcG-fvv-R8jw8_YM6lHhOmbloIhvVwE';
-            $response = $client->get(
-                urldecode($url)
-            );            
-            $results = json_decode($response->getBody()->getContents())->results;
-            
-            $url = 'https://api.unsplash.com/search/photos?query=manufacturing&client_id=a5b68mEtkbahjcG-fvv-R8jw8_YM6lHhOmbloIhvVwE';
-            $response = $client->get(
-                urldecode($url)
-            );
-            $results = array_merge($results, json_decode($response->getBody()->getContents())->results);
+            $results = [];
+            foreach($keywords as $keyword) {
+                $url = 'https://api.unsplash.com/search/photos?query=' . $keyword . '&client_id=' . $API_KEY;
+                $response = $client->get(
+                    urldecode($url)
+                );
+                $results = array_merge($results, json_decode($response->getBody()->getContents())->results);
+            }
             
             $idx = rand(0, count($results) - 1);
             $image_url = $results[$idx]->urls->regular;            
