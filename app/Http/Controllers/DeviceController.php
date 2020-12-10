@@ -127,12 +127,13 @@ class DeviceController extends Controller
     }
 
     /*
-        Assign zone to a device in machine mapping page
+        Assign zone to a device and update machine name in machine mapping page
     */
-    public function assignZoneToDevice(Request $request) {
+    public function updateCustomerDevice(Request $request) {
 
         $validator = Validator::make($request->all(), [ 
-            'id' => 'required'
+            'id' => 'required',
+            'name' => 'required',
         ]);
 
         if ($validator->fails())
@@ -145,11 +146,10 @@ class DeviceController extends Controller
         if($request->zone_id) {
             $location = Zone::findOrFail($request->zone_id)->location;
             $device->location_id = $location->id;
-        } else {
-            $device->location_id = null;
         }
 
         $device->zone_id = $request->zone_id;
+        $device->name = $request->name;
 
         $device->save();
 
