@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\DeviceData;
+use App\AlarmType;
 
 class AlarmController extends Controller
 {
@@ -16,5 +17,13 @@ class AlarmController extends Controller
 						->get();
 
 		return response()->json(compact('alarms'));
+	}
+
+	public function getCorrespondingAlarmTypes(Request $request, $id) {
+		$alarm_types = AlarmType::select('name')
+							->where('machine_id', $id)
+							->get();
+
+		return response()->json(compact('alarm_types'));
 	}
 }

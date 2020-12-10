@@ -21,6 +21,12 @@ class MachineController extends Controller
 		return response()->json(compact('companies'));
 	}
 
+	public function getMachines() {
+		$machines = Machine::all();
+
+		return response()->json(compact('machines'));
+	}
+
 	/*
 		Get all configurations
 	*/
