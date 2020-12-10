@@ -420,6 +420,7 @@ class MachineController extends Controller
 							->where('tag_id', 9)
 							->where('timestamp', '>', $start)
 							->where('timestamp', '<', $end)
+							->orderBy('timestamp')
 							->get();
 
 		$last_before_start = DeviceData::where('machine_id', $id)
@@ -463,7 +464,7 @@ class MachineController extends Controller
 					$planned = 0;
 					foreach ($downtime_plans as $key => $downtime_plan) {
 						$planned += $this->overlapInSeconds(
-							$running_values[$key - 1]->timestamp,
+							$running_values[$KEY - 1]->timestamp,
 							$item->timestamp,
 							strtotime($downtime_plan->dateFrom . ' ' . $downtime_plan->timeFrom),
 							strtotime($downtime_plan->dateTo . ' ' . $downtime_plan->timeTo)
@@ -486,7 +487,7 @@ class MachineController extends Controller
 				);
 			}
 			$ret[0] += $planned;
-			$ret[1] += ($item->timestamp - $start - $planned);
+			$ret[1] += ($end - $running_values[$count - 1]->timestamp - $planned);
 		}
 		
 		return $ret;

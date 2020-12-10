@@ -28,10 +28,10 @@ class ZoneController extends Controller
     public function store(Request $request) {
     	$validator = Validator::make($request->all(), [ 
 	        'name' => 'required',
+            'location_id' => 'required'
 	    ]);
 
-	    if ($validator->fails())
-	    {
+	    if ($validator->fails()) {
             return response()->json(['error'=>$validator->errors()], 422);            
         }
         $zone = Zone::create([
@@ -45,10 +45,10 @@ class ZoneController extends Controller
     public function update(Request $request) {
         $validator = Validator::make($request->all(), [ 
             'name' => 'required',
+            'location_id' => 'required'
         ]);
 
-        if ($validator->fails())
-        {
+        if ($validator->fails()) {
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 

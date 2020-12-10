@@ -82,9 +82,9 @@ class CompanyController extends Controller
 		]);
 		$user->roles()->attach(ROLE_CUSTOMER_ADMIN);
 
-        Mail::to($user->email)->send(new CustomerInvitation($password_string));
+        Mail::to($user)->send(new CustomerInvitation($password_string));
 
-        return response()->json('Created successfully.', 201);
+        return response()->json('Created successfully.');
     }
 
     public function getCustomer(Request $request, $id)
