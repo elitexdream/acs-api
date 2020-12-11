@@ -77,6 +77,30 @@ class MachineController extends Controller
 	}
 
 	/*
+		Get product utilization series
+		return: Utilization Series Array
+	*/
+	public function getProductUtilization(Request $request) {
+		$machine = Machine::findOrFail($request->id);
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$utilizations_object = DeviceData::where('machine_id', $request->id)
+										->where('tag_id', 2)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$utilizations = array_map(function($utilization_object) {
+			return [$utilization_object['timestamp'] * 1000, json_decode($utilization_object['values'])[0] / 10];
+		}, $utilizations_object->toArray());
+
+		return response()->json(compact('utilizations'));
+	}
+
+	/*
 		Get running hours of weekdays
 		return: 7 length array
 	*/
@@ -426,7 +450,7 @@ class MachineController extends Controller
 							->where('tag_id', 9)
 							->where('timestamp', '>', $start)
 							->where('timestamp', '<', $end)
-							->orderBy('timestamp')
+							->orderBy('id')
 							->get();
 
 		$last_before_start = DeviceData::where('machine_id', $id)
@@ -442,10 +466,10 @@ class MachineController extends Controller
 		}
 
 		$count = $running_values->count();
-		
-		// No entry
-		if(!$last_before_start && $count <= 0)
+
+		if(!$count && !$last_before_start) {
 			return $ret;
+		}
 
 		$downtime_plans = DowntimePlan::where('machine_id', $id)->get();
 
@@ -481,8 +505,8 @@ class MachineController extends Controller
 				}
 			}
 		}
-		
-		if(json_decode($running_values[$count - 1]->values)[0] == 0) {
+
+		if($count && json_decode($running_values[$count - 1]->values)[0] == 0) {
 			$planned = 0;
 			foreach ($downtime_plans as $key => $downtime_plan) {
 				$planned += $this->overlapInSeconds(

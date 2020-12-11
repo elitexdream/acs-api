@@ -8,6 +8,7 @@ use App\Company;
 use App\Machine;
 use App\Zone;
 use App\Location;
+use App\DeviceData;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
