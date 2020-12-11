@@ -100,10 +100,10 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::get('/product-overview/{id}', 'MachineController@getProductOverview');
 	Route::post('/product-utilization', 'MachineController@getProductUtilization');
 	Route::post('/product-energy-consumption', 'MachineController@getEnergyConsumption');
+	Route::get('/product-inventory/{id}', 'MachineController@getInventories');
 	Route::get('/weekly-running-hours/{id}', 'MachineController@getWeeklyRunningHours');
 	Route::post('/init-product', 'MachineController@initProductPage');
 	Route::post('/product-weight', 'MachineController@getProductWeight');
-	Route::post('/product-inventory', 'MachineController@getProductInventory');
 });
 Route::group(['prefix' => 'notes'], function () {
 	Route::post('/store', 'NoteController@store');

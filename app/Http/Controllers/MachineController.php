@@ -77,6 +77,36 @@ class MachineController extends Controller
 	}
 
 	/*
+		Get inventories
+		L30_0_8_HopInv and L30_16_23_FracInv are grouped together
+		return: array
+	*/
+	public function getInventories($id) {
+		$machine = Machine::findOrFail($id);
+
+		$hop_inventory = DeviceData::where('machine_id', $id)->where('tag_id', 15)->orderBy('timestamp')->first();
+		$actual_inventory = DeviceData::where('machine_id', $id)->where('tag_id', 16)->orderBy('timestamp')->first();
+
+		$inventories = array();
+
+		if($hop_inventory && $actual_inventory) {
+			for($i = 0; $i < 8; $i ++) {
+				if (!json_decode($actual_inventory['values'])[$i]) {
+					$inv2 = sprintf('%01d', json_decode($actual_inventory['values'])[$i]);
+				} else {
+					$inv2 = sprintf('%03d', json_decode($actual_inventory['values'])[$i]);
+				}
+				$inv = strval(json_decode($hop_inventory['values'])[$i]) . '.' . $inv2;
+				array_push($inventories, $inv);
+			}
+		} else {
+			$inventories = [];
+		}
+		
+		return response()->json(compact('inventories'));
+	}
+
+	/*
 		Get product utilization series
 		return: Utilization Series Array
 	*/
