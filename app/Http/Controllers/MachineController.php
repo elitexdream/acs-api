@@ -97,11 +97,12 @@ class MachineController extends Controller
 		$inventories = array();
 
 		if($hop_inventory && $actual_inventory) {
-			for($i = 0; $i < 8; $i ++) {
-				if (!json_decode($actual_inventory['values'])[$i]) {
-					$inv2 = sprintf('%01d', json_decode($actual_inventory['values'])[$i]);
+			$inventory_values = json_decode($actual_inventory['values']);
+			for($i = 0; $i < count($inventory_values); $i ++) {
+				if (!$inventory_values[$i]) {
+					$inv2 = sprintf('%01d', $inventory_values[$i]);
 				} else {
-					$inv2 = sprintf('%03d', json_decode($actual_inventory['values'])[$i]);
+					$inv2 = sprintf('%03d', $inventory_values[$i]);
 				}
 				$inv = strval(json_decode($hop_inventory['values'])[$i]) . '.' . $inv2;
 				array_push($inventories, $inv);
