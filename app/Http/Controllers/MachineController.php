@@ -8,6 +8,8 @@ use App\Company;
 use App\AlarmType;
 use App\DeviceData;
 use App\Machine;
+use App\Location;
+use App\Zone;
 use App\Device;
 use App\DowntimePlan;
 use DB;
@@ -216,8 +218,6 @@ class MachineController extends Controller
 		
 		if($id == MACHINE_BD_Batch_Blender) {
 			$num_points = 12;
-			$fromInventory = $this->getFromTo($request->inventoryTimeRange)["from"];
-			$toInventory = $this->getFromTo($request->inventoryTimeRange)["to"];
 			$fromWeight = $this->getFromTo($request->weightTimeRange)["from"];
 			$toWeight = $this->getFromTo($request->weightTimeRange)["to"];
 
@@ -238,21 +238,6 @@ class MachineController extends Controller
 							->orderBy('timestamp')
 							->pluck('values');
 
-			$hopValues = DB::table('device_data')
-							->where('machine_id', $id)
-							->where('tag_id', 15)
-							->where('timestamp', '>', $fromInventory)
-							->where('timestamp', '<', $toInventory)
-							->orderBy('timestamp')
-							->pluck('values');
-			$frtValues = DB::table('device_data')
-							->where('machine_id', $id)
-							->where('tag_id', 16)
-							->where('timestamp', '>', $fromInventory)
-							->where('timestamp', '<', $toInventory)
-							->orderBy('timestamp')
-							->pluck('values');
-
 			$running_values = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 9)
@@ -265,8 +250,6 @@ class MachineController extends Controller
 
 			$targets = $this->parseValidWithTime($targetValues, $request->param, $fromWeight, $toWeight);
 			$actuals = $this->parseValidWithTime($actualValues, $request->param, $fromWeight, $toWeight);
-			$hops = $this->parseValidWithTime($hopValues, $request->param, $fromInventory, $toInventory);
-			$fractions = $this->parseValidWithTime($frtValues, $request->param, $fromInventory, $toInventory);
 			// $weekly_running_hours = $this->weeklyRunningHours($running_values);
 			$total_running_percentage = $this->totalRunningPercentage($running_values);
 
@@ -283,8 +266,6 @@ class MachineController extends Controller
 					'energy_consumption',
 					'targets',
 					'actuals',
-					'hops',
-					'fractions',
 					'alarm_types',
 					// 'alarms',
 					// 'weekly_running_hours',
@@ -436,31 +417,6 @@ class MachineController extends Controller
 		return response()->json(compact('targets', 'actuals'));
 	}
 
-	public function getProductInventory(Request $request) {
-		$from = $this->getFromTo($request->timeRange)["from"];
-		$to = $this->getFromTo($request->timeRange)["to"];
-
-		$hopValues = DB::table('device_data')
-						->where('machine_id', 1)
-						->where('tag_id', 15)
-						->where('timestamp', '>', $from)
-						->where('timestamp', '<', $to)
-						->orderBy('timestamp')
-						->pluck('values');
-		$frtValues = DB::table('device_data')
-						->where('machine_id', 1)
-						->where('tag_id', 16)
-						->where('timestamp', '>', $from)
-						->where('timestamp', '<', $to)
-						->orderBy('timestamp')
-						->pluck('values');
-
-		$hops = $this->parseValidWithTime($hopValues, $request->param, $from, $to);
-		$fractions = $this->parseValidWithTime($frtValues, $request->param, $from, $to);
-
-		return response()->json(compact('hops', 'fractions'));
-	}
-
 	/*
 		Get total running and stopped hours
 		Machine: BD Batch Blender
@@ -488,10 +444,57 @@ class MachineController extends Controller
 			return 0;
 	}
 
-	public function getLocationsTableData() {
-		$downtime_distribution = $this->getDowntimeDistribution(1);
+	public function getAcsLocationsTableData() {
+		$locations = Location::orderBy('name')->get();
 
-		return response()->json(compact('downtime_distribution'));
+		foreach ($locations as $key => $location) {
+			$downtime_distribution = $this->getDowntimeDistribution(1);
+			$location->utilization = '32%';
+			$location->color = 'green';
+			$location->value = 75;
+			$location->oee = '93.1%';
+			$location->performance = '78%';
+			$location->rate = 56;
+			$location->downtimeDistribution = $downtime_distribution;
+		}
+
+		return response()->json(compact('locations'));
+	}
+
+	public function getAcsZonesTableData($location_id) {
+		$location = Location::findOrFail($location_id);
+
+		$zones = $location->zones;
+
+		foreach ($zones as $key => $zone) {
+			$downtime_distribution = $this->getDowntimeDistribution(1);
+			$zone->utilization = '32%';
+			$zone->color = 'green';
+			$zone->value = 75;
+			$zone->oee = '93.1%';
+			$zone->performance = '78%';
+			$zone->rate = 56;
+			$zone->downtimeDistribution = $downtime_distribution;
+		}
+
+		return response()->json(compact('zones'));
+	}
+
+	public function getAcsMachinesTableData($zone_id) {
+		$devices = Device::where('zone_id', $zone_id)->get();
+
+		foreach ($devices as $key => $device) {
+			$downtime_distribution = $this->getDowntimeDistribution(1);
+			$device->utilization = '32%';
+			$device->color = 'green';
+			$device->value = 75;
+			$device->oee = '93.1%';
+			$device->performance = '78%';
+			$device->rate = 56;
+			$device->downtimeDistribution = $downtime_distribution;
+		}
+
+		return response()->json(compact('devices'));
 	}
 
 	/*

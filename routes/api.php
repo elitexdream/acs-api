@@ -71,7 +71,9 @@ Route::group(['prefix' => 'app-settings'], function () {
 Route::group(['prefix' => 'acs-machines'], function () {
 	Route::get('/', 'MachineController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 	Route::get('/get-machines', 'MachineController@getMachines')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
-	Route::get('/init-locations-table', 'MachineController@getLocationsTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::get('/init-locations-table', 'MachineController@getAcsLocationsTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::get('/init-zones-table/{id}', 'MachineController@getAcsZonesTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::get('/init-machines-table/{id}', 'MachineController@getAcsMachinesTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 });
 
 Route::group(['prefix' => 'customers'], function () {

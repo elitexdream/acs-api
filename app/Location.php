@@ -10,4 +10,8 @@ class Location extends Model
     public $fillable = [
     	'name', 'state', 'city', 'zip'
     ];
+
+    public function zones() {
+    	return $this->hasMany('App\Zone', 'location_id');
+    }
 }
