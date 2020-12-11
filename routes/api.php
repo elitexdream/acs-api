@@ -32,6 +32,7 @@ Route::group(['prefix' => 'zones'], function () {
 
 Route::group(['prefix' => 'devices'], function () {
 	Route::get('/customer-devices', 'DeviceController@getCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
+	Route::get('/customer-devices-analytics', 'DeviceController@getCustomerDevicesAnalytics')->middleware('auth:customer_admin,customer_manager,customer_operator');
 	Route::post('/assign-zone', 'DeviceController@updateCustomerDevice')->middleware('auth:customer_admin,customer_manager,customer_operator');
 });
 Route::group(['prefix' => 'downtime-plans'], function () {

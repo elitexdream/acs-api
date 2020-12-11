@@ -446,6 +446,18 @@ class DeviceController extends Controller
         ]);
     }
 
+    /*
+        Get customer devices with analytics
+    */
+    public function getCustomerDevicesAnalytics(Request $request) {
+        $user = $request->user('api');
+        $devices = $user->company->devices;
+
+        return response()->json([
+            'devices' => $devices
+        ]);
+    }
+
     public function testAzureJson(Request $request) {
         $client = new Client();
         try {
