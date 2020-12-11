@@ -94,6 +94,7 @@ class DeviceController extends Controller
             	Device::create([
     	           'device_id' => $device->id,
                    'name' => $device->name,
+                   'customer_assigned_name' => $device->name,
                    'serial_number' => $device->serial,
     	           'imei' => $device->imei, 
     	           'lan_mac_address' => $device->mac,
@@ -134,7 +135,7 @@ class DeviceController extends Controller
 
         $validator = Validator::make($request->all(), [ 
             'id' => 'required',
-            'name' => 'required',
+            'customer_assigned_name' => 'required',
         ]);
 
         if ($validator->fails())
@@ -150,7 +151,7 @@ class DeviceController extends Controller
         }
 
         $device->zone_id = $request->zone_id;
-        $device->name = $request->name;
+        $device->customer_assigned_name = $request->customer_assigned_name;
 
         $device->save();
 

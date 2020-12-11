@@ -8,6 +8,7 @@ use App\Company;
 use App\AlarmType;
 use App\DeviceData;
 use App\Machine;
+use App\Device;
 use App\DowntimePlan;
 use DB;
 
@@ -43,6 +44,12 @@ class MachineController extends Controller
 	*/
 	public function getProductOverview($id) {
 		$machine = Machine::findOrFail($id);
+		$device = Device::where('machine_id', $id)->first();
+
+		if($device) {
+			$machine->name = $device->name;
+			$machine->customer_assigned_name = $device->customer_assigned_name;
+		}
 
 		// machine version
 		if($version_object = DeviceData::where('machine_id', $id)->where('tag_id', 4)->latest('timestamp')->first()) {
@@ -84,8 +91,8 @@ class MachineController extends Controller
 	public function getInventories($id) {
 		$machine = Machine::findOrFail($id);
 
-		$hop_inventory = DeviceData::where('machine_id', $id)->where('tag_id', 15)->orderBy('timestamp')->first();
-		$actual_inventory = DeviceData::where('machine_id', $id)->where('tag_id', 16)->orderBy('timestamp')->first();
+		$hop_inventory = DeviceData::where('machine_id', $id)->where('tag_id', 15)->orderBy('timestamp', 'desc')->first();
+		$actual_inventory = DeviceData::where('machine_id', $id)->where('tag_id', 16)->orderBy('timestamp', 'desc')->first();
 
 		$inventories = array();
 
