@@ -101,6 +101,30 @@ class MachineController extends Controller
 	}
 
 	/*
+		Get energy consumption series
+		return: Energy consumption series array
+	*/
+	public function getEnergyConsumption(Request $request) {
+		$machine = Machine::findOrFail($request->id);
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$energy_consumptions_object = DeviceData::where('machine_id', $request->id)
+										->where('tag_id', 3)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$energy_consumption = array_map(function($energy_consumption_object) {
+			return [$energy_consumption_object['timestamp'] * 1000, json_decode($energy_consumption_object['values'])[0] / 10];
+		}, $energy_consumptions_object->toArray());
+
+		return response()->json(compact('energy_consumption'));
+	}
+
+	/*
 		Get running hours of weekdays
 		return: 7 length array
 	*/
