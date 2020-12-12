@@ -207,7 +207,7 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$utilizations_object = DeviceData::where('machine_id', $request->id)
+		$utilizations_object = DeviceData::where('device_id', $request->id)
 										->where('tag_id', 2)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
