@@ -225,31 +225,28 @@ class MachineController extends Controller
 							->where('tag_id', 3)
 							->pluck('values');
 
-			$energy_consumption = $this->parseValid1($energy_consumption_values);
+			// $energy_consumption = $this->parseValid1($energy_consumption_values);
 
 			$targetValues = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 13)
-							->orderBy('timestamp')
-							->pluck('values');
+							->orderBy('timestamp', 'desc')
+							->first();
 			$actualValues = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 14)
-							->orderBy('timestamp')
-							->pluck('values');
+							->orderBy('timestamp', 'desc')
+							->first();
 
 			$running_values = DB::table('device_data')
 							->where('machine_id', $id)
 							->where('tag_id', 9)
 							->get();
 
-			// $recipe_values = DB::table('device_data')
-			// 				->where('machine_id', $id)
-			// 				->where('tag_id', 10)
-			// 				->first();
-
-			$targets = $this->parseValidWithTime($targetValues, $request->param, $fromWeight, $toWeight);
-			$actuals = $this->parseValidWithTime($actualValues, $request->param, $fromWeight, $toWeight);
+			$targets = json_decode($targetValues->values);
+			$actuals = json_decode($actualValues->values);
+			// $targets = $this->parseValidWithTime($targetValues, $request->param, $fromWeight, $toWeight);
+			// $actuals = $this->parseValidWithTime($actualValues, $request->param, $fromWeight, $toWeight);
 			// $weekly_running_hours = $this->weeklyRunningHours($running_values);
 			$total_running_percentage = $this->totalRunningPercentage($running_values);
 
@@ -263,7 +260,7 @@ class MachineController extends Controller
 
 			return response()->json(
 				compact(
-					'energy_consumption',
+					// 'energy_consumption',
 					'targets',
 					'actuals',
 					'alarm_types',
@@ -399,20 +396,16 @@ class MachineController extends Controller
 		$targetValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 13)
-						->where('timestamp', '>', $from)
-						->where('timestamp', '<', $to)
-						->orderBy('timestamp')
-						->pluck('values');
+						->orderBy('timestamp', 'desc')
+						->first();
 		$actualValues = DB::table('device_data')
 						->where('machine_id', 1)
 						->where('tag_id', 14)
-						->where('timestamp', '>', $from)
-						->where('timestamp', '<', $to)
-						->orderBy('timestamp')
-						->pluck('values');
-
-		$targets = $this->parseValidWithTime($targetValues, $request->param, $from, $to);
-		$actuals = $this->parseValidWithTime($actualValues, $request->param, $from, $to);
+						->orderBy('timestamp', 'desc')
+						->first();
+						
+		$targets = json_decode($targetValues->values);
+		$actuals = json_decode($actualValues->values);
 
 		return response()->json(compact('targets', 'actuals'));
 	}
