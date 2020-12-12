@@ -84,7 +84,7 @@ class CompanyController extends Controller
 
         Mail::to($user->email)->send(new CustomerInvitation($password_string));
 
-        return response()->json('Created successfully.', 201);
+        return response()->json('Created successfully.');
     }
 
     public function getCustomer(Request $request, $id)

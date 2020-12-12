@@ -17,6 +17,7 @@ class CreateDevicesTable extends Migration
             $table->id();
             $table->string('device_id', 12);
             $table->string('name', 100);
+            $table->string('customer_assigned_name');
             $table->string('serial_number', 20);
             $table->string('imei', 20)->nullable();
             $table->string('lan_mac_address', 20)->nullable();

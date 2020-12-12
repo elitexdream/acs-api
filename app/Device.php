@@ -10,6 +10,7 @@ class Device extends Model
     protected $fillable = [
         'device_id',
         'name',
+        'customer_assigned_name',
         'serial_number',
         'imei',
         'lan_mac_address',

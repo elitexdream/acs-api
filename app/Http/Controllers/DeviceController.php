@@ -8,6 +8,7 @@ use App\Company;
 use App\Machine;
 use App\Zone;
 use App\Location;
+use App\DeviceData;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
@@ -93,6 +94,7 @@ class DeviceController extends Controller
             	Device::create([
     	           'device_id' => $device->id,
                    'name' => $device->name,
+                   'customer_assigned_name' => $device->name,
                    'serial_number' => $device->serial,
     	           'imei' => $device->imei, 
     	           'lan_mac_address' => $device->mac,
@@ -127,12 +129,13 @@ class DeviceController extends Controller
     }
 
     /*
-        Assign zone to a device in machine mapping page
+        Assign zone to a device and update machine name in machine mapping page
     */
-    public function assignZoneToDevice(Request $request) {
+    public function updateCustomerDevice(Request $request) {
 
         $validator = Validator::make($request->all(), [ 
-            'id' => 'required'
+            'id' => 'required',
+            'customer_assigned_name' => 'required',
         ]);
 
         if ($validator->fails())
@@ -145,11 +148,10 @@ class DeviceController extends Controller
         if($request->zone_id) {
             $location = Zone::findOrFail($request->zone_id)->location;
             $device->location_id = $location->id;
-        } else {
-            $device->location_id = null;
         }
 
         $device->zone_id = $request->zone_id;
+        $device->customer_assigned_name = $request->customer_assigned_name;
 
         $device->save();
 
@@ -438,6 +440,18 @@ class DeviceController extends Controller
     }
 
     public function getCustomerDevices(Request $request) {
+        $user = $request->user('api');
+        $devices = $user->company->devices;
+
+        return response()->json([
+            'devices' => $devices
+        ]);
+    }
+
+    /*
+        Get customer devices with analytics
+    */
+    public function getCustomerDevicesAnalytics(Request $request) {
         $user = $request->user('api');
         $devices = $user->company->devices;
 
