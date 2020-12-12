@@ -150,8 +150,8 @@ class MachineController extends Controller
 						->orderBy('timestamp', 'desc')
 						->first();
 
-		$targets = json_decode($targetValues->values);
-		$actuals = json_decode($actualValues->values);
+		$targets = json_decode($targetValues['values']);
+		$actuals = json_decode($actualValues['values']);
 
 		return response()->json(compact('targets', 'actuals'));
 	}

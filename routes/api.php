@@ -17,7 +17,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::group(['prefix' => 'locations'], function () {
-	Route::get('/', 'LocationController@index')->middleware('auth:customer_admin,customer_manager');
+	Route::get('/', 'LocationController@index')->middleware('auth:acs_admin,customer_admin,customer_manager');
 	Route::post('/add', 'LocationController@store')->middleware('auth:customer_admin,customer_manager');
 	Route::patch('/update', 'LocationController@update')->middleware('auth:customer_admin,customer_manager');
 });
