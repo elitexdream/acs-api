@@ -106,6 +106,7 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::get('/weekly-running-hours/{id}', 'MachineController@getWeeklyRunningHours');
 	Route::post('/init-product', 'MachineController@initProductPage');
 	Route::post('/product-weight', 'MachineController@getProductWeight');
+	Route::get('/product-recipe/{id}', 'MachineController@getProductRecipe');
 });
 Route::group(['prefix' => 'notes'], function () {
 	Route::post('/store', 'NoteController@store');

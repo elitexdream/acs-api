@@ -403,11 +403,22 @@ class MachineController extends Controller
 						->where('tag_id', 14)
 						->orderBy('timestamp', 'desc')
 						->first();
-						
+
 		$targets = json_decode($targetValues->values);
 		$actuals = json_decode($actualValues->values);
 
 		return response()->json(compact('targets', 'actuals'));
+	}
+
+	/*
+		Get last recipe values
+	*/
+	public function getProductRecipe($id) {
+		$last_recipe = DeviceData::where('machine_id', $id)->where('tag_id', 10)->orderBy('timestamp', 'desc')->first();
+
+		$recipe_values = json_decode($last_recipe['values']);
+
+		return response()->json(compact('recipe_values'));
 	}
 
 	/*
