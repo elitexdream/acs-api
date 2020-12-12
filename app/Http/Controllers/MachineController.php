@@ -40,27 +40,35 @@ class MachineController extends Controller
 	}
 
 	/*
-		Get general information of machine
+		Get general information of product
 		They are Name, Serial number, Software build, and version
 		return: Object
 	*/
 	public function getProductOverview($id) {
-		$machine = Machine::findOrFail($id);
-		$device = Device::where('machine_id', $id)->first();
+		$product = Device::where('serial_number', $id)->first();
 
-		if($device) {
-			$machine->name = $device->name;
-			$machine->customer_assigned_name = $device->customer_assigned_name;
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
 		}
 
-		// machine version
-		if($version_object = DeviceData::where('machine_id', $id)->where('tag_id', 4)->latest('timestamp')->first()) {
-			$machine->version = json_decode($version_object->values)[0] / 10;
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		// product version
+		if($version_object = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 4)->latest('timestamp')->first()) {
+			$product->version = json_decode($version_object->values)[0] / 10;
 		}
 
 		// software build
-		if($software_build_object = DeviceData::where('machine_id', $id)->where('tag_id', 5)->latest('timestamp')->first()) {
-			$machine->software_build = json_decode($software_build_object->values)[0];
+		if($software_build_object = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 5)->latest('timestamp')->first()) {
+			$product->software_build = json_decode($software_build_object->values)[0];
 		}
 
 		// serial number
@@ -68,20 +76,20 @@ class MachineController extends Controller
 		$serial_month = "";
 		$serial_unit = "";
 
-		if($serial_year_object = DeviceData::where('machine_id', $id)->where('tag_id', 7)->latest('timestamp')->first()) {
+		if($serial_year_object = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 7)->latest('timestamp')->first()) {
 			$serial_year = json_decode($serial_year_object->values)[0];
 		}
-		if($serial_month_object = DeviceData::where('machine_id', $id)->where('tag_id', 6)->latest('timestamp')->first()) {
+		if($serial_month_object = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 6)->latest('timestamp')->first()) {
 			$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
 		}
-		if($serial_unit_object = DeviceData::where('machine_id', $id)->where('tag_id', 8)->latest('timestamp')->first()) {
+		if($serial_unit_object = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 8)->latest('timestamp')->first()) {
 			$serial_unit = json_decode($serial_unit_object->values)[0];
 		}
 
-		$machine->serial_number = $serial_year . $serial_month . $serial_unit;
+		$product->serial = $serial_year . $serial_month . $serial_unit;
 
 		return response()->json([
-			"overview" => $machine
+			"overview" => $product
 		]);
 	}
 
@@ -91,10 +99,24 @@ class MachineController extends Controller
 		return: array
 	*/
 	public function getInventories($id) {
-		$machine = Machine::findOrFail($id);
+		$product = Device::where('serial_number', $id)->first();
 
-		$hop_inventory = DeviceData::where('machine_id', $id)->where('tag_id', 15)->orderBy('timestamp', 'desc')->first();
-		$actual_inventory = DeviceData::where('machine_id', $id)->where('tag_id', 16)->orderBy('timestamp', 'desc')->first();
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$hop_inventory = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 15)->orderBy('timestamp', 'desc')->first();
+		$actual_inventory = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 16)->orderBy('timestamp', 'desc')->first();
 
 		$inventories = array();
 
@@ -116,12 +138,71 @@ class MachineController extends Controller
 		return response()->json(compact('inventories'));
 	}
 
+	public function getProductWeight($id) {
+		$targetValues = DB::table('device_data')
+						->where('device_id', $id)
+						->where('tag_id', 13)
+						->orderBy('timestamp', 'desc')
+						->first();
+		$actualValues = DB::table('device_data')
+						->where('device_id', $id)
+						->where('tag_id', 14)
+						->orderBy('timestamp', 'desc')
+						->first();
+
+		$targets = json_decode($targetValues->values);
+		$actuals = json_decode($actualValues->values);
+
+		return response()->json(compact('targets', 'actuals'));
+	}
+
+	/*
+		Get last recipe values
+	*/
+	public function getProductRecipe($id) {
+		$product = Device::where('serial_number', $id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$last_recipe = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 10)->orderBy('timestamp', 'desc')->first();
+
+		$recipe_values = json_decode($last_recipe['values']);
+
+		return response()->json(compact('recipe_values'));
+	}
+
 	/*
 		Get product utilization series
 		return: Utilization Series Array
 	*/
 	public function getProductUtilization(Request $request) {
-		$machine = Machine::findOrFail($request->id);
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
 
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
@@ -145,12 +226,26 @@ class MachineController extends Controller
 		return: Energy consumption series array
 	*/
 	public function getEnergyConsumption(Request $request) {
-		$machine = Machine::findOrFail($request->id);
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
 
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$energy_consumptions_object = DeviceData::where('machine_id', $request->id)
+		$energy_consumptions_object = DeviceData::where('device_id', $request->id)
 										->where('tag_id', 3)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -387,38 +482,6 @@ class MachineController extends Controller
 			}
 			return [($from + $index * ($to - $from) / 12) * 1000, (int)($sum / $count)];
 		}, $chunks, array_keys($chunks));
-	}
-
-	public function getProductWeight(Request $request) {
-		$from = $this->getFromTo($request->timeRange)["from"];
-		$to = $this->getFromTo($request->timeRange)["to"];
-
-		$targetValues = DB::table('device_data')
-						->where('machine_id', 1)
-						->where('tag_id', 13)
-						->orderBy('timestamp', 'desc')
-						->first();
-		$actualValues = DB::table('device_data')
-						->where('machine_id', 1)
-						->where('tag_id', 14)
-						->orderBy('timestamp', 'desc')
-						->first();
-
-		$targets = json_decode($targetValues->values);
-		$actuals = json_decode($actualValues->values);
-
-		return response()->json(compact('targets', 'actuals'));
-	}
-
-	/*
-		Get last recipe values
-	*/
-	public function getProductRecipe($id) {
-		$last_recipe = DeviceData::where('machine_id', $id)->where('tag_id', 10)->orderBy('timestamp', 'desc')->first();
-
-		$recipe_values = json_decode($last_recipe['values']);
-
-		return response()->json(compact('recipe_values'));
 	}
 
 	/*
