@@ -25,7 +25,7 @@ Route::group(['prefix' => 'locations'], function () {
 Route::get('/locations-zones', 'ZoneController@initLocationsAndZones')->middleware('auth:customer_admin,customer_manager');
 
 Route::group(['prefix' => 'zones'], function () {
-	Route::get('/', 'ZoneController@index')->middleware('auth:customer_admin,customer_manager');
+	Route::get('/', 'ZoneController@index')->middleware('auth:acs_admin,customer_admin,customer_manager');
 	Route::post('/add', 'ZoneController@store')->middleware('auth:customer_admin,customer_manager');
 	Route::patch('/update', 'ZoneController@update')->middleware('auth:customer_admin,customer_manager');
 });
@@ -83,6 +83,10 @@ Route::group(['prefix' => 'customers'], function () {
 	Route::get('/{id}', 'CompanyController@getCustomer')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/update-profile/{id}', 'CompanyController@updateCustomerProfile')->middleware('auth:acs_admin,acs_manager');
+});
+
+Route::group(['prefix' => 'companies'], function () {
+	Route::get('/', 'CompanyController@getCompanies')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 });
 
 Route::group(['prefix' => 'devices'], function () {

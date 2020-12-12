@@ -150,8 +150,13 @@ class MachineController extends Controller
 						->orderBy('timestamp', 'desc')
 						->first();
 
-		$targets = json_decode($targetValues['values']);
-		$actuals = json_decode($actualValues['values']);
+		if ($targetValues && $actualValues) {
+			$targets = json_decode($targetValues->values);
+			$actuals = json_decode($actualValues->values);
+		} else {
+			$targets = [];
+			$actuals = [];
+		}
 
 		return response()->json(compact('targets', 'actuals'));
 	}
@@ -178,7 +183,11 @@ class MachineController extends Controller
 
 		$last_recipe = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 10)->orderBy('timestamp', 'desc')->first();
 
-		$recipe_values = json_decode($last_recipe['values']);
+		if( $last_recipe) {
+			$recipe_values = json_decode($last_recipe->values);
+		} else {
+			$recipe_values = [];
+		}
 
 		return response()->json(compact('recipe_values'));
 	}
