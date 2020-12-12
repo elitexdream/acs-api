@@ -39,6 +39,6 @@ Create personal access client or install passport
 ```
 
 ``` sh
-    $ php artisan passport install
+    $ php artisan passport:install
 ```
 
