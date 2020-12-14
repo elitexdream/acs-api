@@ -4,6 +4,7 @@ ACS backend REST API powered by laravel
 
 ### Tech
 * [Laravel 7.2](https://laravel.com) - PHP MVC framework
+* PHP 7.4
 
 ### Installation
 
