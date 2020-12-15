@@ -460,6 +460,17 @@ class DeviceController extends Controller
         ]);
     }
 
+    /*
+        Get acs devices with analytics
+    */
+    public function getAcsDevicesAnalytics(Request $request) {
+        $devices = Device::get();
+        
+        return response()->json([
+            'devices' => $devices
+        ]);
+    }
+
     public function testAzureJson(Request $request) {
         $client = new Client();
         try {

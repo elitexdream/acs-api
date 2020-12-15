@@ -33,6 +33,7 @@ Route::group(['prefix' => 'zones'], function () {
 Route::group(['prefix' => 'devices'], function () {
 	Route::get('/customer-devices', 'DeviceController@getCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
 	Route::get('/customer-devices-analytics', 'DeviceController@getCustomerDevicesAnalytics')->middleware('auth:customer_admin,customer_manager,customer_operator');
+	Route::get('/acs-devices-analytics', 'DeviceController@getAcsDevicesAnalytics')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 	Route::post('/assign-zone', 'DeviceController@updateCustomerDevice')->middleware('auth:customer_admin,customer_manager,customer_operator');
 });
 Route::group(['prefix' => 'downtime-plans'], function () {
@@ -108,7 +109,6 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/product-energy-consumption', 'MachineController@getEnergyConsumption');
 	Route::get('/product-inventory/{id}', 'MachineController@getInventories');
 	Route::get('/weekly-running-hours/{id}', 'MachineController@getWeeklyRunningHours');
-	Route::post('/init-product', 'MachineController@initProductPage');
 	Route::get('/product-weight/{id}', 'MachineController@getProductWeight');
 	Route::get('/product-recipe/{id}', 'MachineController@getProductRecipe');
 });
