@@ -150,26 +150,35 @@ class MachineController extends Controller
 						->where('device_id', $id)
 						->where('tag_id', 13)
 						->orderBy('timestamp', 'desc')
-						->first();
+						->get();
 		$actualValues = DB::table('device_data')
 						->where('device_id', $id)
 						->where('tag_id', 14)
 						->orderBy('timestamp', 'desc')
-						->first();
+						->get();
 
-		if ($targetValues && $actualValues) {
-			$targets = json_decode($targetValues->values);
-			$actuals = json_decode($actualValues->values);
-		} else {
-			$targets = [];
-			$actuals = [];
+		$targets = [];
+		$actuals = [];
+		
+		foreach ($targetValues as $key => $target) {
+			if ($targetValues->count() == 8) {
+				$targets = json_decode($target->values);
+				break;
+			}
+		}
+
+		foreach ($actualValues as $key => $actual) {
+			if ($actualValues->count() == 8) {
+				$actuals = json_decode($actual->values);
+				break;
+			}
 		}
 
 		return response()->json(compact('targets', 'actuals'));
 	}
 
 	/*
-		Get last recipe values
+		Get last recipe values in BD Blender configuration
 	*/
 	public function getProductRecipe($id) {
 		$product = Device::where('serial_number', $id)->first();
@@ -273,6 +282,69 @@ class MachineController extends Controller
 		}, $energy_consumptions_object->toArray());
 
 		return response()->json(compact('energy_consumption'));
+	}
+
+	/*
+		Get Target recipe and actual recipe in Accumeter Ovation Continuous Blender configuration
+		params: device_id
+		return: Actual and target recipes
+	*/
+	public function getTgtActualRecipes($id) {
+		$targets = [0, 0, 0, 0, 0, 0];
+		$actuals = [0, 0, 0, 0, 0, 0];
+		
+		$targetValues = DeviceData::where('device_id', $id)
+						->where('tag_id', 11)
+						->orderBy('timestamp', 'desc')
+						->first();
+		
+		if($targetValues) {
+			$targets = json_decode($targetValues->values);
+
+			$actualValue1 = DeviceData::where('device_id', $id)
+						->where('tag_id', 12)
+						->orderBy('timestamp', 'DESC')
+						->first();
+			if($actualValue1)
+				$actuals[0] = round(json_decode($actualValue1->values)[0], 2);
+
+			$actualValue2 = DeviceData::where('device_id', $id)
+						->where('tag_id', 13)
+						->orderBy('timestamp', 'DESC')
+						->first();
+			if($actualValue2)
+				$actuals[1] = round(json_decode($actualValue2->values)[0], 2);
+
+			$actualValue3 = DeviceData::where('device_id', $id)
+						->where('tag_id', 14)
+						->orderBy('timestamp', 'DESC')
+						->first();
+			if($actualValue3)
+				$actuals[2] = round(json_decode($actualValue3->values)[0], 2);
+
+			$actualValue4 = DeviceData::where('device_id', $id)
+						->where('tag_id', 15)
+						->orderBy('timestamp', 'DESC')
+						->first();
+			if($actualValue4)
+				$actuals[3] = round(json_decode($actualValue4->values)[0], 2);
+
+			$actualValue5 = DeviceData::where('device_id', $id)
+						->where('tag_id', 16)
+						->orderBy('timestamp', 'DESC')
+						->first();
+			if($actualValue5)
+				$actuals[4] = round(json_decode($actualValue5->values)[0], 2);
+
+			$actualValue6 = DeviceData::where('device_id', $id)
+						->where('tag_id', 17)
+						->orderBy('timestamp', 'DESC')
+						->first();
+			if($actualValue6)
+				$actuals[5] = round(json_decode($actualValue6->values)[0], 2);
+		}
+
+		return response()->json(compact('targets', 'actuals'));
 	}
 
 	/*
