@@ -7,35 +7,56 @@ use Validator;
 
 use App\Machine;
 use App\Note;
+use App\Device;
 
 class NoteController extends Controller
 {
-	public function getMachineNotes($machine_id) {
-		$machine = Machine::findOrFail($machine_id);
+	/*
+		Get notes for specified device
+		params: device id
+		return: All notes belongs to specified device
+	*/
+	public function getNotes($device_id) {
+		$device = Device::where('serial_number', $device_id)->first();
 
-		$notes = $machine->notes;
+	    if(!$device) {
+			return response()->json('Device Not Found', 404);
+	    }
+
+		$notes = $device->notes;
 
 	    return response()->json(compact('notes'));
 	}
 
+	/*
+		Add note
+		params: deviceId
+				note string
+	*/
 	public function store(Request $request) {
 
 	    $validator = Validator::make($request->all(), [ 
 	        'note' => 'required', 
-	        'machineId' => 'required', 
+	        'deviceId' => 'required', 
 	    ]);
 
 	    if ($validator->fails()) {
-	        return response()->json(['error'=>$validator->errors()], 422);            
+	        return response()->json(['error'=>$validator->errors()], 422);
+	    }
+
+	    $device = Device::where('serial_number', $request->deviceId)->first();
+
+	    if(!$device) {
+			return response()->json('Device Not Found', 404);
 	    }
 
 	    Note::create([
 	    	"note" => $request->note,
-	    	"machine_id" => $request->machineId,
+	    	"device_id" => $device->id,
 	    ]);
 
 	    $notes = Note::get();
 
-	    return response()->json(compact('notes'));
+	    return response()->json('Created successfully');
 	}
 }

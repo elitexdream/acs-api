@@ -16,8 +16,10 @@ class CreateNotesTable extends Migration
         Schema::create('notes', function (Blueprint $table) {
             $table->id();
             $table->text("note");
-            $table->unsignedBigInteger('machine_id');
+            $table->unsignedBigInteger('device_id');
             $table->timestamps();
+
+            $table->foreign('device_id')->references('id')->on('devices');
         });
     }
 

@@ -27,4 +27,8 @@ class Device extends Model
     public function configuration() {
         return $this->belongsTo('App\Machine', 'machine_id');
     }
+
+    public function notes() {
+        return $this->hasMany('App\Note');
+    }
 }

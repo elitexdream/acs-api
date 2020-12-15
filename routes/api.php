@@ -112,9 +112,10 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::get('/product-weight/{id}', 'MachineController@getProductWeight');
 	Route::get('/product-recipe/{id}', 'MachineController@getProductRecipe');
 });
+
 Route::group(['prefix' => 'notes'], function () {
 	Route::post('/store', 'NoteController@store');
-	Route::get('/index/{machine_id}', 'NoteController@getMachineNotes');
+	Route::get('/{device_id}', 'NoteController@getNotes');
 });
 
 Route::group(['prefix' => 'alarms'], function () {

@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Note extends Model
 {
-    public $fillable = ['note', 'machine_id'];
+    public $fillable = ['note', 'device_id'];
 }
