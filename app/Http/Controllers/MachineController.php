@@ -30,6 +30,13 @@ class MachineController extends Controller
 		return response()->json(compact('machines'));
 	}
 
+	public function getMachinesByCompanyId($id) {
+		$query = 'SELECT machines.id, machines.name FROM devices INNER JOIN machines ON devices.machine_id = machines.id WHERE devices.company_id = ' . $id;
+		$machines = DB::select(DB::raw($query));
+
+		return response()->json(compact('machines'));
+	}
+
 	/*
 		Get all configurations
 	*/

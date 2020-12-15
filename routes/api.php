@@ -72,6 +72,7 @@ Route::group(['prefix' => 'app-settings'], function () {
 Route::group(['prefix' => 'acs-machines'], function () {
 	Route::get('/', 'MachineController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 	Route::get('/get-machines', 'MachineController@getMachines')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::get('/get-machines-by-company-id/{id}', 'MachineController@getMachinesByCompanyId')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 	Route::get('/init-locations-table', 'MachineController@getAcsLocationsTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 	Route::get('/init-zones-table/{id}', 'MachineController@getAcsZonesTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 	Route::get('/init-machines-table/{id}', 'MachineController@getAcsMachinesTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
@@ -120,7 +121,11 @@ Route::group(['prefix' => 'notes'], function () {
 
 Route::group(['prefix' => 'alarms'], function () {
 	Route::post('/', 'AlarmController@getProductAlarms');
-	Route::get('/alarm-types/{machine_id}', 'AlarmController@getCorrespondingAlarmTypes');
+	Route::get('/alarms-by-company-id/{company_id}', 'AlarmController@getAlarmsByCompanyId');
+	Route::post('/severity-by-company-id', 'AlarmController@getSeverityByCompanyId');
+	Route::post('/alarms-per-type-by-machine', 'AlarmController@getAlarmsPerTypeByMachine');
+	Route::post('/alarms-distribution-by-machine', 'AlarmController@getAlarmsDistributionByMachine');
+	Route::post('/alarms-amount-per-machine-by-company-id', 'AlarmController@getAlarmsAmountPerMachineByCompanyId');
 });
 
 Route::group(['prefix' => 'cities'], function () {
