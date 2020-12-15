@@ -1,14 +1,14 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Trigger Azure Pipeline
 
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ feature/docker ]
+    branches: [ main ]
   pull_request:
-    branches: [ feature/docker ]
+    branches: [ main ]
 jobs:
   build:
     name: calling azure pipeline
