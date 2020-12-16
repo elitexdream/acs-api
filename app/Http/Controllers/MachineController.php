@@ -69,12 +69,12 @@ class MachineController extends Controller
 		}
 
 		// product version
-		if($version_object = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 4)->latest('timestamp')->first()) {
+		if($version_object = DeviceData::where('device_id', $id)->where('tag_id', 4)->latest('timestamp')->first()) {
 			$product->version = json_decode($version_object->values)[0] / 10;
 		}
 
 		// software build
-		if($software_build_object = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 5)->latest('timestamp')->first()) {
+		if($software_build_object = DeviceData::where('device_id', $id)->where('tag_id', 5)->latest('timestamp')->first()) {
 			$product->software_build = json_decode($software_build_object->values)[0];
 		}
 
@@ -83,13 +83,17 @@ class MachineController extends Controller
 		$serial_month = "";
 		$serial_unit = "";
 
-		if($serial_year_object = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 7)->latest('timestamp')->first()) {
+		$serial_year_object = DeviceData::where('device_id', $id)->where('tag_id', 7)->latest('timestamp')->first();
+		$serial_month_object = DeviceData::where('device_id', $id)->where('tag_id', 6)->latest('timestamp')->first();
+		$serial_unit_object = DeviceData::where('device_id', $id)->where('tag_id', 8)->latest('timestamp')->first();
+
+		if($serial_year_object) {
 			$serial_year = json_decode($serial_year_object->values)[0];
 		}
-		if($serial_month_object = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 6)->latest('timestamp')->first()) {
+		if($serial_month_object) {
 			$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
 		}
-		if($serial_unit_object = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 8)->latest('timestamp')->first()) {
+		if($serial_unit_object) {
 			$serial_unit = json_decode($serial_unit_object->values)[0];
 		}
 
