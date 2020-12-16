@@ -12,6 +12,7 @@ use App\Location;
 use App\Zone;
 use App\Device;
 use App\DowntimePlan;
+use App\Tag;
 use DB;
 
 class MachineController extends Controller
@@ -68,14 +69,34 @@ class MachineController extends Controller
 			], 404);
 		}
 
+		$tag_software_version = Tag::where('tag_name', 'software_version')->where('configuration_id', $configuration->id)->first();
+
+		if(!$tag_software_version) {
+			return response()->json('Software version tag not found', 404);
+		}
+
 		// product version
-		if($version_object = DeviceData::where('device_id', $id)->where('tag_id', 4)->latest('timestamp')->first()) {
-			$product->version = json_decode($version_object->values)[0] / 10;
+		if($version_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_software_version->tag_id)->latest('timestamp')->first()) {
+			try {
+				$product->version = json_decode($version_object->values)[0] / 10;
+			} catch (\Exception $e) {
+				$product->version = '';
+			}
 		}
 
 		// software build
-		if($software_build_object = DeviceData::where('device_id', $id)->where('tag_id', 5)->latest('timestamp')->first()) {
-			$product->software_build = json_decode($software_build_object->values)[0];
+		$tag_software_build = Tag::where('tag_name', 'software_build')->where('configuration_id', $configuration->id)->first();
+
+		if(!$tag_software_build) {
+			return response()->json('Software version tag not found', 404);
+		}
+
+		if($software_build_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_software_build->tag_id)->latest('timestamp')->first()) {
+			try {
+				$product->software_build = json_decode($software_build_object->values)[0];
+			} catch (\Exception $e) {
+				$product->software_build = '';
+			}
 		}
 
 		// serial number
@@ -83,18 +104,38 @@ class MachineController extends Controller
 		$serial_month = "";
 		$serial_unit = "";
 
-		$serial_year_object = DeviceData::where('device_id', $id)->where('tag_id', 7)->latest('timestamp')->first();
-		$serial_month_object = DeviceData::where('device_id', $id)->where('tag_id', 6)->latest('timestamp')->first();
-		$serial_unit_object = DeviceData::where('device_id', $id)->where('tag_id', 8)->latest('timestamp')->first();
+		$tag_serial_year = Tag::where('tag_name', 'serial_number_year')->where('configuration_id', $configuration->id)->first();
+		$tag_serial_month = Tag::where('tag_name', 'serial_number_month')->where('configuration_id', $configuration->id)->first();
+		$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit')->where('configuration_id', $configuration->id)->first();
+
+		if(!$tag_serial_year || !$tag_serial_month || !$tag_serial_unit) {
+			return response()->json('Serial number tag not found', 404);
+		}
+
+		$serial_year_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_year->tag_id)->latest('timestamp')->first();
+		$serial_month_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_month->tag_id)->latest('timestamp')->first();
+		$serial_unit_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_unit->tag_id)->latest('timestamp')->first();
 
 		if($serial_year_object) {
-			$serial_year = json_decode($serial_year_object->values)[0];
+			try {
+				$serial_year = json_decode($serial_year_object->values)[0];
+			} catch (\Exception $e) {
+				$serial_year = '';
+			}
 		}
 		if($serial_month_object) {
-			$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
+			try {
+				$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
+			} catch (\Exception $e) {
+				$serial_month = '';
+			}
 		}
 		if($serial_unit_object) {
-			$serial_unit = json_decode($serial_unit_object->values)[0];
+			try {
+				$serial_unit = json_decode($serial_unit_object->values)[0];
+			} catch (\Exception $e) {
+				$serial_unit = '';
+			}
 		}
 
 		$product->serial = $serial_year . $serial_month . $serial_unit;
@@ -149,6 +190,9 @@ class MachineController extends Controller
 		return response()->json(compact('inventories'));
 	}
 
+	/*
+		actual and target weight in BD_Batch_Blender
+	*/
 	public function getProductWeight($id) {
 		$targetValues = DB::table('device_data')
 						->where('device_id', $id)
@@ -233,11 +277,17 @@ class MachineController extends Controller
 			], 404);
 		}
 
+		$tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $configuration->id)->first();
+
+		if(!$tag_utilization) {
+			return response()->json('Capacity utilization tag not found', 404);
+		}
+
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
 		$utilizations_object = DeviceData::where('device_id', $request->id)
-										->where('tag_id', 2)
+										->where('tag_id', $tag_utilization->tag_id)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->orderBy('timestamp')
@@ -271,11 +321,17 @@ class MachineController extends Controller
 			], 404);
 		}
 
+		$tag_energy_consumption = Tag::where('tag_name', 'energy_consumption')->where('configuration_id', $configuration->id)->first();
+
+		if(!$tag_energy_consumption) {
+			return response()->json('Energy consumption tag not found', 404);
+		}
+
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
 		$energy_consumptions_object = DeviceData::where('device_id', $request->id)
-										->where('tag_id', 3)
+										->where('tag_id', $tag_energy_consumption->tag_id)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->orderBy('timestamp')
