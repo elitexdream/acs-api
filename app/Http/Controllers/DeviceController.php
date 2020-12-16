@@ -69,6 +69,12 @@ class DeviceController extends Controller
         ]);
 	}
 
+    public function getAllDevices() {
+        $devices = Device::orderBy('sim_status', 'ASC')->where('iccid', '<>', 0)->whereNotNull('iccid')->select('name', 'id', 'customer_assigned_name')->get();
+
+        return response()->json(compact('devices'));
+    }
+
     public function importDevices(Request $request) {
     	$existing_devices = Device::all();
     	$numAdded = 0;
