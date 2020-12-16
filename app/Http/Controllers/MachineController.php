@@ -126,20 +126,20 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$hop_inventory = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 15)->orderBy('timestamp', 'desc')->first();
-		$actual_inventory = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 16)->orderBy('timestamp', 'desc')->first();
+		$hop_inventory = DeviceData::where('device_id', $id)->where('tag_id', 15)->orderBy('timestamp', 'desc')->first();
+		$actual_inventory = DeviceData::where('device_id', $id)->where('tag_id', 16)->orderBy('timestamp', 'desc')->first();
 
 		$inventories = array();
 
 		if($hop_inventory && $actual_inventory) {
-			$inventory_values = json_decode($actual_inventory['values']);
+			$inventory_values = json_decode($actual_inventory->values);
 			for($i = 0; $i < count($inventory_values); $i ++) {
 				if (!$inventory_values[$i]) {
 					$inv2 = sprintf('%01d', $inventory_values[$i]);
 				} else {
 					$inv2 = sprintf('%03d', $inventory_values[$i]);
 				}
-				$inv = strval(json_decode($hop_inventory['values'])[$i]) . '.' . $inv2;
+				$inv = strval(json_decode($hop_inventory->values)[$i]) . '.' . $inv2;
 				array_push($inventories, $inv);
 			}
 		} else {
@@ -165,14 +165,14 @@ class MachineController extends Controller
 		$actuals = [];
 		
 		foreach ($targetValues as $key => $target) {
-			if ($targetValues->count() == 8) {
+			if (count(json_decode($target->values)) == 8) {
 				$targets = json_decode($target->values);
 				break;
 			}
 		}
 
 		foreach ($actualValues as $key => $actual) {
-			if ($actualValues->count() == 8) {
+			if (count(json_decode($actual->values)) == 8) {
 				$actuals = json_decode($actual->values);
 				break;
 			}

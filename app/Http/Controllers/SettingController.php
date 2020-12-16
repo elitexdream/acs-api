@@ -17,6 +17,21 @@ class SettingController extends Controller
         ]);
     }
 
+    /*
+        Get basic app settings - logo, primary color..
+    */
+    public function appSettings() {
+        $settings = [];
+
+        $logo = Setting::where('type', 'logo_filepath')->first();
+
+        if($logo) {
+            $settings['logo'] = $logo->value;
+        }
+
+        return response()->json(compact('settings'));
+    }
+
     public function resetSettings()
     {
         Setting::where('type', 'logo_filepath')

@@ -135,6 +135,10 @@ Route::group(['prefix' => 'cities'], function () {
 	Route::get('/{state}', 'CityController@citiesForState');
 });
 
+Route::group(['prefix' => 'settings'], function () {
+	Route::get('/app-settings', 'SettingController@appSettings');
+});
+
 Route::post('test/send-mail', 'CompanyController@testMail');
 Route::post('test/send-sms', 'CompanyController@testSMS');
 Route::post('test/blender-json', 'TestController@store');
