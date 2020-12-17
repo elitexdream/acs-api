@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Events\AlarmCreatedEvent;
 
 class DeviceData extends Model
 {
@@ -12,8 +13,5 @@ class DeviceData extends Model
     protected static function boot()
     {
         parent::boot();
-
-        static::created(function ($device_data) {
-        });
     }
 }

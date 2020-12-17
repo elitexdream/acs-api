@@ -124,7 +124,7 @@ Route::group(['prefix' => 'notes'], function () {
 
 Route::group(['prefix' => 'alarms'], function () {
 	Route::post('/alarms-for-customer-devices', 'AlarmController@getAlarmsForCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
-	Route::post('/', 'AlarmController@getProductAlarms');
+	Route::post('/{product_id}', 'AlarmController@getProductAlarms');
 	Route::get('/alarms-by-company-id/{company_id}', 'AlarmController@getAlarmsByCompanyId');
 	Route::post('/severity-by-company-id', 'AlarmController@getSeverityByCompanyId');
 	Route::post('/alarms-per-type-by-machine', 'AlarmController@getAlarmsPerTypeByMachine');
@@ -147,3 +147,5 @@ Route::post('test/blender-json', 'TestController@store');
 Route::post('test/azure', 'DeviceController@testAzureJson');
 Route::post('test/mqtt', 'DeviceController@testMqttPHP');
 Route::post('test/carrier/{id}', 'DeviceController@carrierFromKoreAPI');
+
+Route::get('test/pusher-notification', 'DeviceController@sendEvent');

@@ -8,6 +8,7 @@ use App\AlarmType;
 use App\Alarm;
 use App\Device;
 use App\Machine;
+use App\Tag;
 use DB;
 
 class AlarmController extends Controller
@@ -35,15 +36,34 @@ class AlarmController extends Controller
 		return response()->json(compact('devices'));
 	}
 
-    public function getProductAlarms(Request $request) {
-		$alarms = DeviceData::where('machine_id', 1)
-						->where('tag_id', 27)
-						->orderBy('timestamp')
-						->where('timestamp', '>', strtotime($request->from))
-						->where('timestamp', '<', strtotime($request->to))
+    public function getProductAlarms(Request $request, $id) {
+    	$product = Device::where('serial_number', $id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$alarm_tag_ids = AlarmType::where('machine_id', $configuration->id)->pluck('tag_id');
+		$alarm_types = AlarmType::where('machine_id', $configuration->id)->get();
+
+		$alarms = DeviceData::where('device_id', $id)
+						->whereIn('tag_id', $alarm_tag_ids)
+						->latest('timestamp')
+						// ->where('timestamp', '>', strtotime($request->from))
+						// ->where('timestamp', '<', strtotime($request->to))
 						->get();
 
-		return response()->json(compact('alarms'));
+		return response()->json(compact('alarms', 'alarm_types'));
 	}
 
 	public function getAlarmTypesByMachineId($id) {

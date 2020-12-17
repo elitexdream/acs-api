@@ -17,7 +17,7 @@ class CreateAlarmTypesTable extends Migration
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('machine_id');
-            $table->json('tag_id');
+            $table->integer('tag_id');
             $table->timestamps();
         });
     }
