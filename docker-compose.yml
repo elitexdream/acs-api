@@ -30,7 +30,6 @@ services:
       - "80:80"
     volumes:
       - ./:/var/www/html/acs-api
-      - ../acs-frontend/:/var/www/html/acs-frontend
       - ./sourcefiles/nginx/conf.d:/etc/nginx/conf.d
     networks:
       - app-network
