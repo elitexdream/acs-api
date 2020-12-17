@@ -12,6 +12,29 @@ use DB;
 
 class AlarmController extends Controller
 {
+	public function getAlarmsForCustomerDevices(Request $request) {
+		$user = $request->user('api');
+
+		if(!$user) {
+			return response()->json('Unauthorized', 401);
+		}
+
+		$devices = $user->company->devices;
+
+		foreach ($devices as $key => $device) {
+			$alarm_types = AlarmType::where('machine_id', $device->machine_id)->get();
+			$alarm_tag_ids = [];
+
+			foreach ($alarm_types as $key => $alarm_type) {
+				$alarm_tag_ids = array_merge(json_decode($alarm_type->tag_id));
+			}
+			
+			$device->alamrs_count = DeviceData::where('device_id', $device->serial_number)->whereIn('tag_id', $alarm_tag_ids)->count();
+		}
+
+		return response()->json(compact('devices'));
+	}
+
     public function getProductAlarms(Request $request) {
 		$alarms = DeviceData::where('machine_id', 1)
 						->where('tag_id', 27)

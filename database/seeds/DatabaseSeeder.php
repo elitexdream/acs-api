@@ -17,5 +17,6 @@ class DatabaseSeeder extends Seeder
         $this->call(MachineSeeder::class);
         $this->call(AlarmTypeSeeder::class);
         $this->call(DowntimePlanTypeSeeder::class);
+        $this->call(TagSeeder::class);
     }
 }
