@@ -34,18 +34,18 @@
             "compare" : false
         },
         {
-            "name"    : "N23_0_0_plc_versio",
+            "name"    : "plc_version",
             "id"      : 4,
-            "type"    : "uint32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
             "compare" : true
         },
         {
-            "name"      : "N23_1_0_build_numb",
+            "name"      : "plc_build_number",
             "id"      : 5,
-            "type"    : "uint32",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
             "interval"   : 3600,
@@ -70,12 +70,12 @@
             "compare" : true
         },
         {
-            "name"      : "B50_6_0_ramp_to_st",
+            "name"      : "serial_number_unit",
             "id"      : 8,
-            "type"    : "bool",
+            "type"    : "int16",
             "sindex"  : 0,
             "ecount"  : 1,
-            "interval"   : 1,
+            "interval"   : 3600,
             "compare" : true
         },
         {
@@ -134,7 +134,7 @@
         {
             "name"      : "pump_hours",
             "id"      : 15,
-            "type"    : "int16",
+            "type"    : "uint32",
             "sindex"  : 1,
             "ecount"  : 12,
             "interval"   : 1,
@@ -143,7 +143,7 @@
         {
             "name"      : "pump_hours_for_oil_change",
             "id"      : 16,
-            "type"    : "int16",
+            "type"    : "uint32",
             "sindex"  : 1,
             "ecount"  : 12,
             "interval"   : 1,
@@ -182,8 +182,8 @@
             "name"      : "alarm_word_5",
             "id"      : 20,
             "type"    : "uint32",
-            "sindex"  : 1,
-            "ecount"  : 12,
+            "sindex"  : 0,
+            "ecount"  : 1,
             "interval"   : 1,
             "compare" : true,
             "do_not_batch" : true

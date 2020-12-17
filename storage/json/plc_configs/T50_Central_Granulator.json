@@ -367,15 +367,6 @@
             "compare" : true
         },
         {
-            "name"      : "HI005_BANNER_MSG",
-            "id"      : 41,
-            "type"    : "int16",
-            "sindex"  : 0,
-            "ecount"  : 1,
-            "interval"   : 1,
-            "compare" : true
-        },
-        {
             "name"      : "HI028_Motor_Status_Gran",
             "id"      : 42,
             "type"    : "int16",

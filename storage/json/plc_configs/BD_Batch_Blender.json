@@ -88,15 +88,6 @@
             "compare" : true
         },
         {
-            "name"      : "L21_0_11_RecipeVal",
-            "id"      : 10,
-            "type"    : "uint32",
-            "sindex"  : 1,
-            "ecount"  : 8,
-            "interval"   : 1,
-            "compare" : true
-        },
-        {
             "name"      : "L21_0_11_RecipeVal[10]",
             "id"      : 11,
             "type"    : "uint32",
@@ -389,6 +380,33 @@
             "interval"   : 1,
             "compare" : true,
             "do_not_batch" : true
+        },
+        {
+            "name"    : "N9_0_0_recipe_ent",
+            "id"      : 45,
+            "type"    : "uint32",
+            "sindex"  : 0,
+            "ecount"  : 1,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"    : "N26_0_8_hop_FeedType",
+            "id"      : 46,
+            "type"    : "uint32",
+            "sindex"  : 1,
+            "ecount"  : 8,
+            "interval"   : 1,
+            "compare" : true
+        },
+        {
+            "name"    : "L21_0_11_RecipeVal",
+            "id"      : 47,
+            "type"    : "uint32",
+            "sindex"  : 1,
+            "ecount"  : 8,
+            "interval"   : 1,
+            "compare" : true
         }
     ]
 }
