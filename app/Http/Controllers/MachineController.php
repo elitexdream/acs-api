@@ -14,6 +14,7 @@ use App\Device;
 use App\DowntimePlan;
 use App\Tag;
 use DB;
+use \stdClass;
 
 class MachineController extends Controller
 {
@@ -405,6 +406,91 @@ class MachineController extends Controller
 		}
 
 		return response()->json(compact('targets', 'actuals'));
+	}
+
+	/*
+		Get Machine state, system steady, mass flow hopper and RPM
+	*/
+	public function getProductStates($id) {
+		$product = Device::where('serial_number', $id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$machine_states = new stdClass();
+
+		$machine_states->machine_running = false;
+		$machine_states->system_steady = false;
+		$machine_states->mass_flow_hopper = false;
+		$machine_states->rpm = false;
+
+		$machine_running = DeviceData::where('device_id', $id)->where('tag_id', 10)->latest('timestamp')->first();
+
+		if($machine_running && json_decode($machine_running->values)[0] == true) {
+			$machine_states->machine_running = true;
+		}
+
+		$system_steady = DeviceData::where('device_id', $id)->where('tag_id', 24)->latest('timestamp')->first();
+
+		if($system_steady && json_decode($system_steady->values)[0] == true) {
+			$machine_states->system_steady = true;
+		}
+
+		$massflow_hopper_stable = DeviceData::where('device_id', $id)->where('tag_id', 25)->latest('timestamp')->first();
+
+		if($massflow_hopper_stable && json_decode($massflow_hopper_stable->values)[0] == true) {
+			$machine_states->massflow_hopper_stable = true;
+		}
+
+		$rpm = DeviceData::where('device_id', $id)->where('tag_id', 27)->latest('timestamp')->first();
+
+		if($rpm && json_decode($rpm->values)[0] == true) {
+			$machine_states->rpm = true;
+		}
+
+		return response()->json(compact('machine_states'));
+	}
+
+	/*
+		Get Feeder stables
+	*/
+	public function getFeederStables($id) {
+		$product = Device::where('serial_number', $id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$feeders_object = DeviceData::where('device_id', $id)->where('tag_id', 26)->latest('timestamp')->first();
+
+		if($feeders_object) {
+			$feeders = json_decode($feeders_object->values);
+		} else {
+			$feeders = [];
+		}
+
+		return response()->json(compact('feeders'));
 	}
 
 	/*

@@ -113,6 +113,8 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::get('/weekly-running-hours/{id}', 'MachineController@getWeeklyRunningHours');
 	Route::get('/product-weight/{id}', 'MachineController@getProductWeight');
 	Route::get('/product-recipe/{id}', 'MachineController@getProductRecipe');
+	Route::get('/product-system-states/{id}', 'MachineController@getProductStates');
+	Route::get('/product-feeder-stables/{id}', 'MachineController@getFeederStables');
 
 	Route::get('/product-actual-target-recipe/{id}', 'MachineController@getTgtActualRecipes');
 });
