@@ -29,7 +29,7 @@ class AlarmController extends Controller
 				$alarm_tag_ids = array_merge(json_decode($alarm_type->tag_id));
 			}
 			
-			$device->alamrs_count = DeviceData::where('device_id', $device->serial_number)->whereIn('tag_id', $alarm_tag_ids)->count();
+			$device->alarms_count = DeviceData::where('device_id', $device->serial_number)->whereIn('tag_id', $alarm_tag_ids)->count();
 		}
 
 		return response()->json(compact('devices'));
