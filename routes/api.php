@@ -117,7 +117,8 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::get('/product-system-states-3/{id}', 'MachineController@getMachineStates3');
 	Route::get('/product-feeder-stables/{id}', 'MachineController@getFeederStables');
 	Route::post('/product-production-rate', 'MachineController@getProductProcessRate');
-
+	Route::post('/product-hopper-inventories', 'MachineController@getInventories3');
+	Route::post('/product-hauloff-lengths', 'MachineController@getHauloffLengths');
 	Route::get('/product-actual-target-recipe/{id}', 'MachineController@getTgtActualRecipes');
 });
 

@@ -523,6 +523,86 @@ class MachineController extends Controller
 	}
 
 	/*
+		Get Hopper Inventories in machine 3
+		F25_0_0_hopper_inv
+		tag_id: 23
+		return: array
+	*/
+	public function getInventories3(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$inventories_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 23)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->latest('timestamp')
+										->get();
+
+		$inventories = array_map(function($inventory_object) {
+			return [$inventory_object['timestamp'] * 1000, json_decode($inventory_object['values'])[0]];
+		}, $inventories_object->toArray());
+
+		return response()->json(compact('inventories'));
+	}
+
+	/*
+		Get Hauloff lengths in machine 3
+		F31_4_0_hauloff_ac
+		tag_id: 24
+		return: array
+	*/
+	public function getHauloffLengths(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$lengths_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 24)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->latest('timestamp')
+										->get();
+
+		$lengths = array_map(function($length_object) {
+			return [$length_object['timestamp'] * 1000, round(json_decode($length_object['values'])[0], 2)];
+		}, $lengths_object->toArray());
+
+		return response()->json(compact('lengths'));
+	}
+	
+	/*
 		Get Feeder stables
 	*/
 	public function getFeederStables($id) {
