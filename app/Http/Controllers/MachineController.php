@@ -494,6 +494,50 @@ class MachineController extends Controller
 	}
 
 	/*
+		Get product production rate
+		return: Rate Series Array
+	*/
+	public function getProductProcessRate(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		// $tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $configuration->id)->first();
+
+		// if(!$tag_utilization) {
+		// 	return response()->json('Capacity utilization tag not found', 404);
+		// }
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$process_rate_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 23)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->latest('timestamp')
+										->get();
+
+		$process_rate = array_map(function($process_rate_object) {
+			return [$process_rate_object['timestamp'] * 1000, json_decode($process_rate_object['values'])[0]];
+		}, $process_rate_object->toArray());
+
+		return response()->json(compact('process_rate'));
+	}
+
+	/*
 		Get running hours of weekdays
 		return: 7 length array
 	*/
