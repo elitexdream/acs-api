@@ -356,7 +356,7 @@ class MachineController extends Controller
 		
 		$targetValues = DeviceData::where('device_id', $id)
 						->where('tag_id', 11)
-						->orderBy('timestamp', 'desc')
+						->latest('timestamp')
 						->first();
 		
 		if($targetValues) {
