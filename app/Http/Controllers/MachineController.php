@@ -212,6 +212,9 @@ class MachineController extends Controller
 		foreach ($targetValues as $key => $target) {
 			if (count(json_decode($target->values)) == 8) {
 				$targets = json_decode($target->values);
+				foreach ($targets as $key => $target) {
+					$targets[$key] = $target / 1000;
+				}
 				break;
 			}
 		}
@@ -219,6 +222,9 @@ class MachineController extends Controller
 		foreach ($actualValues as $key => $actual) {
 			if (count(json_decode($actual->values)) == 8) {
 				$actuals = json_decode($actual->values);
+				foreach ($actuals as $key => $actual) {
+					$actuals[$key] = $actual / 1000;
+				}
 				break;
 			}
 		}
@@ -451,6 +457,60 @@ class MachineController extends Controller
 
 		if($massflow_hopper_stable && json_decode($massflow_hopper_stable->values)[0] == true) {
 			$machine_states->massflow_hopper_stable = true;
+		}
+
+		$rpm = DeviceData::where('device_id', $id)->where('tag_id', 27)->latest('timestamp')->first();
+
+		if($rpm && json_decode($rpm->values)[0] == true) {
+			$machine_states->rpm = true;
+		}
+
+		return response()->json(compact('machine_states'));
+	}
+
+	/*
+		Get Machine state for machine 3
+	*/
+	public function getMachineStates3($id) {
+		$product = Device::where('serial_number', $id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$machine_states = new stdClass();
+
+		$machine_states->wtp = false;
+		$machine_states->system_steady = false;
+		$machine_states->halloff = false;
+		$machine_states->rpm = false;
+
+		$wtp = DeviceData::where('device_id', $id)->where('tag_id', 26)->latest('timestamp')->first();
+
+		if($wtp && json_decode($wtp->values)[0] == true) {
+			$machine_states->wtp = true;
+		}
+
+		$system_steady = DeviceData::where('device_id', $id)->where('tag_id', 25)->latest('timestamp')->first();
+
+		if($system_steady && json_decode($system_steady->values)[0] == true) {
+			$machine_states->system_steady = true;
+		}
+
+		$halloff = DeviceData::where('device_id', $id)->where('tag_id', 28)->latest('timestamp')->first();
+
+		if($halloff && json_decode($halloff->values)[0] == true) {
+			$machine_states->halloff = true;
 		}
 
 		$rpm = DeviceData::where('device_id', $id)->where('tag_id', 27)->latest('timestamp')->first();
