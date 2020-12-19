@@ -15,7 +15,9 @@ class LocationController extends Controller
 	}
 
 	public function store(Request $request) {
-    	$validator = Validator::make($request->all(), [ 
+        $user = $request->user('api');
+
+    	$validator = Validator::make($request->all(), [
 	        'name' => 'required',
             'state' => 'required',
             'city' => 'required',
@@ -27,7 +29,7 @@ class LocationController extends Controller
             return response()->json(['error' => $validator->errors()], 422);            
         }
 
-        Location::create($request->all());
+        $user->customerLocations()->create($request->all());
 
         return response()->json('Successfully created.');
     }

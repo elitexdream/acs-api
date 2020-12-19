@@ -15,10 +15,13 @@ class CreateLocationsTable extends Migration
     {
         Schema::create('locations', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('customer_id');
             $table->string('name', 100);
             $table->string('state', 100);
             $table->string('city', 100);
             $table->string('zip', 100);
+
+            $table->foreign('customer_id')->references('id')->on('users');
         });
     }
 

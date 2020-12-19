@@ -25,7 +25,7 @@ Route::group(['prefix' => 'locations'], function () {
 Route::get('/locations-zones', 'ZoneController@initLocationsAndZones')->middleware('auth:customer_admin,customer_manager');
 
 Route::group(['prefix' => 'zones'], function () {
-	Route::get('/', 'ZoneController@index')->middleware('auth:acs_admin,customer_admin,customer_manager');
+	Route::get('/', 'ZoneController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 	Route::post('/add', 'ZoneController@store')->middleware('auth:customer_admin,customer_manager');
 	Route::patch('/update', 'ZoneController@update')->middleware('auth:customer_admin,customer_manager');
 });
@@ -33,7 +33,7 @@ Route::group(['prefix' => 'zones'], function () {
 Route::group(['prefix' => 'devices'], function () {
 	Route::get('/customer-devices', 'DeviceController@getCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
 	Route::get('/all', 'DeviceController@getAllDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
-	Route::get('/customer-devices-analytics', 'DeviceController@getCustomerDevicesAnalytics')->middleware('auth:customer_admin,customer_manager,customer_operator');
+	Route::get('/customer-devices-analytics/{location_id}', 'DeviceController@getCustomerDevicesAnalytics')->middleware('auth:customer_admin,customer_manager,customer_operator');
 	Route::get('/acs-devices-analytics', 'DeviceController@getAcsDevicesAnalytics')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 	Route::post('/assign-zone', 'DeviceController@updateCustomerDevice')->middleware('auth:customer_admin,customer_manager,customer_operator');
 });
@@ -74,9 +74,12 @@ Route::group(['prefix' => 'acs-machines'], function () {
 	Route::get('/', 'MachineController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 	Route::get('/get-machines', 'MachineController@getMachines')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 	Route::get('/get-machines-by-company-id/{id}', 'MachineController@getMachinesByCompanyId')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
-	Route::get('/init-locations-table', 'MachineController@getAcsLocationsTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
-	Route::get('/init-zones-table/{id}', 'MachineController@getAcsZonesTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
-	Route::get('/init-machines-table/{id}', 'MachineController@getAcsMachinesTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+});
+
+Route::group(['prefix' => 'dashboard'], function () {
+	Route::get('/init-locations-table', 'MachineController@getLocationsTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::get('/init-zones-table/{id}', 'MachineController@getZonesTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::get('/init-machines-table/{id}', 'MachineController@getMachinesTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 });
 
 Route::group(['prefix' => 'customers'], function () {

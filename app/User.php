@@ -105,6 +105,40 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Location', 'user_locations', 'user_id', 'location_id');
     }
 
+    public function customerLocations() {
+        return $this->hasMany('App\Location', 'customer_id');
+    }
+
+    public function customerZones() {
+        return $this->hasMany('App\Zone', 'customer_id');
+    }
+
+    /*
+        return locations depending on the role
+        if acs user, return all locations
+        else if customer user, return customer locations
+    */
+    public function getMyLocations() {
+        if($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+            return Location::get();
+        } else {
+            return $this->customerLocations;
+        }
+    }
+
+    /*
+        return zones depending on the role
+        if acs user, return all zones
+        else if customer user, return customer zones
+    */
+    public function getMyzones() {
+        if($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+            return Zone::get();
+        } else {
+            return $this->customerZones;
+        }
+    }
+
     public function zones()
     {
         return $this->belongsToMany('App\Zone', 'user_zones', 'user_id', 'zone_id');

@@ -9,9 +9,11 @@ use App\Zone;
 
 class ZoneController extends Controller
 {
-    public function initLocationsAndZones() {
-        $locations = Location::get();
-        $zones = Zone::select('id', 'name', 'location_id')->get();
+    public function initLocationsAndZones(Request $request) {
+        $user = $request->user('api');
+
+        $locations = $user->customerLocations;
+        $zones = $user->customerZones;
 
         return response()->json([
             'locations' => $locations,
@@ -19,13 +21,17 @@ class ZoneController extends Controller
         ]);
     }
 
-    public function index() {
-        $zones = Zone::select('id', 'name', 'location_id')->get();
+    public function index(Request $request) {
+        $user = $request->user('api');
 
+        $zones = $user->getMyZones();
+        
         return response()->json($zones);
     }
 
     public function store(Request $request) {
+        $user = $request->user('api');
+
     	$validator = Validator::make($request->all(), [ 
 	        'name' => 'required',
             'location_id' => 'required'
@@ -34,10 +40,8 @@ class ZoneController extends Controller
 	    if ($validator->fails()) {
             return response()->json(['error'=>$validator->errors()], 422);            
         }
-        $zone = Zone::create([
-            'name' => $request->name,
-            'location_id' => $request->location_id
-        ]);
+
+        $user->customerZones()->create($request->all());
 
         return response()->json('Successfully created.');
     }

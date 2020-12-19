@@ -458,9 +458,13 @@ class DeviceController extends Controller
     /*
         Get customer devices with analytics
     */
-    public function getCustomerDevicesAnalytics(Request $request) {
+    public function getCustomerDevicesAnalytics(Request $request, $location_id = 0) {
         $user = $request->user('api');
-        $devices = $user->company->devices;
+        
+        if($location_id)
+            $devices = $user->company->devices()->where('location_id', $location_id)->get();
+        else
+            $devices = $user->company->devices;
 
         return response()->json([
             'devices' => $devices

@@ -800,8 +800,10 @@ class MachineController extends Controller
 			return 0;
 	}
 
-	public function getAcsLocationsTableData() {
-		$locations = Location::orderBy('name')->get();
+	public function getLocationsTableData(Request $request) {
+		$user = $request->user('api');
+
+		$locations = $user->getMyLocations();
 
 		foreach ($locations as $key => $location) {
 			$downtime_distribution = $this->getDowntimeDistribution(1);
@@ -817,7 +819,7 @@ class MachineController extends Controller
 		return response()->json(compact('locations'));
 	}
 
-	public function getAcsZonesTableData($location_id) {
+	public function getZonesTableData($location_id) {
 		$location = Location::findOrFail($location_id);
 
 		$zones = $location->zones;
@@ -836,7 +838,7 @@ class MachineController extends Controller
 		return response()->json(compact('zones'));
 	}
 
-	public function getAcsMachinesTableData($zone_id) {
+	public function getMachinesTableData($zone_id) {
 		$devices = Device::where('zone_id', $zone_id)->get();
 
 		foreach ($devices as $key => $device) {

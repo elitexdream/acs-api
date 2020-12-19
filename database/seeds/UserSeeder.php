@@ -60,5 +60,8 @@ class UserSeeder extends Seeder
         DB::table('users')->insert($acs_super_admin);
         DB::table('profiles')->insert($acs_admin_profile);
         DB::table('profiles')->insert($acs_super_admin_profile);
+
+        DB::update('SELECT setval('users_id_seq', COALESCE((SELECT MAX(id)+1 FROM users), 1), false);');
+        DB::update('SELECT setval('profiles_id_seq', COALESCE((SELECT MAX(id)+1 FROM profiles), 1), false);');
     }
 }

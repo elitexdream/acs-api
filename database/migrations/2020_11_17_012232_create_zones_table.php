@@ -15,8 +15,12 @@ class CreateZonesTable extends Migration
     {
         Schema::create('zones', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('customer_id');
+            $table->unsignedBigInteger('location_id');
             $table->string('name', 100);
-            $table->unsignedBigInteger('location_id')->nullable();
+
+            $table->foreign('customer_id')->references('id')->on('users');
+            $table->foreign('location_id')->references('id')->on('locations');
         });
     }
 
