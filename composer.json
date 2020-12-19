@@ -9,7 +9,6 @@
     "license": "MIT",
     "require": {
         "php": "^7.2.5",
-        "bluerhinos/phpmqtt": "@dev",
         "fideloper/proxy": "^4.3",
         "fruitcake/laravel-cors": "^1.0",
         "guzzlehttp/guzzle": "^7.1",
@@ -47,8 +46,7 @@
             "database/factories"
         ],
         "files": [
-            "app/helpers/defines.php",
-            "vendor/bluerhinos/phpmqtt/phpMQTT.php"
+            "app/helpers/defines.php"
         ]
     },
     "autoload-dev": {
