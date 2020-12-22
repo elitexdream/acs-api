@@ -190,7 +190,7 @@ class DeviceController extends Controller
 
         try {
             $response = $client->post(
-                'localhost:3000/',
+                env('ACS_MIDDLEWARE_URL'),
                 [
                     'json' => $req
                 ]
