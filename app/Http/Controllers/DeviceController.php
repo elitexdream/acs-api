@@ -486,7 +486,7 @@ class DeviceController extends Controller
         $client = new Client();
         try {
             $response = $client->post(
-                env('ACS_MIDDLEWARE_URL'),
+                env('ACS_MIDDLEWARE_URL', 'http://172.28.0.1:3000/'),
                 [
                     'json' => $request->all()
                 ]
