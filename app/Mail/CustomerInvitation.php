@@ -28,7 +28,9 @@ class CustomerInvitation extends Mailable
      */
     public function build()
     {
-        return $this->from(env('SENDGRID_FROM_EMAIL'))
-                ->markdown('emails.customer-invitation', ['password' => $this->password]);
+        return $this->view('emails.customer-invitation')
+                    ->from(config('mail.from.address'), config('mail.from.name'))
+                    ->subject('Welcome to Machine CDN')
+                    ->with([ 'password' => $this->password ]);
     }
 }
