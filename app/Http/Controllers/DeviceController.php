@@ -486,7 +486,7 @@ class DeviceController extends Controller
         $client = new Client();
         try {
             $response = $client->post(
-                'localhost:3000/',
+                '127.0.0.1:3000/',
                 [
                     'json' => $request->all()
                 ]
