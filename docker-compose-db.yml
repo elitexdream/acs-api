@@ -1,0 +1,32 @@
+version: '3'
+services:
+  #Postgres Service
+  db:
+    image: postgres:12-alpine
+    container_name: acs-db
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - "pgdata:/var/lib/postgresql/data"
+      - "./sourcefiles/postgresql/postgresql.conf:/var/lib/postgresql/data/postgresql.conf"
+      - ../server.crt:/var/lib/postgresql/data/server.crt
+      - ../server.key:/var/lib/postgresql/data/server.key
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+      - SERVICE_TAGS=dev
+      - SERVICE_NAME=postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - acs-api_app-network
+
+#Volumes
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  acs-api_app-network:
+    external: true
