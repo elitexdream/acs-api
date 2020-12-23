@@ -92,8 +92,7 @@ class TagSeeder extends Seeder
             [ 'tag_name' => 'energy_consumption', 'configuration_id' => 7, 'tag_id' => 3 ],
             [ 'tag_name' => 'energy_consumption', 'configuration_id' => 8, 'tag_id' => 3 ],
             [ 'tag_name' => 'energy_consumption', 'configuration_id' => 9, 'tag_id' => 106 ],
-            [ 'tag_name' => 'energy_consumption', 'configuration_id' => 10, 'tag_id' => 231 ],
-
+            [ 'tag_name' => 'energy_consumption', 'configuration_id' => 10, 'tag_id' => 231 ]
             
         ];
         DB::table('tags')->insert($tags);
