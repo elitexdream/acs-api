@@ -81,15 +81,22 @@ class AlarmController extends Controller
 	}
 
 	public function getAssignedMachinesByCompanyId($company_id) {
-		$query = 'SELECT machines.id, machines.name FROM devices INNER JOIN machines ON devices.machine_id = machines.id WHERE devices.company_id = ' . $company_id;
-		$assigned_machines = DB::select(DB::raw($query));
-
+		// $query = 'SELECT machines.id, machines.name FROM devices INNER JOIN machines ON devices.machine_id = machines.id WHERE devices.company_id = ' . $company_id;
+		// $assigned_machines = DB::select(DB::raw($query));
+		
+		$assigned_machines = Device::select('machines.id', 'machines.name')
+									->join('machines', 'devices.machine_id', '=', 'machines.id')
+									->where('devices.company_id', $company_id)
+									->get();
 		return $assigned_machines;
 	}
 
 	public function getBasicDeviceData($company_id, $machine_id = 0, $dates = NULL) {
 		if ($machine_id) {
-			$query = 'SELECT alarm_types.name, alarm_types.machine_id, alarm_types.tag_id, alarm_types.machine_id FROM alarm_types WHERE alarm_types.machine_id = '. $machine_id;
+			// $query = 'SELECT alarm_types.name, alarm_types.machine_id, alarm_types.tag_id, alarm_types.machine_id FROM alarm_types WHERE alarm_types.machine_id = '. $machine_id;
+			$alarm_types = AlarmType::select('name', 'machine_id', 'tag_id')
+									->where('machine_id', $machine_id)
+									->get();			
 		} else {
 			$assigned_devices = Device::select('machine_id')->where('company_id', $company_id)->get();
 			$machine_ids = [];
@@ -97,11 +104,14 @@ class AlarmController extends Controller
 				$machine_ids[] = $assigned_device['machine_id'];
 			}
 	
-			$query = 'SELECT alarm_types.name, alarm_types.machine_id, alarm_types.tag_id, alarm_types.machine_id FROM alarm_types WHERE alarm_types.machine_id IN (' 
-				. implode("," , $machine_ids) . 
-				')';
+			// $query = 'SELECT alarm_types.name, alarm_types.machine_id, alarm_types.tag_id, alarm_types.machine_id FROM alarm_types WHERE alarm_types.machine_id IN (' 
+			// 	. implode("," , $machine_ids) . 
+			// 	')';
+			$alarm_types = AlarmType::select('name', 'machine_id', 'tag_id')
+				->whereIn('machine_id', $machine_ids)
+				->get();
 		}
-		$alarm_types = DB::select(DB::raw($query));
+		// $alarm_types = DB::select(DB::raw($query));
 
 		$tag_ids = [];
 		foreach($alarm_types as $alarm_type) {
@@ -112,14 +122,24 @@ class AlarmController extends Controller
 					. implode("," , $tag_ids) . ') AND device_data.customer_id = ' . $company_id;
 
 		if ($machine_id) {
-			$query .= ' AND device_data.machine_id = ' . $machine_id;
+			// $query .= ' AND device_data.machine_id = ' . $machine_id;
+			$device_data = DeviceData::select('tag_id', 'timestamp', 'values', 'machine_id')
+									->whereIn('tag_id', $tag_ids)
+									->where('customer_id', $company_id)
+									->where('machine_id', $machine_id)
+									->get();
 		}
 
 		if ($dates) {
-			$query .= ' AND device_data.timestamp BETWEEN ' . strtotime($dates[0]) . ' AND ' . strtotime($dates[1]);
+			// $query .= ' AND device_data.timestamp BETWEEN ' . strtotime($dates[0]) . ' AND ' . strtotime($dates[1]);
+			$device_data = DeviceData::select('tag_id', 'timestamp', 'values', 'machine_id')
+									->whereIn('tag_id', $tag_ids)
+									->where('customer_id', $company_id)
+									->whereBetween('timestamp', [strtotime($dates[0]), strtotime($dates[1])])
+									->get();
 		}
 
-		$device_data = DB::select(DB::raw($query));
+		// $device_data = DB::select(DB::raw($query));
 
 		foreach($device_data as $item) {
 			$sum = 0;
