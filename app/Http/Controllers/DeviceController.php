@@ -9,6 +9,8 @@ use App\Machine;
 use App\Zone;
 use App\Location;
 use App\DeviceData;
+use App\EnergyConsumption;
+use App\Utilization;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
@@ -471,12 +473,44 @@ class DeviceController extends Controller
         ]);
     }
 
+    public function getTotalValues($array) {
+        $result = 0;
+        foreach($array as $item) {
+			$value = json_decode($item->values);
+			foreach($value as $num) {
+				$result += $num;
+			}
+        }
+
+        return $result;
+    }
+
+    public function getCapacityUtilizationFromDeviceId($device_id) {
+        $utilizations = Utilization::where('device_id', (int)$device_id)->get();
+        $result = $this->getTotalValues($utilizations);
+        
+        return $result;
+    }
+
+    public function getEnergyConsumptionFromDeviceId($device_id) {
+        $consumptions = EnergyConsumption::where('device_id', (int)$device_id)->get();
+        $result = $this->getTotalValues($consumptions);
+        
+        return $result;
+    }
+
     /*
         Get acs devices with analytics
     */
     public function getAcsDevicesAnalytics(Request $request) {
         $devices = Device::get();
         
+        foreach($devices as $device) {
+            $device_id = $device->serial_number;
+            $device->capacity = $this->getCapacityUtilizationFromDeviceId($device_id);
+            $device->consumption = $this->getEnergyConsumptionFromDeviceId($device_id);
+        }
+
         return response()->json([
             'devices' => $devices
         ]);

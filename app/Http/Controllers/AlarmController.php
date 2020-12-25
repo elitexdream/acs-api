@@ -118,8 +118,8 @@ class AlarmController extends Controller
 			$tag_ids = array_merge($tag_ids, json_decode($alarm_type->tag_id));	
 		}
 
-		$query = 'SELECT device_data.tag_id, device_data.timestamp, device_data.values, device_data.machine_id from device_data WHERE device_data.tag_id IN (' 
-					. implode("," , $tag_ids) . ') AND device_data.customer_id = ' . $company_id;
+		// $query = 'SELECT device_data.tag_id, device_data.timestamp, device_data.values, device_data.machine_id from device_data WHERE device_data.tag_id IN (' 
+		// 			. implode("," , $tag_ids) . ') AND device_data.customer_id = ' . $company_id;
 
 		if ($machine_id) {
 			// $query .= ' AND device_data.machine_id = ' . $machine_id;
