@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Setting;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use Validator;
 
 class SettingController extends Controller
 {
@@ -46,24 +47,30 @@ class SettingController extends Controller
 
     public function uploadLogo(Request $request)
     {
-        if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $file_name = $file->getClientOriginalName();
-            $file->storeAs('', $file_name, 'public_uploads');
-            $file_path = asset('assets/app/img'). '/' . $file_name;
-            $logo_filename = Setting::where('type', 'logo_filepath')->first();
-            if (!$logo_filename) {
-                Setting::create([
-                    'type' => 'logo_filepath',
-                    'value' => $file_path
-                ]);
-            } else {
-                $logo_filename->value = $file_path;
-                $logo_filename->save();
-            }
-        } else {
-            return response()->json(['error'=>'File not exist!']);
+        $validator = Validator::make($request->all(), [ 
+            'logo' => 'required|image'
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['error'=>$validator->errors()], 422);            
         }
+
+        $file = $request->file('logo');
+        $file_name = $file->getClientOriginalName();
+        $file->storeAs('', $file_name, 'public_uploads');
+        $file_path = asset('assets/app/img'). '/' . $file_name;
+        $logo_filename = Setting::where('type', 'logo_filepath')->first();
+        if (!$logo_filename) {
+            Setting::create([
+                'type' => 'logo_filepath',
+                'value' => $file_path
+            ]);
+        } else {
+            $logo_filename->value = $file_path;
+            $logo_filename->save();
+        }
+
         return response()->json([
             'filepath'=>$file_path,
             'success'=>'Uploaded Successfully.'
