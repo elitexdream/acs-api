@@ -30,6 +30,12 @@ Route::group(['prefix' => 'zones'], function () {
 	Route::patch('/update', 'ZoneController@update')->middleware('auth:customer_admin,customer_manager');
 });
 
+Route::group(['prefix' => 'configurations'], function () {
+	Route::get('/', 'ConfigurationController@getConfigurationNames');
+	Route::get('/{id}', 'ConfigurationController@getConfiguration')->middleware('auth:super_admin');
+	Route::post('/{id}', 'ConfigurationController@saveConfiguration')->middleware('auth:super_admin');
+});
+
 Route::group(['prefix' => 'devices'], function () {
 	Route::get('/customer-devices', 'DeviceController@getCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
 	Route::get('/all', 'DeviceController@getAllDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');

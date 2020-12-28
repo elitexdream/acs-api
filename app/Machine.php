@@ -10,6 +10,8 @@ class Machine extends Model
         'name'
     ];
 
+    public $timestamps = false;
+    
     public function downtimePlans() {
     	$this->hasMany('App\DowntimePlan', 'machine_id');
     }

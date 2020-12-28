@@ -36,38 +36,36 @@ class DeviceController extends Controller
 	public function getDevices($pageNumber = 1) {
         $devices = Device::orderBy('sim_status')->orderBy('id')->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
-        $machines = Machine::select('id', 'name')->get();
 
-            foreach ($devices as $key => $device) {
-                if(!$device->public_ip_sim) {
-                    try {
-                        $device->public_ip_sim = $this->publicIP($device->iccid)->public_ip_sim;
-                    }
-                    catch( \Exception $e ) {
-                    }
+        foreach ($devices as $key => $device) {
+            if(!$device->public_ip_sim) {
+                try {
+                    $device->public_ip_sim = $this->publicIP($device->iccid)->public_ip_sim;
                 }
-                if(!$device->sim_status) {
-
-                    try {
-                        $device->sim_status = $this->querySIM($device->iccid)->sim_status;
-                    } catch( \Exception $e ) {
-
-                    }
-                }
-                if(!$device->carrier) {
-
-                    try {
-                        $device->carrier = $this->carrierFromKoreAPI($device->iccid)->carrier;
-                    } catch( \Exception $e ) {
-
-                    }
+                catch( \Exception $e ) {
                 }
             }
+            if(!$device->sim_status) {
+
+                try {
+                    $device->sim_status = $this->querySIM($device->iccid)->sim_status;
+                } catch( \Exception $e ) {
+
+                }
+            }
+            if(!$device->carrier) {
+
+                try {
+                    $device->carrier = $this->carrierFromKoreAPI($device->iccid)->carrier;
+                } catch( \Exception $e ) {
+
+                }
+            }
+        }
 
         return response()->json([
             'devices' => $devices->items(),
             'companies' => $companies,
-            'machines' => $machines,
             'last_page' => $devices->lastPage()
         ]);
 	}

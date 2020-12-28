@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Validator;
 
+use App\Machine;
+
 class SettingController extends Controller
 {
     public function getSetting(Request $request)
