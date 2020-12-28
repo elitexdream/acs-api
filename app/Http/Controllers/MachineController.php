@@ -415,6 +415,32 @@ class MachineController extends Controller
 	}
 
 	/*
+		Get Target and actual pump hours oil change in VTC Plus Conveying System configuration
+		params: device_id
+		return: Actual and target pump hours oil change
+	*/
+	public function getPumpHoursOil($id) {
+		$targets = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		$actuals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		
+		$targetValues = DeviceData::where('device_id', $id)
+						->where('tag_id', 17)
+						->latest('timestamp')
+						->first();
+		$actualValues = DeviceData::where('device_id', $id)
+						->where('tag_id', 16)
+						->latest('timestamp')
+						->first();
+
+		if($actualValues)
+			$actuals = json_decode($actualValues->values);
+		if($targetValues)
+			$targets = json_decode($actualValues->values);
+
+		return response()->json(compact('targets', 'actuals'));
+	}
+
+	/*
 		Get Machine state, system steady, mass flow hopper and RPM
 	*/
 	public function getProductStates($id) {
@@ -466,6 +492,100 @@ class MachineController extends Controller
 		}
 
 		return response()->json(compact('machine_states'));
+	}
+
+	/*
+		Get Drying hopper states for NGX Dryer
+	*/
+	public function getDryingHopperStates($id) {
+		$states = new stdClass();
+
+		$states->hopper1 = 0;
+		$states->hopper2 = 0;
+		$states->hopper3 = 0;
+
+		$hopper1 = DeviceData::where('device_id', $id)->where('tag_id', 33)->latest('timestamp')->first();
+
+		if($hopper1) {
+			$states->hopper1 = json_decode($hopper1->values)[0];
+		}
+
+		$hopper2 = DeviceData::where('device_id', $id)->where('tag_id', 34)->latest('timestamp')->first();
+
+		if($hopper2) {
+			$states->hopper2 = json_decode($hopper2->values)[0];
+		}
+
+		$hopper3 = DeviceData::where('device_id', $id)->where('tag_id', 35)->latest('timestamp')->first();
+
+		if($hopper3) {
+			$states->hopper3 = json_decode($hopper3->values)[0];
+		}
+
+		return response()->json(compact('states'));
+	}
+
+	/*
+		Get Target, actual and outlet hopper temperatures
+		params: device_id
+	*/
+	public function getHopperTemperatures($id) {
+		$inlets = [0, 0, 0];
+		$outlets = [0, 0, 0];
+		$targets = [0, 0, 0];
+		
+		$inletHopper1 = DeviceData::where('device_id', $id)
+						->where('tag_id', 9)
+						->latest('timestamp')
+						->first();
+		$inletHopper2 = DeviceData::where('device_id', $id)
+						->where('tag_id', 12)
+						->latest('timestamp')
+						->first();
+		$inletHopper3 = DeviceData::where('device_id', $id)
+						->where('tag_id', 15)
+						->latest('timestamp')
+						->first();
+
+		$outletHopper1 = DeviceData::where('device_id', $id)
+						->where('tag_id', 11)
+						->latest('timestamp')
+						->first();
+		$outletHopper2 = DeviceData::where('device_id', $id)
+						->where('tag_id', 14)
+						->latest('timestamp')
+						->first();
+		$outletHopper3 = DeviceData::where('device_id', $id)
+						->where('tag_id', 17)
+						->latest('timestamp')
+						->first();
+
+		$targetHopper1 = DeviceData::where('device_id', $id)
+						->where('tag_id', 10)
+						->latest('timestamp')
+						->first();
+		$targetHopper2 = DeviceData::where('device_id', $id)
+						->where('tag_id', 13)
+						->latest('timestamp')
+						->first();
+		$targetHopper3 = DeviceData::where('device_id', $id)
+						->where('tag_id', 16)
+						->latest('timestamp')
+						->first();
+
+		if($inletHopper1) $inlets[0] = json_decode($inletHopper1->values)[0];
+		if($inletHopper2) $inlets[1] = json_decode($inletHopper2->values)[0];
+		if($inletHopper3) $inlets[2] = json_decode($inletHopper3->values)[0];
+
+		if($outletHopper1) $outlets[0] = json_decode($outletHopper1->values)[0];
+		if($outletHopper2) $outlets[1] = json_decode($outletHopper2->values)[0];
+		if($outletHopper3) $outlets[2] = json_decode($outletHopper3->values)[0];
+
+		if($targetHopper1) $targets[0] = json_decode($targetHopper1->values)[0];
+		if($targetHopper2) $targets[1] = json_decode($targetHopper2->values)[0];
+		if($targetHopper3) $targets[2] = json_decode($targetHopper3->values)[0];
+
+		return response()->json(compact('inlets', 'targets', 'outlets'));
 	}
 
 	/*
