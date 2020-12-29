@@ -456,15 +456,16 @@ class DeviceController extends Controller
     }
 
     /*
-        Get customer devices with analytics
+        Get devices with analytics
     */
-    public function getCustomerDevicesAnalytics(Request $request, $location_id = 0) {
+    public function getDevicesAnalytics(Request $request, $location_id = 0) {
         $user = $request->user('api');
         
-        if($location_id)
-            $devices = $user->company->devices()->where('location_id', $location_id)->get();
-        else
-            $devices = $user->company->devices;
+        $devices = $user->getMyDevices($location_id);
+
+        foreach ($devices as $key => $device) {
+            $device->status = $device->isRunning();
+        }
 
         return response()->json([
             'devices' => $devices
@@ -495,23 +496,6 @@ class DeviceController extends Controller
         $result = $this->getTotalValues($consumptions);
         
         return $result;
-    }
-
-    /*
-        Get acs devices with analytics
-    */
-    public function getAcsDevicesAnalytics(Request $request) {
-        $devices = Device::get();
-        
-        foreach($devices as $device) {
-            $device_id = $device->serial_number;
-            $device->capacity = $this->getCapacityUtilizationFromDeviceId($device_id);
-            $device->consumption = $this->getEnergyConsumptionFromDeviceId($device_id);
-        }
-
-        return response()->json([
-            'devices' => $devices
-        ]);
     }
 
     public function testAzureJson(Request $request) {
