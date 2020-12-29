@@ -192,9 +192,20 @@ class DeviceController extends Controller
         $configuration = json_decode($configuration->full_json);
 
         if(!$device->tcu_added) {
+            if($request->register) {
+                // Generate hash
+                $config_hash = bin2hex(random_bytes(10));
 
-            // if the request is revoke, plc tags should be empty
-            if(!$request->register) {
+
+                // Save hash in devices table
+                $device->hash1 = $config_hash;
+                $device->save();
+
+                $configuration->config_hash = $config_hash;
+            } else {
+                $configuration->config_hash = $device->hash1;
+
+                // if the request is revoke, plc tags should be empty
                 $configuration->plctags = [];
             }
 
@@ -206,18 +217,32 @@ class DeviceController extends Controller
                 "requestJson" => $configuration
             ];
         } else {
-
             $tcu_configuration = json_decode(Machine::findOrFail(MACHINE_TRUETEMP_TCU)->full_json);
+
+            if($request->register) {
+                // Generate hash
+                $config_hash1 = bin2hex(random_bytes(10));
+                $config_hash2 = bin2hex(random_bytes(10));
+
+                // Save hash in devices table
+                $device->hash1 = $config_hash1;
+                $device->hash2 = $config_hash2;
+                $device->save();
+
+                $configuration->config_hash = $config_hash1;
+                $tcu_configuration->config_hash = $config_hash2;
+            } else {
+                $configuration->config_hash = $device->hash1;
+                $tcu_configuration->config_hash = $device->hash2;
+
+                // if the request is revoke, plc tags should be empty for both
+                $configuration->plctags = [];
+                $tcu_configuration->plctags = [];
+            }
 
             // assign updated plc ip
             $configuration->plc_ip = $device->plc_ip;
             $tcu_configuration->plc_ip = $device->plc_ip;
-
-            // if the request is revoke, plc tags should be empty for both
-            if(!$request->register) {
-                $configuration->plctags = [];
-                $tcu_configuration->plctags = [];
-            }
 
             $device0 = new stdClass();
             $device1 = new stdClass();

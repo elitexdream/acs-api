@@ -30,6 +30,8 @@ class CreateDevicesTable extends Migration
             $table->boolean('checkin')->default(false);
             $table->boolean('tcu_added')->default(false);
             $table->string('plc_ip', 30)->default('192.168.5.5');
+            $table->string('hash1', 30)->nullable();
+            $table->string('hash2', 30)->nullable();
 
             $table->unsignedBigInteger('location_id')->nullable();
             $table->unsignedBigInteger('zone_id')->nullable();
