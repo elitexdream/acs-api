@@ -125,11 +125,22 @@ class DeviceController extends Controller
     }
 
     public function deviceAssigned(Request $request) {
+
+        $validator = Validator::make($request->all(), [ 
+            'plc_ip' => 'required'
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
         $device = Device::findOrFail($request->device_id);
 
         $device->company_id = $request->company_id;
         $device->machine_id = $request->machine_id;
         $device->tcu_added = $request->tcu_added;
+        $device->plc_ip = $request->plc_ip;
 
         $device->save();
 

@@ -29,6 +29,7 @@ class CreateDevicesTable extends Migration
             $table->string('carrier', 100)->nullable();
             $table->boolean('checkin')->default(false);
             $table->boolean('tcu_added')->default(false);
+            $table->string('plc_ip', 30)->default('192.168.5.5');
 
             $table->unsignedBigInteger('location_id')->nullable();
             $table->unsignedBigInteger('zone_id')->nullable();
