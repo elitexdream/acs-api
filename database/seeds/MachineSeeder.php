@@ -38,47 +38,47 @@ class MachineSeeder extends Seeder
         $json_truetemp_tcu = json_decode(file_get_contents($path_truetemp_tcu), true);
 
         $machines = [ [
-                'id' => 1,
+                'id' => MACHINE_BD_BATCH_BLENDER,
                 'name' => 'BD Batch Blender',
                 'full_json' => json_encode($json_bd_batch_blender)
             ], [
-                'id' => 2,
+                'id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'name' => 'Accumeter Ovation Continuous Blender',
                 'full_json' => json_encode($json_accumeter_ovation_continuous_blender)
             ], [
-                'id' => 3,
+                'id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'name' => 'GH Gravimetric Extrusion Control Hopper',
                 'full_json' => json_encode($json_gh_gravimetric_extrusion_control_hopper)
             ], [
-                'id' => 4,
+                'id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'name' => 'GH-F Gravimetric Additive Feeder',
                 'full_json' => json_encode($json_gh_f_gravimetric_additive_feeder)
             ], [
-                'id' => 5,
+                'id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'name' => 'VTC Plus Conveying System',
                 'full_json' => json_encode($json_vtc_plus_conveying_system)
             ], [
-                'id' => 6,
+                'id' => MACHINE_NGX_DRYER,
                 'name' => 'NGX Dryer',
                 'full_json' => json_encode($json_ngx_dryer)
             ], [
-                'id' => 7,
+                'id' => MACHINE_NGX_NOMAD_DRYER,
                 'name' => 'NGX Nomad Dryer',
                 'full_json' => json_encode($json_ngx_nomad_dryer)
             ], [
-                'id' => 8,
+                'id' => MACHINE_T50_CENTRAL_GRANULATOR,
                 'name' => 'T50 Central Granulator',
                 'full_json' => json_encode($json_t50_central_granulator)
             ], [
-                'id' => 9,
+                'id' => MACHINE_GP_PORTABLE_CHILLER,
                 'name' => 'GP Portable Chiller',
                 'full_json' => json_encode($json_gp_portable_chiller)
             ], [
-                'id' => 10,
+                'id' => MACHINE_HE_CENTRAL_CHILLER,
                 'name' => 'HE Central Chiller',
                 'full_json' => json_encode($json_he_central_chiller)
             ], [
-                'id' => 11,
+                'id' => MACHINE_TRUETEMP_TCU,
                 'name' => 'TrueTemp TCU',
                 'full_json' => json_encode($json_truetemp_tcu)
             ]

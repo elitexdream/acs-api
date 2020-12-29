@@ -207,7 +207,7 @@ class DeviceController extends Controller
             ];
         } else {
 
-            $tcu_configuration = json_decode(Machine::findOrFail(11)->full_json);
+            $tcu_configuration = json_decode(Machine::findOrFail(MACHINE_TRUETEMP_TCU)->full_json);
 
             // assign updated plc ip
             $configuration->plc_ip = $device->plc_ip;
