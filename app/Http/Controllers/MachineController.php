@@ -20,34 +20,6 @@ class MachineController extends Controller
 {
 	private $num_chunks = 12;
 
-	public function index() {
-    	$companies = Company::orderBy('name')->get();
-
-		return response()->json(compact('companies'));
-	}
-
-	public function getMachines() {
-		$machines = Machine::all();
-
-		return response()->json(compact('machines'));
-	}
-
-	public function getMachinesByCompanyId($id) {
-		$query = 'SELECT machines.id, machines.name FROM devices INNER JOIN machines ON devices.machine_id = machines.id WHERE devices.company_id = ' . $id;
-		$machines = DB::select(DB::raw($query));
-
-		return response()->json(compact('machines'));
-	}
-
-	/*
-		Get all configurations
-	*/
-	public function getAllConfigurations() {
-		$configurations = Machine::select('id', 'name')->get();
-
-		return response()->json(compact('configurations'));
-	}
-
 	/*
 		Get general information of product
 		They are Name, Serial number, Software build, and version

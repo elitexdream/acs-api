@@ -9,8 +9,6 @@ Route::post('auth/signin', 'UserController@login');
 Route::post('auth/signup', 'UserController@register');
 Route::post('auth/password-reset', 'UserController@passwordReset');
 
-Route::get('/configurations/index', 'MachineController@getAllConfigurations');
-
 Route::middleware('auth')->group(function () {
     Route::get('/auth/logout', 'UserController@logout');
 	Route::post('/auth/update-password', 'UserController@updatePassword');
@@ -75,12 +73,6 @@ Route::group(['prefix' => 'app-settings'], function () {
 	Route::post('/reset', 'SettingController@resetSettings');
 });
 
-Route::group(['prefix' => 'acs-machines'], function () {
-	Route::get('/', 'MachineController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
-	Route::get('/get-machines', 'MachineController@getMachines')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
-	Route::get('/get-machines-by-company-id/{id}', 'MachineController@getMachinesByCompanyId')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
-});
-
 Route::group(['prefix' => 'dashboard'], function () {
 	Route::get('/init-locations-table', 'MachineController@getLocationsTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 	Route::get('/init-zones-table/{id}', 'MachineController@getZonesTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
@@ -89,7 +81,6 @@ Route::group(['prefix' => 'dashboard'], function () {
 
 Route::group(['prefix' => 'customers'], function () {
 	Route::get('/', 'CompanyController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer');
-	Route::get('/init-add-company', 'CompanyController@getCompanies')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/add', 'CompanyController@addCustomer')->middleware('auth:acs_admin,acs_manager');
 	Route::get('/{id}', 'CompanyController@getCustomer')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount')->middleware('auth:acs_admin,acs_manager');

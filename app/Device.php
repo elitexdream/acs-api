@@ -40,22 +40,22 @@ class Device extends Model
         $tag_id = 0;
 
         switch ($config->id) {
-            case 1:
+            case MACHINE_BD_BATCH_BLENDER:
                 $tag_id = 9;
                 break;
-            case 2:
+            case MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER:
                 $tag_id = 10;
                 break;
-            case 3:
+            case MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER:
                 $tag_id = 13;
                 break;
-            case 4:
+            case MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER:
                 $tag_id = 11;
                 break;
-            case 5:
+            case MACHINE_VTC_PLUS_CONVEYING_SYSTEM:
                 $tag_id = 10;
                 break;
-            case 7:
+            case MACHINE_NGX_NOMAD_DRYER:
                 $tag_id = 28;
                 break;
             default:

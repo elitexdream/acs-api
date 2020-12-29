@@ -30,8 +30,11 @@ class CompanyController extends Controller
 		return response()->json(compact('customer_admins'));
 	}
 
+	/*
+		Get all companies
+	*/
 	public function getCompanies() {
-		$companies = Company::get();
+		$companies = Company::orderBy('name')->get();
 
 		return response()->json(compact('companies'));
 	}
