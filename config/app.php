@@ -123,6 +123,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    'acs_middleware_url' => env('ACS_MIDDLEWARE_URL'),
+    
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers

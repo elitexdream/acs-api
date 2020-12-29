@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
 use Validator;
 use DB;
+use \stdClass;
 
 class DeviceController extends Controller
 {
@@ -189,20 +190,55 @@ class DeviceController extends Controller
         }
 
         $configuration = json_decode($configuration->full_json);
-        if(!$request->register) {
-            $configuration->plctags = [];
-        }
 
-        $req = [
-            "targetDevice" => $device->serial_number,
-            "requestJson" => $configuration
-        ];
+        if(!$device->tcu_added) {
+
+            // if the request is revoke, plc tags should be empty
+            if(!$request->register) {
+                $configuration->plctags = [];
+            }
+
+            // assign updated plc ip
+            $configuration->plc_ip = $device->plc_ip;
+
+            $req = [
+                "targetDevice" => $device->serial_number,
+                "requestJson" => $configuration
+            ];
+        } else {
+
+            $tcu_configuration = json_decode(Machine::findOrFail(11)->full_json);
+
+            // if the request is revoke, plc tags should be empty for both
+            if(!$request->register) {
+                $configuration->plctags = [];
+                $tcu_configuration->plctags = [];
+            }
+
+            $device0 = new stdClass();
+            $device1 = new stdClass();
+
+            $device0->device_id = 0;
+            $device0->config = $configuration;
+
+            $device1->device_id = 1;
+            $device1->config = $tcu_configuration;
+
+            $multi_configuration = new stdClass();
+            $multi_configuration->cmd = "multi_config";
+            $multi_configuration->devices = [ $device0, $device1 ];
+
+            $req = [
+                "targetDevice" => $device->serial_number,
+                "requestJson" => $multi_configuration
+            ];
+        }
 
         $client = new Client();
 
         try {
             $response = $client->post(
-                env('ACS_MIDDLEWARE_URL', 'http://172.28.0.1:3000/'),
+                config('app.acs_middleware_url'),
                 [
                     'json' => $req
                 ]
@@ -514,7 +550,7 @@ class DeviceController extends Controller
         $client = new Client();
         try {
             $response = $client->post(
-                env('ACS_MIDDLEWARE_URL', 'http://172.28.0.1:3000/'),
+                config('app.acs_middleware_url'),
                 [
                     'json' => $request->all()
                 ]
