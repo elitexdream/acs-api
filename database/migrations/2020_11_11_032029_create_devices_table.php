@@ -28,6 +28,7 @@ class CreateDevicesTable extends Migration
             $table->boolean('plc_link')->default(false);
             $table->string('carrier', 100)->nullable();
             $table->boolean('checkin')->default(false);
+            $table->boolean('tcu_added')->default(false);
 
             $table->unsignedBigInteger('location_id')->nullable();
             $table->unsignedBigInteger('zone_id')->nullable();

@@ -71,7 +71,7 @@ class DeviceController extends Controller
 	}
 
     public function getAllDevices() {
-        $devices = Device::orderBy('sim_status', 'ASC')->where('iccid', '<>', 0)->whereNotNull('iccid')->select('name', 'id', 'customer_assigned_name')->get();
+        $devices = Device::orderBy('sim_status', 'ASC')->where('iccid', '<>', 0)->whereNotNull('iccid')->select('name', 'id', 'customer_assigned_name', 'tcu_added')->get();
 
         return response()->json(compact('devices'));
     }
@@ -129,6 +129,7 @@ class DeviceController extends Controller
 
         $device->company_id = $request->company_id;
         $device->machine_id = $request->machine_id;
+        $device->tcu_added = $request->tcu_added;
 
         $device->save();
 
