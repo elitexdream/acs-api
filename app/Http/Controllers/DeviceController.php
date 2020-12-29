@@ -209,6 +209,10 @@ class DeviceController extends Controller
 
             $tcu_configuration = json_decode(Machine::findOrFail(11)->full_json);
 
+            // assign updated plc ip
+            $configuration->plc_ip = $device->plc_ip;
+            $tcu_configuration->plc_ip = $device->plc_ip;
+
             // if the request is revoke, plc tags should be empty for both
             if(!$request->register) {
                 $configuration->plctags = [];
