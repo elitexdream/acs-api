@@ -441,6 +441,25 @@ class MachineController extends Controller
 	}
 
 	/*
+		Get pump hours in VTC Plus Conveying System configuration
+		params: device_id
+		return: 12 sized array of hours
+	*/
+	public function getPumpHours($id) {
+		$hours = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		
+		$hourValues = DeviceData::where('device_id', $id)
+						->where('tag_id', 15)
+						->latest('timestamp')
+						->first();
+
+		if($hourValues)
+			$hours = json_decode($hourValues->values);
+
+		return response()->json(compact('hours'));
+	}
+
+	/*
 		Get Machine state, system steady, mass flow hopper and RPM
 	*/
 	public function getProductStates($id) {

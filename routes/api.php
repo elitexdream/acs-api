@@ -130,6 +130,7 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/product-hauloff-lengths', 'MachineController@getHauloffLengths');
 	Route::get('/product-actual-target-recipe/{id}', 'MachineController@getTgtActualRecipes');
 	Route::get('/product-pump-hours-oil/{id}', 'MachineController@getPumpHoursOil');
+	Route::get('/product-pump-hours/{id}', 'MachineController@getPumpHours');
 	Route::get('/product-drying-hopper-states/{id}', 'MachineController@getDryingHopperStates');
 	Route::get('/product-hopper-temperatures/{id}', 'MachineController@getHopperTemperatures');
 });
