@@ -196,7 +196,6 @@ class DeviceController extends Controller
                 // Generate hash
                 $config_hash = bin2hex(random_bytes(10));
 
-
                 // Save hash in devices table
                 $device->hash1 = $config_hash;
                 $device->save();
