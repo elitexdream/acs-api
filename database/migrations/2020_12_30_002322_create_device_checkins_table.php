@@ -15,8 +15,8 @@ class CreateDeviceCheckinsTable extends Migration
     {
         Schema::create('device_checkins', function (Blueprint $table) {
             $table->id();
-            $table->string('device_id', 50);
-            $table->string('ts', 50);
+            $table->unsignedBigInteger('device_id');
+            $table->unsignedBigInteger('ts');
             $table->string('sdk', 50)->nullable();
             $table->string('acs_sha1', 50)->nullable();
             $table->string('config_hash', 50)->nullable();
