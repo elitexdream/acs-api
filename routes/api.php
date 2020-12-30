@@ -20,8 +20,6 @@ Route::group(['prefix' => 'locations'], function () {
 	Route::patch('/update', 'LocationController@update')->middleware('auth:customer_admin,customer_manager');
 });
 
-Route::get('/locations-zones', 'ZoneController@initLocationsAndZones')->middleware('auth:customer_admin,customer_manager');
-
 Route::group(['prefix' => 'zones'], function () {
 	Route::get('/', 'ZoneController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 	Route::post('/add', 'ZoneController@store')->middleware('auth:customer_admin,customer_manager');

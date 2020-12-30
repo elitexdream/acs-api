@@ -256,6 +256,12 @@ class DeviceController extends Controller
             $multi_configuration->cmd = "multi_config";
             $multi_configuration->devices = [ $device0, $device1 ];
 
+            $fp = fopen('accumeter - tcu.json', 'w');
+            fwrite($fp, json_encode($multi_configuration, JSON_PRETTY_PRINT));
+            fclose($fp);
+
+            dd($multi_configuration);
+
             $req = [
                 "targetDevice" => $device->serial_number,
                 "requestJson" => $multi_configuration

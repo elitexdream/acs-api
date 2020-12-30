@@ -8,10 +8,12 @@ use App\Location;
 
 class LocationController extends Controller
 {
-	public function index() {
-		$locations = Location::get();
+	public function index(Request $request) {
+        $user = $request->user('api');
 
-		return response()->json($locations);
+        $locations = $user->getMyLocations();
+
+        return response()->json(compact('locations'));
 	}
 
 	public function store(Request $request) {

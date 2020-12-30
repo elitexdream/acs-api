@@ -9,18 +9,6 @@ use App\Zone;
 
 class ZoneController extends Controller
 {
-    public function initLocationsAndZones(Request $request) {
-        $user = $request->user('api');
-
-        $locations = $user->customerLocations;
-        $zones = $user->customerZones;
-
-        return response()->json([
-            'locations' => $locations,
-            'zones' => $zones
-        ]);
-    }
-
     public function index(Request $request) {
         $user = $request->user('api');
 
