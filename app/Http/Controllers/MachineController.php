@@ -917,7 +917,7 @@ class MachineController extends Controller
 		$locations = $user->getMyLocations();
 
 		foreach ($locations as $key => $location) {
-			$downtime_distribution = $this->getDowntimeDistribution(1);
+			$downtime_distribution = $this->getDowntimeDistribution(1106550521);
 			$location->utilization = '32%';
 			$location->color = 'green';
 			$location->value = 75;
@@ -936,7 +936,7 @@ class MachineController extends Controller
 		$zones = $location->zones;
 
 		foreach ($zones as $key => $zone) {
-			$downtime_distribution = $this->getDowntimeDistribution(1);
+			$downtime_distribution = $this->getDowntimeDistribution(1106550521);
 			$zone->utilization = '32%';
 			$zone->color = 'green';
 			$zone->value = 75;
@@ -953,7 +953,7 @@ class MachineController extends Controller
 		$devices = Device::where('zone_id', $zone_id)->get();
 
 		foreach ($devices as $key => $device) {
-			$downtime_distribution = $this->getDowntimeDistribution(1);
+			$downtime_distribution = $this->getDowntimeDistribution(1106550521);
 			$device->utilization = '32%';
 			$device->color = 'green';
 			$device->value = 75;
@@ -979,15 +979,20 @@ class MachineController extends Controller
 							// 1 - Unplanned
 							// 2 - Idle
 
-		$running_values = DB::table('device_data')
-							->where('machine_id', $id)
+		$device = Device::where('serial_number', $id)->first();
+		
+		if(!$device) return $ret;
+
+		$running_values = DB::table('runnings')
+							->where('device_id', $id)
 							->where('tag_id', 9)
 							->where('timestamp', '>', $start)
 							->where('timestamp', '<', $end)
-							->orderBy('id')
+							->orderBy('timestamp')
 							->get();
 
-		$last_before_start = DeviceData::where('machine_id', $id)
+		$last_before_start = DB::table('runnings')
+							->where('device_id', $id)
 							->where('tag_id', 9)
 							->where('timestamp', '<', $start)
 							->orderBy('timestamp')
