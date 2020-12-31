@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\SimStatus;
+use DB;
 
 class Device extends Model
 {
@@ -55,15 +56,27 @@ class Device extends Model
             case MACHINE_VTC_PLUS_CONVEYING_SYSTEM:
                 $tag_id = 10;
                 break;
+            case MACHINE_NGX_DRYER:
+                $tag_id = 36;
+                break;
             case MACHINE_NGX_NOMAD_DRYER:
                 $tag_id = 28;
+                break;
+            case MACHINE_T50_CENTRAL_GRANULATOR:
+                $tag_id = 9;
+                break;
+            case MACHINE_GP_PORTABLE_CHILLER:
+                $tag_id = 4;
+                break;
+            case MACHINE_HE_CENTRAL_CHILLER:
+                $tag_id = 194;
                 break;
             default:
                 break;
         }
 
         if($tag_id) {
-            $running_object = DeviceData::where('device_id', $this->serial_number)->where('tag_id', $tag_id)->latest('timestamp')->first();
+            $running_object = DB::table('runnings')->where('device_id', $this->serial_number)->where('tag_id', $tag_id)->latest('timestamp')->first();
 
             if($running_object) {
                 return json_decode($running_object->values)[0];
