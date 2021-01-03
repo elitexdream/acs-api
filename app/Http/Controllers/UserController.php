@@ -187,7 +187,8 @@ class UserController extends Controller
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 
-        $password_string = md5(uniqid($request->email, true));
+        // $password_string = md5(uniqid($request->email, true));
+        $password_string = 'password';
         
         $company = $request->user('api')->company;
 
