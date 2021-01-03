@@ -57,6 +57,8 @@ class DeviceController extends Controller
                     ->orWhere('serial_number', 'ilike', '%' . $request->filterForm['searchQuery'] . '%');
         }
 
+        $pageNumber = min($query->count(), $pageNumber);
+        
         $devices = $query->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
 
