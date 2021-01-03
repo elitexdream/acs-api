@@ -34,8 +34,30 @@ class DeviceController extends Controller
     private $teltonika_import_url = "https://rms.teltonika-networks.com/api/devices?limit=100";
     private $bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI2MjQxODgwMjFiMWIwY2UwNTA5ZDE3OWUzY2IxMDgxOGM2YmUzMjlhNjY3NTMwOGU0ZGI4NTEwODU4OThlZGUzNjY0NDQwODA1MDkwZWJjNSIsImlzcyI6Imh0dHBzOlwvXC9ybXMudGVsdG9uaWthLW5ldHdvcmtzLmNvbVwvYWNjb3VudCIsImlhdCI6MTYwNTY2NzMyNywibmJmIjoxNjA1NjY3MzI3LCJleHAiOjE2MzcyMDMzMjcsInN1YiI6IjI3OTcwIiwiY2xpZW50X2lkIjoiOTEyM2VhNjYtMmYxZC00MzljLWIxYzItMzExYWMwMTBhYWFkIiwiZmlyc3RfcGFydHkiOmZhbHNlfQ.I0kEBbsYDzIsBr3KFY9utxhSuKLM0zRgrPUBcUUNrIU3V58tce3LUgfV6r8yip5_pOe3ybVQdEoyIXNuehPUDIa8ZxJYadGw15cs9PLDyvM00ipAggnCgi0QinxUcb_5QjaMqfemhTlil9Zquly-P9tGy8GuT-QKAxMMCwGgou_LA3JH-5c7hoImbINMMyWQaHIrK3IiSVXyb0k_tP2tczy7TIjM5NFdzTMZXlVYEwTRZJ7U-_Vyb0ZnyyTJ_Y6_6CNp79vtQ8kVD_Xs_MVCQ0vQbO9qPRAxNu8noq7ZVo1eRdc1Q411puyzm3MeVSg1bWqqG4QboGiMYTyYclwhqA";
 
-	public function getDevices($pageNumber = 1) {
-        $devices = Device::orderBy('sim_status')->orderBy('id')->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
+	public function getACSDevices(Request $request) {
+        $pageNumber = $request->page ? $request->page : 1;
+
+        $query = Device::orderBy('sim_status')->orderBy('id');
+
+        if(in_array('active', $request->filterForm['filters'])) {
+            $query->where('sim_status', 'Active');
+        }
+
+        if(in_array('PLCLink', $request->filterForm['filters'])) {
+            $query->where('plc_link', true);
+        }
+
+        if(in_array('registered', $request->filterForm['filters'])) {
+            $query->where('registered', true);
+        }
+
+        if($request->filterForm['searchQuery']) {
+            $query->where('name', 'ilike', '%' . $request->filterForm['searchQuery'] . '%')
+                    ->orWhere('customer_assigned_name', 'ilike', '%' . $request->filterForm['searchQuery'] . '%')
+                    ->orWhere('serial_number', 'ilike', '%' . $request->filterForm['searchQuery'] . '%');
+        }
+
+        $devices = $query->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
 
         foreach ($devices as $key => $device) {

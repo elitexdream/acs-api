@@ -15,7 +15,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::group(['prefix' => 'locations'], function () {
-	Route::get('/', 'LocationController@index')->middleware('auth:acs_admin,customer_admin,customer_manager');
+	Route::get('/', 'LocationController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager');
 	Route::post('/add', 'LocationController@store')->middleware('auth:customer_admin,customer_manager');
 	Route::patch('/update', 'LocationController@update')->middleware('auth:customer_admin,customer_manager');
 });
@@ -90,7 +90,7 @@ Route::group(['prefix' => 'companies'], function () {
 });
 
 Route::group(['prefix' => 'devices'], function () {
-	Route::get('/{pageNum}', 'DeviceController@getDevices')->middleware('auth:acs_admin,acs_manager');
+	Route::post('/', 'DeviceController@getACSDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 	Route::post('/import', 'DeviceController@importDevices')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/device-assigned', 'DeviceController@deviceAssigned')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/device-register-update', 'DeviceController@updateRegistered')->middleware('auth:acs_admin,acs_manager');
