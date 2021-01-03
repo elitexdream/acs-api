@@ -36,6 +36,11 @@ class Authenticate extends Middleware
         }
 
         $user = $request->user('api');
+        
+        if(!count($roles)) {
+            return $next($request);
+        }
+
         foreach($roles as $role) {
             if($user->hasRole($role))
                 return $next($request);
