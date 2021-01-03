@@ -594,20 +594,6 @@ class DeviceController extends Controller
         return $result;
     }
 
-    public function getCapacityUtilizationFromDeviceId($device_id) {
-        $utilizations = Utilization::where('device_id', (int)$device_id)->get();
-        $result = $this->getTotalValues($utilizations);
-        
-        return $result;
-    }
-
-    public function getEnergyConsumptionFromDeviceId($device_id) {
-        $consumptions = EnergyConsumption::where('device_id', (int)$device_id)->get();
-        $result = $this->getTotalValues($consumptions);
-        
-        return $result;
-    }
-
     public function testAzureJson(Request $request) {
         $client = new Client();
         try {
