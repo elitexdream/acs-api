@@ -721,7 +721,7 @@ class MachineController extends Controller
 										->get();
 
 		$inventories = array_map(function($inventory_object) {
-			return [$inventory_object['timestamp'] * 1000, json_decode($inventory_object['values'])[0]];
+			return [$inventory_object['timestamp'] * 1000, json_decode($inventory_object->values)[0]];
 		}, $inventories_object->toArray());
 
 		return response()->json(compact('inventories'));
@@ -761,7 +761,7 @@ class MachineController extends Controller
 										->get();
 
 		$lengths = array_map(function($length_object) {
-			return [$length_object['timestamp'] * 1000, round(json_decode($length_object['values'])[0], 2)];
+			return [$length_object['timestamp'] * 1000, round(json_decode($length_object->values)[0], 2)];
 		}, $lengths_object->toArray());
 
 		return response()->json(compact('lengths'));
@@ -836,7 +836,7 @@ class MachineController extends Controller
 										->get();
 
 		$process_rate = array_map(function($process_rate_object) {
-			return [$process_rate_object['timestamp'] * 1000, json_decode($process_rate_object['values'])[0]];
+			return [$process_rate_object['timestamp'] * 1000, json_decode($process_rate_object->values)[0]];
 		}, $process_rate_object->toArray());
 
 		return response()->json(compact('process_rate'));
