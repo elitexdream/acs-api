@@ -287,10 +287,10 @@ class MachineController extends Controller
 								->orderBy('timestamp')
 								->get();
 
-		$utilizations = array_map(function($utilization_object) {
-			return [$utilization_object['timestamp'] * 1000, json_decode($utilization_object->values)[0] / 10];
-		}, $utilizations_object->toArray());
-
+		$utilizations = $utilizations_object->map(function($utilization_object) {
+			return [$utilization_object->timestamp * 1000, json_decode($utilization_object->values)[0]];
+		});
+		
 		return response()->json(compact('utilizations'));
 	}
 
@@ -324,16 +324,17 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$energy_consumptions_object = DeviceData::where('device_id', $request->id)
+		$energy_consumptions_object = DB::table('energy_consumptions')
+										->where('device_id', $request->id)
 										->where('tag_id', $tag_energy_consumption->tag_id)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->orderBy('timestamp')
 										->get();
 
-		$energy_consumption = array_map(function($energy_consumption_object) {
-			return [$energy_consumption_object['timestamp'] * 1000, json_decode($energy_consumption_object->values)[0]];
-		}, $energy_consumptions_object->toArray());
+		$energy_consumption = $energy_consumptions_object->map(function($energy_consumption_object) {
+			return [$energy_consumption_object->timestamp * 1000, json_decode($energy_consumption_object->values)[0]];
+		});
 
 		return response()->json(compact('energy_consumption'));
 	}
