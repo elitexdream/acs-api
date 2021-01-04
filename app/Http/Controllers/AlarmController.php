@@ -53,10 +53,20 @@ class AlarmController extends Controller
 			], 404);
 		}
 
+		switch ($configuration->id) {
+			case MACHINE_BD_BATCH_BLENDER:
+				$alarm_types = AlarmType::where('machine_id', $configuration->id)->get();
+				break;
+			
+			default:
+				# code...
+				break;
+		}
 		$alarm_tag_ids = AlarmType::where('machine_id', $configuration->id)->pluck('tag_id');
 		$alarm_types = AlarmType::where('machine_id', $configuration->id)->get();
 
-		$alarms = DeviceData::where('device_id', $id)
+		$alarms = DB::table('alarms')
+						->where('device_id', $id)
 						->whereIn('tag_id', $alarm_tag_ids)
 						->latest('timestamp')
 						// ->where('timestamp', '>', strtotime($request->from))
