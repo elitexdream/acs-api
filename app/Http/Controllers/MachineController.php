@@ -473,34 +473,37 @@ class MachineController extends Controller
 			$machine_states->heater_status = 0;
 			$machine_states->vent_status = 0;
 			
-			try {
-				$pump_status_object = DeviceData::where('device_id', $id)
-							->where('tag_id', 40)
-							->latest('timestamp')
-							->first();
-				$machine_states->pump_status = json_decode($pump_status_object->values)[0];
-			} catch(Exception $e) {
-				$machine_states->pump_status = 0;
+			if($pump_status_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 40)
+						->latest('timestamp')
+						->first()) {
+				try {
+					$machine_states->pump_status = json_decode($pump_status_object->values)[0];
+				} catch(Exception $e) {
+					$machine_states->pump_status = 0;
+				}
 			}
 
-			try {
-				$heater_status_object = DeviceData::where('device_id', $id)
-							->where('tag_id', 41)
-							->latest('timestamp')
-							->first();
-				$machine_states->heater_status = json_decode($heater_status_object->values)[0];
-			} catch(Exception $e) {
-				$machine_states->heater_status = 0;
+			if($heater_status_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 41)
+						->latest('timestamp')
+						->first()) {
+				try {
+					$machine_states->heater_status = json_decode($heater_status_object->values)[0];
+				} catch(Exception $e) {
+					$machine_states->heater_status = 0;
+				}
 			}
 
-			try {
-				$vent_status_object = DeviceData::where('device_id', $id)
-							->where('tag_id', 42)
-							->latest('timestamp')
-							->first();
-				$machine_states->vent_status = json_decode($vent_status_object->values)[0];
-			} catch(Exception $e) {
-				$machine_states->vent_status = 0;
+			if($vent_status_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 42)
+						->latest('timestamp')
+						->first()) {
+				try {
+					$machine_states->vent_status = json_decode($vent_status_object->values)[0];
+				} catch(Exception $e) {
+					$machine_states->vent_status = 0;
+				}
 			}
 		} else {
 			$machine_states->machine_running = false;
