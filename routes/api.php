@@ -93,7 +93,7 @@ Route::group(['prefix' => 'devices'], function () {
 	Route::post('/', 'DeviceController@getACSDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 	Route::post('/import', 'DeviceController@importDevices')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/device-assigned', 'DeviceController@deviceAssigned')->middleware('auth:acs_admin,acs_manager');
-	Route::post('/device-register-update', 'DeviceController@updateRegistered')->middleware('auth:acs_admin,acs_manager,acs_viewer');
+	Route::post('/device-register-update', 'DeviceController@updateRegistered')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/suspend-device', 'DeviceController@suspendDevice')->middleware('auth:acs_admin,acs_manager');
 
 	Route::post('/query-sim/{iccid}', 'DeviceController@querySIM')->middleware('auth:acs_admin,acs_manager');

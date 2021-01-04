@@ -288,7 +288,7 @@ class MachineController extends Controller
 								->get();
 
 		$utilizations = array_map(function($utilization_object) {
-			return [$utilization_object['timestamp'] * 1000, json_decode($utilization_object['values'])[0] / 10];
+			return [$utilization_object['timestamp'] * 1000, json_decode($utilization_object->values)[0] / 10];
 		}, $utilizations_object->toArray());
 
 		return response()->json(compact('utilizations'));
@@ -332,7 +332,7 @@ class MachineController extends Controller
 										->get();
 
 		$energy_consumption = array_map(function($energy_consumption_object) {
-			return [$energy_consumption_object['timestamp'] * 1000, json_decode($energy_consumption_object['values'])[0]];
+			return [$energy_consumption_object['timestamp'] * 1000, json_decode($energy_consumption_object->values)[0]];
 		}, $energy_consumptions_object->toArray());
 
 		return response()->json(compact('energy_consumption'));
