@@ -56,22 +56,20 @@ class AlarmController extends Controller
 		switch ($configuration->id) {
 			case MACHINE_BD_BATCH_BLENDER:
 				$alarm_types = AlarmType::where('machine_id', $configuration->id)->get();
-				break;
-			
-			default:
-				# code...
-				break;
-		}
-		$alarm_tag_ids = AlarmType::where('machine_id', $configuration->id)->pluck('tag_id');
-		$alarm_types = AlarmType::where('machine_id', $configuration->id)->get();
-
-		$alarms = DB::table('alarms')
+				$alarms = DB::table('alarms')
 						->where('device_id', $id)
-						->whereIn('tag_id', $alarm_tag_ids)
+						->whereIn('tag_id', AlarmType::where('machine_id', $configuration->id)->pluck('tag_id'))
 						->latest('timestamp')
 						// ->where('timestamp', '>', strtotime($request->from))
 						// ->where('timestamp', '<', strtotime($request->to))
 						->get();
+
+				break;
+			default:
+				$alarm_types = [];
+				$alarms = [];
+				break;
+		}
 
 		return response()->json(compact('alarms', 'alarm_types'));
 	}
