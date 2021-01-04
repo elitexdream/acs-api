@@ -18,6 +18,8 @@ class CreateAlarmsTable extends Migration
             $table->unsignedBigInteger('device_id');
             $table->unsignedBigInteger('type_id');
             $table->unsignedBigInteger('machine_id')->default(0);
+            $table->unsignedBigInteger('customer_id')->default(0);
+            $table->json('values');
             $table->timestamps();
         });
     }
