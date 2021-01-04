@@ -42,76 +42,90 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$tag_software_version = Tag::where('tag_name', 'software_version')->where('configuration_id', $configuration->id)->first();
-
-		if(!$tag_software_version) {
-			return response()->json('Software version tag not found', 404);
-		}
-
-		// product version
-		if($version_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_software_version->tag_id)->latest('timestamp')->first()) {
-			try {
-				$product->version = json_decode($version_object->values)[0] / 10;
-			} catch (\Exception $e) {
-				$product->version = '';
+		if($configuration->id == MACHINE_TRUETEMP_TCU) {
+			// product version
+			if($version_object = DeviceData::where('device_id', $id)
+								->where('tag_id', 1)
+								->latest('timestamp')
+								->first()) {
+				try {
+					$product->version = json_decode($version_object->values)[0];
+				} catch (\Exception $e) {
+					$product->version = '';
+				}
 			}
-		}
+		} else {
+			$tag_software_version = Tag::where('tag_name', 'software_version')->where('configuration_id', $configuration->id)->first();
 
-		// software build
-		$tag_software_build = Tag::where('tag_name', 'software_build')->where('configuration_id', $configuration->id)->first();
-
-		if(!$tag_software_build) {
-			return response()->json('Software version tag not found', 404);
-		}
-
-		if($software_build_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_software_build->tag_id)->latest('timestamp')->first()) {
-			try {
-				$product->software_build = json_decode($software_build_object->values)[0];
-			} catch (\Exception $e) {
-				$product->software_build = '';
+			if(!$tag_software_version) {
+				return response()->json('Software version tag not found', 404);
 			}
-		}
 
-		// serial number
-		$serial_year = "";
-		$serial_month = "";
-		$serial_unit = "";
-
-		$tag_serial_year = Tag::where('tag_name', 'serial_number_year')->where('configuration_id', $configuration->id)->first();
-		$tag_serial_month = Tag::where('tag_name', 'serial_number_month')->where('configuration_id', $configuration->id)->first();
-		$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit')->where('configuration_id', $configuration->id)->first();
-
-		if(!$tag_serial_year || !$tag_serial_month || !$tag_serial_unit) {
-			return response()->json('Serial number tag not found', 404);
-		}
-
-		$serial_year_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_year->tag_id)->latest('timestamp')->first();
-		$serial_month_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_month->tag_id)->latest('timestamp')->first();
-		$serial_unit_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_unit->tag_id)->latest('timestamp')->first();
-
-		if($serial_year_object) {
-			try {
-				$serial_year = json_decode($serial_year_object->values)[0];
-			} catch (\Exception $e) {
-				$serial_year = '';
+			// product version
+			if($version_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_software_version->tag_id)->latest('timestamp')->first()) {
+				try {
+					$product->version = json_decode($version_object->values)[0] / 10;
+				} catch (\Exception $e) {
+					$product->version = '';
+				}
 			}
-		}
-		if($serial_month_object) {
-			try {
-				$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
-			} catch (\Exception $e) {
-				$serial_month = '';
-			}
-		}
-		if($serial_unit_object) {
-			try {
-				$serial_unit = json_decode($serial_unit_object->values)[0];
-			} catch (\Exception $e) {
-				$serial_unit = '';
-			}
-		}
 
-		$product->serial = $serial_year . $serial_month . $serial_unit;
+			// software build
+			$tag_software_build = Tag::where('tag_name', 'software_build')->where('configuration_id', $configuration->id)->first();
+
+			if(!$tag_software_build) {
+				return response()->json('Software version tag not found', 404);
+			}
+
+			if($software_build_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_software_build->tag_id)->latest('timestamp')->first()) {
+				try {
+					$product->software_build = json_decode($software_build_object->values)[0];
+				} catch (\Exception $e) {
+					$product->software_build = '';
+				}
+			}
+
+			// serial number
+			$serial_year = "";
+			$serial_month = "";
+			$serial_unit = "";
+
+			$tag_serial_year = Tag::where('tag_name', 'serial_number_year')->where('configuration_id', $configuration->id)->first();
+			$tag_serial_month = Tag::where('tag_name', 'serial_number_month')->where('configuration_id', $configuration->id)->first();
+			$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit')->where('configuration_id', $configuration->id)->first();
+
+			if(!$tag_serial_year || !$tag_serial_month || !$tag_serial_unit) {
+				return response()->json('Serial number tag not found', 404);
+			}
+
+			$serial_year_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_year->tag_id)->latest('timestamp')->first();
+			$serial_month_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_month->tag_id)->latest('timestamp')->first();
+			$serial_unit_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_unit->tag_id)->latest('timestamp')->first();
+
+			if($serial_year_object) {
+				try {
+					$serial_year = json_decode($serial_year_object->values)[0];
+				} catch (\Exception $e) {
+					$serial_year = '';
+				}
+			}
+			if($serial_month_object) {
+				try {
+					$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
+				} catch (\Exception $e) {
+					$serial_month = '';
+				}
+			}
+			if($serial_unit_object) {
+				try {
+					$serial_unit = json_decode($serial_unit_object->values)[0];
+				} catch (\Exception $e) {
+					$serial_unit = '';
+				}
+			}
+
+			$product->serial = $serial_year . $serial_month . $serial_unit;
+		}
 
 		return response()->json([
 			"overview" => $product
@@ -265,12 +279,13 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$utilizations_object = DeviceData::where('device_id', $request->id)
-										->where('tag_id', $tag_utilization->tag_id)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
+		$utilizations_object = DB::table('utilizations')
+								->where('device_id', $request->id)
+								->where('tag_id', $tag_utilization->tag_id)
+								->where('timestamp', '>', $from)
+								->where('timestamp', '<', $to)
+								->orderBy('timestamp')
+								->get();
 
 		$utilizations = array_map(function($utilization_object) {
 			return [$utilization_object['timestamp'] * 1000, json_decode($utilization_object['values'])[0] / 10];
@@ -453,33 +468,69 @@ class MachineController extends Controller
 
 		$machine_states = new stdClass();
 
-		$machine_states->machine_running = false;
-		$machine_states->system_steady = false;
-		$machine_states->mass_flow_hopper = false;
-		$machine_states->rpm = false;
+		if($configuration->id == MACHINE_TRUETEMP_TCU) {
+			$machine_states->pump_status = 0;
+			$machine_states->heater_status = 0;
+			$machine_states->vent_status = 0;
+			
+			try {
+				$pump_status_object = DeviceData::where('device_id', $id)
+							->where('tag_id', 40)
+							->latest('timestamp')
+							->first();
+				$machine_states->pump_status = json_decode($pump_status_object->values)[0];
+			} catch(Exception $e) {
+				$machine_states->pump_status = 0;
+			}
 
-		$machine_running = DeviceData::where('device_id', $id)->where('tag_id', 10)->latest('timestamp')->first();
+			try {
+				$heater_status_object = DeviceData::where('device_id', $id)
+							->where('tag_id', 41)
+							->latest('timestamp')
+							->first();
+				$machine_states->heater_status = json_decode($heater_status_object->values)[0];
+			} catch(Exception $e) {
+				$machine_states->heater_status = 0;
+			}
 
-		if($machine_running && json_decode($machine_running->values)[0] == true) {
-			$machine_states->machine_running = true;
-		}
+			try {
+				$vent_status_object = DeviceData::where('device_id', $id)
+							->where('tag_id', 42)
+							->latest('timestamp')
+							->first();
+				$machine_states->vent_status = json_decode($vent_status_object->values)[0];
+			} catch(Exception $e) {
+				$machine_states->vent_status = 0;
+			}
+		} else {
+			$machine_states->machine_running = false;
+			$machine_states->system_steady = false;
+			$machine_states->mass_flow_hopper = false;
+			$machine_states->rpm = false;
 
-		$system_steady = DeviceData::where('device_id', $id)->where('tag_id', 24)->latest('timestamp')->first();
+			$machine_running = DeviceData::where('device_id', $id)->where('tag_id', 10)->latest('timestamp')->first();
 
-		if($system_steady && json_decode($system_steady->values)[0] == true) {
-			$machine_states->system_steady = true;
-		}
+			if($machine_running && json_decode($machine_running->values)[0] == true) {
+				$machine_states->machine_running = true;
+			}
 
-		$massflow_hopper_stable = DeviceData::where('device_id', $id)->where('tag_id', 25)->latest('timestamp')->first();
+			$system_steady = DeviceData::where('device_id', $id)->where('tag_id', 24)->latest('timestamp')->first();
 
-		if($massflow_hopper_stable && json_decode($massflow_hopper_stable->values)[0] == true) {
-			$machine_states->massflow_hopper_stable = true;
-		}
+			if($system_steady && json_decode($system_steady->values)[0] == true) {
+				$machine_states->system_steady = true;
+			}
 
-		$rpm = DeviceData::where('device_id', $id)->where('tag_id', 27)->latest('timestamp')->first();
+			$massflow_hopper_stable = DeviceData::where('device_id', $id)->where('tag_id', 25)->latest('timestamp')->first();
 
-		if($rpm && json_decode($rpm->values)[0] == true) {
-			$machine_states->rpm = true;
+			if($massflow_hopper_stable && json_decode($massflow_hopper_stable->values)[0] == true) {
+				$machine_states->massflow_hopper_stable = true;
+			}
+
+			$rpm = DeviceData::where('device_id', $id)->where('tag_id', 27)->latest('timestamp')->first();
+
+			if($rpm && json_decode($rpm->values)[0] == true) {
+				$machine_states->rpm = true;
+			}
 		}
 
 		return response()->json(compact('machine_states'));
