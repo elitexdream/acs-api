@@ -16,67 +16,67 @@ class AlarmTypeSeeder extends Seeder
         $alarm_types = [
             [
 	          	'name' => 'Power Loss',
-                'machine_id' => 1,
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 27
             ], [
 	          	'name' => 'Out of Material',
-                'machine_id' => 1,
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 28
 	      	], [
-	          	'name' => 'Hopper Unstable',
-                'machine_id' => 1,
+	          	'name' => 'Hopper Unstable (Feeder 1)',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 31
 	      	], [
-                'name' => 'Hopper Unstable',
-                'machine_id' => 1,
+                'name' => 'Hopper Unstable (Feeder 2)',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 32
             ], [
-                'name' => 'Hopper Unstable',
-                'machine_id' => 1,
+                'name' => 'Hopper Unstable (Feeder 3)',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 33
             ], [
-                'name' => 'Hopper Unstable',
-                'machine_id' => 1,
+                'name' => 'Hopper Unstable (Feeder 4)',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 34
             ], [
-                'name' => 'Hopper Unstable',
-                'machine_id' => 1,
+                'name' => 'Hopper Unstable (Feeder 5)',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 35
             ], [
-                'name' => 'Hopper Unstable',
-                'machine_id' => 1,
+                'name' => 'Hopper Unstable (Feeder 6)',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 36
             ], [
-                'name' => 'Hopper Unstable',
-                'machine_id' => 1,
+                'name' => 'Hopper Unstable (Feeder 7)',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 37
             ], [
-                'name' => 'Hopper Unstable',
-                'machine_id' => 1,
+                'name' => 'Hopper Unstable (Feeder 8)',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 38
             ], [
                 'name' => 'Hopper Overfeed',
-                'machine_id' => 1,
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 39
             ], [
                 'name' => 'Hopper Over Max',
-                'machine_id' => 1,
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 40
             ], [
 				'name' => 'Unable to make rate',
-                'machine_id' => 1,
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 43
 	      	], [
                 'name' => 'Max Empty Weight',
-                'machine_id' => 1,
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 41
             ], [
                 'name' => 'Pumper Starter Fault',
-                'machine_id' => 1,
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 44
             ], [
                 'name' => 'Mixer Failure',
-                'machine_id' => 1,
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 42
             ], [
                 'name' => 'System Not Stable',
