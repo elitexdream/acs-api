@@ -42,10 +42,11 @@ class MachineController extends Controller
 			], 404);
 		}
 
+		$query = DeviceData::where('device_id', $id);
+
 		if($configuration->id == MACHINE_TRUETEMP_TCU) {
 			// product version
-			if($version_object = DeviceData::where('device_id', $id)
-								->where('tag_id', 1)
+			if($version_object = $query->where('tag_id', 1)
 								->latest('timestamp')
 								->first()) {
 				try {
@@ -62,7 +63,7 @@ class MachineController extends Controller
 			}
 
 			// product version
-			if($version_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_software_version->tag_id)->latest('timestamp')->first()) {
+			if($version_object = $query->where('tag_id', $tag_software_version->tag_id)->latest('timestamp')->first()) {
 				try {
 					$product->version = json_decode($version_object->values)[0] / 10;
 				} catch (\Exception $e) {
@@ -77,7 +78,7 @@ class MachineController extends Controller
 				return response()->json('Software version tag not found', 404);
 			}
 
-			if($software_build_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_software_build->tag_id)->latest('timestamp')->first()) {
+			if($software_build_object = $query->where('tag_id', $tag_software_build->tag_id)->latest('timestamp')->first()) {
 				try {
 					$product->software_build = json_decode($software_build_object->values)[0];
 				} catch (\Exception $e) {
@@ -98,9 +99,9 @@ class MachineController extends Controller
 				return response()->json('Serial number tag not found', 404);
 			}
 
-			$serial_year_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_year->tag_id)->latest('timestamp')->first();
-			$serial_month_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_month->tag_id)->latest('timestamp')->first();
-			$serial_unit_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_unit->tag_id)->latest('timestamp')->first();
+			$serial_year_object = $query->where('tag_id', $tag_serial_year->tag_id)->latest('timestamp')->first();
+			$serial_month_object = $query->where('tag_id', $tag_serial_month->tag_id)->latest('timestamp')->first();
+			$serial_unit_object = $query->where('tag_id', $tag_serial_unit->tag_id)->latest('timestamp')->first();
 
 			if($serial_year_object) {
 				try {
@@ -819,25 +820,19 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		// $tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $configuration->id)->first();
-
-		// if(!$tag_utilization) {
-		// 	return response()->json('Capacity utilization tag not found', 404);
-		// }
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$process_rate_object = DeviceData::where('device_id', $request->id)
+		$process_rates_object = DeviceData::where('device_id', $request->id)
 										->where('tag_id', 23)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->latest('timestamp')
 										->get();
 
-		$process_rate = array_map(function($process_rate_object) {
-			return [$process_rate_object['timestamp'] * 1000, json_decode($process_rate_object->values)[0]];
-		}, $process_rate_object->toArray());
+		$process_rate = $process_rates_object->map(function($process_rate_object) {
+			return [$process_rate_object->timestamp * 1000, json_decode($process_rate_object->values)[0]];
+		});
 
 		return response()->json(compact('process_rate'));
 	}
