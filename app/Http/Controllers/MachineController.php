@@ -123,8 +123,7 @@ class MachineController extends Controller
 					$serial_unit = '';
 				}
 			}
-
-			$product->serial = $serial_year . $serial_month . $serial_unit;
+			$product->serial = mb_convert_encoding($serial_year . $serial_month . $serial_unit, 'UTF-8', 'UTF-8');
 		}
 
 		return response()->json([
@@ -154,8 +153,8 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$hop_inventory = DeviceData::where('device_id', $id)->where('tag_id', 15)->orderBy('timestamp', 'desc')->first();
-		$actual_inventory = DeviceData::where('device_id', $id)->where('tag_id', 16)->orderBy('timestamp', 'desc')->first();
+		$hop_inventory = DeviceData::where('device_id', $id)->where('tag_id', 15)->latest('timestamp')->first();
+		$actual_inventory = DeviceData::where('device_id', $id)->where('tag_id', 16)->latest('timestamp')->first();
 
 		$inventories = array();
 
@@ -290,7 +289,7 @@ class MachineController extends Controller
 		$utilizations = $utilizations_object->map(function($utilization_object) {
 			return [$utilization_object->timestamp * 1000, json_decode($utilization_object->values)[0]];
 		});
-		
+
 		return response()->json(compact('utilizations'));
 	}
 

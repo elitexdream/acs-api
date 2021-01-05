@@ -123,123 +123,99 @@ class AlarmTypeSeeder extends Seeder
                 'machine_id' => 3,
                 'tag_id' => 30
             ], [
-                'name' => 'Out Of Material',
+                'name' => 'Out Of Material (Feeder 1)',
                 'machine_id' => 2,
                 'tag_id' => 28
             ], [
-                'name' => 'Out Of Material',
+                'name' => 'Out Of Material (Feeder 2)',
                 'machine_id' => 2,
                 'tag_id' => 29
             ], [
-                'name' => 'Out Of Material',
+                'name' => 'Out Of Material (Feeder 3)',
                 'machine_id' => 2,
                 'tag_id' => 30
             ], [
-                'name' => 'Out Of Material',
+                'name' => 'Out Of Material (Feeder 4)',
                 'machine_id' => 2,
                 'tag_id' => 31
             ], [
-                'name' => 'Out Of Material',
+                'name' => 'Out Of Material (Feeder 5)',
                 'machine_id' => 2,
                 'tag_id' => 32
             ], [
-                'name' => 'Out Of Material',
+                'name' => 'Out Of Material (Feeder 6)',
                 'machine_id' => 2,
                 'tag_id' => 33
             ], [
-                'name' => 'Load Cell Failure',
+                'name' => 'Load Cell Failure (Feeder 1)',
                 'machine_id' => 2,
                 'tag_id' => 34
             ], [
-                'name' => 'Load Cell Failure',
+                'name' => 'Load Cell Failure (Feeder 2)',
                 'machine_id' => 2,
                 'tag_id' => 35
             ], [
-                'name' => 'Load Cell Failure',
+                'name' => 'Load Cell Failure (Feeder 3)',
                 'machine_id' => 2,
                 'tag_id' => 36
             ], [
-                'name' => 'Load Cell Failure',
+                'name' => 'Load Cell Failure (Feeder 4)',
                 'machine_id' => 2,
                 'tag_id' => 37
             ], [
-                'name' => 'Load Cell Failure',
+                'name' => 'Load Cell Failure (Feeder 5)',
                 'machine_id' => 2,
                 'tag_id' => 38
             ], [
-                'name' => 'Load Cell Failure',
+                'name' => 'Load Cell Failure (Feeder 6)',
                 'machine_id' => 2,
                 'tag_id' => 39
             ], [
-                'name' => 'Load Cell Overload',
-                'machine_id' => 2,
-                'tag_id' => 34
-            ], [
-                'name' => 'Load Cell Overload',
-                'machine_id' => 2,
-                'tag_id' => 35
-            ], [
-                'name' => 'Load Cell Overload',
-                'machine_id' => 2,
-                'tag_id' => 36
-            ], [
-                'name' => 'Load Cell Overload',
-                'machine_id' => 2,
-                'tag_id' => 37
-            ], [
-                'name' => 'Load Cell Overload',
-                'machine_id' => 2,
-                'tag_id' => 38
-            ], [
-                'name' => 'Load Cell Overload',
-                'machine_id' => 2,
-                'tag_id' => 39
-            ], [
-                'name' => 'Load Cell Overload',
+                'name' => 'Load Cell Overload (Feeder 1)',
                 'machine_id' => 2,
                 'tag_id' => 41
             ], [
-                'name' => 'Load Cell Overload',
+                'name' => 'Load Cell Overload (Feeder 2)',
                 'machine_id' => 2,
                 'tag_id' => 42
             ], [
-                'name' => 'Load Cell Overload',
+                'name' => 'Load Cell Overload (Feeder 3)',
                 'machine_id' => 2,
                 'tag_id' => 43
             ], [
-                'name' => 'Load Cell Overload',
+                'name' => 'Load Cell Overload (Feeder 4)',
                 'machine_id' => 2,
                 'tag_id' => 44
             ], [
-                'name' => 'Load Cell Overload',
+                'name' => 'Load Cell Overload (Feeder 5)',
                 'machine_id' => 2,
                 'tag_id' => 45
             ], [
-                'name' => 'Load Cell Overload',
+                'name' => 'Load Cell Overload (Feeder 6)',
                 'machine_id' => 2,
                 'tag_id' => 46
             ], [
-                'name' => 'No Flow',
+                'name' => 'No Flow (Feeder 1)',
                 'machine_id' => 2,
                 'tag_id' => 47
             ], [
-                'name' => 'No Flow',
+                'name' => 'No Flow (Feeder 2)',
                 'machine_id' => 2,
                 'tag_id' => 48
             ], [
-                'name' => 'No Flow',
+                'name' => 'No Flow (Feeder 3)',
                 'machine_id' => 2,
                 'tag_id' => 49
             ], [
-                'name' => 'No Flow',
+                'name' => 'No Flow (Feeder 4)',
                 'machine_id' => 2,
                 'tag_id' => 50
             ], [
-                'name' => 'No Flow',
+                'name' => 'No Flow (Feeder 5)',
                 'machine_id' => 2,
                 'tag_id' => 51
             ], [
-                'name' => 'No Flow',
+                'name' => 'No Flow (Feeder 6)',
                 'machine_id' => 2,
                 'tag_id' => 52
             ], [
