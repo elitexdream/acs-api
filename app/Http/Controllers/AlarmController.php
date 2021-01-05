@@ -55,6 +55,7 @@ class AlarmController extends Controller
 
 		switch ($configuration->id) {
 			case MACHINE_BD_BATCH_BLENDER:
+			case MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER:
 				$alarm_types = AlarmType::where('machine_id', $configuration->id)->get();
 				$tag_ids = AlarmType::where('machine_id', $configuration->id)->pluck('tag_id');
 
@@ -63,7 +64,6 @@ class AlarmController extends Controller
 								->latest('timestamp')
 								->get()
 								->unique('tag_id');
-								// ->values();
 				$alarms = $alarms->map(function($alarm) {
 					$alarm->values = json_decode($alarm->values)[0] === true;
 					$alarm->timestamp = $alarm->timestamp * 1000;
