@@ -721,9 +721,13 @@ class MachineController extends Controller
 										->latest('timestamp')
 										->get();
 
-		$inventories = array_map(function($inventory_object) {
-			return [$inventory_object['timestamp'] * 1000, json_decode($inventory_object->values)[0]];
-		}, $inventories_object->toArray());
+		if($inventories_object) {
+			$inventories = $inventories_object->map(function($inventory_object) {
+				return [$inventory_object->timestamp * 1000, json_decode($inventory_object->values)[0]];
+			});
+		} else {
+			$inventories = [];
+		}
 
 		return response()->json(compact('inventories'));
 	}
@@ -761,9 +765,13 @@ class MachineController extends Controller
 										->latest('timestamp')
 										->get();
 
-		$lengths = array_map(function($length_object) {
-			return [$length_object['timestamp'] * 1000, round(json_decode($length_object->values)[0], 2)];
-		}, $lengths_object->toArray());
+		if($lengths_object) {
+			$lengths = $lengths_object->map(function($length_object) {
+				return [$length_object->timestamp * 1000, round(json_decode($length_object->values)[0], 2)];
+			});
+		} else {
+			$lengths = [];
+		}
 
 		return response()->json(compact('lengths'));
 	}
