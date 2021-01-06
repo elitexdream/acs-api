@@ -75,7 +75,7 @@ class MachineController extends Controller
 			$tag_software_build = Tag::where('tag_name', 'software_build')->where('configuration_id', $configuration->id)->first();
 
 			if(!$tag_software_build) {
-				return response()->json('Software version tag not found', 404);
+				return response()->json('Software build tag not found', 404);
 			}
 
 			if($software_build_object = $query->where('tag_id', $tag_software_build->tag_id)->latest('timestamp')->first()) {

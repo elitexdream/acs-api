@@ -16,10 +16,11 @@
         "laravel/passport": "^9.0",
         "laravel/tinker": "^2.3",
         "php-mqtt/client": "^0.3.0",
+        "pusher/pusher-php-server": "^4.0",
         "s-ichikawa/laravel-sendgrid-driver": "^3.0",
         "sendgrid/sendgrid": "^7.9",
-        "twilio/sdk": "^6.13",
-        "pusher/pusher-php-server": "^4.0"
+        "sentry/sentry-laravel": "^2.3",
+        "twilio/sdk": "^6.13"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
