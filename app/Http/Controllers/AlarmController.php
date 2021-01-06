@@ -10,6 +10,7 @@ use App\Device;
 use App\Machine;
 use App\Tag;
 use DB;
+use \stdClass;
 
 class AlarmController extends Controller
 {
@@ -52,26 +53,82 @@ class AlarmController extends Controller
 				'message' => 'Device Not Configured'
 			], 404);
 		}
-
+		
+		$alarm_types = AlarmType::where('machine_id', $configuration->id)->orderBy('id')->get();
+		$tag_ids = AlarmType::where('machine_id', $configuration->id)->pluck('tag_id');
+		
 		switch ($configuration->id) {
 			case MACHINE_BD_BATCH_BLENDER:
 			case MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER:
-				$alarm_types = AlarmType::where('machine_id', $configuration->id)->get();
-				$tag_ids = AlarmType::where('machine_id', $configuration->id)->pluck('tag_id');
 
 				$alarms = Alarm::where('device_id', $id)
 								->whereIn('tag_id', $tag_ids)
 								->latest('timestamp')
 								->get()
 								->unique('tag_id');
-				$alarms = $alarms->map(function($alarm) {
+				$alarms = $alarms->map(function($alarm) use($alarm_types) {
 					$alarm->values = json_decode($alarm->values)[0] === true;
 					$alarm->timestamp = $alarm->timestamp * 1000;
+					$type = $alarm_types->first(function($alarm_type, $key) use ($alarm) {
+						return $alarm_type->tag_id == $alarm->tag_id;
+					});
+					$alarm->type_id = $type->id;
 					return $alarm;
 				});
 				$alarms = $alarms->values();
 				break;
-			default:
+			case MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER:
+			case MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER:
+				$alarms_object = Alarm::where('device_id', $id)
+								->whereIn('tag_id', $tag_ids)
+								->latest('timestamp')
+								->first();
+
+				$alarms = [];
+				
+				if($alarms_object) {
+					$value32 = json_decode($alarms_object->values)[0];
+
+					if($configuration->id == MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER) {
+						$shifts = [9, 1, 7, 5, 4, 18, 6, 12, 11, 15, 14, 10];
+					} else if($configuration->id == MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER) {
+						$shifts = [9, 1, 7, 5, 12, 11, 10];
+					}
+
+					foreach ($alarm_types as $key => $alarm_type) {
+						$alarm = new stdClass();
+
+						$alarm->id = $alarms_object->id;
+						$alarm->device_id = $alarms_object->device_id;
+						$alarm->tag_id = $alarms_object->tag_id;
+						$alarm->timestamp = $alarms_object->timestamp * 1000;
+						$alarm->values = ($value32 >> $shifts[$key]) & 0x01;
+						$alarm->customer_id = $alarms_object->customer_id;
+						$alarm->machine_id = $alarms_object->machine_id;
+						$alarm->type_id = $alarm_type->id;
+
+						array_push($alarms, $alarm);
+					}
+				}
+				break;
+			case MACHINE_VTC_PLUS_CONVEYING_SYSTEM:
+				$alarms = Alarm::where('device_id', $id)
+								->whereIn('tag_id', $tag_ids)
+								->latest('timestamp')
+								->get()
+								->unique('tag_id');
+				$alarms = $alarms->map(function($alarm) use($alarm_types) {
+					$alarm->values = json_decode($alarm->values)[0] === true;
+					$alarm->timestamp = $alarm->timestamp * 1000;
+					$type = $alarm_types->first(function($alarm_type, $key) use ($alarm) {
+						return $alarm_type->tag_id == $alarm->tag_id;
+					});
+					$alarm->type_id = $type->id;
+					return $alarm;
+				});
+				$alarms = $alarms->values();
+				break;
+ 			default:
 				$alarm_types = [];
 				$alarms = [];
 				break;

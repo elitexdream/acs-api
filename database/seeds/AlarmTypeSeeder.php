@@ -80,191 +80,203 @@ class AlarmTypeSeeder extends Seeder
                 'tag_id' => 42
             ], [
                 'name' => 'System Not Stable',
-                'machine_id' => 3,
+                'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30
             ], [
                 'name' => 'Out Of Material',
-                'machine_id' => 3,
+                'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30
             ], [
                 'name' => 'Load Cell Failure',
-                'machine_id' => 3,
+                'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30
             ], [
                 'name' => 'No Extruder Flow',
-                'machine_id' => 3,
+                'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
+                'tag_id' => 30
+            ], [
+                'name' => 'No Extruder RPM',
+                'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30
             ], [
                 'name' => 'Extruder Drive Failure',
-                'machine_id' => 3,
+                'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30
             ], [
                 'name' => 'Hauloff Drive Failure',
-                'machine_id' => 3,
+                'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30
             ], [
                 'name' => 'Extruder Underspeed',
-                'machine_id' => 3,
+                'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30
             ], [
                 'name' => 'Extruder Overspeed',
-                'machine_id' => 3,
+                'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30
             ], [
                 'name' => 'Hauloff Underspeed',
-                'machine_id' => 3,
+                'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30
             ], [
                 'name' => 'Hauloff Overspeed',
-                'machine_id' => 3,
+                'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30
             ], [
                 'name' => 'Hopper Over Max Flow',
-                'machine_id' => 3,
+                'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30
             ], [
                 'name' => 'Out Of Material (Feeder 1)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 28
             ], [
                 'name' => 'Out Of Material (Feeder 2)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 29
             ], [
                 'name' => 'Out Of Material (Feeder 3)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 30
             ], [
                 'name' => 'Out Of Material (Feeder 4)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 31
             ], [
                 'name' => 'Out Of Material (Feeder 5)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 32
             ], [
                 'name' => 'Out Of Material (Feeder 6)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 33
             ], [
                 'name' => 'Load Cell Failure (Feeder 1)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 34
             ], [
                 'name' => 'Load Cell Failure (Feeder 2)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 35
             ], [
                 'name' => 'Load Cell Failure (Feeder 3)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 36
             ], [
                 'name' => 'Load Cell Failure (Feeder 4)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 37
             ], [
                 'name' => 'Load Cell Failure (Feeder 5)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 38
             ], [
                 'name' => 'Load Cell Failure (Feeder 6)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 39
             ], [
                 'name' => 'Load Cell Overload (Feeder 1)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 41
             ], [
                 'name' => 'Load Cell Overload (Feeder 2)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 42
             ], [
                 'name' => 'Load Cell Overload (Feeder 3)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 43
             ], [
                 'name' => 'Load Cell Overload (Feeder 4)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 44
             ], [
                 'name' => 'Load Cell Overload (Feeder 5)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 45
             ], [
                 'name' => 'Load Cell Overload (Feeder 6)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 46
             ], [
                 'name' => 'No Flow (Feeder 1)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 47
             ], [
                 'name' => 'No Flow (Feeder 2)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 48
             ], [
                 'name' => 'No Flow (Feeder 3)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 49
             ], [
                 'name' => 'No Flow (Feeder 4)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 50
             ], [
                 'name' => 'No Flow (Feeder 5)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 51
             ], [
                 'name' => 'No Flow (Feeder 6)',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 52
             ], [
                 'name' => 'Unable to make rate',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 53
             ], [
                 'name' => 'Bad Blend',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 54
             ], [
                 'name' => 'Blender Rate Out Of Range',
-                'machine_id' => 2,
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 55
             ], [
                 'name' => 'System Not Stable',
-                'machine_id' => 4,
-                'tag_id' => 30
+                'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
+                'tag_id' => 40
             ], [
                 'name' => 'Out Of Material',
-                'machine_id' => 4,
-                'tag_id' => 30
+                'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
+                'tag_id' => 40
             ], [
                 'name' => 'Load Cell Failure',
-                'machine_id' => 4,
-                'tag_id' => 30
+                'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
+                'tag_id' => 40
             ], [
                 'name' => 'No Feeder Flow',
-                'machine_id' => 4,
-                'tag_id' => 30
+                'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
+                'tag_id' => 40
             ], [
-                'name' => 'Feeder Under Speed',
-                'machine_id' => 4,
-                'tag_id' => 30
+                'name' => 'Feeder Underspeed',
+                'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
+                'tag_id' => 40
+            ], [
+                'name' => 'Feeder Overspeed',
+                'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
+                'tag_id' => 40
+            ], [
+                'name' => 'Hopper Over Max Flow',
+                'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
+                'tag_id' => 40
             ], [
                 'name' => 'Pump Oil Change Required',
-                'machine_id' => 5,
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18
             ], [
                 'name' => 'Power Loss While Running',
-                'machine_id' => 5,
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 19
             ], [
                 'name' => 'Pump Starter Fault',
-                'machine_id' => 5,
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 20
             ], [
                 'name' => 'Vacuum Levels Option',
-                'machine_id' => 5,
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21
             ], [
                 'name' => 'Dirty Filter Pressure Switch Warning',
