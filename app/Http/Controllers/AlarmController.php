@@ -60,7 +60,8 @@ class AlarmController extends Controller
 		switch ($configuration->id) {
 			case MACHINE_BD_BATCH_BLENDER:
 			case MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER:
-
+			case MACHINE_GP_PORTABLE_CHILLER:
+			case MACHINE_HE_CENTRAL_CHILLER:
 				$alarms = Alarm::where('device_id', $id)
 								->whereIn('tag_id', $tag_ids)
 								->latest('timestamp')
@@ -127,6 +128,79 @@ class AlarmController extends Controller
 					return $alarm;
 				});
 				$alarms = $alarms->values();
+				break;
+			case MACHINE_NGX_DRYER:
+			case MACHINE_NGX_NOMAD_DRYER:
+			case MACHINE_T50_CENTRAL_GRANULATOR:
+				$latest_alarms_object = Alarm::where('device_id', $id)
+								->whereIn('tag_id', $tag_ids)
+								->latest('timestamp')
+								->get()
+								->unique('tag_id');
+
+				$alarms = [];
+
+				foreach ($latest_alarms_object as $alarm_object) {
+					$value32 = json_decode($alarm_object->values)[0];
+
+					$alarm_types_for_tag = $alarm_types->filter(function ($alarm_type, $key) use ($alarm_object) {
+					    return $alarm_type->tag_id == $alarm_object->tag_id;
+					});
+
+					if($configuration->id == MACHINE_NGX_DRYER) {
+						$shifts = [
+							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+						];
+						if($alarm_object->tag_id == 60)
+							$index = 0;
+						else if($alarm_object->tag_id == 61)
+							$index = 1;
+						else if($alarm_object->tag_id == 62)
+							$index = 2;
+					} else if($configuration->id == MACHINE_NGX_NOMAD_DRYER) {
+						$shifts = [
+							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+						];
+						if($alarm_object->tag_id == 46)
+							$index = 0;
+						else if($alarm_object->tag_id == 47)
+							$index = 1;
+						else if($alarm_object->tag_id == 48)
+							$index = 2;
+					} else if($configuration->id == MACHINE_T50_CENTRAL_GRANULATOR) {
+						$shifts = [
+							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+							[0, 1, 2, 3, 4, 5, 6, 7, 8],
+						];
+						if($alarm_object->tag_id == 47)
+							$index = 0;
+						else if($alarm_object->tag_id == 48)
+							$index = 1;
+					}
+
+					$ind = 0;
+					foreach ($alarm_types_for_tag as $alarm_type) {
+						
+						$alarm = new stdClass();
+
+						$alarm->id = $alarm_object->id;
+						$alarm->device_id = $alarm_object->device_id;
+						$alarm->tag_id = $alarm_object->tag_id;
+						$alarm->timestamp = $alarm_object->timestamp * 1000;
+						$alarm->values = ($value32 >> $shifts[$index][$ind]) & 0x01;
+						$alarm->customer_id = $alarm_object->customer_id;
+						$alarm->machine_id = $alarm_object->machine_id;
+						$alarm->type_id = $alarm_type->id;
+
+						array_push($alarms, $alarm);
+
+						$ind++;
+					}
+				}
 				break;
  			default:
 				$alarm_types = [];
