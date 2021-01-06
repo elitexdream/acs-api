@@ -3,7 +3,6 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\SimStatus;
 use DB;
 
 class Device extends Model

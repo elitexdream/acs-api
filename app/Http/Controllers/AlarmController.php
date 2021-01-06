@@ -57,155 +57,32 @@ class AlarmController extends Controller
 		$alarm_types = AlarmType::where('machine_id', $configuration->id)->orderBy('id')->get();
 		$tag_ids = AlarmType::where('machine_id', $configuration->id)->pluck('tag_id');
 		
-		switch ($configuration->id) {
-			case MACHINE_BD_BATCH_BLENDER:
-			case MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER:
-			case MACHINE_GP_PORTABLE_CHILLER:
-			case MACHINE_HE_CENTRAL_CHILLER:
-				$alarms = Alarm::where('device_id', $id)
+		$alarms_object = Alarm::where('device_id', $id)
 								->whereIn('tag_id', $tag_ids)
 								->latest('timestamp')
-								->get()
-								->unique('tag_id');
-				$alarms = $alarms->map(function($alarm) use($alarm_types) {
-					$alarm->values = json_decode($alarm->values)[0] === true;
-					$alarm->timestamp = $alarm->timestamp * 1000;
-					$type = $alarm_types->first(function($alarm_type, $key) use ($alarm) {
-						return $alarm_type->tag_id == $alarm->tag_id;
-					});
-					$alarm->type_id = $type->id;
-					return $alarm;
-				});
-				$alarms = $alarms->values();
-				break;
-			case MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER:
-			case MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER:
-				$alarms_object = Alarm::where('device_id', $id)
-								->whereIn('tag_id', $tag_ids)
-								->latest('timestamp')
-								->first();
+								->get();
 
-				$alarms = [];
-				
-				if($alarms_object) {
-					$value32 = json_decode($alarms_object->values)[0];
+		$alarms = [];
 
-					if($configuration->id == MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER) {
-						$shifts = [9, 1, 7, 5, 4, 18, 6, 12, 11, 15, 14, 10];
-					} else if($configuration->id == MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER) {
-						$shifts = [9, 1, 7, 5, 12, 11, 10];
-					}
+		foreach ($alarms_object as $alarm_object) {
+			$value32 = json_decode($alarm_object->values)[0];
 
-					foreach ($alarm_types as $key => $alarm_type) {
-						$alarm = new stdClass();
+			$alarm_types_for_tag = $alarm_types->filter(function ($alarm_type, $key) use ($alarm_object) {
+			    return $alarm_type->tag_id == $alarm_object->tag_id;
+			});
 
-						$alarm->id = $alarms_object->id;
-						$alarm->device_id = $alarms_object->device_id;
-						$alarm->tag_id = $alarms_object->tag_id;
-						$alarm->timestamp = $alarms_object->timestamp * 1000;
-						$alarm->values = ($value32 >> $shifts[$key]) & 0x01;
-						$alarm->customer_id = $alarms_object->customer_id;
-						$alarm->machine_id = $alarms_object->machine_id;
-						$alarm->type_id = $alarm_type->id;
+			foreach ($alarm_types_for_tag as $alarm_type) {
 
-						array_push($alarms, $alarm);
-					}
-				}
-				break;
-			case MACHINE_VTC_PLUS_CONVEYING_SYSTEM:
-				$alarms = Alarm::where('device_id', $id)
-								->whereIn('tag_id', $tag_ids)
-								->latest('timestamp')
-								->get()
-								->unique('tag_id');
-				$alarms = $alarms->map(function($alarm) use($alarm_types) {
-					$alarm->values = json_decode($alarm->values)[0] === true;
-					$alarm->timestamp = $alarm->timestamp * 1000;
-					$type = $alarm_types->first(function($alarm_type, $key) use ($alarm) {
-						return $alarm_type->tag_id == $alarm->tag_id;
-					});
-					$alarm->type_id = $type->id;
-					return $alarm;
-				});
-				$alarms = $alarms->values();
-				break;
-			case MACHINE_NGX_DRYER:
-			case MACHINE_NGX_NOMAD_DRYER:
-			case MACHINE_T50_CENTRAL_GRANULATOR:
-				$latest_alarms_object = Alarm::where('device_id', $id)
-								->whereIn('tag_id', $tag_ids)
-								->latest('timestamp')
-								->get()
-								->unique('tag_id');
+				$alarm = new stdClass();
 
-				$alarms = [];
+				$alarm->id = $alarm_object->id;
+				$alarm->tag_id = $alarm_object->tag_id;
+				$alarm->timestamp = $alarm_object->timestamp * 1000;
+				$alarm->active = $alarm_type->bytes == 0 ? $value32 : ($value32 >> $alarm_type->offset) & $alarm_type->bytes;
+				$alarm->type_id = $alarm_type->id;
 
-				foreach ($latest_alarms_object as $alarm_object) {
-					$value32 = json_decode($alarm_object->values)[0];
-
-					$alarm_types_for_tag = $alarm_types->filter(function ($alarm_type, $key) use ($alarm_object) {
-					    return $alarm_type->tag_id == $alarm_object->tag_id;
-					});
-
-					if($configuration->id == MACHINE_NGX_DRYER) {
-						$shifts = [
-							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
-							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
-							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
-						];
-						if($alarm_object->tag_id == 60)
-							$index = 0;
-						else if($alarm_object->tag_id == 61)
-							$index = 1;
-						else if($alarm_object->tag_id == 62)
-							$index = 2;
-					} else if($configuration->id == MACHINE_NGX_NOMAD_DRYER) {
-						$shifts = [
-							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
-							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
-							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
-						];
-						if($alarm_object->tag_id == 46)
-							$index = 0;
-						else if($alarm_object->tag_id == 47)
-							$index = 1;
-						else if($alarm_object->tag_id == 48)
-							$index = 2;
-					} else if($configuration->id == MACHINE_T50_CENTRAL_GRANULATOR) {
-						$shifts = [
-							[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 16, 17, 18, 19, 20, 21, 22, 23, 24],
-							[0, 1, 2, 3, 4, 5, 6, 7, 8],
-						];
-						if($alarm_object->tag_id == 47)
-							$index = 0;
-						else if($alarm_object->tag_id == 48)
-							$index = 1;
-					}
-
-					$ind = 0;
-					foreach ($alarm_types_for_tag as $alarm_type) {
-						
-						$alarm = new stdClass();
-
-						$alarm->id = $alarm_object->id;
-						$alarm->device_id = $alarm_object->device_id;
-						$alarm->tag_id = $alarm_object->tag_id;
-						$alarm->timestamp = $alarm_object->timestamp * 1000;
-						$alarm->values = ($value32 >> $shifts[$index][$ind]) & 0x01;
-						$alarm->customer_id = $alarm_object->customer_id;
-						$alarm->machine_id = $alarm_object->machine_id;
-						$alarm->type_id = $alarm_type->id;
-
-						array_push($alarms, $alarm);
-
-						$ind++;
-					}
-				}
-				break;
- 			default:
-				$alarm_types = [];
-				$alarms = [];
-				break;
+				array_push($alarms, $alarm);
+			}
 		}
 
 		return response()->json(compact('alarms', 'alarm_types'));
