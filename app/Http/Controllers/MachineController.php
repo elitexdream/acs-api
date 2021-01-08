@@ -62,7 +62,8 @@ class MachineController extends Controller
 			}
 
 			// product version
-			if($version_object = DeviceData::where('device_id', $id)
+			if($version_object = DB::table('software_version')
+								->where('device_id', $id)
 								->where('tag_id', $tag_software_version->tag_id)
 								->latest('timestamp')
 								->first()) {
@@ -80,7 +81,8 @@ class MachineController extends Controller
 				return response()->json('Software build tag not found', 404);
 			}
 
-			if($software_build_object = DeviceData::where('device_id', $id)
+			if($software_build_object = DB::table('software_builds')
+											->where('device_id', $id)
 											->where('tag_id', $tag_software_build->tag_id)
 											->latest('timestamp')
 											->first()) {
@@ -104,15 +106,18 @@ class MachineController extends Controller
 				return response()->json('Serial number tag not found', 404);
 			}
 
-			$serial_year_object = DeviceData::where('device_id', $id)
+			$serial_year_object = DB::table('serial_number_year')
+										->where('device_id', $id)
 										->where('tag_id', $tag_serial_year->tag_id)
 										->latest('timestamp')
 										->first();
-			$serial_month_object = DeviceData::where('device_id', $id)
+			$serial_month_object = DB::table('serial_number_month')
+										->where('device_id', $id)
 										->where('tag_id', $tag_serial_month->tag_id)
 										->latest('timestamp')
 										->first();
-			$serial_unit_object = DeviceData::where('device_id', $id)
+			$serial_unit_object = DB::table('serial_number_unit')
+										->where('device_id', $id)
 										->where('tag_id', $tag_serial_unit->tag_id)
 										->latest('timestamp')
 										->first();
