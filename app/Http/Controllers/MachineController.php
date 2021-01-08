@@ -152,7 +152,7 @@ class MachineController extends Controller
 	}
 
 	/*
-		Get inventories
+		Get inventories BD_Batch_Blender
 		L30_0_8_HopInv and L30_16_23_FracInv are grouped together
 		return: array
 	*/
@@ -173,10 +173,15 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$hop_inventory = DeviceData::where('device_id', $id)->where('tag_id', 15)->latest('timestamp')->first();
-		$actual_inventory = DeviceData::where('device_id', $id)->where('tag_id', 16)->latest('timestamp')->first();
+		$inventories = DeviceData::where('device_id', $id)
+									->whereIn('tag_id', [15, 16])
+									->latest('timestamp')
+									->get();
 
-		$inventories = array();
+		$hop_inventory = $inventories->firstWhere('tag_id', 15);
+		$actual_inventory = $inventories->firstWhere('tag_id', 16);
+
+		$inventories = [];
 
 		if($hop_inventory && $actual_inventory) {
 			$inventory_values = json_decode($actual_inventory->values);
