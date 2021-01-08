@@ -361,107 +361,126 @@ class MachineController extends Controller
 		$targets = [0, 0, 0, 0, 0, 0];
 		$actuals = [0, 0, 0, 0, 0, 0];
 		
-		$targetValues = DeviceData::where('device_id', $id)
-						->where('tag_id', 11)
+		$recipe_objects = DeviceData::where('device_id', $id)
+						->whereIn('tag_id', [11, 12, 13, 14, 15, 16, 17])
 						->latest('timestamp')
-						->first();
-		
-		if($targetValues) {
-			$targets = json_decode($targetValues->values);
+						->get()
+						->unique('tag_id');
 
-			$actualValue1 = DeviceData::where('device_id', $id)
-						->where('tag_id', 12)
-						->orderBy('timestamp', 'DESC')
-						->first();
-			if($actualValue1)
-				$actuals[0] = round(json_decode($actualValue1->values)[0], 2);
+		if($recipe_objects) {
+			$target_recipe_object = $recipe_objects->firstWhere('tag_id', 11);
+			if($target_recipe_object) {
+				$targets = json_decode($target_recipe_object->values);
+			}
 
-			$actualValue2 = DeviceData::where('device_id', $id)
-						->where('tag_id', 13)
-						->orderBy('timestamp', 'DESC')
-						->first();
-			if($actualValue2)
-				$actuals[1] = round(json_decode($actualValue2->values)[0], 2);
+			$actual_recipe_object1 = $recipe_objects->firstWhere('tag_id', 12);
+			if($actual_recipe_object1) {
+				$actuals[0] = round(json_decode($actual_recipe_object1->values)[0], 2);
+			}
 
-			$actualValue3 = DeviceData::where('device_id', $id)
-						->where('tag_id', 14)
-						->orderBy('timestamp', 'DESC')
-						->first();
-			if($actualValue3)
-				$actuals[2] = round(json_decode($actualValue3->values)[0], 2);
+			$actual_recipe_object2 = $recipe_objects->firstWhere('tag_id', 13);
+			if($actual_recipe_object2) {
+				$actuals[1] = round(json_decode($actual_recipe_object2->values)[0], 2);
+			}
 
-			$actualValue4 = DeviceData::where('device_id', $id)
-						->where('tag_id', 15)
-						->orderBy('timestamp', 'DESC')
-						->first();
-			if($actualValue4)
-				$actuals[3] = round(json_decode($actualValue4->values)[0], 2);
+			$actual_recipe_object3 = $recipe_objects->firstWhere('tag_id', 14);
+			if($actual_recipe_object3) {
+				$actuals[2] = round(json_decode($actual_recipe_object3->values)[0], 2);
+			}
 
-			$actualValue5 = DeviceData::where('device_id', $id)
-						->where('tag_id', 16)
-						->orderBy('timestamp', 'DESC')
-						->first();
-			if($actualValue5)
-				$actuals[4] = round(json_decode($actualValue5->values)[0], 2);
+			$actual_recipe_object4 = $recipe_objects->firstWhere('tag_id', 15);
+			if($actual_recipe_object4) {
+				$actuals[3] = round(json_decode($actual_recipe_object4->values)[0], 2);
+			}
 
-			$actualValue6 = DeviceData::where('device_id', $id)
-						->where('tag_id', 17)
-						->orderBy('timestamp', 'DESC')
-						->first();
-			if($actualValue6)
-				$actuals[5] = round(json_decode($actualValue6->values)[0], 2);
+			$actual_recipe_object5 = $recipe_objects->firstWhere('tag_id', 16);
+			if($actual_recipe_object5) {
+				$actuals[4] = round(json_decode($actual_recipe_object5->values)[0], 2);
+			}
+
+			$actual_recipe_object6 = $recipe_objects->firstWhere('tag_id', 17);
+			if($actual_recipe_object6) {
+				$actuals[5] = round(json_decode($actual_recipe_object6->values)[0], 2);
+			}
 		}
 
 		return response()->json(compact('targets', 'actuals'));
 	}
 
 	/*
-		Get Target and actual pump hours oil change in VTC Plus Conveying System configuration
-		params: device_id
-		return: Actual and target pump hours oil change
+		configuration: Accumeter Ovation Continuous Blender configuration
+		description: Get Feeder stables
 	*/
-	public function getPumpHoursOil($id) {
-		$targets = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-		$actuals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-		
-		$targetValues = DeviceData::where('device_id', $id)
-						->where('tag_id', 17)
-						->latest('timestamp')
-						->first();
-		$actualValues = DeviceData::where('device_id', $id)
-						->where('tag_id', 16)
-						->latest('timestamp')
-						->first();
+	public function getFeederStables($id) {
+		$product = Device::where('serial_number', $id)->first();
 
-		if($actualValues)
-			$actuals = json_decode($actualValues->values);
-		if($targetValues)
-			$targets = json_decode($actualValues->values);
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
 
-		return response()->json(compact('targets', 'actuals'));
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$feeders_object = DeviceData::where('device_id', $id)->where('tag_id', 26)->latest('timestamp')->first();
+
+		if($feeders_object) {
+			$feeders = json_decode($feeders_object->values);
+		} else {
+			$feeders = [];
+		}
+
+		return response()->json(compact('feeders'));
 	}
 
 	/*
-		Get pump hours in VTC Plus Conveying System configuration
-		params: device_id
-		return: 12 sized array of hours
+		configuration: Accumeter Ovation Continuous Blender configuration
+		description: Get product production rate
+		return: Rate Series Array
 	*/
-	public function getPumpHours($id) {
-		$hours = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-		
-		$hourValues = DeviceData::where('device_id', $id)
-						->where('tag_id', 15)
-						->latest('timestamp')
-						->first();
+	public function getProductProcessRate(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
 
-		if($hourValues)
-			$hours = json_decode($hourValues->values);
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
 
-		return response()->json(compact('hours'));
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$process_rates_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 23)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->latest('timestamp')
+										->get();
+
+		$process_rate = $process_rates_object->map(function($process_rate_object) {
+			return [$process_rate_object->timestamp * 1000, json_decode($process_rate_object->values)[0]];
+		});
+
+		return response()->json(compact('process_rate'));
 	}
 
 	/*
-		Get Machine state, system steady, mass flow hopper and RPM
+		configuration: Accumeter Ovation Continuous Blender configuration
+		description: Get Machine state, system steady, mass flow hopper and RPM
 	*/
 	public function getProductStates($id) {
 		$product = Device::where('serial_number', $id)->first();
@@ -525,32 +544,81 @@ class MachineController extends Controller
 			$machine_states->mass_flow_hopper = false;
 			$machine_states->rpm = false;
 
-			$machine_running = DeviceData::where('device_id', $id)->where('tag_id', 10)->latest('timestamp')->first();
+			$states_object = DeviceData::where('device_id', $id)
+										->whereIn('tag_id', [10, 24, 25, 27])
+										->latest('timestamp')
+										->get()
+										->unique('tag_id');
 
-			if($machine_running && json_decode($machine_running->values)[0] == true) {
-				$machine_states->machine_running = true;
-			}
+			if($states_object) {
+				$machine_running = $states_object->firstWhere('tag_id', 10);
+				if($machine_running && json_decode($machine_running->values)[0] == true) {
+					$machine_states->machine_running = true;
+				}
 
-			$system_steady = DeviceData::where('device_id', $id)->where('tag_id', 24)->latest('timestamp')->first();
+				$system_steady = $states_object->firstWhere('tag_id', 24);
+				if($system_steady && json_decode($system_steady->values)[0] == true) {
+					$machine_states->system_steady = true;
+				}
 
-			if($system_steady && json_decode($system_steady->values)[0] == true) {
-				$machine_states->system_steady = true;
-			}
+				$massflow_hopper_stable = $states_object->firstWhere('tag_id', 25);
+				if($massflow_hopper_stable && json_decode($massflow_hopper_stable->values)[0] == true) {
+					$machine_states->massflow_hopper_stable = true;
+				}
 
-			$massflow_hopper_stable = DeviceData::where('device_id', $id)->where('tag_id', 25)->latest('timestamp')->first();
-
-			if($massflow_hopper_stable && json_decode($massflow_hopper_stable->values)[0] == true) {
-				$machine_states->massflow_hopper_stable = true;
-			}
-
-			$rpm = DeviceData::where('device_id', $id)->where('tag_id', 27)->latest('timestamp')->first();
-
-			if($rpm && json_decode($rpm->values)[0] == true) {
-				$machine_states->rpm = true;
+				$rpm = $states_object->firstWhere('tag_id', 27);
+				if($rpm && json_decode($rpm->values)[0] == true) {
+					$machine_states->rpm = true;
+				}
 			}
 		}
 
 		return response()->json(compact('machine_states'));
+	}
+
+	/*
+		Get Target and actual pump hours oil change in VTC Plus Conveying System configuration
+		params: device_id
+		return: Actual and target pump hours oil change
+	*/
+	public function getPumpHoursOil($id) {
+		$targets = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		$actuals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		
+		$targetValues = DeviceData::where('device_id', $id)
+						->where('tag_id', 17)
+						->latest('timestamp')
+						->first();
+		$actualValues = DeviceData::where('device_id', $id)
+						->where('tag_id', 16)
+						->latest('timestamp')
+						->first();
+
+		if($actualValues)
+			$actuals = json_decode($actualValues->values);
+		if($targetValues)
+			$targets = json_decode($actualValues->values);
+
+		return response()->json(compact('targets', 'actuals'));
+	}
+
+	/*
+		Get pump hours in VTC Plus Conveying System configuration
+		params: device_id
+		return: 12 sized array of hours
+	*/
+	public function getPumpHours($id) {
+		$hours = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		
+		$hourValues = DeviceData::where('device_id', $id)
+						->where('tag_id', 15)
+						->latest('timestamp')
+						->first();
+
+		if($hourValues)
+			$hours = json_decode($hourValues->values);
+
+		return response()->json(compact('hours'));
 	}
 
 	/*
@@ -787,75 +855,6 @@ class MachineController extends Controller
 		}
 
 		return response()->json(compact('lengths'));
-	}
-	
-	/*
-		Get Feeder stables
-	*/
-	public function getFeederStables($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = $product->configuration;
-
-		if(!$configuration) {
-			return response()->json([
-				'message' => 'Device Not Configured'
-			], 404);
-		}
-
-		$feeders_object = DeviceData::where('device_id', $id)->where('tag_id', 26)->latest('timestamp')->first();
-
-		if($feeders_object) {
-			$feeders = json_decode($feeders_object->values);
-		} else {
-			$feeders = [];
-		}
-
-		return response()->json(compact('feeders'));
-	}
-
-	/*
-		Get product production rate
-		return: Rate Series Array
-	*/
-	public function getProductProcessRate(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = $product->configuration;
-
-		if(!$configuration) {
-			return response()->json([
-				'message' => 'Device Not Configured'
-			], 404);
-		}
-
-		$from = $this->getFromTo($request->timeRange)["from"];
-		$to = $this->getFromTo($request->timeRange)["to"];
-
-		$process_rates_object = DeviceData::where('device_id', $request->id)
-										->where('tag_id', 23)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->latest('timestamp')
-										->get();
-
-		$process_rate = $process_rates_object->map(function($process_rate_object) {
-			return [$process_rate_object->timestamp * 1000, json_decode($process_rate_object->values)[0]];
-		});
-
-		return response()->json(compact('process_rate'));
 	}
 
 	/*

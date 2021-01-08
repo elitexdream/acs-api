@@ -8,9 +8,9 @@ use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class DeviceData extends Model
 {
-	use QueryCacheable;
+	// use QueryCacheable;
 
-	protected $cacheFor = 60;
+	// protected $cacheFor = 60;
 	
 	public $table = 'device_data';
     public $timestamps = false;
