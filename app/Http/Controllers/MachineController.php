@@ -42,11 +42,10 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$query = DeviceData::where('device_id', $id);
-
 		if($configuration->id == MACHINE_TRUETEMP_TCU) {
 			// product version
-			if($version_object = $query->where('tag_id', 1)
+			if($version_object = DeviceData::where('device_id', $id)
+								->where('tag_id', 1)
 								->latest('timestamp')
 								->first()) {
 				try {
@@ -63,7 +62,10 @@ class MachineController extends Controller
 			}
 
 			// product version
-			if($version_object = $query->where('tag_id', $tag_software_version->tag_id)->latest('timestamp')->first()) {
+			if($version_object = DeviceData::where('device_id', $id)
+								->where('tag_id', $tag_software_version->tag_id)
+								->latest('timestamp')
+								->first()) {
 				try {
 					$product->version = json_decode($version_object->values)[0] / 10;
 				} catch (\Exception $e) {
@@ -78,7 +80,10 @@ class MachineController extends Controller
 				return response()->json('Software build tag not found', 404);
 			}
 
-			if($software_build_object = $query->where('tag_id', $tag_software_build->tag_id)->latest('timestamp')->first()) {
+			if($software_build_object = DeviceData::where('device_id', $id)
+											->where('tag_id', $tag_software_build->tag_id)
+											->latest('timestamp')
+											->first()) {
 				try {
 					$product->software_build = json_decode($software_build_object->values)[0];
 				} catch (\Exception $e) {
@@ -99,9 +104,18 @@ class MachineController extends Controller
 				return response()->json('Serial number tag not found', 404);
 			}
 
-			$serial_year_object = $query->where('tag_id', $tag_serial_year->tag_id)->latest('timestamp')->first();
-			$serial_month_object = $query->where('tag_id', $tag_serial_month->tag_id)->latest('timestamp')->first();
-			$serial_unit_object = $query->where('tag_id', $tag_serial_unit->tag_id)->latest('timestamp')->first();
+			$serial_year_object = DeviceData::where('device_id', $id)
+										->where('tag_id', $tag_serial_year->tag_id)
+										->latest('timestamp')
+										->first();
+			$serial_month_object = DeviceData::where('device_id', $id)
+										->where('tag_id', $tag_serial_month->tag_id)
+										->latest('timestamp')
+										->first();
+			$serial_unit_object = DeviceData::where('device_id', $id)
+										->where('tag_id', $tag_serial_unit->tag_id)
+										->latest('timestamp')
+										->first();
 
 			if($serial_year_object) {
 				try {
