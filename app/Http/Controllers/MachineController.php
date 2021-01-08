@@ -200,38 +200,27 @@ class MachineController extends Controller
 		actual and target weight in BD_Batch_Blender
 	*/
 	public function getProductWeight($id) {
-		$targetValues = DB::table('device_data')
-						->where('device_id', $id)
-						->where('tag_id', 13)
-						->orderBy('timestamp', 'desc')
-						->get();
-		$actualValues = DB::table('device_data')
-						->where('device_id', $id)
-						->where('tag_id', 14)
-						->orderBy('timestamp', 'desc')
-						->get();
+		$weight_objects = DeviceData::where('device_id', $id)
+						->whereIn('tag_id', [13, 14])
+						->whereJsonLength('values', 8)
+						->latest('timestamp')
+						->get()
+						->unique('tag_id');
 
 		$targets = [];
 		$actuals = [];
 		
-		foreach ($targetValues as $key => $target) {
-			if (count(json_decode($target->values)) == 8) {
-				$targets = json_decode($target->values);
-				foreach ($targets as $key => $target) {
-					$targets[$key] = $target / 1000;
-				}
-				break;
-			}
+		$target_object = $weight_objects->firstWhere('tag_id', 13);
+		$actual_object = $weight_objects->firstWhere('tag_id', 14);
+
+		$targets = json_decode($target_object->values);
+		foreach ($targets as $target) {
+			$target = $target / 1000;
 		}
 
-		foreach ($actualValues as $key => $actual) {
-			if (count(json_decode($actual->values)) == 8) {
-				$actuals = json_decode($actual->values);
-				foreach ($actuals as $key => $actual) {
-					$actuals[$key] = $actual / 1000;
-				}
-				break;
-			}
+		$actuals = json_decode($actual_object->values);
+		foreach ($actuals as $actual) {
+			$actual = $actual / 1000;
 		}
 
 		return response()->json(compact('targets', 'actuals'));
