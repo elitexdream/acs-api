@@ -57,7 +57,7 @@ class DeviceController extends Controller
                     ->orWhere('serial_number', 'ilike', '%' . $request->filterForm['searchQuery'] . '%');
         }
 
-        $pageNumber = min($query->count(), $pageNumber);
+        $pageNumber = min($query->count() / 7, $pageNumber);
         
         $devices = $query->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
@@ -196,9 +196,12 @@ class DeviceController extends Controller
         if($request->zone_id) {
             $location = Zone::findOrFail($request->zone_id)->location;
             $device->location_id = $location->id;
+        } else {
+            $device->location_id = 0;
         }
-
+        
         $device->zone_id = $request->zone_id;
+
         $device->customer_assigned_name = $request->customer_assigned_name;
 
         $device->save();
@@ -366,20 +369,18 @@ class DeviceController extends Controller
                 ]
             );
             if ($res) {
-                do {
-                    $response = $client->get(
-                        $getLink,
-                        [
-                            'headers' => [
-                                'Authorization' => "Bearer " . $this->bearer_token
-                            ],
-                            'json' => [
-                                "type" => "webui"
-                            ],
-                        ]
-                    );
-                    $data = json_decode($response->getBody()->getContents())->data;
-                } while (count($data) === 0);
+                $response = $client->get(
+                    $getLink,
+                    [
+                        'headers' => [
+                            'Authorization' => "Bearer " . $this->bearer_token
+                        ],
+                        'json' => [
+                            "type" => "webui"
+                        ],
+                    ]
+                );
+                $data = json_decode($response->getBody()->getContents())->data;
 
                 return response()->json($data);
             }
