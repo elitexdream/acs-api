@@ -3,15 +3,10 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Rennokki\QueryCache\Traits\QueryCacheable;
 use DB;
 
 class Device extends Model
 {
-    use QueryCacheable;
-
-    protected $cacheFor = 600;
-
     protected $fillable = [
         'device_id',
         'name',
