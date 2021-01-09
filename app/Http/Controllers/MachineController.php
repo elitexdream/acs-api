@@ -215,19 +215,21 @@ class MachineController extends Controller
 		$targets = [];
 		$actuals = [];
 		
+
 		$target_object = $weight_objects->firstWhere('tag_id', 13);
 		$actual_object = $weight_objects->firstWhere('tag_id', 14);
 
+
 		if($target_object) {
 			$targets = json_decode($target_object->values);
-			foreach ($targets as $target) {
+			foreach ($targets as &$target) {
 				$target = $target / 1000;
 			}
 		}
 
 		if($actual_object) {
 			$actuals = json_decode($actual_object->values);
-			foreach ($actuals as $actual) {
+			foreach ($actuals as &$actual) {
 				$actual = $actual / 1000;
 			}
 		}
