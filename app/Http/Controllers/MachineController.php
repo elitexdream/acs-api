@@ -367,47 +367,43 @@ class MachineController extends Controller
 		$targets = [0, 0, 0, 0, 0, 0];
 		$actuals = [0, 0, 0, 0, 0, 0];
 		
-		$recipe_objects = DeviceData::where('device_id', $id)
-						->whereIn('tag_id', [11, 12, 13, 14, 15, 16, 17])
+		$target_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 11)
 						->latest('timestamp')
-						->get()
-						->unique('tag_id');
+						->first();
 
-		if($recipe_objects) {
-			$target_recipe_object = $recipe_objects->firstWhere('tag_id', 11);
-			if($target_recipe_object) {
-				$targets = json_decode($target_recipe_object->values);
-			}
+		if($target_object) {
+			$targets = json_decode($target_object->values);
+		}
 
-			$actual_recipe_object1 = $recipe_objects->firstWhere('tag_id', 12);
-			if($actual_recipe_object1) {
-				$actuals[0] = round(json_decode($actual_recipe_object1->values)[0], 2);
-			}
+		$actual_recipe_object1 = DeviceData::where('device_id', $id)->where('tag_id', 12)->latest('timestamp')->first();
+		if($actual_recipe_object1) {
+			$actuals[0] = round(json_decode($actual_recipe_object1->values)[0], 2);
+		}
 
-			$actual_recipe_object2 = $recipe_objects->firstWhere('tag_id', 13);
-			if($actual_recipe_object2) {
-				$actuals[1] = round(json_decode($actual_recipe_object2->values)[0], 2);
-			}
+		$actual_recipe_object2 = DeviceData::where('device_id', $id)->where('tag_id', 13)->latest('timestamp')->first();
+		if($actual_recipe_object2) {
+			$actuals[1] = round(json_decode($actual_recipe_object2->values)[0], 2);
+		}
 
-			$actual_recipe_object3 = $recipe_objects->firstWhere('tag_id', 14);
-			if($actual_recipe_object3) {
-				$actuals[2] = round(json_decode($actual_recipe_object3->values)[0], 2);
-			}
+		$actual_recipe_object3 = DeviceData::where('device_id', $id)->where('tag_id', 14)->latest('timestamp')->first();
+		if($actual_recipe_object3) {
+			$actuals[2] = round(json_decode($actual_recipe_object3->values)[0], 2);
+		}
 
-			$actual_recipe_object4 = $recipe_objects->firstWhere('tag_id', 15);
-			if($actual_recipe_object4) {
-				$actuals[3] = round(json_decode($actual_recipe_object4->values)[0], 2);
-			}
+		$actual_recipe_object4 = DeviceData::where('device_id', $id)->where('tag_id', 15)->latest('timestamp')->first();
+		if($actual_recipe_object4) {
+			$actuals[3] = round(json_decode($actual_recipe_object4->values)[0], 2);
+		}
 
-			$actual_recipe_object5 = $recipe_objects->firstWhere('tag_id', 16);
-			if($actual_recipe_object5) {
-				$actuals[4] = round(json_decode($actual_recipe_object5->values)[0], 2);
-			}
+		$actual_recipe_object5 = DeviceData::where('device_id', $id)->where('tag_id', 16)->latest('timestamp')->first();
+		if($actual_recipe_object5) {
+			$actuals[4] = round(json_decode($actual_recipe_object5->values)[0], 2);
+		}
 
-			$actual_recipe_object6 = $recipe_objects->firstWhere('tag_id', 17);
-			if($actual_recipe_object6) {
-				$actuals[5] = round(json_decode($actual_recipe_object6->values)[0], 2);
-			}
+		$actual_recipe_object6 = DeviceData::where('device_id', $id)->where('tag_id', 17)->latest('timestamp')->first();
+		if($actual_recipe_object6) {
+			$actuals[5] = round(json_decode($actual_recipe_object6->values)[0], 2);
 		}
 
 		return response()->json(compact('targets', 'actuals'));
