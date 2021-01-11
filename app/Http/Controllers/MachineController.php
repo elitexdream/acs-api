@@ -238,37 +238,6 @@ class MachineController extends Controller
 	}
 
 	/*
-		Get last recipe values in BD Blender configuration
-	*/
-	public function getProductRecipe($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = $product->configuration;
-
-		if(!$configuration) {
-			return response()->json([
-				'message' => 'Device Not Configured'
-			], 404);
-		}
-
-		$last_recipe = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 10)->orderBy('timestamp', 'desc')->first();
-
-		if( $last_recipe) {
-			$recipe_values = json_decode($last_recipe->values);
-		} else {
-			$recipe_values = [];
-		}
-
-		return response()->json(compact('recipe_values'));
-	}
-
-	/*
 		configuration: BD Blender configuration
 		description: get station conveying series
 	*/
@@ -289,7 +258,7 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$last_object = DeviceData::where('machine_id', $configuration->id)
+		$last_object = DeviceData::where('device_id', $configuration->id)
 						->where('tag_id', 26)
 						->latest('timestamp')
 						->first();
