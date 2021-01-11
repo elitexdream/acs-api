@@ -269,6 +269,41 @@ class MachineController extends Controller
 	}
 
 	/*
+		configuration: BD Blender configuration
+		description: get station conveying series
+	*/
+	public function getStationConveyings($id) {
+		$product = Device::where('serial_number', $id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$last_object = DeviceData::where('machine_id', $configuration->id)
+						->where('tag_id', 26)
+						->latest('timestamp')
+						->first();
+
+		if( $last_object) {
+			$conveyings = json_decode($last_object->values);
+		} else {
+			$conveyings = [];
+		}
+
+		return response()->json(compact('conveyings'));
+	}
+
+	/*
 		Get product utilization series
 		return: Utilization Series Array
 	*/

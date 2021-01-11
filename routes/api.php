@@ -107,6 +107,7 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/product-utilization', 'MachineController@getProductUtilization');
 	Route::post('/product-energy-consumption', 'MachineController@getEnergyConsumption');
 	Route::get('/product-inventory/{id}', 'MachineController@getInventories');
+	Route::get('/product-station-conveyings/{id}', 'MachineController@getStationConveyings');
 	Route::get('/weekly-running-hours/{id}', 'MachineController@getWeeklyRunningHours');
 	Route::get('/product-weight/{id}', 'MachineController@getProductWeight');
 	Route::get('/product-recipe/{id}', 'MachineController@getProductRecipe');
