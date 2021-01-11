@@ -111,6 +111,8 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::get('/weekly-running-hours/{id}', 'MachineController@getWeeklyRunningHours');
 	Route::get('/product-weight/{id}', 'MachineController@getProductWeight');
 	Route::get('/product-system-states/{id}', 'MachineController@getProductStates');
+	Route::get('/product-hopper-stables/{id}', 'MachineController@getHopperStables');
+	Route::get('/product-calibration-factors/{id}', 'MachineController@getCalibrationFactors');
 	Route::get('/product-system-states-3/{id}', 'MachineController@getMachineStates3');
 	Route::get('/product-feeder-stables/{id}', 'MachineController@getFeederStables');
 	Route::post('/product-production-rate', 'MachineController@getProductProcessRate');
