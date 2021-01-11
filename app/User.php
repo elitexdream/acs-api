@@ -139,15 +139,23 @@ class User extends Authenticatable
         }
     }
 
-    public function getMyDevices($location = 0) {
+    public function getMyDevices($location = 0, $zone = 0) {
         if($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
-            if($location)
-                return Device::where('location_id', $location)->get();
+            if($location) {
+                if($zone)
+                    return Device::where('location_id', $location)->where('zone_id', $zone)->get();
+                else
+                    return Device::where('location_id', $location)->get();
+            }
             else
                 return Device::get();
         } else {
-            if($location)
-                return $this->company->devices()->where('location_id', $location)->get();
+            if($location) {
+                if($zone)
+                    return $this->company->devices()->where('location_id', $location)->where('zone_id', $zone)->get();
+                else
+                    return $this->company->devices()->where('location_id', $location)->get();
+            }
             else
                 return $this->company->devices;
         }

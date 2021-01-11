@@ -583,6 +583,35 @@ class DeviceController extends Controller
         ]);
     }
 
+    public function getDashboardMachinesTable(Request $request) {
+        $user = $request->user('api');
+
+        $location = $request->location;
+        $zone = $request->zone;
+        $page = $request->page;
+
+        if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+            $query = Device::where('location_id', $location)->where('zone_id', $zone);
+        } else {
+            $query = $user->company->devices()->where('location_id', $location)->where('zone_id', $zone);
+        }
+
+        $devices = $query->paginate($request->itemsPerPage, ['*'], 'page', $page);
+
+        foreach ($devices as $key => $device) {
+            $downtime_distribution = [0, 0, 0];
+
+            $device->utilization = '32%';
+            $device->color = 'green';
+            $device->value = 75;
+            $device->oee = '93.1%';
+            $device->performance = '78%';
+            $device->rate = 56;
+            $device->downtimeDistribution = $downtime_distribution;
+        }
+
+        return response()->json(compact('devices'));
+    }
     public function getTotalValues($array) {
         $result = 0;
         foreach($array as $item) {
