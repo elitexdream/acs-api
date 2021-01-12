@@ -235,13 +235,17 @@ class MachineController extends Controller
 			$mode = json_decode($mode_object->values)[0];
 		}
 
-		$last_object = DeviceData::where('device_id', $id)
-						->where('tag_id', 47)
-						->latest('timestamp')
-						->first();
+		if($mode == 0) {
+			$last_object = DeviceData::where('device_id', $id)
+							->where('tag_id', 47)
+							->latest('timestamp')
+							->first();
 
-		if( $last_object)
-			$recipe_values = json_decode($last_object->values);
+			if( $last_object)
+				$recipe_values = json_decode($last_object->values);
+		} else if($mode == 3) {
+
+		}
 
 		return response()->json([
 			'mode' => $mode,
@@ -393,6 +397,45 @@ class MachineController extends Controller
 		}
 
 		return response()->json(compact('calibration_factors'));
+	}
+
+	/*
+		configuration: BD Blender configuration
+		description: process rate, 1 point, L30_30_0_average_pr (lbs/hr or kgs/hr) DINT 
+		tag: L30_30_0_average_pr
+	*/
+	public function getBlenderProcessRate(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$process_rates_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 18)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$process_rate = $process_rates_object->map(function($process_rate_object) {
+			return [$process_rate_object->timestamp * 1000, json_decode($process_rate_object->values)[0]];
+		});
+
+		return response()->json(compact('process_rate'));
 	}
 
 	/*

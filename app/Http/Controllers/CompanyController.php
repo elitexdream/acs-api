@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Mail\CustomerInvitation;
-use Mail;
+// use Mail;
 use Validator;
 use App\User;
 use App\Company;
@@ -12,6 +12,7 @@ use App\Profile;
 use App\City;
 use App\Role;
 use App\UserRole;
+use SendGrid\Mail\Mail;
 
 class CompanyController extends Controller
 {
@@ -159,8 +160,30 @@ class CompanyController extends Controller
 
 	public function testMail(Request $request)
 	{
-
-		Mail::to($request->to)->send(new CustomerInvitation);
+        $email = new Mail();
+        $email->setFrom("test@staging.acsgroupds.com", "Example User");
+        $email->setSubject("I'm replacing the subject tag");
+        $email->addTo(
+            "lasthyun822@gmail.com",
+            "Example User1",
+            [
+                "subject" => "Subject 1",
+                "name" => "Example User 1",
+                "city" => "Denver"
+            ],
+            0
+        );
+        $email->setTemplateId("d-c5a812e91ae24f1d875fce322b30ba78");
+        $sendgrid = new \SendGrid('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');
+        try {
+            $response = $sendgrid->send($email);
+            dd($response->statusCode());
+            // print $response->statusCode() . "\n";
+            // print_r($response->headers());
+            // print $response->body() . "\n";
+        } catch (Exception $e) {
+            echo 'Caught exception: '.  $e->getMessage(). "\n";
+        }
 	}
 
 	public function testSMS(Request $request)
