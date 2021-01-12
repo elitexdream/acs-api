@@ -202,6 +202,54 @@ class MachineController extends Controller
 	}
 
 	/*
+		configuration: BD Blender configuration
+		description: feeder calibration factors
+		tag: L21_0_11_RecipeVal
+	*/
+	public function getCurrentRecipe($id) {
+		$product = Device::where('serial_number', $id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$mode = 0;
+		$recipe_values = [0, 0, 0, 0, 0, 0, 0, 0];
+
+		$mode_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 45)
+						->latest('timestamp')
+						->first();
+
+		if($mode_object) {
+			$mode = json_decode($mode_object->values)[0];
+		}
+
+		$last_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 47)
+						->latest('timestamp')
+						->first();
+
+		if( $last_object)
+			$recipe_values = json_decode($last_object->values);
+
+		return response()->json([
+			'mode' => $mode,
+			'recipe_values' => $recipe_values
+		]);
+	}
+
+	/*
 		actual and target weight in BD_Batch_Blender
 	*/
 	public function getProductWeight($id) {

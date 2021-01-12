@@ -111,6 +111,7 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::get('/product-station-conveyings/{id}', 'MachineController@getStationConveyings');
 	Route::get('/weekly-running-hours/{id}', 'MachineController@getWeeklyRunningHours');
 	Route::get('/product-weight/{id}', 'MachineController@getProductWeight');
+	Route::get('/product-current-recipe/{id}', 'MachineController@getCurrentRecipe');
 	Route::get('/product-system-states/{id}', 'MachineController@getProductStates');
 	Route::get('/product-hopper-stables/{id}', 'MachineController@getHopperStables');
 	Route::get('/product-calibration-factors/{id}', 'MachineController@getCalibrationFactors');
