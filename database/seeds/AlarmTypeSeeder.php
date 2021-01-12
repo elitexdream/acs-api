@@ -461,75 +461,75 @@ class AlarmTypeSeeder extends Seeder
             ], [
                 'name' => 'Pump Starter Fault [1]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 1,
-                'bytes' => 0
+                'tag_id' => 20,
+                'offset' => 0,
+                'bytes' => 1
             ], [
                 'name' => 'Pump Starter Fault [2]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 2,
-                'bytes' => 0
+                'tag_id' => 20,
+                'offset' => 1,
+                'bytes' => 1
             ], [
                 'name' => 'Pump Starter Fault [3]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 3,
-                'bytes' => 0
+                'tag_id' => 20,
+                'offset' => 2,
+                'bytes' => 1
             ], [
                 'name' => 'Pump Starter Fault [4]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 4,
-                'bytes' => 0
+                'tag_id' => 20,
+                'offset' => 3,
+                'bytes' => 1
             ], [
                 'name' => 'Pump Starter Fault [5]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 5,
-                'bytes' => 0
+                'tag_id' => 20,
+                'offset' => 4,
+                'bytes' => 1
             ], [
                 'name' => 'Pump Starter Fault [6]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 6,
-                'bytes' => 0
+                'tag_id' => 20,
+                'offset' => 5,
+                'bytes' => 1
             ], [
                 'name' => 'Pump Starter Fault [7]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 7,
-                'bytes' => 0
+                'tag_id' => 20,
+                'offset' => 6,
+                'bytes' => 1
             ], [
                 'name' => 'Pump Starter Fault [8]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 8,
-                'bytes' => 0
+                'tag_id' => 20,
+                'offset' => 7,
+                'bytes' => 1
             ], [
                 'name' => 'Pump Starter Fault [9]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 9,
-                'bytes' => 0
+                'tag_id' => 20,
+                'offset' => 8,
+                'bytes' => 1
             ], [
                 'name' => 'Pump Starter Fault [10]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 10,
-                'bytes' => 0
+                'tag_id' => 20,
+                'offset' => 9,
+                'bytes' => 1
             ], [
                 'name' => 'Pump Starter Fault [11]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 11,
-                'bytes' => 0
+                'tag_id' => 20,
+                'offset' => 10,
+                'bytes' => 1
             ], [
                 'name' => 'Pump Starter Fault [12]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 12,
-                'bytes' => 0
+                'tag_id' => 20,
+                'offset' => 11,
+                'bytes' => 1
             ], [
                 'name' => 'Power Loss While Running',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
