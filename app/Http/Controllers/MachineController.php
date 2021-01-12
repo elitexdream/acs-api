@@ -243,7 +243,7 @@ class MachineController extends Controller
 
 			if( $last_object)
 				$recipe_values = json_decode($last_object->values);
-		} else if($mode == 3) {
+		} else if($mode == 2) {
 
 		}
 

@@ -66,7 +66,7 @@ class AlarmController extends Controller
 		$alarms = [];
 
 		foreach ($alarms_object as $alarm_object) {
-			$value32 = json_decode($alarm_object->values)[0];
+			$value32 = json_decode($alarm_object->values);
 
 			$alarm_types_for_tag = $alarm_types->filter(function ($alarm_type, $key) use ($alarm_object) {
 			    return $alarm_type->tag_id == $alarm_object->tag_id;
@@ -79,7 +79,14 @@ class AlarmController extends Controller
 				$alarm->id = $alarm_object->id;
 				$alarm->tag_id = $alarm_object->tag_id;
 				$alarm->timestamp = $alarm_object->timestamp * 1000;
-				$alarm->active = $alarm_type->bytes == 0 ? $value32 : ($value32 >> $alarm_type->offset) & $alarm_type->bytes;
+				if($alarm_type->bytes == 0 && $alarm_type->offset == 0)
+					$alarm->active = $value32[0];
+				else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
+					$alarm->active = $value32[$alarm_type->offset - 1] == 1;
+				} else if($alarm_type->bytes != 0) {
+					$alarm->active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
+				}
+				// $alarm->active = $alarm_type->bytes == 0 ? $value32 : ($value32 >> $alarm_type->offset) & $alarm_type->bytes;
 				$alarm->type_id = $alarm_type->id;
 
 				array_push($alarms, $alarm);

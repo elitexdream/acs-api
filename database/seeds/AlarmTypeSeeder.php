@@ -387,28 +387,226 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 10,
                 'bytes' => 1
             ], [
-                'name' => 'Pump Oil Change Required',
+                'name' => 'Pump Oil Change Required [1]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 0,
+                'offset' => 1,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Oil Change Required [2]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 18,
+                'offset' => 2,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Oil Change Required [3]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 18,
+                'offset' => 3,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Oil Change Required [4]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 18,
+                'offset' => 4,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Oil Change Required [5]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 18,
+                'offset' => 5,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Oil Change Required [6]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 18,
+                'offset' => 6,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Oil Change Required [7]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 18,
+                'offset' => 7,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Oil Change Required [8]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 18,
+                'offset' => 8,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Oil Change Required [9]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 18,
+                'offset' => 9,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Oil Change Required [10]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 18,
+                'offset' => 10,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Oil Change Required [11]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 18,
+                'offset' => 11,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Oil Change Required [12]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 18,
+                'offset' => 12,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Starter Fault [1]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 1,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Starter Fault [2]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 2,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Starter Fault [3]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 3,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Starter Fault [4]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 4,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Starter Fault [5]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 5,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Starter Fault [6]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 6,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Starter Fault [7]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 7,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Starter Fault [8]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 8,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Starter Fault [9]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 9,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Starter Fault [10]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 10,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Starter Fault [11]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 11,
+                'bytes' => 0
+            ], [
+                'name' => 'Pump Starter Fault [12]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 12,
                 'bytes' => 0
             ], [
                 'name' => 'Power Loss While Running',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 19,
                 'offset' => 0,
-                'bytes' => 0
+                'bytes' => 1
             ], [
-                'name' => 'Pump Starter Fault',
-                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 20,
-                'offset' => 0,
-                'bytes' => 0
-            ], [
-                'name' => 'Vacuum Levels Option',
+                'name' => 'Vacuum Levels Option [1]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 0,
+                'offset' => 1,
+                'bytes' => 0
+            ], [
+                'name' => 'Vacuum Levels Option [2]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 21,
+                'offset' => 2,
+                'bytes' => 0
+            ], [
+                'name' => 'Vacuum Levels Option [3]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 21,
+                'offset' => 3,
+                'bytes' => 0
+            ], [
+                'name' => 'Vacuum Levels Option [4]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 21,
+                'offset' => 4,
+                'bytes' => 0
+            ], [
+                'name' => 'Vacuum Levels Option [5]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 21,
+                'offset' => 5,
+                'bytes' => 0
+            ], [
+                'name' => 'Vacuum Levels Option [6]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 21,
+                'offset' => 6,
+                'bytes' => 0
+            ], [
+                'name' => 'Vacuum Levels Option [7]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 21,
+                'offset' => 7,
+                'bytes' => 0
+            ], [
+                'name' => 'Vacuum Levels Option [8]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 21,
+                'offset' => 8,
+                'bytes' => 0
+            ], [
+                'name' => 'Vacuum Levels Option [9]',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 21,
+                'offset' => 9,
+                'bytes' => 0
+            ], [
+                'name' => 'Vacuum Levels Option' [10],
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 21,
+                'offset' => 10,
+                'bytes' => 0
+            ], [
+                'name' => 'Vacuum Levels Option' [11],
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 21,
+                'offset' => 11,
+                'bytes' => 0
+            ], [
+                'name' => 'Vacuum Levels Option' [12],
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 21,
+                'offset' => 12,
                 'bytes' => 0
             ], [
                 'name' => 'Dirty Filter Pressure Switch Warning',
