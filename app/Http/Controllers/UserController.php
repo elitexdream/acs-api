@@ -10,7 +10,7 @@ use Hash;
 use Carbon\Carbon;
 use Mail;
 
-use App\traits\MailTrait;
+use App\Traits\MailTrait;
 
 use App\Mail\PasswordReset;
 use App\Mail\CustomerInvitation;
@@ -26,7 +26,7 @@ use App\City;
 class UserController extends Controller
 {
     use MailTrait;
-    
+
 	public function login(Request $request) {
 	    $validator = Validator::make($request->all(), [ 
 	        'email' => 'required|email', 
