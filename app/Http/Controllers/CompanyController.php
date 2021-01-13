@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Mail\CustomerInvitation;
-use App\traits\MailTrait;
+use App\Traits\MailTrait;
 // use Mail;
 use Validator;
 use App\User;
