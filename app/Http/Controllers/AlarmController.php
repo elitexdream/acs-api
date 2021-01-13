@@ -65,14 +65,12 @@ class AlarmController extends Controller
 
 		$alarms = [];
 
-		$s = 0;
 		foreach ($alarms_object as $alarm_object) {
 			$value32 = json_decode($alarm_object->values);
 
 			$alarm_types_for_tag = $alarm_types->filter(function ($alarm_type, $key) use ($alarm_object) {
 			    return $alarm_type->tag_id == $alarm_object->tag_id;
 			});
-			// if($s == 3) dd($alarm_object->tag_id);
 
 			foreach ($alarm_types_for_tag as $alarm_type) {
 
@@ -93,7 +91,6 @@ class AlarmController extends Controller
 
 				array_push($alarms, $alarm);
 			}
-			$s++;
 		}
 
 		return response()->json(compact('alarms', 'alarm_types'));

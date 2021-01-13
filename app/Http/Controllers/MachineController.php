@@ -225,6 +225,7 @@ class MachineController extends Controller
 
 		$mode = 0;
 		$recipe_values = [0, 0, 0, 0, 0, 0, 0, 0];
+		$ez_types = [0, 0, 0, 0, 0, 0, 0, 0];
 
 		$mode_object = DeviceData::where('device_id', $id)
 						->where('tag_id', 45)
@@ -233,9 +234,7 @@ class MachineController extends Controller
 
 		if($mode_object) {
 			$mode = json_decode($mode_object->values)[0];
-		}
 
-		if($mode == 0) {
 			$last_object = DeviceData::where('device_id', $id)
 							->where('tag_id', 47)
 							->latest('timestamp')
@@ -243,13 +242,21 @@ class MachineController extends Controller
 
 			if( $last_object)
 				$recipe_values = json_decode($last_object->values);
-		} else if($mode == 2) {
+			if($mode == 2) {
+				$last_object = DeviceData::where('device_id', $id)
+								->where('tag_id', 46)
+								->latest('timestamp')
+								->first();
 
+				if( $last_object)
+					$ez_types = json_decode($last_object->values);
+			}
 		}
 
 		return response()->json([
 			'mode' => $mode,
-			'recipe_values' => $recipe_values
+			'recipe_values' => $recipe_values,
+			'ez_types' => $ez_types
 		]);
 	}
 

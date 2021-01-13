@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Mail\CustomerInvitation;
+use App\traits\MailTrait;
 // use Mail;
 use Validator;
 use App\User;
@@ -12,10 +13,11 @@ use App\Profile;
 use App\City;
 use App\Role;
 use App\UserRole;
-use SendGrid\Mail\Mail;
 
 class CompanyController extends Controller
 {
+	use MailTrait;
+
 	public function index()
 	{
 		$customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
@@ -86,7 +88,8 @@ class CompanyController extends Controller
 		]);
 		$user->roles()->attach(ROLE_CUSTOMER_ADMIN);
 
-        Mail::to($user->email)->send(new CustomerInvitation($password_string));
+		$this->sendRegistrationMail($user, $password_string);
+        // Mail::to($user->email)->send(new CustomerInvitation($password_string));
 
         return response()->json('Created successfully.');
     }
@@ -160,30 +163,9 @@ class CompanyController extends Controller
 
 	public function testMail(Request $request)
 	{
-        $email = new Mail();
-        $email->setFrom("test@staging.acsgroupds.com", "Example User");
-        $email->setSubject("I'm replacing the subject tag");
-        $email->addTo(
-            "lasthyun822@gmail.com",
-            "Example User1",
-            [
-                "subject" => "Subject 1",
-                "name" => "Example User 1",
-                "city" => "Denver"
-            ],
-            0
-        );
-        $email->setTemplateId("d-c5a812e91ae24f1d875fce322b30ba78");
-        $sendgrid = new \SendGrid('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');
-        try {
-            $response = $sendgrid->send($email);
-            dd($response->statusCode());
-            // print $response->statusCode() . "\n";
-            // print_r($response->headers());
-            // print $response->body() . "\n";
-        } catch (Exception $e) {
-            echo 'Caught exception: '.  $e->getMessage(). "\n";
-        }
+		// $user = User::find(1);
+		// $user->email = 'lasthyun822@gmail.com';
+  //       $this->sendRegistrationMail($user, 'adsf');
 	}
 
 	public function testSMS(Request $request)

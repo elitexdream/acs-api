@@ -10,6 +10,8 @@ use Hash;
 use Carbon\Carbon;
 use Mail;
 
+use App\traits\MailTrait;
+
 use App\Mail\PasswordReset;
 use App\Mail\CustomerInvitation;
 
@@ -23,6 +25,8 @@ use App\City;
 
 class UserController extends Controller
 {
+    use MailTrait;
+    
 	public function login(Request $request) {
 	    $validator = Validator::make($request->all(), [ 
 	        'email' => 'required|email', 
@@ -336,7 +340,8 @@ class UserController extends Controller
             'phone' => $request->phone
         ]);
 
-        Mail::to($user->email)->send(new CustomerInvitation($password_string));
+        $this->sendRegistrationMail($user, $password_string);
+        // Mail::to($user->email)->send(new CustomerInvitation($password_string));
 
         return response()->json('Created successfully.', 201);
     }
