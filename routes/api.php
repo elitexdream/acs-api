@@ -130,6 +130,8 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::get('/product-pump-hours/{id}', 'MachineController@getPumpHours');
 	Route::get('/product-drying-hopper-states/{id}', 'MachineController@getDryingHopperStates');
 	Route::get('/product-hopper-temperatures/{id}', 'MachineController@getHopperTemperatures');
+
+	Route::post('/tcu/actual-target-temperature', 'MachineController@getTcuActTgtTemperature');
 });
 
 Route::group(['prefix' => 'notes'], function () {

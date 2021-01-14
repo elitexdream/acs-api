@@ -1193,6 +1193,56 @@ class MachineController extends Controller
 	}
 
 	/*
+		configuration: True temp tcu
+		description: actual target temperature
+		tag: Return Temp, Setpoint 1
+	*/
+	public function getTcuActTgtTemperature(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$actuals_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 4)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$actuals = $actuals_object->map(function($actual_object) {
+			return [$actual_object->timestamp * 1000, round(json_decode($actual_object->values)[0], 2)];
+		});
+
+		$targets_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 8)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$targets = $targets_object->map(function($target_object) {
+			return [$target_object->timestamp * 1000, round(json_decode($target_object->values)[0], 2)];
+		});
+
+		return response()->json(compact('actuals', 'targets'));
+	}
+
+	/*
 		Get running hours of weekdays
 		return: 7 length array
 	*/
