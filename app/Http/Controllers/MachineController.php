@@ -756,6 +756,162 @@ class MachineController extends Controller
 	}
 
 	/*
+		configuration: Accumeter Ovation Continuous Blender
+		description: -blender capability, 2 points, 1 min update F17_7_0_system_max (lbs/hr or kgs/hr) REAL
+		tag: F17_7_0_system_max
+	*/
+	public function getBlenderCapabilities(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$capabilities_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 22)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$capabilities = $capabilities_object->map(function($capability_object) {
+			return [$capability_object->timestamp * 1000, round(json_decode($capability_object->values)[0], 2)];
+		});
+
+		return response()->json(compact('capabilities'));
+	}
+
+	/*
+		configuration: Accumeter Ovation Continuous Blender
+		description: -current target rate, 1 point, 1 min update F9_43_0_TotalMass (lbs/hr or kgs/hr) REAL 
+		tag: F9_43_0_TotalMass
+	*/
+	public function getTargetRate(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$rates_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 18)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$rates = $rates_object->map(function($rate_object) {
+			return [$rate_object->timestamp * 1000, round(json_decode($rate_object->values)[0], 2)];
+		});
+
+		return response()->json(compact('rates'));
+	}
+
+	/*
+		configuration: Accumeter Ovation Continuous Blender
+		description: -feeder calibration value, 6 points, 1 min update Feeder 1-6: F31_3_0_hop_running_feed_factor[1..6] REAL
+		tag: F31_3_0_hop_running_feed_factor
+	*/
+	public function getFeederCalibrations(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$calibrations_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 21)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$calibrations = $calibrations_object->map(function($calibration_object) {
+			return [$calibration_object->timestamp * 1000, json_decode($calibration_object->values)];
+		});
+
+		return response()->json(compact('calibrations'));
+	}
+
+	/*
+		configuration: Accumeter Ovation Continuous Blender
+		description: -feeder speed, 6 points, 1 min update Feeder 1-6 motor speed: F9_21_0_Feeder_RPM[1..6] REAL
+		tag: F9_21_0_Feeder_RPM
+	*/
+	public function getFeederSpeeds(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$speeds_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 19)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$speeds = $speeds_object->map(function($speed_object) {
+			return [$speed_object->timestamp * 1000, json_decode($speed_object->values)];
+		});
+
+		return response()->json(compact('speeds'));
+	}
+
+	/*
 		Get Target and actual pump hours oil change in VTC Plus Conveying System configuration
 		params: device_id
 		return: Actual and target pump hours oil change

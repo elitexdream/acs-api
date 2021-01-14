@@ -113,6 +113,10 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::get('/product-weight/{id}', 'MachineController@getProductWeight');
 	Route::get('/product-current-recipe/{id}', 'MachineController@getCurrentRecipe');
 	Route::post('/blender/process-rate', 'MachineController@getBlenderProcessRate');
+	Route::post('/accumeter/blender-capabilities', 'MachineController@getBlenderCapabilities');
+	Route::post('/accumeter/feeder-calibrations', 'MachineController@getFeederCalibrations');
+	Route::post('/accumeter/feeder-speeds', 'MachineController@getFeederSpeeds');
+	Route::post('/accumeter/target-rate', 'MachineController@getTargetRate');
 	Route::get('/product-system-states/{id}', 'MachineController@getProductStates');
 	Route::get('/product-hopper-stables/{id}', 'MachineController@getHopperStables');
 	Route::get('/product-calibration-factors/{id}', 'MachineController@getCalibrationFactors');
