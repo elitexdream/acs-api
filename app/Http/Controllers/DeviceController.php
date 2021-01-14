@@ -569,18 +569,33 @@ class DeviceController extends Controller
     /*
         Get devices with analytics
     */
-    public function getDevicesAnalytics(Request $request, $location_id = 0) {
+    public function getDevicesAnalytics(Request $request) {
         $user = $request->user('api');
-        
-        $devices = $user->getMyDevices($location_id);
+        $location = $request->location_id;
+        $page = $request->page;
+        $itemsPerPage = $request->itemsPerPage;
 
+        $query = null;
+        if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+            if($location) {
+                $query = Device::where('location_id', $location)->orderBy('sim_status')->orderBy('id');
+            }
+            else
+                $query = Device::orderBy('sim_status')->orderBy('id');
+        } else {
+            if($location) {
+                $query = $user->company->devices()->where('location_id', $location)->orderBy('sim_status')->orderBy('id');
+            }
+            else
+                $query = $user->company->devices()->orderBy('sim_status')->orderBy('id');
+        }
+
+        $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
         foreach ($devices as $key => $device) {
             $device->status = $device->isRunning();
         }
 
-        return response()->json([
-            'devices' => $devices
-        ]);
+        return response()->json(compact('devices'));
     }
 
     public function getDashboardMachinesTable(Request $request) {
