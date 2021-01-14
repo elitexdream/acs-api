@@ -372,8 +372,8 @@ class MachineController extends Controller
 		description: feeder calibration factors
 		tag: L51_0_8_AvgFeedCal
 	*/
-	public function getCalibrationFactors($id) {
-		$product = Device::where('serial_number', $id)->first();
+	public function getBDBlenderCalibrationFactors(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
 
 		if(!$product) {
 			return response()->json([
@@ -389,19 +389,19 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$last_object = DeviceData::where('device_id', $id)
-						->where('tag_id', 19)
-						->latest('timestamp')
-						->first();
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
 
-		if( $last_object) {
-			$calibration_factors = json_decode($last_object->values);
-			foreach ($calibration_factors as &$factor) {
-				$factor = sprintf('%.02f', $factor / 1000);
-			}
-		} else {
-			$calibration_factors = [];
-		}
+		$factors_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 19)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$calibration_factors = $factors_object->map(function($factor_object) {
+			return [$factor_object->timestamp * 1000, json_decode($factor_object->values)];
+		});
 
 		return response()->json(compact('calibration_factors'));
 	}
