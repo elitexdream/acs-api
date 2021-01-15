@@ -957,6 +957,42 @@ class MachineController extends Controller
 	}
 
 	/*
+		description: Get pump online states
+		configuration: VTC Plus Conveying System
+	*/
+	public function getPumpOnlines($id) {
+		$onlines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		
+		$onlines_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 12)
+						->latest('timestamp')
+						->first();
+
+		if($onlines_object)
+			$onlines = json_decode($onlines_object->values);
+
+		return response()->json(compact('onlines'));
+	}
+
+	/*
+		description: -pump blowback engaged, 12 points, on change (10min-4hr) pump_blowback_on[1..12], INT
+		configuration: VTC Plus Conveying System
+	*/
+	public function getPumpBlowBacks($id) {
+		$blowbacks = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		
+		$blowback_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 14)
+						->latest('timestamp')
+						->first();
+
+		if($blowback_object)
+			$blowbacks = json_decode($blowback_object->values);
+
+		return response()->json(compact('blowbacks'));
+	}
+
+	/*
 		Get Drying hopper states for NGX Dryer
 	*/
 	public function getDryingHopperStates($id) {
