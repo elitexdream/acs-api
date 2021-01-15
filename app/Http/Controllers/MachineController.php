@@ -1087,6 +1087,303 @@ class MachineController extends Controller
 	}
 
 	/*
+		description: get bed states
+		tags: 	-left bed in regen, 1 point, on change (1hr-4hr) R16_LB_IN_REGEN bool
+				-left bed regen heating, 1 point, on change (1hr-4hr) R02_LB_REG_HEATING bool
+				-left bed regen cooling, 1 point, on change (1hr-4hr) R06_LB_REG_COOLING bool
+				-right bed in regen, 1 point, on change (1hr-4hr) R17_RB_IN_REGEN bool
+				-right bed regen heating, 1 point, on change (1hr-4hr) R03_RB_REG_HEATING bool
+				-right bed regen cooling, 1 point, on change (1hr-4hr) R07_RB_REG_COOLING bool
+	*/
+	public function getNgxDryerBedStates($id) {
+		$product = Device::where('serial_number', $id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$states = [
+			[ "name" => "Left bed in regen", "value" => false ],
+			[ "name" => "Left bed regen heating", "value" => false ],
+			[ "name" => "Left bed regen cooling", "value" => false ],
+			[ "name" => "Right bed in regen", "value" => false ],
+			[ "name" => "Right bed regen heating", "value" => false ],
+			[ "name" => "Right bed regen cooling", "value" => false ]
+		];
+
+		$left1 = DeviceData::where('device_id', $id)->where('tag_id', 26)->latest('timestamp')->first();
+
+		if($left1) {
+			$states[0]["value"] = json_decode($left1->values)[0];
+		}
+
+		$left2 = DeviceData::where('device_id', $id)->where('tag_id', 27)->latest('timestamp')->first();
+
+		if($left2) {
+			$states[1]["value"] = json_decode($left2->values)[0];
+		}
+
+		$left3 = DeviceData::where('device_id', $id)->where('tag_id', 28)->latest('timestamp')->first();
+
+		if($left3) {
+			$states[2]["value"] = json_decode($left3->values)[0];
+		}
+
+		$left4 = DeviceData::where('device_id', $id)->where('tag_id', 29)->latest('timestamp')->first();
+
+		if($left4) {
+			$states[3]["value"] = json_decode($left4->values)[0];
+		}
+
+		$left5 = DeviceData::where('device_id', $id)->where('tag_id', 30)->latest('timestamp')->first();
+
+		if($left5) {
+			$states[4]["value"] = json_decode($left5->values)[0];
+		}
+
+		$left6 = DeviceData::where('device_id', $id)->where('tag_id', 31)->latest('timestamp')->first();
+
+		if($left6) {
+			$states[5]["value"] = json_decode($left6->values)[0];
+		}
+
+		return response()->json([
+			'states' => $states
+		]);
+	}
+
+	/*
+		description: DH Online Hrs
+		tags: 	
+				-DH1 Online Hrs - Maint, 1 point, on change (1hr) STATS_DH1_MNT_HRS dint
+				-DH1 Online Hrs – Total, 1 point, on change (1hr) STATS_DH1_TOT_HRS dint
+				-DH2 Online Hrs - Maint, 1 point, on change (1hr) STATS_DH2_MNT_HRS dint
+				-DH2 Online Hrs – Total, 1 point, on change (1hr) STATS_DH2_TOT_HRS dint
+				-DH3 Online Hrs - Maint, 1 point, on change (1hr) STATS_DH3_MNT_HRS dint
+				-DH3 Online Hrs – Total, 1 point, on change (1hr) STATS_DH3_TOT_HRS dint
+	*/
+	public function getNgxDryerDhOnlineHours(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$hours = [
+			[], [], [], [], [], []
+		];
+
+		$hr1_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 40)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr1_objects) {
+			$hr1 = $hr1_objects->map(function($hr1_object) {
+				return [$hr1_object->timestamp * 1000, json_decode($hr1_object->values)[0]];
+			});
+
+			$hours[0] = $hr1;
+		}
+
+		$hr2_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 41)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr2_objects) {
+			$hr2 = $hr2_objects->map(function($hr2_object) {
+				return [$hr2_object->timestamp * 1000, json_decode($hr2_object->values)[0]];
+			});
+
+			$hours[1] = $hr2;
+		}
+
+		$hr3_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 42)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr3_objects) {
+			$hr3 = $hr3_objects->map(function($hr3_object) {
+				return [$hr3_object->timestamp * 1000, json_decode($hr3_object->values)[0]];
+			});
+
+			$hours[2] = $hr3;
+		}
+
+		$hr4_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 43)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr4_objects) {
+			$hr4 = $hr4_objects->map(function($hr4_object) {
+				return [$hr4_object->timestamp * 1000, json_decode($hr4_object->values)[0]];
+			});
+
+			$hours[3] = $hr4;
+		}
+
+		$hr5_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 44)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr5_objects) {
+			$hr5 = $hr5_objects->map(function($hr5_object) {
+				return [$hr5_object->timestamp * 1000, json_decode($hr5_object->values)[0]];
+			});
+
+			$hours[4] = $hr5;
+		}
+
+		$hr6_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 45)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr6_objects) {
+			$hr6 = $hr6_objects->map(function($hr6_object) {
+				return [$hr6_object->timestamp * 1000, json_decode($hr6_object->values)[0]];
+			});
+
+			$hours[5] = $hr6;
+		}
+
+		return response()->json(compact('hours'));
+	}
+
+	/*
+		description: Dryer Online Hrs
+		tags: 	
+				-Dryer Online Hrs – Maint, 1 point, on change (1hr) STATS_ONLINE_MAINT_HRS dint
+				-Dryer Online Hrs – Total, 1 point, on change (1hr) STATS_ONLINE_TOT_HRS dint
+	*/
+	public function getNgxDryerDryerOnlineHours(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$hours = [
+			[], []
+		];
+
+		$hr1_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 50)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr1_objects) {
+			$hr1 = $hr1_objects->map(function($hr1_object) {
+				return [$hr1_object->timestamp * 1000, json_decode($hr1_object->values)[0]];
+			});
+
+			$hours[0] = $hr1;
+		}
+
+		$hr2_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 51)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr2_objects) {
+			$hr2 = $hr2_objects->map(function($hr2_object) {
+				return [$hr2_object->timestamp * 1000, json_decode($hr2_object->values)[0]];
+			});
+
+			$hours[1] = $hr2;
+		}
+
+		return response()->json(compact('hours'));
+	}
+
+	/*
+		description: Blower Run Hrs
+		tags: 	
+				-Process Blower Run Hrs - Maint, 1 point, on change (1hr) STATS_PROC_BLWR_MNT_HRS dint
+				-Process Blower Run Hrs – Total, 1 point, on change (1hr) STATS_PROC_BLWR_TOT_HRS dint
+	*/
+	public function getNgxDryerBlowerRunHours(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$hours = [
+			[], []
+		];
+
+		$hr1_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 52)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr1_objects) {
+			$hr1 = $hr1_objects->map(function($hr1_object) {
+				return [$hr1_object->timestamp * 1000, json_decode($hr1_object->values)[0]];
+			});
+
+			$hours[0] = $hr1;
+		}
+
+		$hr2_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 53)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr2_objects) {
+			$hr2 = $hr2_objects->map(function($hr2_object) {
+				return [$hr2_object->timestamp * 1000, json_decode($hr2_object->values)[0]];
+			});
+
+			$hours[1] = $hr2;
+		}
+
+		return response()->json(compact('hours'));
+	}
+
+	/*
 		Get Machine state for machine 3
 	*/
 	public function getMachineStates3($id) {
@@ -1233,8 +1530,8 @@ class MachineController extends Controller
 		description: actual target temperature
 		tag: Return Temp, Setpoint 1
 	*/
-	public function getTcuActTgtTemperature(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
+	public function getTcuActTgtTemperature($id) {
+		$product = Device::where('serial_number', $id)->first();
 
 		if(!$product) {
 			return response()->json([
@@ -1242,40 +1539,41 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$configuration = $product->configuration;
+		$temps = [0, 0];
+		$unit = 0;
 
-		if(!$configuration) {
-			return response()->json([
-				'message' => 'Device Not Configured'
-			], 404);
+		$unit_object = DeviceData::where('device_id', $id)
+										->where('tag_id', 7)
+										->latest('timestamp')
+										->first();
+		if($unit_object) {
+			$unit = json_decode($unit_object->values)[0];
 		}
 
-		$from = $this->getFromTo($request->timeRange)["from"];
-		$to = $this->getFromTo($request->timeRange)["to"];
-
-		$actuals_object = DeviceData::where('device_id', $request->id)
+		$actual_object = DeviceData::where('device_id', $id)
 										->where('tag_id', 4)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
+										->latest('timestamp')
+										->first();
 
-		$actuals = $actuals_object->map(function($actual_object) {
-			return [$actual_object->timestamp * 1000, round(json_decode($actual_object->values)[0], 2)];
-		});
+		if($actual_object) {
+			$temps[0] = json_decode($actual_object->values)[0];
+		}
 
-		$targets_object = DeviceData::where('device_id', $request->id)
+		$target_object = DeviceData::where('device_id', $id)
 										->where('tag_id', 8)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
+										->latest('timestamp')
+										->first();
 
-		$targets = $targets_object->map(function($target_object) {
-			return [$target_object->timestamp * 1000, round(json_decode($target_object->values)[0], 2)];
-		});
+		if($target_object) {
+			$temps[1] = json_decode($target_object->values)[0];
+		}
 
-		return response()->json(compact('actuals', 'targets'));
+		if($unit == 1) {
+			$temps[0] = round(($temps[0] - 32) * 5 / 9, 2);
+			$temps[1] = round(($temps[1] - 32) * 5 / 9, 2);
+		}
+
+		return response()->json(compact('temps'));
 	}
 
 	/*
