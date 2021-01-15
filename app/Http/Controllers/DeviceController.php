@@ -357,32 +357,37 @@ class DeviceController extends Controller
         $client = new Client();
         
         try {
-            $res = $client->post(
-                $postControl,
-                [
-                    'headers' => [
-                        'Authorization' => "Bearer " . $this->bearer_token
-                    ],
-                    'json' => [
-                        "duration" => 400
-                    ]
-                ]
-            );
-            if ($res) {
-                $response = $client->get(
-                    $getLink,
+            while(1) {
+                $res = $client->post(
+                    $postControl,
                     [
                         'headers' => [
                             'Authorization' => "Bearer " . $this->bearer_token
                         ],
                         'json' => [
-                            "type" => "webui"
-                        ],
+                            "duration" => 400
+                        ]
                     ]
                 );
-                $data = json_decode($response->getBody()->getContents())->data;
 
-                return response()->json($data);
+
+                if ($res) {
+                    $response = $client->get(
+                        $getLink,
+                        [
+                            'headers' => [
+                                'Authorization' => "Bearer " . $this->bearer_token
+                            ],
+                            'json' => [
+                                "type" => "webui"
+                            ],
+                        ]
+                    );
+                    $data = json_decode($response->getBody()->getContents())->data;
+
+                    if(count($data))
+                        return response()->json($data);
+                }
             }
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
@@ -400,19 +405,19 @@ class DeviceController extends Controller
         $client = new Client();
         
         try {
-            $res = $client->post(
-                $postControl,
-                [
-                    'headers' => [
-                        'Authorization' => "Bearer " . $this->bearer_token
-                    ],
-                    'json' => [
-                        "duration" => 400
-                    ],
-                ]
-            );
-            if ($res) {
-                do {
+            while(1) {
+                $res = $client->post(
+                    $postControl,
+                    [
+                        'headers' => [
+                            'Authorization' => "Bearer " . $this->bearer_token
+                        ],
+                        'json' => [
+                            "duration" => 400
+                        ],
+                    ]
+                );
+                if ($res) {
                     $response = $client->get(
                         $getLink,
                         [
@@ -424,10 +429,12 @@ class DeviceController extends Controller
                             ],
                         ]
                     );
-                    $data = json_decode($response->getBody()->getContents())->data;
-                } while (count($data) === 0);
 
-                return response()->json($data);
+                    $data = json_decode($response->getBody()->getContents())->data;
+
+                    if(count($data))
+                        return response()->json($data);
+                }
             }
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
