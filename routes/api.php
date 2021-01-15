@@ -14,6 +14,11 @@ Route::middleware('auth')->group(function () {
 	Route::post('/auth/update-password', 'UserController@updatePassword');
 });
 
+Route::middleware('auth')->group(function () {
+	Route::post('/profile/timezone', 'UserController@updateTimezone');
+	Route::get('/profile/timezones', 'UserController@getTimezones');
+});
+
 Route::group(['prefix' => 'locations'], function () {
 	Route::get('/', 'LocationController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager');
 	Route::post('/add', 'LocationController@store')->middleware('auth:customer_admin,customer_manager');

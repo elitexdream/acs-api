@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use Hash;
 use Carbon\Carbon;
 use Mail;
+use DB;
 
 use App\Traits\MailTrait;
 
@@ -124,6 +125,29 @@ class UserController extends Controller
 
             return response()->json(['message' => 'Successfully updated.'], 200);
         }
+    }
+
+    public function getTimezones() {
+        $timezones = DB::Table('timezones')->get();
+
+        return response()->json(compact('timezones'));
+    }
+
+    public function updateTimezone(Request $request) {
+        $validator = Validator::make($request->all(), [ 
+            'timezone' => 'required',
+        ]);
+
+        // if ($validator->fails()) {
+        //     return response()->json(['error'=>$validator->errors()], 422);
+        // }
+
+        // $user = $request->user('api');
+
+        // $user->password = bcrypt($request->new_password);
+        // $user->save();
+        
+        return response()->json(['message' => 'Successfully updated.'], 200);
     }
 
 
