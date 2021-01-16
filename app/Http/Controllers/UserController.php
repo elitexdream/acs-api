@@ -105,6 +105,13 @@ class UserController extends Controller
     	}
     }
 
+    public function getUser(Request $request) {
+        $user = $request->user('api');
+        $user->profile = $user->profile;
+
+        return response()->json(compact('user'));
+    }
+
     public function updatePassword(Request $request) {
         $validator = Validator::make($request->all(), [ 
             'current_password' => 'required',
@@ -138,18 +145,23 @@ class UserController extends Controller
             'timezone' => 'required',
         ]);
 
-        // if ($validator->fails()) {
-        //     return response()->json(['error'=>$validator->errors()], 422);
-        // }
+        if ($validator->fails()) {
+            return response()->json(['error'=>$validator->errors()], 422);
+        }
 
-        // $user = $request->user('api');
+        $profile = $request->user('api')->profile;
 
-        // $user->password = bcrypt($request->new_password);
-        // $user->save();
-        
-        return response()->json(['message' => 'Successfully updated.'], 200);
+        $timezone = DB::Table('timezones')->where('id', $request->timezone)->first();
+
+        if($timezone) {
+            $profile->timezone = $request->timezone;
+            $profile->save();
+
+            return response()->json(['message' => 'Successfully updated.'], 200);
+        } else {
+            return response()->json(['message' => 'Can\'t find timezone'], 404);
+        }
     }
-
 
     public function initCreateAccount() {
         $roles = Role::whereIn('key', ['customer_manager', 'customer_operator', 'customer_admin'])->get();

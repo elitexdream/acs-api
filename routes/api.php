@@ -12,6 +12,7 @@ Route::post('auth/password-reset', 'UserController@passwordReset');
 Route::middleware('auth')->group(function () {
     Route::get('/auth/logout', 'UserController@logout');
 	Route::post('/auth/update-password', 'UserController@updatePassword');
+	Route::get('/auth/user', 'UserController@getUser');
 });
 
 Route::middleware('auth')->group(function () {
