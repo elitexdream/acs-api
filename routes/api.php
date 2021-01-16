@@ -175,7 +175,7 @@ Route::post('test/send-sms', 'CompanyController@testSMS');
 Route::post('test/blender-json', 'TestController@store');
 
 Route::post('test/azure', 'DeviceController@testAzureJson');
-Route::post('test/mqtt', 'DeviceController@testMqttPHP');
+Route::post('test/time', 'MachineController@getFromTo');
 Route::post('test/carrier/{id}', 'DeviceController@carrierFromKoreAPI');
 
 Route::get('test/pusher-notification', 'DeviceController@sendEvent');

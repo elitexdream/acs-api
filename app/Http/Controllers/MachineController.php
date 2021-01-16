@@ -19,6 +19,18 @@ use \stdClass;
 class MachineController extends Controller
 {
 	private $num_chunks = 12;
+	private $timeshift = 0;
+
+    public function __construct()
+    {
+    	$user = auth('api')->user();
+		$timezone = DB::Table('timezones')->where('id', $user->profile->timezone)->first();
+		if($timezone) {
+			date_default_timezone_set($timezone->name);
+
+			$this->timeshift = date('Z');
+		}
+    }
 
 	/*
 		Get general information of product
@@ -400,7 +412,7 @@ class MachineController extends Controller
 										->get();
 
 		$calibration_factors = $factors_object->map(function($factor_object) {
-			return [$factor_object->timestamp * 1000, json_decode($factor_object->values)];
+			return [($factor_object->timestamp + $this->timeshift) * 1000, json_decode($factor_object->values)];
 		});
 
 		return response()->json(compact('calibration_factors'));
@@ -439,7 +451,7 @@ class MachineController extends Controller
 										->get();
 
 		$process_rate = $process_rates_object->map(function($process_rate_object) {
-			return [$process_rate_object->timestamp * 1000, json_decode($process_rate_object->values)[0]];
+			return [($process_rate_object->timestamp + $this->timeshift) * 1000, json_decode($process_rate_object->values)[0]];
 		});
 
 		return response()->json(compact('process_rate'));
@@ -484,7 +496,7 @@ class MachineController extends Controller
 								->get();
 
 		$utilizations = $utilizations_object->map(function($utilization_object) {
-			return [$utilization_object->timestamp * 1000, json_decode($utilization_object->values)[0]];
+			return [($utilization_object->timestamp + $this->timeshift) * 1000, json_decode($utilization_object->values)[0]];
 		});
 
 		return response()->json(compact('utilizations'));
@@ -529,7 +541,7 @@ class MachineController extends Controller
 										->get();
 
 		$energy_consumption = $energy_consumptions_object->map(function($energy_consumption_object) {
-			return [$energy_consumption_object->timestamp * 1000, json_decode($energy_consumption_object->values)[0]];
+			return [($energy_consumption_object->timestamp + $this->timeshift) * 1000, json_decode($energy_consumption_object->values)[0]];
 		});
 
 		return response()->json(compact('energy_consumption'));
@@ -651,7 +663,7 @@ class MachineController extends Controller
 										->get();
 
 		$process_rate = $process_rates_object->map(function($process_rate_object) {
-			return [$process_rate_object->timestamp * 1000, json_decode($process_rate_object->values)[0]];
+			return [($process_rate_object->timestamp + $this->timeshift) * 1000, json_decode($process_rate_object->values)[0]];
 		});
 
 		return response()->json(compact('process_rate'));
@@ -788,7 +800,7 @@ class MachineController extends Controller
 										->get();
 
 		$capabilities = $capabilities_object->map(function($capability_object) {
-			return [$capability_object->timestamp * 1000, round(json_decode($capability_object->values)[0], 2)];
+			return [($capability_object->timestamp + $this->timeshift) * 1000, round(json_decode($capability_object->values)[0], 2)];
 		});
 
 		return response()->json(compact('capabilities'));
@@ -827,7 +839,7 @@ class MachineController extends Controller
 										->get();
 
 		$rates = $rates_object->map(function($rate_object) {
-			return [$rate_object->timestamp * 1000, round(json_decode($rate_object->values)[0], 2)];
+			return [($rate_object->timestamp + $this->timeshift) * 1000, round(json_decode($rate_object->values)[0], 2)];
 		});
 
 		return response()->json(compact('rates'));
@@ -866,7 +878,7 @@ class MachineController extends Controller
 										->get();
 
 		$calibrations = $calibrations_object->map(function($calibration_object) {
-			return [$calibration_object->timestamp * 1000, json_decode($calibration_object->values)];
+			return [($calibration_object->timestamp + $this->timeshift) * 1000, json_decode($calibration_object->values)];
 		});
 
 		return response()->json(compact('calibrations'));
@@ -905,7 +917,7 @@ class MachineController extends Controller
 										->get();
 
 		$speeds = $speeds_object->map(function($speed_object) {
-			return [$speed_object->timestamp * 1000, json_decode($speed_object->values)];
+			return [($speed_object->timestamp + $this->timeshift) * 1000, json_decode($speed_object->values)];
 		});
 
 		return response()->json(compact('speeds'));
@@ -1189,7 +1201,7 @@ class MachineController extends Controller
 
 		if($hr1_objects) {
 			$hr1 = $hr1_objects->map(function($hr1_object) {
-				return [$hr1_object->timestamp * 1000, json_decode($hr1_object->values)[0]];
+				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
 			});
 
 			$hours[0] = $hr1;
@@ -1204,7 +1216,7 @@ class MachineController extends Controller
 
 		if($hr2_objects) {
 			$hr2 = $hr2_objects->map(function($hr2_object) {
-				return [$hr2_object->timestamp * 1000, json_decode($hr2_object->values)[0]];
+				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
 			});
 
 			$hours[1] = $hr2;
@@ -1219,7 +1231,7 @@ class MachineController extends Controller
 
 		if($hr3_objects) {
 			$hr3 = $hr3_objects->map(function($hr3_object) {
-				return [$hr3_object->timestamp * 1000, json_decode($hr3_object->values)[0]];
+				return [($hr3_object->timestamp + $this->timeshift) * 1000, json_decode($hr3_object->values)[0]];
 			});
 
 			$hours[2] = $hr3;
@@ -1234,7 +1246,7 @@ class MachineController extends Controller
 
 		if($hr4_objects) {
 			$hr4 = $hr4_objects->map(function($hr4_object) {
-				return [$hr4_object->timestamp * 1000, json_decode($hr4_object->values)[0]];
+				return [($hr4_object->timestamp + $this->timeshift) * 1000, json_decode($hr4_object->values)[0]];
 			});
 
 			$hours[3] = $hr4;
@@ -1249,7 +1261,7 @@ class MachineController extends Controller
 
 		if($hr5_objects) {
 			$hr5 = $hr5_objects->map(function($hr5_object) {
-				return [$hr5_object->timestamp * 1000, json_decode($hr5_object->values)[0]];
+				return [($hr5_object->timestamp + $this->timeshift) * 1000, json_decode($hr5_object->values)[0]];
 			});
 
 			$hours[4] = $hr5;
@@ -1264,7 +1276,7 @@ class MachineController extends Controller
 
 		if($hr6_objects) {
 			$hr6 = $hr6_objects->map(function($hr6_object) {
-				return [$hr6_object->timestamp * 1000, json_decode($hr6_object->values)[0]];
+				return [($hr6_object->timestamp + $this->timeshift) * 1000, json_decode($hr6_object->values)[0]];
 			});
 
 			$hours[5] = $hr6;
@@ -1304,7 +1316,7 @@ class MachineController extends Controller
 
 		if($hr1_objects) {
 			$hr1 = $hr1_objects->map(function($hr1_object) {
-				return [$hr1_object->timestamp * 1000, json_decode($hr1_object->values)[0]];
+				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
 			});
 
 			$hours[0] = $hr1;
@@ -1319,7 +1331,7 @@ class MachineController extends Controller
 
 		if($hr2_objects) {
 			$hr2 = $hr2_objects->map(function($hr2_object) {
-				return [$hr2_object->timestamp * 1000, json_decode($hr2_object->values)[0]];
+				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
 			});
 
 			$hours[1] = $hr2;
@@ -1359,7 +1371,7 @@ class MachineController extends Controller
 
 		if($hr1_objects) {
 			$hr1 = $hr1_objects->map(function($hr1_object) {
-				return [$hr1_object->timestamp * 1000, json_decode($hr1_object->values)[0]];
+				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
 			});
 
 			$hours[0] = $hr1;
@@ -1374,7 +1386,7 @@ class MachineController extends Controller
 
 		if($hr2_objects) {
 			$hr2 = $hr2_objects->map(function($hr2_object) {
-				return [$hr2_object->timestamp * 1000, json_decode($hr2_object->values)[0]];
+				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
 			});
 
 			$hours[1] = $hr2;
@@ -1472,7 +1484,7 @@ class MachineController extends Controller
 
 		if($inventories_object) {
 			$inventories = $inventories_object->map(function($inventory_object) {
-				return [$inventory_object->timestamp * 1000, json_decode($inventory_object->values)[0]];
+				return [($inventory_object->timestamp + $this->timeshift) * 1000, json_decode($inventory_object->values)[0]];
 			});
 		} else {
 			$inventories = [];
@@ -1516,7 +1528,7 @@ class MachineController extends Controller
 
 		if($lengths_object) {
 			$lengths = $lengths_object->map(function($length_object) {
-				return [$length_object->timestamp * 1000, round(json_decode($length_object->values)[0], 2)];
+				return [($length_object->timestamp + $this->timeshift) * 1000, round(json_decode($length_object->values)[0], 2)];
 			});
 		} else {
 			$lengths = [];
@@ -1876,7 +1888,6 @@ class MachineController extends Controller
 	}
 
 	public function getFromTo($data) {
-
 		switch ($data["timeRangeOption"]) {
 			case 'last30Min':
 				return [
