@@ -284,20 +284,20 @@ class MachineController extends Controller
 		actual and target weight in BD_Batch_Blender
 	*/
 	public function getProductWeight($id) {
-		$weight_objects = DeviceData::where('device_id', $id)
-						->whereIn('tag_id', [13, 14])
+		$actual_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 13)
 						->whereJsonLength('values', 8)
 						->latest('timestamp')
-						->get()
-						->unique('tag_id');
+						->first();
 
-		$targets = [];
-		$actuals = [];
-		
+		$target_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 14)
+						->whereJsonLength('values', 8)
+						->latest('timestamp')
+						->first();
 
-		$target_object = $weight_objects->firstWhere('tag_id', 13);
-		$actual_object = $weight_objects->firstWhere('tag_id', 14);
-
+		$targets = [0, 0, 0, 0, 0, 0, 0, 0];
+		$actuals = [0, 0, 0, 0, 0, 0, 0, 0];
 
 		if($target_object) {
 			$targets = json_decode($target_object->values);
@@ -313,7 +313,8 @@ class MachineController extends Controller
 			}
 		}
 
-		return response()->json(compact('targets', 'actuals'));
+		$items = [$actuals, $targets];
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -329,26 +330,18 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$configuration = $product->configuration;
-
-		if(!$configuration) {
-			return response()->json([
-				'message' => 'Device Not Configured'
-			], 404);
-		}
-
 		$last_object = DeviceData::where('device_id', $id)
 						->where('tag_id', 26)
 						->latest('timestamp')
 						->first();
 
 		if( $last_object) {
-			$conveyings = json_decode($last_object->values);
+			$items = json_decode($last_object->values);
 		} else {
-			$conveyings = [];
+			$items = [];
 		}
 
-		return response()->json(compact('conveyings'));
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -964,7 +957,8 @@ class MachineController extends Controller
 		if($targetValues)
 			$targets = json_decode($actualValues->values);
 
-		return response()->json(compact('targets', 'actuals'));
+		$items = [$actuals, $targets];
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -973,7 +967,7 @@ class MachineController extends Controller
 		return: 12 sized array of hours
 	*/
 	public function getPumpHours($id) {
-		$hours = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		$items = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 		
 		$hourValues = DeviceData::where('device_id', $id)
 						->where('tag_id', 15)
@@ -981,9 +975,9 @@ class MachineController extends Controller
 						->first();
 
 		if($hourValues)
-			$hours = json_decode($hourValues->values);
+			$items = json_decode($hourValues->values);
 
-		return response()->json(compact('hours'));
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -1113,7 +1107,9 @@ class MachineController extends Controller
 		if($targetHopper2) $targets[1] = json_decode($targetHopper2->values)[0];
 		if($targetHopper3) $targets[2] = json_decode($targetHopper3->values)[0];
 
-		return response()->json(compact('inlets', 'targets', 'outlets'));
+		$items = [$inlets, $outlets, $targets];
+
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -1569,7 +1565,7 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$temps = [0, 0];
+		$items = [0, 0];
 		$unit = 0;
 
 		$unit_object = DeviceData::where('device_id', $id)
@@ -1586,7 +1582,7 @@ class MachineController extends Controller
 										->first();
 
 		if($actual_object) {
-			$temps[0] = json_decode($actual_object->values)[0];
+			$items[0] = json_decode($actual_object->values)[0];
 		}
 
 		$target_object = DeviceData::where('device_id', $id)
@@ -1595,15 +1591,15 @@ class MachineController extends Controller
 										->first();
 
 		if($target_object) {
-			$temps[1] = json_decode($target_object->values)[0];
+			$items[1] = json_decode($target_object->values)[0];
 		}
 
 		if($unit == 1) {
-			$temps[0] = round(($temps[0] - 32) * 5 / 9, 2);
-			$temps[1] = round(($temps[1] - 32) * 5 / 9, 2);
+			$items[0] = round(($items[0] - 32) * 5 / 9, 2);
+			$items[1] = round(($items[1] - 32) * 5 / 9, 2);
 		}
 
-		return response()->json(compact('temps'));
+		return response()->json(compact('items'));
 	}
 
 	/*
