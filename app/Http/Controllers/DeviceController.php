@@ -99,6 +99,21 @@ class DeviceController extends Controller
         ]);
 	}
 
+    public function getDeviceConfiguration($id) {
+        $device = Device::where('serial_number', $id)->first();
+
+        if(!$device) {
+            return response()->json('Device Not Found', 404);
+        }
+
+        $configuration = new stdClass();
+        $configuration->tcu_added = $device->tcu_added;
+        $configuration->configuration_id = $device->machine_id;
+        $configuration->name = $device->configuration->name;
+
+        return response()->json(compact('configuration'));
+    }
+
     public function getAllDevices() {
         $devices = Device::orderBy('sim_status', 'ASC')->where('iccid', '<>', 0)->whereNotNull('iccid')->select('name', 'id', 'customer_assigned_name', 'tcu_added')->get();
 
@@ -634,16 +649,19 @@ class DeviceController extends Controller
 
         return response()->json(compact('devices'));
     }
-    public function getTotalValues($array) {
-        $result = 0;
-        foreach($array as $item) {
-			$value = json_decode($item->values);
-			foreach($value as $num) {
-				$result += $num;
-			}
+
+    public function testFunction(Request $request) {
+        $limit = $request->limit;
+
+        $devices = DeviceData::where('created_at', '')->limit($limit)->get();
+
+        foreach ($devices as $device) {
+            $device->update([
+                'created_at' => gmdate("D, d M Y H:i:s \G\M\T", $device->timestamp)
+            ]);
         }
 
-        return $result;
+        dd($devices);
     }
 
     public function testAzureJson(Request $request) {

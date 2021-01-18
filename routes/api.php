@@ -39,6 +39,7 @@ Route::group(['prefix' => 'configurations'], function () {
 });
 
 Route::group(['prefix' => 'devices'], function () {
+	Route::get('/{id}/configuration', 'DeviceController@getDeviceConfiguration');
 	Route::get('/customer-devices', 'DeviceController@getCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
 	Route::get('/all', 'DeviceController@getAllDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 	Route::post('/devices-analytics', 'DeviceController@getDevicesAnalytics')->middleware('auth:customer_admin,customer_manager,customer_operator,acs_admin,acs_manager,acs_viewer');
@@ -175,7 +176,7 @@ Route::post('test/send-sms', 'CompanyController@testSMS');
 Route::post('test/blender-json', 'TestController@store');
 
 Route::post('test/azure', 'DeviceController@testAzureJson');
-Route::post('test/time', 'MachineController@getFromTo');
+Route::post('test', 'DeviceController@testFunction');
 Route::post('test/carrier/{id}', 'DeviceController@carrierFromKoreAPI');
 
 Route::get('test/pusher-notification', 'DeviceController@sendEvent');

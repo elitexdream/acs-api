@@ -15,6 +15,10 @@ class DeviceData extends Model
 	public $table = 'device_data';
     public $timestamps = false;
 
+    protected $fillable = [
+        'created_at'
+    ];
+
     protected static function boot()
     {
         parent::boot();
