@@ -111,7 +111,7 @@ Route::group(['prefix' => 'devices'], function () {
 });
 
 Route::group(['prefix' => 'analytics'], function () {
-	Route::get('/product-overview/{id}', 'MachineController@getProductOverview');
+	Route::post('/product-overview', 'MachineController@getProductOverview');
 	Route::post('/product-utilization', 'MachineController@getProductUtilization');
 	Route::post('/product-energy-consumption', 'MachineController@getEnergyConsumption');
 	Route::get('/product-inventory/{id}', 'MachineController@getInventories');
@@ -125,7 +125,7 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/accumeter/feeder-calibrations', 'MachineController@getFeederCalibrations');
 	Route::post('/accumeter/feeder-speeds', 'MachineController@getFeederSpeeds');
 	Route::post('/accumeter/target-rate', 'MachineController@getTargetRate');
-	Route::get('/product-system-states/{id}', 'MachineController@getProductStates');
+	Route::post('/product-system-states', 'MachineController@getProductStates');
 	Route::get('/product-hopper-stables/{id}', 'MachineController@getHopperStables');
 	Route::get('/product-system-states-3/{id}', 'MachineController@getMachineStates3');
 	Route::get('/product-feeder-stables/{id}', 'MachineController@getFeederStables');

@@ -37,8 +37,8 @@ class MachineController extends Controller
 		They are Name, Serial number, Software build, and version
 		return: Object
 	*/
-	public function getProductOverview($id) {
-		$product = Device::where('serial_number', $id)->first();
+	public function getProductOverview(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
 
 		if(!$product) {
 			return response()->json([
@@ -46,7 +46,15 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$configuration = $product->configuration;
+		$configuration = null;
+
+		if($request->isAdditional && $product->tcu_added) {
+			$configuration = Machine::findOrFail(MACHINE_TRUETEMP_TCU);
+		} else {
+			$configuration = $product->configuration;
+		}
+
+		$product->configuration = $configuration;
 
 		if(!$configuration) {
 			return response()->json([
@@ -56,7 +64,7 @@ class MachineController extends Controller
 
 		if($configuration->id == MACHINE_TRUETEMP_TCU) {
 			// product version
-			if($version_object = DeviceData::where('device_id', $id)
+			if($version_object = DeviceData::where('device_id', $request->id)
 								->where('tag_id', 1)
 								->latest('timestamp')
 								->first()) {
@@ -75,7 +83,7 @@ class MachineController extends Controller
 
 			// product version
 			if($version_object = DB::table('software_version')
-								->where('device_id', $id)
+								->where('device_id', $request->id)
 								->where('tag_id', $tag_software_version->tag_id)
 								->latest('timestamp')
 								->first()) {
@@ -94,7 +102,7 @@ class MachineController extends Controller
 			}
 
 			if($software_build_object = DB::table('software_builds')
-											->where('device_id', $id)
+											->where('device_id', $request->id)
 											->where('tag_id', $tag_software_build->tag_id)
 											->latest('timestamp')
 											->first()) {
@@ -119,17 +127,17 @@ class MachineController extends Controller
 			}
 
 			$serial_year_object = DB::table('serial_number_year')
-										->where('device_id', $id)
+										->where('device_id', $request->id)
 										->where('tag_id', $tag_serial_year->tag_id)
 										->latest('timestamp')
 										->first();
 			$serial_month_object = DB::table('serial_number_month')
-										->where('device_id', $id)
+										->where('device_id', $request->id)
 										->where('tag_id', $tag_serial_month->tag_id)
 										->latest('timestamp')
 										->first();
 			$serial_unit_object = DB::table('serial_number_unit')
-										->where('device_id', $id)
+										->where('device_id', $request->id)
 										->where('tag_id', $tag_serial_unit->tag_id)
 										->latest('timestamp')
 										->first();
@@ -673,8 +681,8 @@ class MachineController extends Controller
 		configuration: Accumeter Ovation Continuous Blender configuration
 		description: Get Machine state, system steady, mass flow hopper and RPM
 	*/
-	public function getProductStates($id) {
-		$product = Device::where('serial_number', $id)->first();
+	public function getProductStates(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
 
 		if(!$product) {
 			return response()->json([
@@ -682,7 +690,13 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$configuration = $product->configuration;
+		$configuration = null;
+
+		if($request->isAdditional && $product->tcu_added) {
+			$configuration = Machine::findOrFail(MACHINE_TRUETEMP_TCU);
+		} else {
+			$configuration = $product->configuration;
+		}
 
 		if(!$configuration) {
 			return response()->json([
@@ -697,7 +711,8 @@ class MachineController extends Controller
 			$machine_states->heater_status = 0;
 			$machine_states->vent_status = 0;
 			
-			if($pump_status_object = DeviceData::where('device_id', $id)
+			if($pump_status_object = DeviceData::where('machine_id', $configuration->id)
+						->where('device_id', $request->id)
 						->where('tag_id', 40)
 						->latest('timestamp')
 						->first()) {
@@ -708,10 +723,11 @@ class MachineController extends Controller
 				}
 			}
 
-			if($heater_status_object = DeviceData::where('device_id', $id)
-						->where('tag_id', 41)
-						->latest('timestamp')
-						->first()) {
+			if($heater_status_object = DeviceData::where('machine_id', $configuration->id)
+				->where('device_id', $request->id)
+				->where('tag_id', 41)
+				->latest('timestamp')
+				->first()) {
 				try {
 					$machine_states->heater_status = json_decode($heater_status_object->values)[0];
 				} catch(Exception $e) {
@@ -719,10 +735,11 @@ class MachineController extends Controller
 				}
 			}
 
-			if($vent_status_object = DeviceData::where('device_id', $id)
-						->where('tag_id', 42)
-						->latest('timestamp')
-						->first()) {
+			if($vent_status_object = DeviceData::where('machine_id', $configuration->id)
+				->where('device_id', $request->id)
+				->where('tag_id', 42)
+				->latest('timestamp')
+				->first()) {
 				try {
 					$machine_states->vent_status = json_decode($vent_status_object->values)[0];
 				} catch(Exception $e) {
@@ -735,11 +752,12 @@ class MachineController extends Controller
 			$machine_states->mass_flow_hopper = false;
 			$machine_states->rpm = false;
 
-			$states_object = DeviceData::where('device_id', $id)
-										->whereIn('tag_id', [10, 24, 25, 27])
-										->latest('timestamp')
-										->get()
-										->unique('tag_id');
+			$states_object = DeviceData::where('machine_id', $configuration->id)
+				->where('device_id', $request->id)
+				->whereIn('tag_id', [10, 24, 25, 27])
+				->latest('timestamp')
+				->get()
+				->unique('tag_id');
 
 			if($states_object) {
 				$machine_running = $states_object->firstWhere('tag_id', 10);
