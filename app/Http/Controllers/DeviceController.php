@@ -651,7 +651,7 @@ class DeviceController extends Controller
     }
 
     public function testFunction(Request $request) {
-        ini_set('max_execution_time', 1800);
+        set_time_limit(0);
 
         $limit = $request->limit;
 
