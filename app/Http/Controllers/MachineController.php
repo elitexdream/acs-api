@@ -824,7 +824,9 @@ class MachineController extends Controller
 			return [($capability_object->timestamp + $this->timeshift) * 1000, round(json_decode($capability_object->values)[0], 2)];
 		});
 
-		return response()->json(compact('capabilities'));
+		$items = [$capabilities];
+
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -863,7 +865,9 @@ class MachineController extends Controller
 			return [($rate_object->timestamp + $this->timeshift) * 1000, round(json_decode($rate_object->values)[0], 2)];
 		});
 
-		return response()->json(compact('rates'));
+		$items = [$rates];
+		
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -898,11 +902,23 @@ class MachineController extends Controller
 										->orderBy('timestamp')
 										->get();
 
+		$feeders = collect([0, 1, 2, 3, 4, 5]);
+
 		$calibrations = $calibrations_object->map(function($calibration_object) {
 			return [($calibration_object->timestamp + $this->timeshift) * 1000, json_decode($calibration_object->values)];
 		});
 
-		return response()->json(compact('calibrations'));
+		$items = $feeders->map(function ($feeder, $i) use ($calibrations) {
+			$item = new stdClass();
+			$item->name = 'Feeder ' . ($i + 1);
+			$item->data = collect($calibrations)->map(function($calibration, $key) use ($i) {
+				return [$calibration[0], round($calibration[1][$i], 2)];
+			});
+
+			return $item;
+		});
+
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -941,7 +957,19 @@ class MachineController extends Controller
 			return [($speed_object->timestamp + $this->timeshift) * 1000, json_decode($speed_object->values)];
 		});
 
-		return response()->json(compact('speeds'));
+		$feeders = collect([0, 1, 2, 3, 4, 5]);
+
+		$items = $feeders->map(function ($feeder, $i) use ($speeds) {
+			$item = new stdClass();
+			$item->name = 'Feeder ' . ($i + 1);
+			$item->data = collect($speeds)->map(function($speed, $key) use ($i) {
+				return [$speed[0], round($speed[1][$i], 2)];
+			});
+
+			return $item;
+		});
+
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -1212,7 +1240,7 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$hours = [
+		$items = [
 			[], [], [], [], [], []
 		];
 
@@ -1228,7 +1256,10 @@ class MachineController extends Controller
 				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
 			});
 
-			$hours[0] = $hr1;
+			$hr = new stdClass();
+			$hr->name = 'DH1 Online Hrs - Maint';
+			$hr->data = $hr1;
+			$items[0] = $hr;
 		}
 
 		$hr2_objects = DeviceData::where('device_id', $request->id)
@@ -1243,7 +1274,10 @@ class MachineController extends Controller
 				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
 			});
 
-			$hours[1] = $hr2;
+			$hr = new stdClass();
+			$hr->name = 'DH1 Online Hrs – Total';
+			$hr->data = $hr2;
+			$items[1] = $hr;
 		}
 
 		$hr3_objects = DeviceData::where('device_id', $request->id)
@@ -1258,7 +1292,10 @@ class MachineController extends Controller
 				return [($hr3_object->timestamp + $this->timeshift) * 1000, json_decode($hr3_object->values)[0]];
 			});
 
-			$hours[2] = $hr3;
+			$hr = new stdClass();
+			$hr->name = 'DH2 Online Hrs - Maint';
+			$hr->data = $hr3;
+			$items[2] = $hr;
 		}
 
 		$hr4_objects = DeviceData::where('device_id', $request->id)
@@ -1273,7 +1310,10 @@ class MachineController extends Controller
 				return [($hr4_object->timestamp + $this->timeshift) * 1000, json_decode($hr4_object->values)[0]];
 			});
 
-			$hours[3] = $hr4;
+			$hr = new stdClass();
+			$hr->name = 'DH2 Online Hrs – Total';
+			$hr->data = $hr4;
+			$items[3] = $hr;
 		}
 
 		$hr5_objects = DeviceData::where('device_id', $request->id)
@@ -1288,7 +1328,10 @@ class MachineController extends Controller
 				return [($hr5_object->timestamp + $this->timeshift) * 1000, json_decode($hr5_object->values)[0]];
 			});
 
-			$hours[4] = $hr5;
+			$hr = new stdClass();
+			$hr->name = 'DH3 Online Hrs - Maint';
+			$hr->data = $hr5;
+			$items[4] = $hr;
 		}
 
 		$hr6_objects = DeviceData::where('device_id', $request->id)
@@ -1303,10 +1346,13 @@ class MachineController extends Controller
 				return [($hr6_object->timestamp + $this->timeshift) * 1000, json_decode($hr6_object->values)[0]];
 			});
 
-			$hours[5] = $hr6;
+			$hr = new stdClass();
+			$hr->name = 'DH3 Online Hrs – Total';
+			$hr->data = $hr6;
+			$items[5] = $hr;
 		}
 
-		return response()->json(compact('hours'));
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -1327,7 +1373,7 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$hours = [
+		$items = [
 			[], []
 		];
 
@@ -1343,7 +1389,10 @@ class MachineController extends Controller
 				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
 			});
 
-			$hours[0] = $hr1;
+			$hr = new stdClass();
+			$hr->name = 'Dryer Online Hrs – Maint';
+			$hr->data = $hr1;
+			$items[0] = $hr;
 		}
 
 		$hr2_objects = DeviceData::where('device_id', $request->id)
@@ -1358,10 +1407,13 @@ class MachineController extends Controller
 				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
 			});
 
-			$hours[1] = $hr2;
+			$hr = new stdClass();
+			$hr->name = 'Dryer Online Hrs – Total';
+			$hr->data = $hr2;
+			$items[1] = $hr;
 		}
 
-		return response()->json(compact('hours'));
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -1382,7 +1434,7 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$hours = [
+		$items = [
 			[], []
 		];
 
@@ -1398,7 +1450,10 @@ class MachineController extends Controller
 				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
 			});
 
-			$hours[0] = $hr1;
+			$hr = new stdClass();
+			$hr->name = 'Process Blower Run Hrs - Maint';
+			$hr->data = $hr1;
+			$items[0] = $hr;
 		}
 
 		$hr2_objects = DeviceData::where('device_id', $request->id)
@@ -1413,10 +1468,13 @@ class MachineController extends Controller
 				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
 			});
 
-			$hours[1] = $hr2;
+			$hr = new stdClass();
+			$hr->name = 'Process Blower Run Hrs – Total';
+			$hr->data = $hr2;
+			$items[1] = $hr;
 		}
 
-		return response()->json(compact('hours'));
+		return response()->json(compact('items'));
 	}
 
 	/*
