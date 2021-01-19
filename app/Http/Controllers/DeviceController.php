@@ -110,6 +110,7 @@ class DeviceController extends Controller
         $configuration->tcu_added = $device->tcu_added;
         $configuration->configuration_id = $device->machine_id;
         $configuration->name = $device->configuration->name;
+        $configuration->device_name = $device->customer_assigned_name;
 
         return response()->json(compact('configuration'));
     }
