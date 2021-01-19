@@ -1566,13 +1566,15 @@ class MachineController extends Controller
 
 		if($inventories_object) {
 			$inventories = $inventories_object->map(function($inventory_object) {
-				return [($inventory_object->timestamp + $this->timeshift) * 1000, json_decode($inventory_object->values)[0]];
+				return [($inventory_object->timestamp + $this->timeshift) * 1000, round(json_decode($inventory_object->values)[0], 2)];
 			});
 		} else {
 			$inventories = [];
 		}
 
-		return response()->json(compact('inventories'));
+		$items = [$inventories];
+
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -1616,7 +1618,9 @@ class MachineController extends Controller
 			$lengths = [];
 		}
 
-		return response()->json(compact('lengths'));
+		$items = [$lengths];
+		
+		return response()->json(compact('items'));
 	}
 
 	/*
