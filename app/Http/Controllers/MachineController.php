@@ -416,7 +416,8 @@ class MachineController extends Controller
 			return [($factor_object->timestamp + $this->timeshift) * 1000, json_decode($factor_object->values)];
 		});
 
-		return response()->json(compact('calibration_factors'));
+		$items = [$calibration_factors];
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -455,7 +456,8 @@ class MachineController extends Controller
 			return [($process_rate_object->timestamp + $this->timeshift) * 1000, json_decode($process_rate_object->values)[0]];
 		});
 
-		return response()->json(compact('process_rate'));
+		$items = [$process_rate];
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -500,7 +502,9 @@ class MachineController extends Controller
 			return [($utilization_object->timestamp + $this->timeshift) * 1000, json_decode($utilization_object->values)[0]];
 		});
 
-		return response()->json(compact('utilizations'));
+		$items = [$utilizations];
+
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -545,7 +549,9 @@ class MachineController extends Controller
 			return [($energy_consumption_object->timestamp + $this->timeshift) * 1000, json_decode($energy_consumption_object->values)[0]];
 		});
 
-		return response()->json(compact('energy_consumption'));
+		$items = [$energy_consumption];
+		
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -596,7 +602,9 @@ class MachineController extends Controller
 			$actuals[5] = round(json_decode($actual_recipe_object6->values)[0], 2);
 		}
 
-		return response()->json(compact('targets', 'actuals'));
+		$items = [$actuals, $targets];
+
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -667,7 +675,9 @@ class MachineController extends Controller
 			return [($process_rate_object->timestamp + $this->timeshift) * 1000, json_decode($process_rate_object->values)[0]];
 		});
 
-		return response()->json(compact('process_rate'));
+		$items = [$process_rate];
+
+		return response()->json(compact('items'));
 	}
 
 	/*

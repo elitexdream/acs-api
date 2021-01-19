@@ -125,6 +125,7 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/accumeter/feeder-calibrations', 'MachineController@getFeederCalibrations');
 	Route::post('/accumeter/feeder-speeds', 'MachineController@getFeederSpeeds');
 	Route::post('/accumeter/target-rate', 'MachineController@getTargetRate');
+	Route::get('/accumeter/recipe/{id}', 'MachineController@getTgtActualRecipes');
 	Route::post('/product-system-states', 'MachineController@getProductStates');
 	Route::get('/product-hopper-stables/{id}', 'MachineController@getHopperStables');
 	Route::get('/product-system-states-3/{id}', 'MachineController@getMachineStates3');
@@ -132,7 +133,6 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/product-production-rate', 'MachineController@getProductProcessRate');
 	Route::post('/product-hopper-inventories', 'MachineController@getInventories3');
 	Route::post('/product-hauloff-lengths', 'MachineController@getHauloffLengths');
-	Route::get('/product-actual-target-recipe/{id}', 'MachineController@getTgtActualRecipes');
 	Route::get('/vtc-plus/pump-onlines/{id}', 'MachineController@getPumpOnlines');
 	Route::get('/vtc-plus/pump-blowbacks/{id}', 'MachineController@getPumpBlowBacks');
 	Route::get('/product-pump-hours-oil/{id}', 'MachineController@getPumpHoursOil');
