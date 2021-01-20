@@ -21,6 +21,7 @@ class CreateUtilizationsTable extends Migration
             $table->json('values');
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('machine_id')->default(0);
+            $table->string('serial_number', 20)->default('');
         });
     }
 
