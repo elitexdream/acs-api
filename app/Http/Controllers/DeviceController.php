@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
 use Validator;
 use DB;
+use \stdClass;
 
 class DeviceController extends Controller
 {
@@ -33,8 +34,32 @@ class DeviceController extends Controller
     private $teltonika_import_url = "https://rms.teltonika-networks.com/api/devices?limit=100";
     private $bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI2MjQxODgwMjFiMWIwY2UwNTA5ZDE3OWUzY2IxMDgxOGM2YmUzMjlhNjY3NTMwOGU0ZGI4NTEwODU4OThlZGUzNjY0NDQwODA1MDkwZWJjNSIsImlzcyI6Imh0dHBzOlwvXC9ybXMudGVsdG9uaWthLW5ldHdvcmtzLmNvbVwvYWNjb3VudCIsImlhdCI6MTYwNTY2NzMyNywibmJmIjoxNjA1NjY3MzI3LCJleHAiOjE2MzcyMDMzMjcsInN1YiI6IjI3OTcwIiwiY2xpZW50X2lkIjoiOTEyM2VhNjYtMmYxZC00MzljLWIxYzItMzExYWMwMTBhYWFkIiwiZmlyc3RfcGFydHkiOmZhbHNlfQ.I0kEBbsYDzIsBr3KFY9utxhSuKLM0zRgrPUBcUUNrIU3V58tce3LUgfV6r8yip5_pOe3ybVQdEoyIXNuehPUDIa8ZxJYadGw15cs9PLDyvM00ipAggnCgi0QinxUcb_5QjaMqfemhTlil9Zquly-P9tGy8GuT-QKAxMMCwGgou_LA3JH-5c7hoImbINMMyWQaHIrK3IiSVXyb0k_tP2tczy7TIjM5NFdzTMZXlVYEwTRZJ7U-_Vyb0ZnyyTJ_Y6_6CNp79vtQ8kVD_Xs_MVCQ0vQbO9qPRAxNu8noq7ZVo1eRdc1Q411puyzm3MeVSg1bWqqG4QboGiMYTyYclwhqA";
 
-	public function getDevices($pageNumber = 1) {
-        $devices = Device::orderBy('sim_status')->orderBy('id')->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
+	public function getACSDevices(Request $request) {
+        $pageNumber = $request->page ? $request->page : 1;
+
+        $query = Device::orderBy('sim_status')->orderBy('id');
+
+        if(in_array('active', $request->filterForm['filters'])) {
+            $query->where('sim_status', 'Active');
+        }
+
+        if(in_array('PLCLink', $request->filterForm['filters'])) {
+            $query->where('plc_link', true);
+        }
+
+        if(in_array('registered', $request->filterForm['filters'])) {
+            $query->where('registered', true);
+        }
+
+        if($request->filterForm['searchQuery']) {
+            $query->where('name', 'ilike', '%' . $request->filterForm['searchQuery'] . '%')
+                    ->orWhere('customer_assigned_name', 'ilike', '%' . $request->filterForm['searchQuery'] . '%')
+                    ->orWhere('serial_number', 'ilike', '%' . $request->filterForm['searchQuery'] . '%');
+        }
+
+        $pageNumber = min($query->count() / 7, $pageNumber);
+        
+        $devices = $query->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
 
         foreach ($devices as $key => $device) {
@@ -61,6 +86,10 @@ class DeviceController extends Controller
 
                 }
             }
+
+            $device_checkin = DB::table('device_checkins')->where('device_id', $device->serial_number)->first();
+            if($device_checkin)
+                $device->checkin = true;
         }
 
         return response()->json([
@@ -70,8 +99,24 @@ class DeviceController extends Controller
         ]);
 	}
 
+    public function getDeviceConfiguration($id) {
+        $device = Device::where('serial_number', $id)->first();
+
+        if(!$device) {
+            return response()->json('Device Not Found', 404);
+        }
+
+        $configuration = new stdClass();
+        $configuration->tcu_added = $device->tcu_added;
+        $configuration->configuration_id = $device->machine_id;
+        $configuration->name = $device->configuration->name;
+        $configuration->device_name = $device->customer_assigned_name;
+
+        return response()->json(compact('configuration'));
+    }
+
     public function getAllDevices() {
-        $devices = Device::orderBy('sim_status', 'ASC')->where('iccid', '<>', 0)->whereNotNull('iccid')->select('name', 'id', 'customer_assigned_name')->get();
+        $devices = Device::orderBy('sim_status', 'ASC')->where('iccid', '<>', 0)->whereNotNull('iccid')->select('name', 'id', 'customer_assigned_name', 'tcu_added')->get();
 
         return response()->json(compact('devices'));
     }
@@ -125,10 +170,22 @@ class DeviceController extends Controller
     }
 
     public function deviceAssigned(Request $request) {
+
+        $validator = Validator::make($request->all(), [ 
+            'plc_ip' => 'required'
+        ]);
+
+        if ($validator->fails())
+        {
+            return response()->json(['error'=>$validator->errors()], 422);            
+        }
+
         $device = Device::findOrFail($request->device_id);
 
         $device->company_id = $request->company_id;
         $device->machine_id = $request->machine_id;
+        $device->tcu_added = $request->tcu_added;
+        $device->plc_ip = $request->plc_ip;
 
         $device->save();
 
@@ -155,9 +212,12 @@ class DeviceController extends Controller
         if($request->zone_id) {
             $location = Zone::findOrFail($request->zone_id)->location;
             $device->location_id = $location->id;
+        } else {
+            $device->location_id = 0;
         }
-
+        
         $device->zone_id = $request->zone_id;
+
         $device->customer_assigned_name = $request->customer_assigned_name;
 
         $device->save();
@@ -177,20 +237,89 @@ class DeviceController extends Controller
         }
 
         $configuration = json_decode($configuration->full_json);
-        if(!$request->register) {
-            $configuration->plctags = [];
-        }
 
-        $req = [
-            "targetDevice" => $device->serial_number,
-            "requestJson" => $configuration
-        ];
+        if(!$device->tcu_added) {
+            if($request->register) {
+                // Generate hash
+                $config_hash = bin2hex(random_bytes(10));
+
+                // Save hash in devices table
+                $device->hash1 = $config_hash;
+                $device->save();
+
+                $configuration->config_hash = $config_hash;
+            } else {
+                $configuration->config_hash = $device->hash1;
+
+                // if the request is revoke, plc tags should be empty
+                $configuration->plctags = [];
+            }
+
+            // assign updated plc ip
+            $configuration->plc_ip = $device->plc_ip;
+
+            $req = [
+                "targetDevice" => $device->serial_number,
+                "requestJson" => $configuration
+            ];
+        } else {
+            $tcu_configuration = json_decode(Machine::findOrFail(MACHINE_TRUETEMP_TCU)->full_json);
+
+            if($request->register) {
+                // Generate hash
+                $config_hash1 = bin2hex(random_bytes(10));
+                $config_hash2 = bin2hex(random_bytes(10));
+
+                // Save hash in devices table
+                $device->hash1 = $config_hash1;
+                $device->hash2 = $config_hash2;
+                $device->save();
+
+                $configuration->config_hash = $config_hash1;
+                $tcu_configuration->config_hash = $config_hash2;
+            } else {
+                $configuration->config_hash = $device->hash1;
+                $tcu_configuration->config_hash = $device->hash2;
+
+                // if the request is revoke, plc tags should be empty for both
+                $configuration->plctags = [];
+                $tcu_configuration->plctags = [];
+            }
+
+            // assign updated plc ip
+            $configuration->plc_ip = $device->plc_ip;
+            $tcu_configuration->plc_ip = $device->plc_ip;
+
+            $device0 = new stdClass();
+            $device1 = new stdClass();
+
+            $device0->device_id = 0;
+            $device0->config = $configuration;
+
+            $device1->device_id = 1;
+            $device1->config = $tcu_configuration;
+
+            $multi_configuration = new stdClass();
+            $multi_configuration->cmd = "multi_config";
+            $multi_configuration->devices = [ $device0, $device1 ];
+
+            // $fp = fopen('ngx_nomad_dryer_tcu.json', 'w');
+            // fwrite($fp, json_encode($multi_configuration, JSON_PRETTY_PRINT));
+            // fclose($fp);
+
+            // dd($multi_configuration);
+
+            $req = [
+                "targetDevice" => $device->serial_number,
+                "requestJson" => $multi_configuration
+            ];
+        }
 
         $client = new Client();
 
         try {
             $response = $client->post(
-                env('ACS_MIDDLEWARE_URL', 'http://172.28.0.1:3000/'),
+                config('app.acs_middleware_url'),
                 [
                     'json' => $req
                 ]
@@ -244,19 +373,21 @@ class DeviceController extends Controller
         $client = new Client();
         
         try {
-            $res = $client->post(
-                $postControl,
-                [
-                    'headers' => [
-                        'Authorization' => "Bearer " . $this->bearer_token
-                    ],
-                    'json' => [
-                        "duration" => 400
+            while(1) {
+                $res = $client->post(
+                    $postControl,
+                    [
+                        'headers' => [
+                            'Authorization' => "Bearer " . $this->bearer_token
+                        ],
+                        'json' => [
+                            "duration" => 400
+                        ]
                     ]
-                ]
-            );
-            if ($res) {
-                do {
+                );
+
+
+                if ($res) {
                     $response = $client->get(
                         $getLink,
                         [
@@ -269,9 +400,10 @@ class DeviceController extends Controller
                         ]
                     );
                     $data = json_decode($response->getBody()->getContents())->data;
-                } while (count($data) === 0);
 
-                return response()->json($data);
+                    if(count($data))
+                        return response()->json($data);
+                }
             }
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
@@ -289,19 +421,19 @@ class DeviceController extends Controller
         $client = new Client();
         
         try {
-            $res = $client->post(
-                $postControl,
-                [
-                    'headers' => [
-                        'Authorization' => "Bearer " . $this->bearer_token
-                    ],
-                    'json' => [
-                        "duration" => 400
-                    ],
-                ]
-            );
-            if ($res) {
-                do {
+            while(1) {
+                $res = $client->post(
+                    $postControl,
+                    [
+                        'headers' => [
+                            'Authorization' => "Bearer " . $this->bearer_token
+                        ],
+                        'json' => [
+                            "duration" => 400
+                        ],
+                    ]
+                );
+                if ($res) {
                     $response = $client->get(
                         $getLink,
                         [
@@ -313,10 +445,12 @@ class DeviceController extends Controller
                             ],
                         ]
                     );
-                    $data = json_decode($response->getBody()->getContents())->data;
-                } while (count($data) === 0);
 
-                return response()->json($data);
+                    $data = json_decode($response->getBody()->getContents())->data;
+
+                    if(count($data))
+                        return response()->json($data);
+                }
             }
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
@@ -456,69 +590,88 @@ class DeviceController extends Controller
     }
 
     /*
-        Get customer devices with analytics
+        Get devices with analytics
     */
-    public function getCustomerDevicesAnalytics(Request $request, $location_id = 0) {
+    public function getDevicesAnalytics(Request $request) {
         $user = $request->user('api');
-        
-        if($location_id)
-            $devices = $user->company->devices()->where('location_id', $location_id)->get();
-        else
-            $devices = $user->company->devices;
+        $location = $request->location_id;
+        $page = $request->page;
+        $itemsPerPage = $request->itemsPerPage;
 
-        return response()->json([
-            'devices' => $devices
-        ]);
-    }
-
-    public function getTotalValues($array) {
-        $result = 0;
-        foreach($array as $item) {
-			$value = json_decode($item->values);
-			foreach($value as $num) {
-				$result += $num;
-			}
+        $query = null;
+        if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+            if($location) {
+                $query = Device::where('location_id', $location)->orderBy('sim_status')->orderBy('id');
+            }
+            else
+                $query = Device::orderBy('sim_status')->orderBy('id');
+        } else {
+            if($location) {
+                $query = $user->company->devices()->where('location_id', $location)->orderBy('sim_status')->orderBy('id');
+            }
+            else
+                $query = $user->company->devices()->orderBy('sim_status')->orderBy('id');
         }
 
-        return $result;
-    }
-
-    public function getCapacityUtilizationFromDeviceId($device_id) {
-        $utilizations = Utilization::where('device_id', (int)$device_id)->get();
-        $result = $this->getTotalValues($utilizations);
-        
-        return $result;
-    }
-
-    public function getEnergyConsumptionFromDeviceId($device_id) {
-        $consumptions = EnergyConsumption::where('device_id', (int)$device_id)->get();
-        $result = $this->getTotalValues($consumptions);
-        
-        return $result;
-    }
-
-    /*
-        Get acs devices with analytics
-    */
-    public function getAcsDevicesAnalytics(Request $request) {
-        $devices = Device::get();
-        
-        foreach($devices as $device) {
-            $device_id = $device->serial_number;
-            $device->capacity = $this->getCapacityUtilizationFromDeviceId($device_id);
-            $device->consumption = $this->getEnergyConsumptionFromDeviceId($device_id);
+        $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
+        foreach ($devices as $key => $device) {
+            $device->status = $device->isRunning();
         }
 
-        return response()->json([
-            'devices' => $devices
-        ]);
+        return response()->json(compact('devices'));
+    }
+
+    public function getDashboardMachinesTable(Request $request) {
+        $user = $request->user('api');
+
+        $location = $request->location;
+        $zone = $request->zone;
+        $page = $request->page;
+
+        if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+            $query = Device::where('location_id', $location)->where('zone_id', $zone);
+        } else {
+            $query = $user->company->devices()->where('location_id', $location)->where('zone_id', $zone);
+        }
+
+        $devices = $query->paginate($request->itemsPerPage, ['*'], 'page', $page);
+
+        foreach ($devices as $key => $device) {
+            $downtime_distribution = [0, 0, 0];
+
+            $device->utilization = '32%';
+            $device->color = 'green';
+            $device->value = 75;
+            $device->oee = '93.1%';
+            $device->performance = '78%';
+            $device->rate = 56;
+            $device->downtimeDistribution = $downtime_distribution;
+        }
+
+        return response()->json(compact('devices'));
+    }
+
+    public function testFunction(Request $request) {
+        set_time_limit(0);
+
+        $limit = $request->limit;
+
+        $devices = DeviceData::where('created_at', '')->limit($limit)->get();
+
+        foreach ($devices as $device) {
+            $device->update([
+                'created_at' => gmdate("D, d M Y H:i:s \G\M\T", $device->timestamp)
+            ]);
+        }
+
+        dd($devices);
     }
 
     public function testAzureJson(Request $request) {
         $client = new Client();
         try {
             $response = $client->post(
-                env('ACS_MIDDLEWARE_URL', 'http://172.28.0.1:3000/'),
+                config('app.acs_middleware_url'),
                 [
                     'json' => $request->all()
                 ]

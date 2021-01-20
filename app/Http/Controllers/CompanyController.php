@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Mail\CustomerInvitation;
-use Mail;
+use App\Traits\MailTrait;
+// use Mail;
 use Validator;
 use App\User;
 use App\Company;
@@ -15,6 +16,8 @@ use App\UserRole;
 
 class CompanyController extends Controller
 {
+	use MailTrait;
+
 	public function index()
 	{
 		$customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
@@ -30,8 +33,11 @@ class CompanyController extends Controller
 		return response()->json(compact('customer_admins'));
 	}
 
+	/*
+		Get all companies
+	*/
 	public function getCompanies() {
-		$companies = Company::get();
+		$companies = Company::orderBy('name')->get();
 
 		return response()->json(compact('companies'));
 	}
@@ -82,7 +88,8 @@ class CompanyController extends Controller
 		]);
 		$user->roles()->attach(ROLE_CUSTOMER_ADMIN);
 
-        Mail::to($user->email)->send(new CustomerInvitation($password_string));
+		$this->sendRegistrationMail($user, $password_string);
+        // Mail::to($user->email)->send(new CustomerInvitation($password_string));
 
         return response()->json('Created successfully.');
     }
@@ -156,8 +163,9 @@ class CompanyController extends Controller
 
 	public function testMail(Request $request)
 	{
-
-		Mail::to($request->to)->send(new CustomerInvitation);
+		// $user = User::find(1);
+		// $user->email = 'lasthyun822@gmail.com';
+  //       $this->sendRegistrationMail($user, 'adsf');
 	}
 
 	public function testSMS(Request $request)

@@ -10,6 +10,7 @@ use App\Device;
 use App\Machine;
 use App\Tag;
 use DB;
+use \stdClass;
 
 class AlarmController extends Controller
 {
@@ -52,16 +53,45 @@ class AlarmController extends Controller
 				'message' => 'Device Not Configured'
 			], 404);
 		}
+		
+		$alarm_types = AlarmType::where('machine_id', $configuration->id)->orderBy('id')->get();
+		$tag_ids = $alarm_types->unique('tag_id')->pluck('tag_id');
+		
+		$alarms_object = Alarm::where('device_id', $id)
+								->whereIn('tag_id', $tag_ids)
+								->latest('timestamp')
+								->get()
+								->unique('tag_id');
 
-		$alarm_tag_ids = AlarmType::where('machine_id', $configuration->id)->pluck('tag_id');
-		$alarm_types = AlarmType::where('machine_id', $configuration->id)->get();
+		$alarms = [];
 
-		$alarms = DeviceData::where('device_id', $id)
-						->whereIn('tag_id', $alarm_tag_ids)
-						->latest('timestamp')
-						// ->where('timestamp', '>', strtotime($request->from))
-						// ->where('timestamp', '<', strtotime($request->to))
-						->get();
+		foreach ($alarms_object as $alarm_object) {
+			$value32 = json_decode($alarm_object->values);
+
+			$alarm_types_for_tag = $alarm_types->filter(function ($alarm_type, $key) use ($alarm_object) {
+			    return $alarm_type->tag_id == $alarm_object->tag_id;
+			});
+
+			foreach ($alarm_types_for_tag as $alarm_type) {
+
+				$alarm = new stdClass();
+
+				$alarm->id = $alarm_object->id;
+				$alarm->tag_id = $alarm_object->tag_id;
+				$alarm->timestamp = $alarm_object->timestamp * 1000;
+				if($alarm_type->bytes == 0 && $alarm_type->offset == 0)
+					$alarm->active = $value32[0];
+				else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
+					$alarm->active = $value32[$alarm_type->offset - 1] == 1;
+				} else if($alarm_type->bytes != 0) {
+					$alarm->active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
+				}
+				// $alarm->active = $alarm_type->bytes == 0 ? $value32 : ($value32 >> $alarm_type->offset) & $alarm_type->bytes;
+				$alarm->type_id = $alarm_type->id;
+
+				array_push($alarms, $alarm);
+			}
+		}
 
 		return response()->json(compact('alarms', 'alarm_types'));
 	}

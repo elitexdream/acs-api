@@ -9,6 +9,9 @@ use GuzzleHttp\Client;
 use Hash;
 use Carbon\Carbon;
 use Mail;
+use DB;
+
+use App\Traits\MailTrait;
 
 use App\Mail\PasswordReset;
 use App\Mail\CustomerInvitation;
@@ -23,6 +26,8 @@ use App\City;
 
 class UserController extends Controller
 {
+    use MailTrait;
+
 	public function login(Request $request) {
 	    $validator = Validator::make($request->all(), [ 
 	        'email' => 'required|email', 
@@ -100,6 +105,13 @@ class UserController extends Controller
     	}
     }
 
+    public function getUser(Request $request) {
+        $user = $request->user('api');
+        $user->profile = $user->profile;
+
+        return response()->json(compact('user'));
+    }
+
     public function updatePassword(Request $request) {
         $validator = Validator::make($request->all(), [ 
             'current_password' => 'required',
@@ -122,6 +134,34 @@ class UserController extends Controller
         }
     }
 
+    public function getTimezones() {
+        $timezones = DB::Table('timezones')->get();
+
+        return response()->json(compact('timezones'));
+    }
+
+    public function updateTimezone(Request $request) {
+        $validator = Validator::make($request->all(), [ 
+            'timezone' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error'=>$validator->errors()], 422);
+        }
+
+        $profile = $request->user('api')->profile;
+
+        $timezone = DB::Table('timezones')->where('id', $request->timezone)->first();
+
+        if($timezone) {
+            $profile->timezone = $request->timezone;
+            $profile->save();
+
+            return response()->json(['message' => 'Successfully updated.'], 200);
+        } else {
+            return response()->json(['message' => 'Can\'t find timezone'], 404);
+        }
+    }
 
     public function initCreateAccount() {
         $roles = Role::whereIn('key', ['customer_manager', 'customer_operator', 'customer_admin'])->get();
@@ -336,7 +376,8 @@ class UserController extends Controller
             'phone' => $request->phone
         ]);
 
-        Mail::to($user->email)->send(new CustomerInvitation($password_string));
+        $this->sendRegistrationMail($user, $password_string);
+        // Mail::to($user->email)->send(new CustomerInvitation($password_string));
 
         return response()->json('Created successfully.', 201);
     }

@@ -9,20 +9,22 @@ Route::post('auth/signin', 'UserController@login');
 Route::post('auth/signup', 'UserController@register');
 Route::post('auth/password-reset', 'UserController@passwordReset');
 
-Route::get('/configurations/index', 'MachineController@getAllConfigurations');
-
 Route::middleware('auth')->group(function () {
     Route::get('/auth/logout', 'UserController@logout');
 	Route::post('/auth/update-password', 'UserController@updatePassword');
+	Route::get('/auth/user', 'UserController@getUser');
+});
+
+Route::middleware('auth')->group(function () {
+	Route::post('/profile/timezone', 'UserController@updateTimezone');
+	Route::get('/profile/timezones', 'UserController@getTimezones');
 });
 
 Route::group(['prefix' => 'locations'], function () {
-	Route::get('/', 'LocationController@index')->middleware('auth:acs_admin,customer_admin,customer_manager');
+	Route::get('/', 'LocationController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager');
 	Route::post('/add', 'LocationController@store')->middleware('auth:customer_admin,customer_manager');
 	Route::patch('/update', 'LocationController@update')->middleware('auth:customer_admin,customer_manager');
 });
-
-Route::get('/locations-zones', 'ZoneController@initLocationsAndZones')->middleware('auth:customer_admin,customer_manager');
 
 Route::group(['prefix' => 'zones'], function () {
 	Route::get('/', 'ZoneController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
@@ -37,10 +39,10 @@ Route::group(['prefix' => 'configurations'], function () {
 });
 
 Route::group(['prefix' => 'devices'], function () {
+	Route::get('/{id}/configuration', 'DeviceController@getDeviceConfiguration');
 	Route::get('/customer-devices', 'DeviceController@getCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
 	Route::get('/all', 'DeviceController@getAllDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
-	Route::get('/customer-devices-analytics/{location_id}', 'DeviceController@getCustomerDevicesAnalytics')->middleware('auth:customer_admin,customer_manager,customer_operator');
-	Route::get('/acs-devices-analytics', 'DeviceController@getAcsDevicesAnalytics')->middleware('auth:acs_admin,acs_manager,acs_viewer');
+	Route::post('/devices-analytics', 'DeviceController@getDevicesAnalytics')->middleware('auth:customer_admin,customer_manager,customer_operator,acs_admin,acs_manager,acs_viewer');
 	Route::post('/assign-zone', 'DeviceController@updateCustomerDevice')->middleware('auth:customer_admin,customer_manager,customer_operator');
 });
 Route::group(['prefix' => 'downtime-plans'], function () {
@@ -76,21 +78,15 @@ Route::group(['prefix' => 'app-settings'], function () {
 	Route::post('/reset', 'SettingController@resetSettings');
 });
 
-Route::group(['prefix' => 'acs-machines'], function () {
-	Route::get('/', 'MachineController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
-	Route::get('/get-machines', 'MachineController@getMachines')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
-	Route::get('/get-machines-by-company-id/{id}', 'MachineController@getMachinesByCompanyId')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
-});
-
 Route::group(['prefix' => 'dashboard'], function () {
 	Route::get('/init-locations-table', 'MachineController@getLocationsTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 	Route::get('/init-zones-table/{id}', 'MachineController@getZonesTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 	Route::get('/init-machines-table/{id}', 'MachineController@getMachinesTableData')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::post('/devices-for-dashboard-table', 'DeviceController@getDashboardMachinesTable')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 });
 
 Route::group(['prefix' => 'customers'], function () {
 	Route::get('/', 'CompanyController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer');
-	Route::get('/init-add-company', 'CompanyController@getCompanies')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/add', 'CompanyController@addCustomer')->middleware('auth:acs_admin,acs_manager');
 	Route::get('/{id}', 'CompanyController@getCustomer')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount')->middleware('auth:acs_admin,acs_manager');
@@ -102,7 +98,7 @@ Route::group(['prefix' => 'companies'], function () {
 });
 
 Route::group(['prefix' => 'devices'], function () {
-	Route::get('/{pageNum}', 'DeviceController@getDevices')->middleware('auth:acs_admin,acs_manager');
+	Route::post('/', 'DeviceController@getACSDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 	Route::post('/import', 'DeviceController@importDevices')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/device-assigned', 'DeviceController@deviceAssigned')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/device-register-update', 'DeviceController@updateRegistered')->middleware('auth:acs_admin,acs_manager');
@@ -115,20 +111,41 @@ Route::group(['prefix' => 'devices'], function () {
 });
 
 Route::group(['prefix' => 'analytics'], function () {
-	Route::get('/product-overview/{id}', 'MachineController@getProductOverview');
+	Route::post('/product-overview', 'MachineController@getProductOverview');
 	Route::post('/product-utilization', 'MachineController@getProductUtilization');
 	Route::post('/product-energy-consumption', 'MachineController@getEnergyConsumption');
 	Route::get('/product-inventory/{id}', 'MachineController@getInventories');
+	Route::get('/product-station-conveyings/{id}', 'MachineController@getStationConveyings');
 	Route::get('/weekly-running-hours/{id}', 'MachineController@getWeeklyRunningHours');
 	Route::get('/product-weight/{id}', 'MachineController@getProductWeight');
-	Route::get('/product-recipe/{id}', 'MachineController@getProductRecipe');
-	Route::get('/product-system-states/{id}', 'MachineController@getProductStates');
+	Route::get('/product-current-recipe/{id}', 'MachineController@getCurrentRecipe');
+	Route::post('/blender/process-rate', 'MachineController@getBlenderProcessRate');
+	Route::post('/blender/calibration-factors', 'MachineController@getBDBlenderCalibrationFactors');
+	Route::post('/accumeter/blender-capabilities', 'MachineController@getBlenderCapabilities');
+	Route::post('/accumeter/feeder-calibrations', 'MachineController@getFeederCalibrations');
+	Route::post('/accumeter/feeder-speeds', 'MachineController@getFeederSpeeds');
+	Route::post('/accumeter/target-rate', 'MachineController@getTargetRate');
+	Route::get('/accumeter/recipe/{id}', 'MachineController@getTgtActualRecipes');
+	Route::post('/product-system-states', 'MachineController@getProductStates');
+	Route::get('/product-hopper-stables/{id}', 'MachineController@getHopperStables');
 	Route::get('/product-system-states-3/{id}', 'MachineController@getMachineStates3');
 	Route::get('/product-feeder-stables/{id}', 'MachineController@getFeederStables');
 	Route::post('/product-production-rate', 'MachineController@getProductProcessRate');
 	Route::post('/product-hopper-inventories', 'MachineController@getInventories3');
 	Route::post('/product-hauloff-lengths', 'MachineController@getHauloffLengths');
-	Route::get('/product-actual-target-recipe/{id}', 'MachineController@getTgtActualRecipes');
+	Route::get('/vtc-plus/pump-onlines/{id}', 'MachineController@getPumpOnlines');
+	Route::get('/vtc-plus/pump-blowbacks/{id}', 'MachineController@getPumpBlowBacks');
+	Route::get('/product-pump-hours-oil/{id}', 'MachineController@getPumpHoursOil');
+	Route::get('/product-pump-hours/{id}', 'MachineController@getPumpHours');
+	Route::get('/product-drying-hopper-states/{id}', 'MachineController@getDryingHopperStates');
+	Route::get('/product-hopper-temperatures/{id}', 'MachineController@getHopperTemperatures');
+
+	Route::get('/ngx-dryer/bed-states/{id}', 'MachineController@getNgxDryerBedStates');
+	Route::post('/ngx-dryer/dh-online-hours', 'MachineController@getNgxDryerDhOnlineHours');
+	Route::post('/ngx-dryer/dryer-online-hours', 'MachineController@getNgxDryerDryerOnlineHours');
+	Route::post('/ngx-dryer/blower-run-hours', 'MachineController@getNgxDryerBlowerRunHours');
+
+	Route::get('/tcu/actual-target-temperature/{id}', 'MachineController@getTcuActTgtTemperature');
 });
 
 Route::group(['prefix' => 'notes'], function () {
@@ -159,7 +176,7 @@ Route::post('test/send-sms', 'CompanyController@testSMS');
 Route::post('test/blender-json', 'TestController@store');
 
 Route::post('test/azure', 'DeviceController@testAzureJson');
-Route::post('test/mqtt', 'DeviceController@testMqttPHP');
+Route::post('test', 'DeviceController@testFunction');
 Route::post('test/carrier/{id}', 'DeviceController@carrierFromKoreAPI');
 
 Route::get('test/pusher-notification', 'DeviceController@sendEvent');

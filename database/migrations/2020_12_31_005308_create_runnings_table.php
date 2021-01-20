@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUtilizationsTable extends Migration
+class CreateRunningsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateUtilizationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('utilizations', function (Blueprint $table) {
+        Schema::create('runnings', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('device_id');
             $table->unsignedBigInteger('tag_id');
@@ -21,7 +21,6 @@ class CreateUtilizationsTable extends Migration
             $table->json('values');
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('machine_id')->default(0);
-            $table->string('serial_number', 20)->default('');
         });
     }
 
@@ -32,6 +31,6 @@ class CreateUtilizationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('utilizations');
+        Schema::dropIfExists('runnings');
     }
 }

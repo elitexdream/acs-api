@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAlarmTypesTable extends Migration
+class CreateTimezonesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,9 @@ class CreateAlarmTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('alarm_types', function (Blueprint $table) {
+        Schema::create('timezones', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->unsignedBigInteger('machine_id');
-            $table->integer('tag_id');
-            $table->integer('bytes')->default(0);
-            $table->integer('offset')->default(0);
             $table->timestamps();
         });
     }
@@ -31,6 +27,6 @@ class CreateAlarmTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('alarm_types');
+        Schema::dropIfExists('timezones');
     }
 }

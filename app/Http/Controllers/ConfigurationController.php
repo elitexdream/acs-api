@@ -9,7 +9,7 @@ use Validator;
 class ConfigurationController extends Controller
 {
     /*
-		Get all configurations with full json
+		Get all configurations - id and name only
 	*/
 	public function getConfigurationNames() {
 		$configurations = Machine::select('id', 'name')->get();

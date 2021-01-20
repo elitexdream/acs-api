@@ -31,6 +31,8 @@ return [
     ],
     'sendgrid' => [
         'api_key' => env('SENDGRID_API_KEY'),
+        'template_id' => env('SENDGRID_TEMPLATE_ID'),
+        'from_email' => env('SENDGRID_FROM_EMAIL')
     ],
 
 ];

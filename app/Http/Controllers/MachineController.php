@@ -19,42 +19,26 @@ use \stdClass;
 class MachineController extends Controller
 {
 	private $num_chunks = 12;
+	private $timeshift = 0;
 
-	public function index() {
-    	$companies = Company::orderBy('name')->get();
+    public function __construct()
+    {
+    	$user = auth('api')->user();
+		$timezone = DB::Table('timezones')->where('id', $user->profile->timezone)->first();
+		if($timezone) {
+			date_default_timezone_set($timezone->name);
 
-		return response()->json(compact('companies'));
-	}
-
-	public function getMachines() {
-		$machines = Machine::all();
-
-		return response()->json(compact('machines'));
-	}
-
-	public function getMachinesByCompanyId($id) {
-		$query = 'SELECT machines.id, machines.name FROM devices INNER JOIN machines ON devices.machine_id = machines.id WHERE devices.company_id = ' . $id;
-		$machines = DB::select(DB::raw($query));
-
-		return response()->json(compact('machines'));
-	}
-
-	/*
-		Get all configurations
-	*/
-	public function getAllConfigurations() {
-		$configurations = Machine::select('id', 'name')->get();
-
-		return response()->json(compact('configurations'));
-	}
+			$this->timeshift = date('Z');
+		}
+    }
 
 	/*
 		Get general information of product
 		They are Name, Serial number, Software build, and version
 		return: Object
 	*/
-	public function getProductOverview($id) {
-		$product = Device::where('serial_number', $id)->first();
+	public function getProductOverview(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
 
 		if(!$product) {
 			return response()->json([
@@ -62,7 +46,15 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$configuration = $product->configuration;
+		$configuration = null;
+
+		if($request->isAdditional && $product->tcu_added) {
+			$configuration = Machine::findOrFail(MACHINE_TRUETEMP_TCU);
+		} else {
+			$configuration = $product->configuration;
+		}
+
+		$product->configuration = $configuration;
 
 		if(!$configuration) {
 			return response()->json([
@@ -70,76 +62,109 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$tag_software_version = Tag::where('tag_name', 'software_version')->where('configuration_id', $configuration->id)->first();
-
-		if(!$tag_software_version) {
-			return response()->json('Software version tag not found', 404);
-		}
-
-		// product version
-		if($version_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_software_version->tag_id)->latest('timestamp')->first()) {
-			try {
-				$product->version = json_decode($version_object->values)[0] / 10;
-			} catch (\Exception $e) {
-				$product->version = '';
+		if($configuration->id == MACHINE_TRUETEMP_TCU) {
+			// product version
+			if($version_object = DeviceData::where('device_id', $request->id)
+								->where('tag_id', 1)
+								->latest('timestamp')
+								->first()) {
+				try {
+					$product->version = json_decode($version_object->values)[0];
+				} catch (\Exception $e) {
+					$product->version = '';
+				}
 			}
-		}
+		} else {
+			$tag_software_version = Tag::where('tag_name', 'software_version')->where('configuration_id', $configuration->id)->first();
 
-		// software build
-		$tag_software_build = Tag::where('tag_name', 'software_build')->where('configuration_id', $configuration->id)->first();
-
-		if(!$tag_software_build) {
-			return response()->json('Software version tag not found', 404);
-		}
-
-		if($software_build_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_software_build->tag_id)->latest('timestamp')->first()) {
-			try {
-				$product->software_build = json_decode($software_build_object->values)[0];
-			} catch (\Exception $e) {
-				$product->software_build = '';
+			if(!$tag_software_version) {
+				return response()->json('Software version tag not found', 404);
 			}
-		}
 
-		// serial number
-		$serial_year = "";
-		$serial_month = "";
-		$serial_unit = "";
-
-		$tag_serial_year = Tag::where('tag_name', 'serial_number_year')->where('configuration_id', $configuration->id)->first();
-		$tag_serial_month = Tag::where('tag_name', 'serial_number_month')->where('configuration_id', $configuration->id)->first();
-		$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit')->where('configuration_id', $configuration->id)->first();
-
-		if(!$tag_serial_year || !$tag_serial_month || !$tag_serial_unit) {
-			return response()->json('Serial number tag not found', 404);
-		}
-
-		$serial_year_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_year->tag_id)->latest('timestamp')->first();
-		$serial_month_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_month->tag_id)->latest('timestamp')->first();
-		$serial_unit_object = DeviceData::where('device_id', $id)->where('tag_id', $tag_serial_unit->tag_id)->latest('timestamp')->first();
-
-		if($serial_year_object) {
-			try {
-				$serial_year = json_decode($serial_year_object->values)[0];
-			} catch (\Exception $e) {
-				$serial_year = '';
+			// product version
+			if($version_object = DB::table('software_version')
+								->where('device_id', $request->id)
+								->where('tag_id', $tag_software_version->tag_id)
+								->latest('timestamp')
+								->first()) {
+				try {
+					$product->version = json_decode($version_object->values)[0] / 10;
+				} catch (\Exception $e) {
+					$product->version = '';
+				}
 			}
-		}
-		if($serial_month_object) {
-			try {
-				$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
-			} catch (\Exception $e) {
-				$serial_month = '';
-			}
-		}
-		if($serial_unit_object) {
-			try {
-				$serial_unit = json_decode($serial_unit_object->values)[0];
-			} catch (\Exception $e) {
-				$serial_unit = '';
-			}
-		}
 
-		$product->serial = $serial_year . $serial_month . $serial_unit;
+			// software build
+			$tag_software_build = Tag::where('tag_name', 'software_build')->where('configuration_id', $configuration->id)->first();
+
+			if(!$tag_software_build) {
+				return response()->json('Software build tag not found', 404);
+			}
+
+			if($software_build_object = DB::table('software_builds')
+											->where('device_id', $request->id)
+											->where('tag_id', $tag_software_build->tag_id)
+											->latest('timestamp')
+											->first()) {
+				try {
+					$product->software_build = json_decode($software_build_object->values)[0];
+				} catch (\Exception $e) {
+					$product->software_build = '';
+				}
+			}
+
+			// serial number
+			$serial_year = "";
+			$serial_month = "";
+			$serial_unit = "";
+
+			$tag_serial_year = Tag::where('tag_name', 'serial_number_year')->where('configuration_id', $configuration->id)->first();
+			$tag_serial_month = Tag::where('tag_name', 'serial_number_month')->where('configuration_id', $configuration->id)->first();
+			$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit')->where('configuration_id', $configuration->id)->first();
+
+			if(!$tag_serial_year || !$tag_serial_month || !$tag_serial_unit) {
+				return response()->json('Serial number tag not found', 404);
+			}
+
+			$serial_year_object = DB::table('serial_number_year')
+										->where('device_id', $request->id)
+										->where('tag_id', $tag_serial_year->tag_id)
+										->latest('timestamp')
+										->first();
+			$serial_month_object = DB::table('serial_number_month')
+										->where('device_id', $request->id)
+										->where('tag_id', $tag_serial_month->tag_id)
+										->latest('timestamp')
+										->first();
+			$serial_unit_object = DB::table('serial_number_unit')
+										->where('device_id', $request->id)
+										->where('tag_id', $tag_serial_unit->tag_id)
+										->latest('timestamp')
+										->first();
+
+			if($serial_year_object) {
+				try {
+					$serial_year = json_decode($serial_year_object->values)[0];
+				} catch (\Exception $e) {
+					$serial_year = '';
+				}
+			}
+			if($serial_month_object) {
+				try {
+					$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
+				} catch (\Exception $e) {
+					$serial_month = '';
+				}
+			}
+			if($serial_unit_object) {
+				try {
+					$serial_unit = json_decode($serial_unit_object->values)[0];
+				} catch (\Exception $e) {
+					$serial_unit = '';
+				}
+			}
+			$product->serial = mb_convert_encoding($serial_year . $serial_month . $serial_unit, 'UTF-8', 'UTF-8');
+		}
 
 		return response()->json([
 			"overview" => $product
@@ -147,7 +172,7 @@ class MachineController extends Controller
 	}
 
 	/*
-		Get inventories
+		Get inventories BD_Batch_Blender
 		L30_0_8_HopInv and L30_16_23_FracInv are grouped together
 		return: array
 	*/
@@ -168,10 +193,15 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$hop_inventory = DeviceData::where('device_id', $id)->where('tag_id', 15)->orderBy('timestamp', 'desc')->first();
-		$actual_inventory = DeviceData::where('device_id', $id)->where('tag_id', 16)->orderBy('timestamp', 'desc')->first();
+		$inventories = DeviceData::where('device_id', $id)
+									->whereIn('tag_id', [15, 16])
+									->latest('timestamp')
+									->get();
 
-		$inventories = array();
+		$hop_inventory = $inventories->firstWhere('tag_id', 15);
+		$actual_inventory = $inventories->firstWhere('tag_id', 16);
+
+		$inventories = [];
 
 		if($hop_inventory && $actual_inventory) {
 			$inventory_values = json_decode($actual_inventory->values);
@@ -192,50 +222,11 @@ class MachineController extends Controller
 	}
 
 	/*
-		actual and target weight in BD_Batch_Blender
+		configuration: BD Blender configuration
+		description: feeder calibration factors
+		tag: L21_0_11_RecipeVal
 	*/
-	public function getProductWeight($id) {
-		$targetValues = DB::table('device_data')
-						->where('device_id', $id)
-						->where('tag_id', 13)
-						->orderBy('timestamp', 'desc')
-						->get();
-		$actualValues = DB::table('device_data')
-						->where('device_id', $id)
-						->where('tag_id', 14)
-						->orderBy('timestamp', 'desc')
-						->get();
-
-		$targets = [];
-		$actuals = [];
-		
-		foreach ($targetValues as $key => $target) {
-			if (count(json_decode($target->values)) == 8) {
-				$targets = json_decode($target->values);
-				foreach ($targets as $key => $target) {
-					$targets[$key] = $target / 1000;
-				}
-				break;
-			}
-		}
-
-		foreach ($actualValues as $key => $actual) {
-			if (count(json_decode($actual->values)) == 8) {
-				$actuals = json_decode($actual->values);
-				foreach ($actuals as $key => $actual) {
-					$actuals[$key] = $actual / 1000;
-				}
-				break;
-			}
-		}
-
-		return response()->json(compact('targets', 'actuals'));
-	}
-
-	/*
-		Get last recipe values in BD Blender configuration
-	*/
-	public function getProductRecipe($id) {
+	public function getCurrentRecipe($id) {
 		$product = Device::where('serial_number', $id)->first();
 
 		if(!$product) {
@@ -252,15 +243,221 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$last_recipe = DeviceData::where('machine_id', $configuration->id)->where('tag_id', 10)->orderBy('timestamp', 'desc')->first();
+		$mode = 0;
+		$recipe_values = [0, 0, 0, 0, 0, 0, 0, 0];
+		$ez_types = [0, 0, 0, 0, 0, 0, 0, 0];
 
-		if( $last_recipe) {
-			$recipe_values = json_decode($last_recipe->values);
-		} else {
-			$recipe_values = [];
+		$mode_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 45)
+						->latest('timestamp')
+						->first();
+
+		if($mode_object) {
+			$mode = json_decode($mode_object->values)[0];
+
+			$last_object = DeviceData::where('device_id', $id)
+							->where('tag_id', 47)
+							->latest('timestamp')
+							->first();
+
+			if( $last_object)
+				$recipe_values = json_decode($last_object->values);
+			if($mode == 2) {
+				$last_object = DeviceData::where('device_id', $id)
+								->where('tag_id', 46)
+								->latest('timestamp')
+								->first();
+
+				if( $last_object)
+					$ez_types = json_decode($last_object->values);
+			}
 		}
 
-		return response()->json(compact('recipe_values'));
+		return response()->json([
+			'mode' => $mode,
+			'recipe_values' => $recipe_values,
+			'ez_types' => $ez_types
+		]);
+	}
+
+	/*
+		actual and target weight in BD_Batch_Blender
+	*/
+	public function getProductWeight($id) {
+		$actual_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 13)
+						->whereJsonLength('values', 8)
+						->latest('timestamp')
+						->first();
+
+		$target_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 14)
+						->whereJsonLength('values', 8)
+						->latest('timestamp')
+						->first();
+
+		$targets = [0, 0, 0, 0, 0, 0, 0, 0];
+		$actuals = [0, 0, 0, 0, 0, 0, 0, 0];
+
+		if($target_object) {
+			$targets = json_decode($target_object->values);
+			foreach ($targets as &$target) {
+				$target = $target / 1000;
+			}
+		}
+
+		if($actual_object) {
+			$actuals = json_decode($actual_object->values);
+			foreach ($actuals as &$actual) {
+				$actual = $actual / 1000;
+			}
+		}
+
+		$items = [$actuals, $targets];
+		return response()->json(compact('items'));
+	}
+
+	/*
+		configuration: BD Blender configuration
+		description: get station conveying series
+	*/
+	public function getStationConveyings($id) {
+		$product = Device::where('serial_number', $id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$last_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 26)
+						->latest('timestamp')
+						->first();
+
+		if( $last_object) {
+			$items = json_decode($last_object->values);
+		} else {
+			$items = [];
+		}
+
+		return response()->json(compact('items'));
+	}
+
+	/*
+		configuration: BD Blender configuration
+		description: get hopper stables
+		tag: B3_17_8_15_FIFOStable
+	*/
+	public function getHopperStables($id) {
+		$product = Device::where('serial_number', $id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$last_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 25)
+						->latest('timestamp')
+						->first();
+
+		if( $last_object) {
+			$stables = json_decode($last_object->values);
+		} else {
+			$stables = [];
+		}
+
+		return response()->json(compact('stables'));
+	}
+
+	/*
+		configuration: BD Blender configuration
+		description: feeder calibration factors
+		tag: L51_0_8_AvgFeedCal
+	*/
+	public function getBDBlenderCalibrationFactors(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$factors_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 19)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$calibration_factors = $factors_object->map(function($factor_object) {
+			return [($factor_object->timestamp + $this->timeshift) * 1000, json_decode($factor_object->values)];
+		});
+
+		$items = [$calibration_factors];
+		return response()->json(compact('items'));
+	}
+
+	/*
+		configuration: BD Blender configuration
+		description: process rate, 1 point, L30_30_0_average_pr (lbs/hr or kgs/hr) DINT 
+		tag: L30_30_0_average_pr
+	*/
+	public function getBlenderProcessRate(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$process_rates_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 18)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$process_rate = $process_rates_object->map(function($process_rate_object) {
+			return [($process_rate_object->timestamp + $this->timeshift) * 1000, json_decode($process_rate_object->values)[0]];
+		});
+
+		$items = [$process_rate];
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -293,18 +490,21 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$utilizations_object = DeviceData::where('device_id', $request->id)
-										->where('tag_id', $tag_utilization->tag_id)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
+		$utilizations_object = DB::table('utilizations')
+								->where('device_id', $request->id)
+								->where('tag_id', $tag_utilization->tag_id)
+								->where('timestamp', '>', $from)
+								->where('timestamp', '<', $to)
+								->orderBy('timestamp')
+								->get();
 
-		$utilizations = array_map(function($utilization_object) {
-			return [$utilization_object['timestamp'] * 1000, json_decode($utilization_object['values'])[0] / 10];
-		}, $utilizations_object->toArray());
+		$utilizations = $utilizations_object->map(function($utilization_object) {
+			return [($utilization_object->timestamp + $this->timeshift) * 1000, json_decode($utilization_object->values)[0]];
+		});
 
-		return response()->json(compact('utilizations'));
+		$items = [$utilizations];
+
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -337,18 +537,21 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$energy_consumptions_object = DeviceData::where('device_id', $request->id)
+		$energy_consumptions_object = DB::table('energy_consumptions')
+										->where('device_id', $request->id)
 										->where('tag_id', $tag_energy_consumption->tag_id)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->orderBy('timestamp')
 										->get();
 
-		$energy_consumption = array_map(function($energy_consumption_object) {
-			return [$energy_consumption_object['timestamp'] * 1000, json_decode($energy_consumption_object['values'])[0]];
-		}, $energy_consumptions_object->toArray());
+		$energy_consumption = $energy_consumptions_object->map(function($energy_consumption_object) {
+			return [($energy_consumption_object->timestamp + $this->timeshift) * 1000, json_decode($energy_consumption_object->values)[0]];
+		});
 
-		return response()->json(compact('energy_consumption'));
+		$items = [$energy_consumption];
+		
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -360,64 +563,55 @@ class MachineController extends Controller
 		$targets = [0, 0, 0, 0, 0, 0];
 		$actuals = [0, 0, 0, 0, 0, 0];
 		
-		$targetValues = DeviceData::where('device_id', $id)
+		$target_object = DeviceData::where('device_id', $id)
 						->where('tag_id', 11)
 						->latest('timestamp')
 						->first();
-		
-		if($targetValues) {
-			$targets = json_decode($targetValues->values);
 
-			$actualValue1 = DeviceData::where('device_id', $id)
-						->where('tag_id', 12)
-						->orderBy('timestamp', 'DESC')
-						->first();
-			if($actualValue1)
-				$actuals[0] = round(json_decode($actualValue1->values)[0], 2);
-
-			$actualValue2 = DeviceData::where('device_id', $id)
-						->where('tag_id', 13)
-						->orderBy('timestamp', 'DESC')
-						->first();
-			if($actualValue2)
-				$actuals[1] = round(json_decode($actualValue2->values)[0], 2);
-
-			$actualValue3 = DeviceData::where('device_id', $id)
-						->where('tag_id', 14)
-						->orderBy('timestamp', 'DESC')
-						->first();
-			if($actualValue3)
-				$actuals[2] = round(json_decode($actualValue3->values)[0], 2);
-
-			$actualValue4 = DeviceData::where('device_id', $id)
-						->where('tag_id', 15)
-						->orderBy('timestamp', 'DESC')
-						->first();
-			if($actualValue4)
-				$actuals[3] = round(json_decode($actualValue4->values)[0], 2);
-
-			$actualValue5 = DeviceData::where('device_id', $id)
-						->where('tag_id', 16)
-						->orderBy('timestamp', 'DESC')
-						->first();
-			if($actualValue5)
-				$actuals[4] = round(json_decode($actualValue5->values)[0], 2);
-
-			$actualValue6 = DeviceData::where('device_id', $id)
-						->where('tag_id', 17)
-						->orderBy('timestamp', 'DESC')
-						->first();
-			if($actualValue6)
-				$actuals[5] = round(json_decode($actualValue6->values)[0], 2);
+		if($target_object) {
+			$targets = json_decode($target_object->values);
 		}
 
-		return response()->json(compact('targets', 'actuals'));
+		$actual_recipe_object1 = DeviceData::where('device_id', $id)->where('tag_id', 12)->latest('timestamp')->first();
+		if($actual_recipe_object1) {
+			$actuals[0] = round(json_decode($actual_recipe_object1->values)[0], 2);
+		}
+
+		$actual_recipe_object2 = DeviceData::where('device_id', $id)->where('tag_id', 13)->latest('timestamp')->first();
+		if($actual_recipe_object2) {
+			$actuals[1] = round(json_decode($actual_recipe_object2->values)[0], 2);
+		}
+
+		$actual_recipe_object3 = DeviceData::where('device_id', $id)->where('tag_id', 14)->latest('timestamp')->first();
+		if($actual_recipe_object3) {
+			$actuals[2] = round(json_decode($actual_recipe_object3->values)[0], 2);
+		}
+
+		$actual_recipe_object4 = DeviceData::where('device_id', $id)->where('tag_id', 15)->latest('timestamp')->first();
+		if($actual_recipe_object4) {
+			$actuals[3] = round(json_decode($actual_recipe_object4->values)[0], 2);
+		}
+
+		$actual_recipe_object5 = DeviceData::where('device_id', $id)->where('tag_id', 16)->latest('timestamp')->first();
+		if($actual_recipe_object5) {
+			$actuals[4] = round(json_decode($actual_recipe_object5->values)[0], 2);
+		}
+
+		$actual_recipe_object6 = DeviceData::where('device_id', $id)->where('tag_id', 17)->latest('timestamp')->first();
+		if($actual_recipe_object6) {
+			$actuals[5] = round(json_decode($actual_recipe_object6->values)[0], 2);
+		}
+
+		$items = [$actuals, $targets];
+
+		return response()->json(compact('items'));
 	}
 
 	/*
-		Get Machine state, system steady, mass flow hopper and RPM
+		configuration: Accumeter Ovation Continuous Blender configuration
+		description: Get Feeder stables
 	*/
-	public function getProductStates($id) {
+	public function getFeederStables($id) {
 		$product = Device::where('serial_number', $id)->first();
 
 		if(!$product) {
@@ -434,38 +628,853 @@ class MachineController extends Controller
 			], 404);
 		}
 
+		$feeders_object = DeviceData::where('device_id', $id)->where('tag_id', 26)->latest('timestamp')->first();
+
+		if($feeders_object) {
+			$feeders = json_decode($feeders_object->values);
+		} else {
+			$feeders = [];
+		}
+
+		return response()->json(compact('feeders'));
+	}
+
+	/*
+		configuration: Accumeter Ovation Continuous Blender configuration
+		description: Get product production rate
+		return: Rate Series Array
+	*/
+	public function getProductProcessRate(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$process_rates_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 23)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->latest('timestamp')
+										->get();
+
+		$process_rate = $process_rates_object->map(function($process_rate_object) {
+			return [($process_rate_object->timestamp + $this->timeshift) * 1000, json_decode($process_rate_object->values)[0]];
+		});
+
+		$items = [$process_rate];
+
+		return response()->json(compact('items'));
+	}
+
+	/*
+		configuration: Accumeter Ovation Continuous Blender configuration
+		description: Get Machine state, system steady, mass flow hopper and RPM
+	*/
+	public function getProductStates(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = null;
+
+		if($request->isAdditional && $product->tcu_added) {
+			$configuration = Machine::findOrFail(MACHINE_TRUETEMP_TCU);
+		} else {
+			$configuration = $product->configuration;
+		}
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
 		$machine_states = new stdClass();
 
-		$machine_states->machine_running = false;
-		$machine_states->system_steady = false;
-		$machine_states->mass_flow_hopper = false;
-		$machine_states->rpm = false;
+		if($configuration->id == MACHINE_TRUETEMP_TCU) {
+			$machine_states->pump_status = 0;
+			$machine_states->heater_status = 0;
+			$machine_states->vent_status = 0;
+			
+			if($pump_status_object = DeviceData::where('machine_id', $configuration->id)
+						->where('device_id', $request->id)
+						->where('tag_id', 40)
+						->latest('timestamp')
+						->first()) {
+				try {
+					$machine_states->pump_status = json_decode($pump_status_object->values)[0];
+				} catch(Exception $e) {
+					$machine_states->pump_status = 0;
+				}
+			}
 
-		$machine_running = DeviceData::where('device_id', $id)->where('tag_id', 10)->latest('timestamp')->first();
+			if($heater_status_object = DeviceData::where('machine_id', $configuration->id)
+				->where('device_id', $request->id)
+				->where('tag_id', 41)
+				->latest('timestamp')
+				->first()) {
+				try {
+					$machine_states->heater_status = json_decode($heater_status_object->values)[0];
+				} catch(Exception $e) {
+					$machine_states->heater_status = 0;
+				}
+			}
 
-		if($machine_running && json_decode($machine_running->values)[0] == true) {
-			$machine_states->machine_running = true;
-		}
+			if($vent_status_object = DeviceData::where('machine_id', $configuration->id)
+				->where('device_id', $request->id)
+				->where('tag_id', 42)
+				->latest('timestamp')
+				->first()) {
+				try {
+					$machine_states->vent_status = json_decode($vent_status_object->values)[0];
+				} catch(Exception $e) {
+					$machine_states->vent_status = 0;
+				}
+			}
+		} else {
+			$machine_states->machine_running = false;
+			$machine_states->system_steady = false;
+			$machine_states->mass_flow_hopper = false;
+			$machine_states->rpm = false;
 
-		$system_steady = DeviceData::where('device_id', $id)->where('tag_id', 24)->latest('timestamp')->first();
+			$states_object = DeviceData::where('machine_id', $configuration->id)
+				->where('device_id', $request->id)
+				->whereIn('tag_id', [10, 24, 25, 27])
+				->latest('timestamp')
+				->get()
+				->unique('tag_id');
 
-		if($system_steady && json_decode($system_steady->values)[0] == true) {
-			$machine_states->system_steady = true;
-		}
+			if($states_object) {
+				$machine_running = $states_object->firstWhere('tag_id', 10);
+				if($machine_running && json_decode($machine_running->values)[0] == true) {
+					$machine_states->machine_running = true;
+				}
 
-		$massflow_hopper_stable = DeviceData::where('device_id', $id)->where('tag_id', 25)->latest('timestamp')->first();
+				$system_steady = $states_object->firstWhere('tag_id', 24);
+				if($system_steady && json_decode($system_steady->values)[0] == true) {
+					$machine_states->system_steady = true;
+				}
 
-		if($massflow_hopper_stable && json_decode($massflow_hopper_stable->values)[0] == true) {
-			$machine_states->massflow_hopper_stable = true;
-		}
+				$massflow_hopper_stable = $states_object->firstWhere('tag_id', 25);
+				if($massflow_hopper_stable && json_decode($massflow_hopper_stable->values)[0] == true) {
+					$machine_states->massflow_hopper_stable = true;
+				}
 
-		$rpm = DeviceData::where('device_id', $id)->where('tag_id', 27)->latest('timestamp')->first();
-
-		if($rpm && json_decode($rpm->values)[0] == true) {
-			$machine_states->rpm = true;
+				$rpm = $states_object->firstWhere('tag_id', 27);
+				if($rpm && json_decode($rpm->values)[0] == true) {
+					$machine_states->rpm = true;
+				}
+			}
 		}
 
 		return response()->json(compact('machine_states'));
+	}
+
+	/*
+		configuration: Accumeter Ovation Continuous Blender
+		description: -blender capability, 2 points, 1 min update F17_7_0_system_max (lbs/hr or kgs/hr) REAL
+		tag: F17_7_0_system_max
+	*/
+	public function getBlenderCapabilities(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$capabilities_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 22)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$capabilities = $capabilities_object->map(function($capability_object) {
+			return [($capability_object->timestamp + $this->timeshift) * 1000, round(json_decode($capability_object->values)[0], 2)];
+		});
+
+		$items = [$capabilities];
+
+		return response()->json(compact('items'));
+	}
+
+	/*
+		configuration: Accumeter Ovation Continuous Blender
+		description: -current target rate, 1 point, 1 min update F9_43_0_TotalMass (lbs/hr or kgs/hr) REAL 
+		tag: F9_43_0_TotalMass
+	*/
+	public function getTargetRate(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$rates_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 18)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$rates = $rates_object->map(function($rate_object) {
+			return [($rate_object->timestamp + $this->timeshift) * 1000, round(json_decode($rate_object->values)[0], 2)];
+		});
+
+		$items = [$rates];
+		
+		return response()->json(compact('items'));
+	}
+
+	/*
+		configuration: Accumeter Ovation Continuous Blender
+		description: -feeder calibration value, 6 points, 1 min update Feeder 1-6: F31_3_0_hop_running_feed_factor[1..6] REAL
+		tag: F31_3_0_hop_running_feed_factor
+	*/
+	public function getFeederCalibrations(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$calibrations_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 21)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$feeders = collect([0, 1, 2, 3, 4, 5]);
+
+		$calibrations = $calibrations_object->map(function($calibration_object) {
+			return [($calibration_object->timestamp + $this->timeshift) * 1000, json_decode($calibration_object->values)];
+		});
+
+		$items = $feeders->map(function ($feeder, $i) use ($calibrations) {
+			$item = new stdClass();
+			$item->name = 'Feeder ' . ($i + 1);
+			$item->data = collect($calibrations)->map(function($calibration, $key) use ($i) {
+				return [$calibration[0], round($calibration[1][$i], 2)];
+			});
+
+			return $item;
+		});
+
+		return response()->json(compact('items'));
+	}
+
+	/*
+		configuration: Accumeter Ovation Continuous Blender
+		description: -feeder speed, 6 points, 1 min update Feeder 1-6 motor speed: F9_21_0_Feeder_RPM[1..6] REAL
+		tag: F9_21_0_Feeder_RPM
+	*/
+	public function getFeederSpeeds(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$speeds_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 19)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		$speeds = $speeds_object->map(function($speed_object) {
+			return [($speed_object->timestamp + $this->timeshift) * 1000, json_decode($speed_object->values)];
+		});
+
+		$feeders = collect([0, 1, 2, 3, 4, 5]);
+
+		$items = $feeders->map(function ($feeder, $i) use ($speeds) {
+			$item = new stdClass();
+			$item->name = 'Feeder ' . ($i + 1);
+			$item->data = collect($speeds)->map(function($speed, $key) use ($i) {
+				return [$speed[0], round($speed[1][$i], 2)];
+			});
+
+			return $item;
+		});
+
+		return response()->json(compact('items'));
+	}
+
+	/*
+		Get Target and actual pump hours oil change in VTC Plus Conveying System configuration
+		params: device_id
+		return: Actual and target pump hours oil change
+	*/
+	public function getPumpHoursOil($id) {
+		$targets = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		$actuals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		
+		$targetValues = DeviceData::where('device_id', $id)
+						->where('tag_id', 17)
+						->latest('timestamp')
+						->first();
+		$actualValues = DeviceData::where('device_id', $id)
+						->where('tag_id', 16)
+						->latest('timestamp')
+						->first();
+
+		if($actualValues)
+			$actuals = json_decode($actualValues->values);
+		if($targetValues)
+			$targets = json_decode($actualValues->values);
+
+		$items = [$actuals, $targets];
+		return response()->json(compact('items'));
+	}
+
+	/*
+		Get pump hours in VTC Plus Conveying System configuration
+		params: device_id
+		return: 12 sized array of hours
+	*/
+	public function getPumpHours($id) {
+		$items = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		
+		$hourValues = DeviceData::where('device_id', $id)
+						->where('tag_id', 15)
+						->latest('timestamp')
+						->first();
+
+		if($hourValues)
+			$items = json_decode($hourValues->values);
+
+		return response()->json(compact('items'));
+	}
+
+	/*
+		description: Get pump online states
+		configuration: VTC Plus Conveying System
+	*/
+	public function getPumpOnlines($id) {
+		$onlines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		
+		$onlines_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 12)
+						->latest('timestamp')
+						->first();
+
+		if($onlines_object)
+			$onlines = json_decode($onlines_object->values);
+
+		return response()->json(compact('onlines'));
+	}
+
+	/*
+		description: -pump blowback engaged, 12 points, on change (10min-4hr) pump_blowback_on[1..12], INT
+		configuration: VTC Plus Conveying System
+	*/
+	public function getPumpBlowBacks($id) {
+		$blowbacks = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		
+		$blowback_object = DeviceData::where('device_id', $id)
+						->where('tag_id', 14)
+						->latest('timestamp')
+						->first();
+
+		if($blowback_object)
+			$blowbacks = json_decode($blowback_object->values);
+
+		return response()->json(compact('blowbacks'));
+	}
+
+	/*
+		Get Drying hopper states for NGX Dryer
+	*/
+	public function getDryingHopperStates($id) {
+		$states = new stdClass();
+
+		$states->hopper1 = 0;
+		$states->hopper2 = 0;
+		$states->hopper3 = 0;
+
+		$hopper1 = DeviceData::where('device_id', $id)->where('tag_id', 33)->latest('timestamp')->first();
+
+		if($hopper1) {
+			$states->hopper1 = json_decode($hopper1->values)[0];
+		}
+
+		$hopper2 = DeviceData::where('device_id', $id)->where('tag_id', 34)->latest('timestamp')->first();
+
+		if($hopper2) {
+			$states->hopper2 = json_decode($hopper2->values)[0];
+		}
+
+		$hopper3 = DeviceData::where('device_id', $id)->where('tag_id', 35)->latest('timestamp')->first();
+
+		if($hopper3) {
+			$states->hopper3 = json_decode($hopper3->values)[0];
+		}
+
+		return response()->json(compact('states'));
+	}
+
+	/*
+		Get Target, actual and outlet hopper temperatures
+		params: device_id
+	*/
+	public function getHopperTemperatures($id) {
+		$inlets = [0, 0, 0];
+		$outlets = [0, 0, 0];
+		$targets = [0, 0, 0];
+		
+		$inletHopper1 = DeviceData::where('device_id', $id)
+						->where('tag_id', 9)
+						->latest('timestamp')
+						->first();
+		$inletHopper2 = DeviceData::where('device_id', $id)
+						->where('tag_id', 12)
+						->latest('timestamp')
+						->first();
+		$inletHopper3 = DeviceData::where('device_id', $id)
+						->where('tag_id', 15)
+						->latest('timestamp')
+						->first();
+
+		$outletHopper1 = DeviceData::where('device_id', $id)
+						->where('tag_id', 11)
+						->latest('timestamp')
+						->first();
+		$outletHopper2 = DeviceData::where('device_id', $id)
+						->where('tag_id', 14)
+						->latest('timestamp')
+						->first();
+		$outletHopper3 = DeviceData::where('device_id', $id)
+						->where('tag_id', 17)
+						->latest('timestamp')
+						->first();
+
+		$targetHopper1 = DeviceData::where('device_id', $id)
+						->where('tag_id', 10)
+						->latest('timestamp')
+						->first();
+		$targetHopper2 = DeviceData::where('device_id', $id)
+						->where('tag_id', 13)
+						->latest('timestamp')
+						->first();
+		$targetHopper3 = DeviceData::where('device_id', $id)
+						->where('tag_id', 16)
+						->latest('timestamp')
+						->first();
+
+		if($inletHopper1) $inlets[0] = json_decode($inletHopper1->values)[0];
+		if($inletHopper2) $inlets[1] = json_decode($inletHopper2->values)[0];
+		if($inletHopper3) $inlets[2] = json_decode($inletHopper3->values)[0];
+
+		if($outletHopper1) $outlets[0] = json_decode($outletHopper1->values)[0];
+		if($outletHopper2) $outlets[1] = json_decode($outletHopper2->values)[0];
+		if($outletHopper3) $outlets[2] = json_decode($outletHopper3->values)[0];
+
+		if($targetHopper1) $targets[0] = json_decode($targetHopper1->values)[0];
+		if($targetHopper2) $targets[1] = json_decode($targetHopper2->values)[0];
+		if($targetHopper3) $targets[2] = json_decode($targetHopper3->values)[0];
+
+		$items = [$inlets, $outlets, $targets];
+
+		return response()->json(compact('items'));
+	}
+
+	/*
+		description: get bed states
+		tags: 	-left bed in regen, 1 point, on change (1hr-4hr) R16_LB_IN_REGEN bool
+				-left bed regen heating, 1 point, on change (1hr-4hr) R02_LB_REG_HEATING bool
+				-left bed regen cooling, 1 point, on change (1hr-4hr) R06_LB_REG_COOLING bool
+				-right bed in regen, 1 point, on change (1hr-4hr) R17_RB_IN_REGEN bool
+				-right bed regen heating, 1 point, on change (1hr-4hr) R03_RB_REG_HEATING bool
+				-right bed regen cooling, 1 point, on change (1hr-4hr) R07_RB_REG_COOLING bool
+	*/
+	public function getNgxDryerBedStates($id) {
+		$product = Device::where('serial_number', $id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$states = [
+			[ "name" => "Left bed in regen", "value" => false ],
+			[ "name" => "Left bed regen heating", "value" => false ],
+			[ "name" => "Left bed regen cooling", "value" => false ],
+			[ "name" => "Right bed in regen", "value" => false ],
+			[ "name" => "Right bed regen heating", "value" => false ],
+			[ "name" => "Right bed regen cooling", "value" => false ]
+		];
+
+		$left1 = DeviceData::where('device_id', $id)->where('tag_id', 26)->latest('timestamp')->first();
+
+		if($left1) {
+			$states[0]["value"] = json_decode($left1->values)[0];
+		}
+
+		$left2 = DeviceData::where('device_id', $id)->where('tag_id', 27)->latest('timestamp')->first();
+
+		if($left2) {
+			$states[1]["value"] = json_decode($left2->values)[0];
+		}
+
+		$left3 = DeviceData::where('device_id', $id)->where('tag_id', 28)->latest('timestamp')->first();
+
+		if($left3) {
+			$states[2]["value"] = json_decode($left3->values)[0];
+		}
+
+		$left4 = DeviceData::where('device_id', $id)->where('tag_id', 29)->latest('timestamp')->first();
+
+		if($left4) {
+			$states[3]["value"] = json_decode($left4->values)[0];
+		}
+
+		$left5 = DeviceData::where('device_id', $id)->where('tag_id', 30)->latest('timestamp')->first();
+
+		if($left5) {
+			$states[4]["value"] = json_decode($left5->values)[0];
+		}
+
+		$left6 = DeviceData::where('device_id', $id)->where('tag_id', 31)->latest('timestamp')->first();
+
+		if($left6) {
+			$states[5]["value"] = json_decode($left6->values)[0];
+		}
+
+		return response()->json([
+			'states' => $states
+		]);
+	}
+
+	/*
+		description: DH Online Hrs
+		tags: 	
+				-DH1 Online Hrs - Maint, 1 point, on change (1hr) STATS_DH1_MNT_HRS dint
+				-DH1 Online Hrs – Total, 1 point, on change (1hr) STATS_DH1_TOT_HRS dint
+				-DH2 Online Hrs - Maint, 1 point, on change (1hr) STATS_DH2_MNT_HRS dint
+				-DH2 Online Hrs – Total, 1 point, on change (1hr) STATS_DH2_TOT_HRS dint
+				-DH3 Online Hrs - Maint, 1 point, on change (1hr) STATS_DH3_MNT_HRS dint
+				-DH3 Online Hrs – Total, 1 point, on change (1hr) STATS_DH3_TOT_HRS dint
+	*/
+	public function getNgxDryerDhOnlineHours(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$items = [
+			[], [], [], [], [], []
+		];
+
+		$hr1_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 40)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr1_objects) {
+			$hr1 = $hr1_objects->map(function($hr1_object) {
+				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
+			});
+
+			$hr = new stdClass();
+			$hr->name = 'DH1 Online Hrs - Maint';
+			$hr->data = $hr1;
+			$items[0] = $hr;
+		}
+
+		$hr2_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 41)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr2_objects) {
+			$hr2 = $hr2_objects->map(function($hr2_object) {
+				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
+			});
+
+			$hr = new stdClass();
+			$hr->name = 'DH1 Online Hrs – Total';
+			$hr->data = $hr2;
+			$items[1] = $hr;
+		}
+
+		$hr3_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 42)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr3_objects) {
+			$hr3 = $hr3_objects->map(function($hr3_object) {
+				return [($hr3_object->timestamp + $this->timeshift) * 1000, json_decode($hr3_object->values)[0]];
+			});
+
+			$hr = new stdClass();
+			$hr->name = 'DH2 Online Hrs - Maint';
+			$hr->data = $hr3;
+			$items[2] = $hr;
+		}
+
+		$hr4_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 43)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr4_objects) {
+			$hr4 = $hr4_objects->map(function($hr4_object) {
+				return [($hr4_object->timestamp + $this->timeshift) * 1000, json_decode($hr4_object->values)[0]];
+			});
+
+			$hr = new stdClass();
+			$hr->name = 'DH2 Online Hrs – Total';
+			$hr->data = $hr4;
+			$items[3] = $hr;
+		}
+
+		$hr5_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 44)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr5_objects) {
+			$hr5 = $hr5_objects->map(function($hr5_object) {
+				return [($hr5_object->timestamp + $this->timeshift) * 1000, json_decode($hr5_object->values)[0]];
+			});
+
+			$hr = new stdClass();
+			$hr->name = 'DH3 Online Hrs - Maint';
+			$hr->data = $hr5;
+			$items[4] = $hr;
+		}
+
+		$hr6_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 45)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr6_objects) {
+			$hr6 = $hr6_objects->map(function($hr6_object) {
+				return [($hr6_object->timestamp + $this->timeshift) * 1000, json_decode($hr6_object->values)[0]];
+			});
+
+			$hr = new stdClass();
+			$hr->name = 'DH3 Online Hrs – Total';
+			$hr->data = $hr6;
+			$items[5] = $hr;
+		}
+
+		return response()->json(compact('items'));
+	}
+
+	/*
+		description: Dryer Online Hrs
+		tags: 	
+				-Dryer Online Hrs – Maint, 1 point, on change (1hr) STATS_ONLINE_MAINT_HRS dint
+				-Dryer Online Hrs – Total, 1 point, on change (1hr) STATS_ONLINE_TOT_HRS dint
+	*/
+	public function getNgxDryerDryerOnlineHours(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$items = [
+			[], []
+		];
+
+		$hr1_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 50)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr1_objects) {
+			$hr1 = $hr1_objects->map(function($hr1_object) {
+				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
+			});
+
+			$hr = new stdClass();
+			$hr->name = 'Dryer Online Hrs – Maint';
+			$hr->data = $hr1;
+			$items[0] = $hr;
+		}
+
+		$hr2_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 51)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr2_objects) {
+			$hr2 = $hr2_objects->map(function($hr2_object) {
+				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
+			});
+
+			$hr = new stdClass();
+			$hr->name = 'Dryer Online Hrs – Total';
+			$hr->data = $hr2;
+			$items[1] = $hr;
+		}
+
+		return response()->json(compact('items'));
+	}
+
+	/*
+		description: Blower Run Hrs
+		tags: 	
+				-Process Blower Run Hrs - Maint, 1 point, on change (1hr) STATS_PROC_BLWR_MNT_HRS dint
+				-Process Blower Run Hrs – Total, 1 point, on change (1hr) STATS_PROC_BLWR_TOT_HRS dint
+	*/
+	public function getNgxDryerBlowerRunHours(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$items = [
+			[], []
+		];
+
+		$hr1_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 52)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr1_objects) {
+			$hr1 = $hr1_objects->map(function($hr1_object) {
+				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
+			});
+
+			$hr = new stdClass();
+			$hr->name = 'Process Blower Run Hrs - Maint';
+			$hr->data = $hr1;
+			$items[0] = $hr;
+		}
+
+		$hr2_objects = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 53)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($hr2_objects) {
+			$hr2 = $hr2_objects->map(function($hr2_object) {
+				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
+			});
+
+			$hr = new stdClass();
+			$hr->name = 'Process Blower Run Hrs – Total';
+			$hr->data = $hr2;
+			$items[1] = $hr;
+		}
+
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -555,11 +1564,17 @@ class MachineController extends Controller
 										->latest('timestamp')
 										->get();
 
-		$inventories = array_map(function($inventory_object) {
-			return [$inventory_object['timestamp'] * 1000, json_decode($inventory_object['values'])[0]];
-		}, $inventories_object->toArray());
+		if($inventories_object) {
+			$inventories = $inventories_object->map(function($inventory_object) {
+				return [($inventory_object->timestamp + $this->timeshift) * 1000, round(json_decode($inventory_object->values)[0], 2)];
+			});
+		} else {
+			$inventories = [];
+		}
 
-		return response()->json(compact('inventories'));
+		$items = [$inventories];
+
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -595,17 +1610,25 @@ class MachineController extends Controller
 										->latest('timestamp')
 										->get();
 
-		$lengths = array_map(function($length_object) {
-			return [$length_object['timestamp'] * 1000, round(json_decode($length_object['values'])[0], 2)];
-		}, $lengths_object->toArray());
+		if($lengths_object) {
+			$lengths = $lengths_object->map(function($length_object) {
+				return [($length_object->timestamp + $this->timeshift) * 1000, round(json_decode($length_object->values)[0], 2)];
+			});
+		} else {
+			$lengths = [];
+		}
 
-		return response()->json(compact('lengths'));
+		$items = [$lengths];
+		
+		return response()->json(compact('items'));
 	}
-	
+
 	/*
-		Get Feeder stables
+		configuration: True temp tcu
+		description: actual target temperature
+		tag: Return Temp, Setpoint 1
 	*/
-	public function getFeederStables($id) {
+	public function getTcuActTgtTemperature($id) {
 		$product = Device::where('serial_number', $id)->first();
 
 		if(!$product) {
@@ -614,67 +1637,41 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$configuration = $product->configuration;
+		$items = [0, 0];
+		$unit = 0;
 
-		if(!$configuration) {
-			return response()->json([
-				'message' => 'Device Not Configured'
-			], 404);
-		}
-
-		$feeders_object = DeviceData::where('device_id', $id)->where('tag_id', 26)->latest('timestamp')->first();
-
-		if($feeders_object) {
-			$feeders = json_decode($feeders_object->values);
-		} else {
-			$feeders = [];
-		}
-
-		return response()->json(compact('feeders'));
-	}
-
-	/*
-		Get product production rate
-		return: Rate Series Array
-	*/
-	public function getProductProcessRate(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = $product->configuration;
-
-		if(!$configuration) {
-			return response()->json([
-				'message' => 'Device Not Configured'
-			], 404);
-		}
-
-		// $tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $configuration->id)->first();
-
-		// if(!$tag_utilization) {
-		// 	return response()->json('Capacity utilization tag not found', 404);
-		// }
-
-		$from = $this->getFromTo($request->timeRange)["from"];
-		$to = $this->getFromTo($request->timeRange)["to"];
-
-		$process_rate_object = DeviceData::where('device_id', $request->id)
-										->where('tag_id', 23)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
+		$unit_object = DeviceData::where('device_id', $id)
+										->where('tag_id', 7)
 										->latest('timestamp')
-										->get();
+										->first();
+		if($unit_object) {
+			$unit = json_decode($unit_object->values)[0];
+		}
 
-		$process_rate = array_map(function($process_rate_object) {
-			return [$process_rate_object['timestamp'] * 1000, json_decode($process_rate_object['values'])[0]];
-		}, $process_rate_object->toArray());
+		$actual_object = DeviceData::where('device_id', $id)
+										->where('tag_id', 4)
+										->latest('timestamp')
+										->first();
 
-		return response()->json(compact('process_rate'));
+		if($actual_object) {
+			$items[0] = json_decode($actual_object->values)[0];
+		}
+
+		$target_object = DeviceData::where('device_id', $id)
+										->where('tag_id', 8)
+										->latest('timestamp')
+										->first();
+
+		if($target_object) {
+			$items[1] = json_decode($target_object->values)[0];
+		}
+
+		if($unit == 1) {
+			$items[0] = round(($items[0] - 32) * 5 / 9, 2);
+			$items[1] = round(($items[1] - 32) * 5 / 9, 2);
+		}
+
+		return response()->json(compact('items'));
 	}
 
 	/*
@@ -806,7 +1803,7 @@ class MachineController extends Controller
 		$locations = $user->getMyLocations();
 
 		foreach ($locations as $key => $location) {
-			$downtime_distribution = $this->getDowntimeDistribution(1);
+			$downtime_distribution = $this->getDowntimeDistribution(1106550521);
 			$location->utilization = '32%';
 			$location->color = 'green';
 			$location->value = 75;
@@ -825,7 +1822,7 @@ class MachineController extends Controller
 		$zones = $location->zones;
 
 		foreach ($zones as $key => $zone) {
-			$downtime_distribution = $this->getDowntimeDistribution(1);
+			$downtime_distribution = $this->getDowntimeDistribution(1106550521);
 			$zone->utilization = '32%';
 			$zone->color = 'green';
 			$zone->value = 75;
@@ -842,7 +1839,7 @@ class MachineController extends Controller
 		$devices = Device::where('zone_id', $zone_id)->get();
 
 		foreach ($devices as $key => $device) {
-			$downtime_distribution = $this->getDowntimeDistribution(1);
+			$downtime_distribution = $this->getDowntimeDistribution(1106550521);
 			$device->utilization = '32%';
 			$device->color = 'green';
 			$device->value = 75;
@@ -868,15 +1865,20 @@ class MachineController extends Controller
 							// 1 - Unplanned
 							// 2 - Idle
 
-		$running_values = DB::table('device_data')
-							->where('machine_id', $id)
+		$device = Device::where('serial_number', $id)->first();
+		
+		if(!$device) return $ret;
+
+		$running_values = DB::table('runnings')
+							->where('device_id', $id)
 							->where('tag_id', 9)
 							->where('timestamp', '>', $start)
 							->where('timestamp', '<', $end)
-							->orderBy('id')
+							->orderBy('timestamp')
 							->get();
 
-		$last_before_start = DeviceData::where('machine_id', $id)
+		$last_before_start = DB::table('runnings')
+							->where('device_id', $id)
 							->where('tag_id', 9)
 							->where('timestamp', '<', $start)
 							->orderBy('timestamp')
@@ -972,7 +1974,6 @@ class MachineController extends Controller
 	}
 
 	public function getFromTo($data) {
-
 		switch ($data["timeRangeOption"]) {
 			case 'last30Min':
 				return [
