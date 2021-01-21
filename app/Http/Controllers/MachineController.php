@@ -1131,6 +1131,47 @@ class MachineController extends Controller
 	}
 
 	/*
+		configuration: Accumeter Ovation Continuous Blender configuration
+		description: Get product production rate
+		return: Rate Series Array
+	*/
+	public function getDewPointTemperature(Request $request) {
+		$product = Device::where('serial_number', $request->id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		$configuration = $product->configuration;
+
+		if(!$configuration) {
+			return response()->json([
+				'message' => 'Device Not Configured'
+			], 404);
+		}
+
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$temperatures_object = DeviceData::where('device_id', $request->id)
+										->where('tag_id', 23)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->latest('timestamp')
+										->get();
+
+		$temperatures = $temperatures_object->map(function($temperature_object) {
+			return [($temperature_object->timestamp + $this->timeshift) * 1000, json_decode($temperature_object->values)[0]];
+		});
+
+		$items = [$temperatures];
+
+		return response()->json(compact('items'));
+	}
+
+	/*
 		Get Target, actual and outlet hopper temperatures
 		params: device_id
 	*/
@@ -1521,6 +1562,70 @@ class MachineController extends Controller
 
 		return response()->json(compact('items'));
 	}
+
+	/*
+		configuration: NGX Dryer
+		description: Reg air temperature
+		tag: 
+	*/
+	// public function getRegAirTemperature($id) {
+	// 	$product = Device::where('serial_number', $id)->first();
+
+	// 	if(!$product) {
+	// 		return response()->json([
+	// 			'message' => 'Device Not Found'
+	// 		], 404);
+	// 	}
+
+	// 	$items = [0, 0, 0];
+	// 	$unit = 0;
+
+	// 	$unit_object = DeviceData::where('device_id', $id)
+	// 		->where('machine_id', MACHINE_TRUETEMP_TCU)
+	// 		->where('tag_id', 7)
+	// 		->latest('timestamp')
+	// 		->first();
+	// 	if($unit_object) {
+	// 		$unit = json_decode($unit_object->values)[0];
+	// 	}
+
+	// 	$air_object = DeviceData::where('device_id', $id)
+	// 		->where('machine_id', MACHINE_TRUETEMP_TCU)
+	// 		->where('tag_id', 2)
+	// 		->latest('timestamp')
+	// 		->first();
+
+	// 	if($delivery_object) {
+	// 		$items[0] = json_decode($delivery_object->values)[0];
+	// 	}
+
+	// 	$actual_object = DeviceData::where('device_id', $id)
+	// 		->where('machine_id', MACHINE_TRUETEMP_TCU)
+	// 		->where('tag_id', 4)
+	// 		->latest('timestamp')
+	// 		->first();
+
+	// 	if($actual_object) {
+	// 		$items[1] = json_decode($actual_object->values)[0];
+	// 	}
+
+	// 	$target_object = DeviceData::where('device_id', $id)
+	// 									->where('tag_id', 8)
+	// 									->latest('timestamp')
+	// 									->first();
+
+	// 	if($target_object) {
+	// 		$items[2] = json_decode($target_object->values)[0];
+	// 	}
+
+	// 	if($unit == 1) {
+	// 		$items[0] = round(($items[0] - 32) * 5 / 9, 2);
+	// 		$items[1] = round(($items[1] - 32) * 5 / 9, 2);
+	// 		$items[2] = round(($items[0] - 32) * 5 / 9, 2);
+	// 	}
+
+	// 	return response()->json(compact('items'));
+	// }
 
 	/*
 		Get Machine state for machine 3
