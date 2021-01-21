@@ -211,7 +211,7 @@ class MachineController extends Controller
 				} else {
 					$inv2 = sprintf('%03d', $inventory_values[$i]);
 				}
-				$inv = strval(json_decode($hop_inventory->values)[$i]) . '.' . $inv2;
+				$inv = strval(json_decode($hop_inventory->values)[$i]) . ',' . $inv2;
 				array_push($inventories, $inv);
 			}
 		} else {
@@ -1000,6 +1000,48 @@ class MachineController extends Controller
 	}
 
 	/*
+		description: online life
+		params: device_id
+		return: online life in %
+	*/
+	public function getPumpOnlineLife($id) {
+		$items = $hours = $targets = $actuals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+		$hourValues = DeviceData::where('device_id', $id)
+			->where('tag_id', 15)
+			->latest('timestamp')
+			->first();
+
+		$targetValues = DeviceData::where('device_id', $id)
+			->where('tag_id', 17)
+			->latest('timestamp')
+			->first();
+
+		$actualValues = DeviceData::where('device_id', $id)
+			->where('tag_id', 16)
+			->latest('timestamp')
+			->first();
+
+		if($hourValues) {
+			$hours = json_decode($hourValues->values);
+		}
+
+		if($targetValues) {
+			$targets = json_decode($targetValues->values);
+		}
+
+		if($actualValues) {
+			$actuals = json_decode($actualValues->values);
+		}
+
+		foreach ($hours as $key => &$value) {
+			$items[$key] = round(100 * ($targets[$key] - $hours[$key]) / $actuals[$key], 2);
+		}
+
+		return response()->json(compact('items'));
+	}
+
+	/*
 		Get pump hours in VTC Plus Conveying System configuration
 		params: device_id
 		return: 12 sized array of hours
@@ -1637,24 +1679,36 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$items = [0, 0];
+		$items = [0, 0, 0];
 		$unit = 0;
 
 		$unit_object = DeviceData::where('device_id', $id)
-										->where('tag_id', 7)
-										->latest('timestamp')
-										->first();
+			->where('machine_id', MACHINE_TRUETEMP_TCU)
+			->where('tag_id', 7)
+			->latest('timestamp')
+			->first();
 		if($unit_object) {
 			$unit = json_decode($unit_object->values)[0];
 		}
 
+		$delivery_object = DeviceData::where('device_id', $id)
+			->where('machine_id', MACHINE_TRUETEMP_TCU)
+			->where('tag_id', 2)
+			->latest('timestamp')
+			->first();
+
+		if($delivery_object) {
+			$items[0] = json_decode($delivery_object->values)[0];
+		}
+
 		$actual_object = DeviceData::where('device_id', $id)
-										->where('tag_id', 4)
-										->latest('timestamp')
-										->first();
+			->where('machine_id', MACHINE_TRUETEMP_TCU)
+			->where('tag_id', 4)
+			->latest('timestamp')
+			->first();
 
 		if($actual_object) {
-			$items[0] = json_decode($actual_object->values)[0];
+			$items[1] = json_decode($actual_object->values)[0];
 		}
 
 		$target_object = DeviceData::where('device_id', $id)
@@ -1663,12 +1717,13 @@ class MachineController extends Controller
 										->first();
 
 		if($target_object) {
-			$items[1] = json_decode($target_object->values)[0];
+			$items[2] = json_decode($target_object->values)[0];
 		}
 
 		if($unit == 1) {
 			$items[0] = round(($items[0] - 32) * 5 / 9, 2);
 			$items[1] = round(($items[1] - 32) * 5 / 9, 2);
+			$items[2] = round(($items[0] - 32) * 5 / 9, 2);
 		}
 
 		return response()->json(compact('items'));

@@ -135,8 +135,9 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/product-hauloff-lengths', 'MachineController@getHauloffLengths');
 	Route::get('/vtc-plus/pump-onlines/{id}', 'MachineController@getPumpOnlines');
 	Route::get('/vtc-plus/pump-blowbacks/{id}', 'MachineController@getPumpBlowBacks');
-	Route::get('/product-pump-hours-oil/{id}', 'MachineController@getPumpHoursOil');
-	Route::get('/product-pump-hours/{id}', 'MachineController@getPumpHours');
+	Route::get('/vtc-plus/pump-hours-oil/{id}', 'MachineController@getPumpHoursOil');
+	Route::get('/vtc-plus/pump-hours/{id}', 'MachineController@getPumpHours');
+	Route::get('/vtc-plus/pump-online-life/{id}', 'MachineController@getPumpOnlineLife');
 	Route::get('/product-drying-hopper-states/{id}', 'MachineController@getDryingHopperStates');
 	Route::get('/product-hopper-temperatures/{id}', 'MachineController@getHopperTemperatures');
 
