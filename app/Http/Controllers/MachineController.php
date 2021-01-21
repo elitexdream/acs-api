@@ -309,7 +309,7 @@ class MachineController extends Controller
 		if($actual_object) {
 			$actuals = json_decode($actual_object->values);
 			foreach ($actuals as &$actual) {
-				$actual = $actual / 1000;
+				$actual = round($actual / 1000, 3);
 			}
 		}
 
