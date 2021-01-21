@@ -1034,8 +1034,11 @@ class MachineController extends Controller
 			$actuals = json_decode($actualValues->values);
 		}
 
-		foreach ($hours as $key => &$value) {
-			$items[$key] = round(100 * ($targets[$key] - $hours[$key]) / $actuals[$key], 2);
+		foreach ($hours as $key => $value) {
+			if($actuals[$key] == 0)
+				$items[$key] = 100;
+			else
+				$items[$key] = round(100 * ($targets[$key] - $value) / $actuals[$key], 2);
 		}
 
 		return response()->json(compact('items'));
