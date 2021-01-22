@@ -13,7 +13,7 @@ class CreateDeviceRelationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('device_relations', function (Blueprint $table) {
+        Schema::create('device_configurations', function (Blueprint $table) {
             $table->id();
             $table->string('teltonika_id', 50);
 
@@ -36,6 +36,6 @@ class CreateDeviceRelationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('device_relations');
+        Schema::dropIfExists('device_configurations');
     }
 }
