@@ -15,10 +15,15 @@ class CreateDeviceRelationsTable extends Migration
     {
         Schema::create('device_relations', function (Blueprint $table) {
             $table->id();
-            $table->string('teltonike_id', 50);
-            $table->string('device_type', 50);
-            $table->string('device_serial_number', 50);
-            $table->boolean('device_plc_link')->default(false);
+            $table->string('teltonika_id', 50);
+
+            $table->string('plc_type', 50);
+            $table->string('plc_serial_number', 50);
+
+            $table->string('tcu_type', 50);
+            $table->string('tcu_serial_number', 50);
+
+            $table->json('body');
 
             $table->timestamps();
         });
