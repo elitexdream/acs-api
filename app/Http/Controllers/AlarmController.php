@@ -57,7 +57,8 @@ class AlarmController extends Controller
 		$alarm_types = AlarmType::where('machine_id', $configuration->id)->orderBy('id')->get();
 		$tag_ids = $alarm_types->unique('tag_id')->pluck('tag_id');
 		
-		$alarms_object = Alarm::where('device_id', $id)
+		$alarms_object = Alarm::where('serial_number', $configuration->serial_number)
+								->where('device_id', $id)
 								->whereIn('tag_id', $tag_ids)
 								->latest('timestamp')
 								->get()
