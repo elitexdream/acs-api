@@ -16,6 +16,7 @@ class CreateMachinesTable extends Migration
         Schema::create('machines', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('device_type')->default(0);
             $table->json('full_json');
         });
     }
