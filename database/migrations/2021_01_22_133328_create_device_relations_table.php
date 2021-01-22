@@ -17,11 +17,11 @@ class CreateDeviceRelationsTable extends Migration
             $table->id();
             $table->string('teltonika_id', 50);
 
-            $table->string('plc_type', 50);
-            $table->string('plc_serial_number', 50);
+            $table->string('plc_type', 50)->nullable();
+            $table->string('plc_serial_number', 50)->nullable();
 
-            $table->string('tcu_type', 50);
-            $table->string('tcu_serial_number', 50);
+            $table->string('tcu_type', 50)->nullable();
+            $table->string('tcu_serial_number', 50)->nullable();
 
             $table->json('body');
 
