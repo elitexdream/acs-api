@@ -19,9 +19,11 @@ class CreateDeviceRelationsTable extends Migration
 
             $table->string('plc_type', 50)->nullable();
             $table->string('plc_serial_number', 50)->nullable();
+            $table->boolean('plc_status')->default(false);
 
             $table->string('tcu_type', 50)->nullable();
             $table->string('tcu_serial_number', 50)->nullable();
+            $table->boolean('tcu_status')->default(false);
 
             $table->json('body');
 
