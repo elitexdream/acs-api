@@ -75,7 +75,7 @@ class MachineController extends Controller
 			// product version
 			if($version_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
 								->where('tag_id', 1)
-								->latest('timestamp')
+								->latest('timedata')
 								->first()) {
 				try {
 					$product->version = json_decode($version_object->values)[0];
@@ -94,7 +94,7 @@ class MachineController extends Controller
 			if($version_object = DB::table('software_version')
 								->where('serial_number', $configuration->plc_serial_number)
 								->where('tag_id', $tag_software_version->tag_id)
-								->latest('timestamp')
+								->latest('timedata')
 								->first()) {
 				try {
 					$product->version = json_decode($version_object->values)[0] / 10;
@@ -113,7 +113,7 @@ class MachineController extends Controller
 			if($software_build_object = DB::table('software_builds')
 											->where('serial_number', $configuration->plc_serial_number)
 											->where('tag_id', $tag_software_build->tag_id)
-											->latest('timestamp')
+											->latest('timedata')
 											->first()) {
 				try {
 					$product->software_build = json_decode($software_build_object->values)[0];
@@ -138,17 +138,17 @@ class MachineController extends Controller
 			$serial_year_object = DB::table('serial_number_year')
 										->where('serial_number', $configuration->plc_serial_number)
 										->where('tag_id', $tag_serial_year->tag_id)
-										->latest('timestamp')
+										->latest('timedata')
 										->first();
 			$serial_month_object = DB::table('serial_number_month')
 										->where('serial_number', $configuration->plc_serial_number)
 										->where('tag_id', $tag_serial_month->tag_id)
-										->latest('timestamp')
+										->latest('timedata')
 										->first();
 			$serial_unit_object = DB::table('serial_number_unit')
 										->where('serial_number', $configuration->plc_serial_number)
 										->where('tag_id', $tag_serial_unit->tag_id)
-										->latest('timestamp')
+										->latest('timedata')
 										->first();
 
 			if($serial_year_object) {
@@ -214,7 +214,7 @@ class MachineController extends Controller
 
 		$inventories = DeviceData::where('serial_number', $configuration->plc_serial_number)
 									->whereIn('tag_id', [15, 16])
-									->latest('timestamp')
+									->latest('timedata')
 									->get();
 
 		$hop_inventory = $inventories->firstWhere('tag_id', 15);
@@ -275,7 +275,7 @@ class MachineController extends Controller
 
 		$mode_object = DeviceData::where('serial_number', $machine->plc_serial_number)
 						->where('tag_id', 45)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		if($mode_object) {
@@ -283,7 +283,7 @@ class MachineController extends Controller
 
 			$last_object = DeviceData::where('serial_number', $machine->plc_serial_number)
 							->where('tag_id', 47)
-							->latest('timestamp')
+							->latest('timedata')
 							->first();
 
 			if( $last_object)
@@ -291,7 +291,7 @@ class MachineController extends Controller
 			if($mode == 2) {
 				$last_object = DeviceData::where('serial_number', $machine->plc_serial_number)
 								->where('tag_id', 46)
-								->latest('timestamp')
+								->latest('timedata')
 								->first();
 
 				if( $last_object)
@@ -336,13 +336,13 @@ class MachineController extends Controller
 		$actual_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 13)
 						->whereJsonLength('values', 8)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		$target_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 14)
 						->whereJsonLength('values', 8)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		$targets = [];
@@ -390,7 +390,7 @@ class MachineController extends Controller
 		$last_object = DeviceData::where('serial_number', $configuration->serial_number)
 						->where('device_id', $id)
 						->where('tag_id', 26)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		if( $last_object) {
@@ -434,7 +434,7 @@ class MachineController extends Controller
 		$last_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('device_id', $id)
 						->where('tag_id', 25)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		if( $last_object) {
@@ -684,39 +684,39 @@ class MachineController extends Controller
 
 		$target_object = DeviceData::where('serial_number', $serial_number)
 						->where('tag_id', 11)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		if($target_object) {
 			$targets = json_decode($target_object->values);
 		}
 
-		$actual_recipe_object1 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 12)->latest('timestamp')->first();
+		$actual_recipe_object1 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 12)->latest('timedata')->first();
 		if($actual_recipe_object1) {
 			$actuals[0] = round(json_decode($actual_recipe_object1->values)[0], 2);
 		}
 
-		$actual_recipe_object2 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 13)->latest('timestamp')->first();
+		$actual_recipe_object2 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 13)->latest('timedata')->first();
 		if($actual_recipe_object2) {
 			$actuals[1] = round(json_decode($actual_recipe_object2->values)[0], 2);
 		}
 
-		$actual_recipe_object3 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 14)->latest('timestamp')->first();
+		$actual_recipe_object3 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 14)->latest('timedata')->first();
 		if($actual_recipe_object3) {
 			$actuals[2] = round(json_decode($actual_recipe_object3->values)[0], 2);
 		}
 
-		$actual_recipe_object4 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 15)->latest('timestamp')->first();
+		$actual_recipe_object4 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 15)->latest('timedata')->first();
 		if($actual_recipe_object4) {
 			$actuals[3] = round(json_decode($actual_recipe_object4->values)[0], 2);
 		}
 
-		$actual_recipe_object5 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 16)->latest('timestamp')->first();
+		$actual_recipe_object5 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 16)->latest('timedata')->first();
 		if($actual_recipe_object5) {
 			$actuals[4] = round(json_decode($actual_recipe_object5->values)[0], 2);
 		}
 
-		$actual_recipe_object6 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 17)->latest('timestamp')->first();
+		$actual_recipe_object6 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 17)->latest('timedata')->first();
 		if($actual_recipe_object6) {
 			$actuals[5] = round(json_decode($actual_recipe_object6->values)[0], 2);
 		}
@@ -754,7 +754,7 @@ class MachineController extends Controller
 				'message' => 'Can\'t find device type'
 			], 404);
 
-		$feeders_object = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 26)->latest('timestamp')->first();
+		$feeders_object = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 26)->latest('timedata')->first();
 
 		if($feeders_object) {
 			$feeders = json_decode($feeders_object->values);
@@ -801,7 +801,7 @@ class MachineController extends Controller
 										->where('tag_id', 23)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
-										->latest('timestamp')
+										->latest('timedata')
 										->get();
 
 		$process_rate = $process_rates_object->map(function($process_rate_object) {
@@ -860,7 +860,7 @@ class MachineController extends Controller
 			
 			if($pump_status_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
 						->where('tag_id', 40)
-						->latest('timestamp')
+						->latest('timedata')
 						->first()) {
 				try {
 					$machine_states->pump_status = json_decode($pump_status_object->values)[0];
@@ -871,7 +871,7 @@ class MachineController extends Controller
 
 			if($heater_status_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
 				->where('tag_id', 41)
-				->latest('timestamp')
+				->latest('timedata')
 				->first()) {
 				try {
 					$machine_states->heater_status = json_decode($heater_status_object->values)[0];
@@ -882,7 +882,7 @@ class MachineController extends Controller
 
 			if($vent_status_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
 				->where('tag_id', 42)
-				->latest('timestamp')
+				->latest('timedata')
 				->first()) {
 				try {
 					$machine_states->vent_status = json_decode($vent_status_object->values)[0];
@@ -898,7 +898,7 @@ class MachineController extends Controller
 
 			$states_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
 				->whereIn('tag_id', [10, 24, 25, 27])
-				->latest('timestamp')
+				->latest('timedata')
 				->get()
 				->unique('tag_id');
 
@@ -1174,11 +1174,11 @@ class MachineController extends Controller
 		
 		$targetValues = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 17)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 		$actualValues = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 16)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		if($actualValues)
@@ -1223,17 +1223,17 @@ class MachineController extends Controller
 
 		$hourValues = DeviceData::where('serial_number', $configuration->plc_serial_number)
 			->where('tag_id', 15)
-			->latest('timestamp')
+			->latest('timedata')
 			->first();
 
 		$targetValues = DeviceData::where('serial_number', $configuration->plc_serial_number)
 			->where('tag_id', 17)
-			->latest('timestamp')
+			->latest('timedata')
 			->first();
 
 		$actualValues = DeviceData::where('serial_number', $configuration->plc_serial_number)
 			->where('tag_id', 16)
-			->latest('timestamp')
+			->latest('timedata')
 			->first();
 
 		if($hourValues) {
@@ -1291,7 +1291,7 @@ class MachineController extends Controller
 		
 		$hourValues = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 15)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		if($hourValues)
@@ -1332,7 +1332,7 @@ class MachineController extends Controller
 		
 		$onlines_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 12)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		if($onlines_object)
@@ -1373,7 +1373,7 @@ class MachineController extends Controller
 		
 		$blowback_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 14)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		if($blowback_object)
@@ -1415,19 +1415,19 @@ class MachineController extends Controller
 		$states->hopper2 = 0;
 		$states->hopper3 = 0;
 
-		$hopper1 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 33)->latest('timestamp')->first();
+		$hopper1 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 33)->latest('timedata')->first();
 
 		if($hopper1) {
 			$states->hopper1 = json_decode($hopper1->values)[0];
 		}
 
-		$hopper2 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 34)->latest('timestamp')->first();
+		$hopper2 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 34)->latest('timedata')->first();
 
 		if($hopper2) {
 			$states->hopper2 = json_decode($hopper2->values)[0];
 		}
 
-		$hopper3 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 35)->latest('timestamp')->first();
+		$hopper3 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 35)->latest('timedata')->first();
 
 		if($hopper3) {
 			$states->hopper3 = json_decode($hopper3->values)[0];
@@ -1472,7 +1472,7 @@ class MachineController extends Controller
 										->where('tag_id', 23)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
-										->latest('timestamp')
+										->latest('timedata')
 										->get();
 
 		$temperatures = $temperatures_object->map(function($temperature_object) {
@@ -1518,41 +1518,41 @@ class MachineController extends Controller
 		
 		$inletHopper1 = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 9)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 		$inletHopper2 = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 12)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 		$inletHopper3 = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 15)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		$outletHopper1 = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 11)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 		$outletHopper2 = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 14)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 		$outletHopper3 = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 17)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		$targetHopper1 = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 10)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 		$targetHopper2 = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 13)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 		$targetHopper3 = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 16)
-						->latest('timestamp')
+						->latest('timedata')
 						->first();
 
 		if($inletHopper1) $inlets[0] = json_decode($inletHopper1->values)[0];
@@ -1614,37 +1614,37 @@ class MachineController extends Controller
 			[ "name" => "Right bed regen cooling", "value" => false ]
 		];
 
-		$left1 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 26)->latest('timestamp')->first();
+		$left1 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 26)->latest('timedata')->first();
 
 		if($left1) {
 			$states[0]["value"] = json_decode($left1->values)[0];
 		}
 
-		$left2 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 27)->latest('timestamp')->first();
+		$left2 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 27)->latest('timedata')->first();
 
 		if($left2) {
 			$states[1]["value"] = json_decode($left2->values)[0];
 		}
 
-		$left3 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 28)->latest('timestamp')->first();
+		$left3 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 28)->latest('timedata')->first();
 
 		if($left3) {
 			$states[2]["value"] = json_decode($left3->values)[0];
 		}
 
-		$left4 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 29)->latest('timestamp')->first();
+		$left4 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 29)->latest('timedata')->first();
 
 		if($left4) {
 			$states[3]["value"] = json_decode($left4->values)[0];
 		}
 
-		$left5 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 30)->latest('timestamp')->first();
+		$left5 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 30)->latest('timedata')->first();
 
 		if($left5) {
 			$states[4]["value"] = json_decode($left5->values)[0];
 		}
 
-		$left6 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 31)->latest('timestamp')->first();
+		$left6 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 31)->latest('timedata')->first();
 
 		if($left6) {
 			$states[5]["value"] = json_decode($left6->values)[0];
@@ -1979,7 +1979,7 @@ class MachineController extends Controller
 	// 	$unit_object = DeviceData::where('device_id', $id)
 	// 		->where('machine_id', MACHINE_TRUETEMP_TCU)
 	// 		->where('tag_id', 7)
-	// 		->latest('timestamp')
+	// 		->latest('timedata')
 	// 		->first();
 	// 	if($unit_object) {
 	// 		$unit = json_decode($unit_object->values)[0];
@@ -1988,7 +1988,7 @@ class MachineController extends Controller
 	// 	$air_object = DeviceData::where('device_id', $id)
 	// 		->where('machine_id', MACHINE_TRUETEMP_TCU)
 	// 		->where('tag_id', 2)
-	// 		->latest('timestamp')
+	// 		->latest('timedata')
 	// 		->first();
 
 	// 	if($delivery_object) {
@@ -1998,7 +1998,7 @@ class MachineController extends Controller
 	// 	$actual_object = DeviceData::where('device_id', $id)
 	// 		->where('machine_id', MACHINE_TRUETEMP_TCU)
 	// 		->where('tag_id', 4)
-	// 		->latest('timestamp')
+	// 		->latest('timedata')
 	// 		->first();
 
 	// 	if($actual_object) {
@@ -2007,7 +2007,7 @@ class MachineController extends Controller
 
 	// 	$target_object = DeviceData::where('device_id', $id)
 	// 									->where('tag_id', 8)
-	// 									->latest('timestamp')
+	// 									->latest('timedata')
 	// 									->first();
 
 	// 	if($target_object) {
@@ -2057,25 +2057,25 @@ class MachineController extends Controller
 		$machine_states->halloff = false;
 		$machine_states->rpm = false;
 
-		$wtp = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 26)->latest('timestamp')->first();
+		$wtp = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 26)->latest('timedata')->first();
 
 		if($wtp && json_decode($wtp->values)[0] == true) {
 			$machine_states->wtp = true;
 		}
 
-		$system_steady = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 25)->latest('timestamp')->first();
+		$system_steady = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 25)->latest('timedata')->first();
 
 		if($system_steady && json_decode($system_steady->values)[0] == true) {
 			$machine_states->system_steady = true;
 		}
 
-		$halloff = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 28)->latest('timestamp')->first();
+		$halloff = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 28)->latest('timedata')->first();
 
 		if($halloff && json_decode($halloff->values)[0] == true) {
 			$machine_states->halloff = true;
 		}
 
-		$rpm = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 27)->latest('timestamp')->first();
+		$rpm = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 27)->latest('timedata')->first();
 
 		if($rpm && json_decode($rpm->values)[0] == true) {
 			$machine_states->rpm = true;
@@ -2121,7 +2121,7 @@ class MachineController extends Controller
 										->where('tag_id', 23)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
-										->latest('timestamp')
+										->latest('timedata')
 										->get();
 
 		if($inventories_object) {
@@ -2174,7 +2174,7 @@ class MachineController extends Controller
 										->where('tag_id', 24)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
-										->latest('timestamp')
+										->latest('timedata')
 										->get();
 
 		if($lengths_object) {
@@ -2225,7 +2225,7 @@ class MachineController extends Controller
 		$unit_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
 			->where('machine_id', MACHINE_TRUETEMP_TCU)
 			->where('tag_id', 7)
-			->latest('timestamp')
+			->latest('timedata')
 			->first();
 		if($unit_object) {
 			$unit = json_decode($unit_object->values)[0];
@@ -2234,7 +2234,7 @@ class MachineController extends Controller
 		$delivery_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
 			->where('machine_id', MACHINE_TRUETEMP_TCU)
 			->where('tag_id', 2)
-			->latest('timestamp')
+			->latest('timedata')
 			->first();
 
 		if($delivery_object) {
@@ -2244,7 +2244,7 @@ class MachineController extends Controller
 		$actual_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
 			->where('machine_id', MACHINE_TRUETEMP_TCU)
 			->where('tag_id', 4)
-			->latest('timestamp')
+			->latest('timedata')
 			->first();
 
 		if($actual_object) {
@@ -2253,7 +2253,7 @@ class MachineController extends Controller
 
 		$target_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
 			->where('tag_id', 8)
-			->latest('timestamp')
+			->latest('timedata')
 			->first();
 
 		if($target_object) {
@@ -2302,7 +2302,7 @@ class MachineController extends Controller
 
 		$actual_object = DeviceData::where('device_id', $id)
 			->where('tag_id', 80)
-			->latest('timestamp')
+			->latest('timedata')
 			->first();
 
 		if($actual_object) {
@@ -2311,7 +2311,7 @@ class MachineController extends Controller
 
 		$target_object = DeviceData::where('device_id', $id)
 			->where('tag_id', 77)
-			->latest('timestamp')
+			->latest('timedata')
 			->first();
 
 		if($target_object) {
