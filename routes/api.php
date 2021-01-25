@@ -148,6 +148,8 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/ngx-dryer/dew-point-temperature', 'MachineController@getDewPointTemperature');
 
 	Route::get('/tcu/actual-target-temperature/{id}', 'MachineController@getTcuActTgtTemperature');
+
+	Route::get('/portable-chiller/process-out-temperature/{id}', 'MachineController@getProcessOutTemperature');
 });
 
 Route::group(['prefix' => 'notes'], function () {

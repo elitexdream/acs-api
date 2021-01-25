@@ -2270,6 +2270,58 @@ class MachineController extends Controller
 	}
 
 	/*
+		MOST IMPORTANT: Process out temperature Int(xxxx.x) 300005
+		tag_id: 85
+		return: array
+	*/
+	public function getProcessOutTemperature($id) { 
+		$product = Device::where('serial_number', $id)->first();
+
+		if(!$product) {
+			return response()->json([
+				'message' => 'Device Not Found'
+			], 404);
+		}
+
+		// $configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
+
+		// if(!$configuration || !$configuration->tcu_status){
+		// 	return response()->json([
+		// 		'message' => 'Device is not connected'
+		// 	], 404);
+		// }
+
+		// $machine = Machine::findOrFail(MACHINE_TRUETEMP_TCU);
+
+		// if(!$machine)
+		// 	return response()->json([
+		// 		'message' => 'Can\'t find device type'
+		// 	], 404);
+
+		$items = [0, 0];
+
+		$actual_object = DeviceData::where('device_id', $id)
+			->where('tag_id', 80)
+			->latest('timestamp')
+			->first();
+
+		if($actual_object) {
+			$items[0] = json_decode($actual_object->values)[0];
+		}
+
+		$target_object = DeviceData::where('device_id', $id)
+			->where('tag_id', 77)
+			->latest('timestamp')
+			->first();
+
+		if($target_object) {
+			$items[1] = json_decode($target_object->values)[0];
+		}
+
+		return response()->json(compact('items'));
+	}
+
+	/*
 		Get running hours of weekdays
 		return: 7 length array
 	*/
