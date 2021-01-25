@@ -333,6 +333,55 @@ class DeviceController extends Controller
         }
     }
 
+    public function sendDeviceConfiguration(Request $request) {
+        $device = Device::findOrFail($request->device_id);
+
+        $device_configuration = new stdClass();
+        $device_configuration_plc = new stdClass();
+        $device_configuration_tcu = new stdClass();
+
+        $device_configuration_plc->ip = $request->device_configuration_form['plc_ip'];
+        $device_configuration_plc->modbus_tcp_port = $request->device_configuration_form['plc_modbus_tcp_port'];
+        $device_configuration_plc->serial_num = $request->device_configuration_form['plc_serial_number'];
+
+        $device_configuration_tcu->serial_num = $request->device_configuration_form['tcu_serial_number'];
+        $device_configuration_tcu->port = $request->device_configuration_form['tcu_port'];
+        $device_configuration_tcu->base_addr = $request->device_configuration_form['tcu_base_addr'];
+        $device_configuration_tcu->baud = $request->device_configuration_form['tcu_baud'];
+        $device_configuration_tcu->parity = $request->device_configuration_form['tcu_parity'];
+        $device_configuration_tcu->data_bits = $request->device_configuration_form['tcu_data_bits'];
+        $device_configuration_tcu->stop_bits = $request->device_configuration_form['tcu_stop_bits'];
+        $device_configuration_tcu->byte_timeout = $request->device_configuration_form['tcu_bype_timeout'];
+        $device_configuration_tcu->resp_timeout = $request->device_configuration_form['tcu_resp_timeout'];
+
+        $device_configuration->batch_size = 4000;
+        $device_configuration->batch_timeout = 60;
+        $device_configuration->cmd = 'daemon_config';
+
+        $device_configuration->plc = $device_configuration_plc;
+        $device_configuration->true_temp = $device_configuration_tcu;
+
+        $req = [
+            "targetDevice" => $device->serial_number,
+            "requestJson" => $device_configuration
+        ];
+
+        $client = new Client();
+
+        try {
+            $response = $client->post(
+                config('app.acs_middleware_url'),
+                [
+                    'json' => $req
+                ]
+            );
+
+            return response()->json('Configuration successfully sent.');
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
+        }
+    }
+
     public function suspendSIM($iccid) {
         $device = Device::where('iccid', $iccid)->first();
 
