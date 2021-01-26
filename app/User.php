@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use DB;
 
 class User extends Authenticatable
 {
@@ -164,5 +165,10 @@ class User extends Authenticatable
     public function zones()
     {
         return $this->belongsToMany('App\Zone', 'user_zones', 'user_id', 'zone_id');
+    }
+
+    public function enabledProperties()
+    {
+        return DB::table('enabled_properties')->where('user_id', $this->id)->get();
     }
 }

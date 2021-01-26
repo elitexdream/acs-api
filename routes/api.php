@@ -85,6 +85,8 @@ Route::group(['prefix' => 'dashboard'], function () {
 	Route::post('/devices-for-dashboard-table', 'DeviceController@getDashboardMachinesTable')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 });
 
+Route::apiResource('machines/enabled-properties', EnabledPropertiesController::class);
+
 Route::group(['prefix' => 'customers'], function () {
 	Route::get('/', 'CompanyController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 	Route::post('/add', 'CompanyController@addCustomer')->middleware('auth:acs_admin,acs_manager');
