@@ -32,6 +32,21 @@ class MachineController extends Controller
 		}
     }
 
+    public function averagedSeries($collection, $series_count = 100) {
+    	$total = $collection->count();
+		$chunks = $collection->chunk($total / $series_count + 1);
+
+		$ret = $chunks->map(function($chunk) {
+			$timestamp = ($chunk->first()->timestamp + $this->timeshift) * 1000;
+			$values = $chunk->map(function($value) {
+				return json_decode($value->values)[0];
+			});
+			return [$timestamp, array_sum($values->all()) / $chunk->count()];
+		});
+
+		return $ret;
+    }
+
 	/*
 		Get general information of product
 		They are Name, Serial number, Software build, and version
@@ -379,16 +394,22 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$configuration = $product->configuration;
+		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
 
-		if(!$configuration) {
+		if(!$configuration || !$configuration->plc_status){
 			return response()->json([
-				'message' => 'Device Not Configured'
+				'message' => 'Device is not connected'
 			], 404);
 		}
 
-		$last_object = DeviceData::where('serial_number', $configuration->serial_number)
-						->where('device_id', $id)
+		$machine = Machine::where('device_type', $configuration->plc_type)->first();
+
+		if(!$machine)
+			return response()->json([
+				'message' => 'Can\'t find device type'
+			], 404);
+
+		$last_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
 						->where('tag_id', 26)
 						->latest('timedata')
 						->first();
@@ -485,9 +506,7 @@ class MachineController extends Controller
 									->orderBy('timestamp')
 									->get();
 
-		$calibration_factors = $factors_object->map(function($factor_object) {
-			return [($factor_object->timestamp + $this->timeshift) * 1000, json_decode($factor_object->values)];
-		});
+		$calibration_factors = $this->averagedSeries($factors_object, 50);
 
 		$items = [$calibration_factors];
 		return response()->json(compact('items'));
@@ -532,9 +551,7 @@ class MachineController extends Controller
 										->orderBy('timestamp')
 										->get();
 
-		$process_rate = $process_rates_object->map(function($process_rate_object) {
-			return [($process_rate_object->timestamp + $this->timeshift) * 1000, json_decode($process_rate_object->values)[0]];
-		});
+		$process_rate = $this->averagedSeries($process_rates_object, 50);
 
 		$items = [$process_rate];
 		return response()->json(compact('items'));
@@ -585,9 +602,7 @@ class MachineController extends Controller
 								->orderBy('timestamp')
 								->get();
 
-		$utilizations = $utilizations_object->map(function($utilization_object) {
-			return [($utilization_object->timestamp + $this->timeshift) * 1000, json_decode($utilization_object->values)[0]];
-		});
+		$utilizations = $this->averagedSeries($utilizations_object, 50);
 
 		$items = [$utilizations];
 
@@ -639,9 +654,7 @@ class MachineController extends Controller
 										->orderBy('timestamp')
 										->get();
 
-		$energy_consumption = $energy_consumptions_object->map(function($energy_consumption_object) {
-			return [($energy_consumption_object->timestamp + $this->timeshift) * 1000, json_decode($energy_consumption_object->values)[0]];
-		});
+		$energy_consumption = $this->averagedSeries($energy_consumptions_object, 50);
 
 		$items = [$energy_consumption];
 		
