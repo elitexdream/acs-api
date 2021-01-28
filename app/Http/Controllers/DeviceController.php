@@ -36,8 +36,14 @@ class DeviceController extends Controller
 
 	public function getACSDevices(Request $request) {
         $pageNumber = $request->page ? $request->page : 1;
+        $is_all_devices_visible = DB::table('settings')->where('type', 'is_all_devices_visible')->first()->value;
+        $teltonika_ids = DB::table('device_configurations')->pluck('teltonika_id');
 
         $query = Device::orderBy('sim_status')->orderBy('id');
+
+        if($is_all_devices_visible == 'configured') {
+            $query->whereIn('serial_number', $teltonika_ids);
+        }
 
         if(in_array('active', $request->filterForm['filters'])) {
             $query->where('sim_status', 'Active');
@@ -93,6 +99,8 @@ class DeviceController extends Controller
         }
 
         return response()->json([
+            'is_visible_only' => $is_all_devices_visible == 'configured',
+            'hidden_devices' => Device::count() - $devices->total(),
             'devices' => $devices->items(),
             'companies' => $companies,
             'last_page' => $devices->lastPage()
@@ -113,6 +121,24 @@ class DeviceController extends Controller
         $configuration->device_name = $device->customer_assigned_name;
 
         return response()->json(compact('configuration'));
+    }
+
+    public function toggleActiveDevices() {
+        $is_all_devices_visible_object = DB::table('settings')->where('type', 'is_all_devices_visible');
+
+        if($is_all_devices_visible_object->first()->value == 'configured')
+            $is_all_devices_visible_object->update([
+                'value' => 'all'
+            ]);
+        else {
+            $is_all_devices_visible_object->update([
+                'value' => 'configured'
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Successfully updated'
+        ]);
     }
 
     public function getAllDevices() {
