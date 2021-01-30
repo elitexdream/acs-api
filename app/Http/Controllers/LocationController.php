@@ -9,9 +9,7 @@ use App\Location;
 class LocationController extends Controller
 {
 	public function index(Request $request) {
-        $user = $request->user('api');
-
-        $locations = $user->getMyLocations();
+        $locations = Location::get();
 
         return response()->json(compact('locations'));
 	}
@@ -59,5 +57,13 @@ class LocationController extends Controller
         $location->save();
 
         return response()->json('Successfully updated.');
+    }
+
+    public function getMyLocations(Request $request) {
+        $user = $request->user('api');
+
+        $locations = $user->getMyLocations();
+
+        return response()->json(compact('locations'));
     }
 }

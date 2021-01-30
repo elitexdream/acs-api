@@ -10,10 +10,8 @@ use App\Zone;
 class ZoneController extends Controller
 {
     public function index(Request $request) {
-        $user = $request->user('api');
+        $zones = Zone::get();
 
-        $zones = $user->getMyZones();
-        
         return response()->json($zones);
     }
 
@@ -51,5 +49,13 @@ class ZoneController extends Controller
         $zone->save();
 
         return response()->json('Successfully updated.');
+    }
+
+    public function getMyZones(Request $request) {
+        $user = $request->user('api');
+
+        $zones = $user->getMyZones();
+        
+        return response()->json($zones);
     }
 }

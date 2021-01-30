@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -53,23 +52,7 @@ Route::group(['prefix' => 'downtime-plans'], function () {
 	Route::post('/update/{id}', 'DowntimePlanController@update')->middleware('auth:customer_admin,customer_manager,customer_operator');
 });
 
-Route::group(['prefix' => 'company-users'], function () {
-	Route::get('/', 'UserController@getCompanyUsers')->middleware('auth:customer_admin,customer_manager,customer_operator');
-	Route::post('/store', 'UserController@addCompanyUser')->middleware('auth:customer_admin');
-	Route::get('/init-create-account', 'UserController@initCreateAccount')->middleware('auth:customer_admin');
-	Route::get('/init-edit-account/{id}', 'UserController@initEditAccount')->middleware('auth:customer_admin');
-	Route::post('/update-account/{id}', 'UserController@updateCompanyUserAccount')->middleware('auth:customer_admin');
-	Route::post('/update-information/{id}', 'UserController@updateCompanyUserInformation')->middleware('auth:customer_admin');
-});
-
-Route::group(['prefix' => 'acs-users'], function () {
-	Route::get('/', 'UserController@initAcsUsers')->middleware('auth:acs_admin,acs_manager,acs_viewer');
-	Route::get('/init-create', 'UserController@initCreateAcsUser')->middleware('auth:acs_admin');
-	Route::get('/init-edit/{id}', 'UserController@initEditAcsUser')->middleware('auth:acs_admin');
-	Route::post('/store', 'UserController@addAcsUser')->middleware('auth:acs_admin');
-	Route::post('/update-account/{id}', 'UserController@updateAcsUserAccount')->middleware('auth:acs_admin');
-	Route::post('/update-information/{id}', 'UserController@updateAcsUserInformation')->middleware('auth:acs_admin');
-});
+Route::apiResource('users', UserController::class)->only(['edit', 'update', 'index', 'store'])->middleware('auth');
 
 Route::group(['prefix' => 'app-settings'], function () {
 	Route::post('/grab-colors', 'SwatchController@grabColors');

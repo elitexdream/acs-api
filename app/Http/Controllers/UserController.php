@@ -163,19 +163,7 @@ class UserController extends Controller
         }
     }
 
-    public function initCreateAccount() {
-        $roles = Role::whereIn('key', ['customer_manager', 'customer_operator', 'customer_admin'])->get();
-        $locations = Location::get();
-        $zones = Zone::get();
-
-        return response()->json(compact('roles', 'locations', 'zones'));
-    }
-
-    public function initEditAccount($id) {
-        $user = User::findOrFail($id);
-        $roles = Role::whereIn('key', ['customer_manager', 'customer_operator', 'customer_admin'])->get();
-        $locations = Location::get();
-        $zones = Zone::get();
+    public function edit(User $user) {
         $user->role = $user->roles->first()->id;
         $user->selected_locations = $user->locations->pluck('id');
         $user->selected_zones = $user->zones->pluck('id');
@@ -189,19 +177,20 @@ class UserController extends Controller
         $user->country = $profile->country;
         $user->phone = $profile->phone;
 
-        return response()->json(compact('roles', 'locations', 'zones', 'user'));
+        $cities = City::where('state', $profile->state)->orderBy('city')->get();
+
+        return response()->json(compact('user', 'cities'));
     }
 
+    public function index(Request $request) {
+        $user = $request->user('api');
+        if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+            $ids = UserRole::whereIn('role_id', [ROLE_ACS_ADMIN, ROLE_ACS_MANAGER, ROLE_ACS_VIEWER])->pluck('user_id');
+            $users = User::whereIn('id', $ids)->get();
+        } else {
+            $users = $user->company->users;
+        }
 
-    /*
-        Get company users
-    */
-    public function getCompanyUsers(Request $request) {
-        // get company that the user belongs to
-        $company = $request->user('api')->company;
-
-        // get all users that belongs to the company above
-        $users = $company->users;
         foreach ($users as $key => $user) {
             $user->role = $user->roles->first();
         }
@@ -209,7 +198,14 @@ class UserController extends Controller
         return response()->json(compact('users'));
     }
 
-    public function addCompanyUser(Request $request) {
+    public function store(Request $request) {
+        // this can be go in to authorization hook
+        if(!$request->user('api')->hasRole(['acs_admin', 'customer_admin'])) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
         $validator = Validator::make($request->all(), [ 
             'name' => 'required',
             'email' => 'required|email|max:255|unique:users,email',
@@ -229,43 +225,70 @@ class UserController extends Controller
 
         $password_string = md5(uniqid($request->email, true));
         
-        $company = $request->user('api')->company;
+        if(in_array($request->role, [ROLE_ACS_ADMIN])) {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($password_string),
+                'company_id' => 0,
+            ]);
 
-        $user = $company->users()->create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($password_string),
-        ]);
+            $user->roles()->attach($request->role);
 
-        $user->roles()->attach($request->role);
+            $user->profile->update([
+                'address_1' => $request->address_1,
+                'zip' => $request->zip,
+                'state' => $request->state,
+                'city' => $request->city,
+                'country' => $request->country,
+                'phone' => $request->phone
+            ]);
 
-        if($request->role != ROLE_CUSTOMER_ADMIN) {
-            // add locations and zones only to customer operator and customer manager, not customer admin
-            $user->locations()->attach($request->locations);
-            $user->zones()->attach($request->zones);
+            $this->sendRegistrationMail($user, $password_string);
+            // Mail::to($user->email)->send(new CustomerInvitation($password_string));
+        } else {
+            $company = $request->user('api')->company;
+
+            $user = $company->users()->create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($password_string),
+            ]);
+
+            $user->roles()->attach($request->role);
+
+            if($request->role != ROLE_CUSTOMER_ADMIN) {
+                // add locations and zones only to customer operator and customer manager, not customer admin
+                $user->locations()->attach($request->locations);
+                $user->zones()->attach($request->zones);
+            }
+
+            $user->profile->update([
+                'address_1' => $request->address_1,
+                'zip' => $request->zip,
+                'state' => $request->state,
+                'city' => $request->city,
+                'country' => $request->country,
+                'phone' => $request->phone
+            ]);
+
+            Mail::to($user->email)->send(new CustomerInvitation($password_string));
         }
-
-        $user->profile->update([
-            'address_1' => $request->address_1,
-            'zip' => $request->zip,
-            'state' => $request->state,
-            'city' => $request->city,
-            'country' => $request->country,
-            'phone' => $request->phone
-        ]);
-
-        Mail::to($user->email)->send(new CustomerInvitation($password_string));
-
+        
         return response()->json('Created successfully.', 201);
     }
 
-    public function updateCompanyUserAccount(Request $request, $id) {
-        $user = User::findOrFail($id);
-
+    public function update(User $user, Request $request) {
         $validator = Validator::make($request->all(), [ 
             'name' => 'required',
-            'email' => 'required|email|max:255|unique:users,email,' . $id,
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'role' => 'required|exists:roles,id',
+            'address_1' => 'required',
+            'zip' => 'required',
+            'state' => 'required',
+            'city' => 'required',
+            'country' => 'required',
+            'phone' => 'required'
         ]);
 
         if ($validator->fails())
@@ -276,180 +299,27 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         
-        $user->save();
+        $profile = $user->profile;
+
+        $profile->address_1 = $request->address_1;
+        $profile->zip = $request->zip;
+        $profile->state = $request->state;
+        $profile->city = $request->city;
+        $profile->country = $request->country;
+        $profile->phone = $request->phone;
+
+        $user->update();
+        $profile->update();
 
         $user->roles()->sync([$request->role]);
-        
-        if($request->role == ROLE_CUSTOMER_ADMIN) {
-            // remove locations and zones because customer admin can access to all locations and zones
+
+        if($request->role == ROLE_CUSTOMER_ADMIN || $request->role == ROLE_ACS_ADMIN || $request->role == ROLE_ACS_MANAGER || $request->role == ROLE_ACS_VIEWER) {
             $user->locations()->sync([]);
             $user->zones()->sync([]);
         } else {
             $user->locations()->sync($request->locations);
             $user->zones()->sync($request->zones);
         }
-
-        return response()->json('Updated successfully.');
-    }
-
-    public function updateCompanyUserInformation(Request $request, $id) {
-        $profile = User::findOrFail($id)->profile;
-
-        $validator = Validator::make($request->all(), [ 
-            'address_1' => 'required',
-            'zip' => 'required',
-            'state' => 'required',
-            'city' => 'required',
-            'country' => 'required',
-            'phone' => 'required'
-        ]);
-
-        if ($validator->fails())
-        {
-            return response()->json(['error'=>$validator->errors()], 422);            
-        }
-
-        $profile->address_1 = $request->address_1;
-        $profile->zip = $request->zip;
-        $profile->state = $request->state;
-        $profile->city = $request->city;
-        $profile->country = $request->country;
-        $profile->phone = $request->phone;
-        
-        $profile->save();
-
-        return response()->json('Updated successfully.');
-    }
-
-    public function initAcsUsers() {
-        $ids = UserRole::whereIn('role_id', [ROLE_ACS_ADMIN, ROLE_ACS_MANAGER, ROLE_ACS_VIEWER])->pluck('user_id');
-        $users = User::whereIn('id', $ids)->get();
-
-        foreach ($users as $key => $user) {
-            $user->role = $user->roles->first();
-        }
-        
-        return response()->json(compact('users'));
-    }
-
-    public function initCreateAcsUser() {
-        $roles = Role::whereIn('key', ['acs_admin', 'acs_manager', 'acs_viewer'])->get();
-
-        return response()->json(compact('roles'));
-    }
-
-    public function addAcsUser(Request $request) {
-        $validator = Validator::make($request->all(), [ 
-            'name' => 'required',
-            'email' => 'required|email|max:255|unique:users,email',
-            'role' => 'required|exists:roles,id',
-            'address_1' => 'required',
-            'zip' => 'required',
-            'state' => 'required',
-            'city' => 'required',
-            'country' => 'required',
-            'phone' => 'required'
-        ]);
-
-        if ($validator->fails())
-        {
-            return response()->json(['error'=>$validator->errors()], 422);            
-        }
-
-        $password_string = md5(uniqid($request->email, true));
-        
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($password_string),
-            'company_id' => 0,
-        ]);
-
-        $user->roles()->attach($request->role);
-
-        $user->profile->update([
-            'address_1' => $request->address_1,
-            'zip' => $request->zip,
-            'state' => $request->state,
-            'city' => $request->city,
-            'country' => $request->country,
-            'phone' => $request->phone
-        ]);
-
-        $this->sendRegistrationMail($user, $password_string);
-        // Mail::to($user->email)->send(new CustomerInvitation($password_string));
-
-        return response()->json('Created successfully.', 201);
-    }
-
-    public function initEditAcsUser($id) {
-        $user = User::findOrFail($id);
-        $roles = Role::whereIn('key', ['acs_admin', 'acs_manager', 'acs_viewer'])->get();
-        $user->role = $user->roles->first()->id;
-
-        $profile = $user->profile;
-
-        $user->address_1 = $profile->address_1;
-        $user->zip = $profile->zip;
-        $user->state = $profile->state;
-        $user->city = $profile->city;
-        $user->country = $profile->country;
-        $user->phone = $profile->phone;
-
-        $cities = City::where('state', $profile->state)->orderBy('city')->get();
-
-        return response()->json(compact('roles', 'user', 'cities'));
-    }
-
-    public function updateAcsUserAccount(Request $request, $id) {
-        $user = User::findOrFail($id);
-
-        $validator = Validator::make($request->all(), [ 
-            'name' => 'required',
-            'email' => 'required|email|max:255|unique:users,email,' . $id,
-            'role' => 'required|exists:roles,id',
-        ]);
-
-        if ($validator->fails())
-        {
-            return response()->json(['error'=>$validator->errors()], 422);            
-        }
-
-        $user->name = $request->name;
-        $user->email = $request->email;
-        
-        $user->save();
-
-        $user->roles()->sync([$request->role]);
-
-        return response()->json('Updated successfully.');
-    }
-
-    public function updateAcsUserInformation(Request $request, $id) {
-        $profile = User::findOrFail($id)->profile;
-
-        $validator = Validator::make($request->all(), [ 
-            'address_1' => 'required',
-            'zip' => 'required',
-            'state' => 'required',
-            'city' => 'required',
-            'country' => 'required',
-            'phone' => 'required'
-        ]);
-
-        if ($validator->fails())
-        {
-            return response()->json(['error'=>$validator->errors()], 422);            
-        }
-
-        $profile->address_1 = $request->address_1;
-        $profile->zip = $request->zip;
-        $profile->state = $request->state;
-        $profile->city = $request->city;
-        $profile->country = $request->country;
-        $profile->phone = $request->phone;
-        
-        $profile->save();
 
         return response()->json('Updated successfully.');
     }
