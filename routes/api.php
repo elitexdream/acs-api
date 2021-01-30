@@ -19,17 +19,20 @@ Route::middleware('auth')->group(function () {
 	Route::get('/profile/timezones', 'UserController@getTimezones');
 });
 
-Route::group(['prefix' => 'locations'], function () {
-	Route::get('/', 'LocationController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager');
-	Route::post('/add', 'LocationController@store')->middleware('auth:customer_admin,customer_manager');
-	Route::patch('/update', 'LocationController@update')->middleware('auth:customer_admin,customer_manager');
-});
+// Route::group(['prefix' => 'locations'], function () {
+// 	Route::get('/', 'LocationController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager');
+// 	Route::post('/add', 'LocationController@store')->middleware('auth:customer_admin,customer_manager');
+// 	Route::patch('/update', 'LocationController@update')->middleware('auth:customer_admin,customer_manager');
+// });
 
-Route::group(['prefix' => 'zones'], function () {
-	Route::get('/', 'ZoneController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
-	Route::post('/add', 'ZoneController@store')->middleware('auth:customer_admin,customer_manager');
-	Route::patch('/update', 'ZoneController@update')->middleware('auth:customer_admin,customer_manager');
-});
+// Route::group(['prefix' => 'zones'], function () {
+// 	Route::get('/', 'ZoneController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+// 	Route::post('/add', 'ZoneController@store')->middleware('auth:customer_admin,customer_manager');
+// 	Route::patch('/update', 'ZoneController@update')->middleware('auth:customer_admin,customer_manager');
+// });
+
+Route::apiResource('locations', LocationController::class)->only(['update', 'index', 'store'])->middleware('auth');
+Route::apiResource('zones', ZoneController::class)->only(['update', 'index', 'store'])->middleware('auth');
 
 Route::group(['prefix' => 'configurations'], function () {
 	Route::get('/', 'ConfigurationController@getConfigurationNames');
@@ -140,9 +143,9 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::get('/portable-chiller/process-out-temperature/{id}', 'MachineController@getProcessOutTemperature');
 });
 
-Route::group(['prefix' => 'notes'], function () {
-	Route::post('/store', 'NoteController@store');
-	Route::get('/{device_id}', 'NoteController@getNotes');
+Route::group(['prefix' => 'notes', 'middleware' => 'auth'], function () {
+	Route::post('/', 'NoteController@store');
+	Route::get('/{device_id}', 'NoteController@index');
 });
 
 Route::group(['prefix' => 'alarms'], function () {

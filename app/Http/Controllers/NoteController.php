@@ -16,7 +16,7 @@ class NoteController extends Controller
 		params: device id
 		return: All notes belongs to specified device
 	*/
-	public function getNotes($device_id) {
+	public function index($device_id) {
 		$device = Device::where('serial_number', $device_id)->first();
 
 	    if(!$device) {

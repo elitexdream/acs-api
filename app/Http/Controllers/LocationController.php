@@ -8,8 +8,19 @@ use App\Location;
 
 class LocationController extends Controller
 {
-	public function index(Request $request) {
-        $locations = Location::get();
+    // get all locations
+    // public function index(Request $request) {
+    //     $locations = Location::get();
+
+    //     return response()->json(compact('locations'));
+    // }
+
+    // get customer locations
+    public function index(Request $request) {
+        // $locations = Location::get();
+        $user = $request->user('api');
+
+        $locations = $user->getMyLocations();
 
         return response()->json(compact('locations'));
 	}
@@ -34,7 +45,7 @@ class LocationController extends Controller
         return response()->json('Successfully created.');
     }
 
-	public function update(Request $request) {
+	public function update(Location $location, Request $request) {
         $validator = Validator::make($request->all(), [ 
             'name' => 'required',
             'state' => 'required',
@@ -47,8 +58,6 @@ class LocationController extends Controller
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 
-        $location = Location::findOrFail($request->id);
-
         $location->name = $request->name;
         $location->state = $request->state;
         $location->city = $request->city;
@@ -57,13 +66,5 @@ class LocationController extends Controller
         $location->save();
 
         return response()->json('Successfully updated.');
-    }
-
-    public function getMyLocations(Request $request) {
-        $user = $request->user('api');
-
-        $locations = $user->getMyLocations();
-
-        return response()->json(compact('locations'));
     }
 }
