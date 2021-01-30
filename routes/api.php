@@ -34,11 +34,13 @@ Route::middleware('auth')->group(function () {
 Route::apiResource('locations', LocationController::class)->only(['update', 'index', 'store'])->middleware('auth');
 Route::apiResource('zones', ZoneController::class)->only(['update', 'index', 'store'])->middleware('auth');
 
-Route::group(['prefix' => 'configurations'], function () {
-	Route::get('/', 'ConfigurationController@getConfigurationNames');
-	Route::get('/{id}', 'ConfigurationController@getConfiguration')->middleware('auth:super_admin');
-	Route::post('/{id}', 'ConfigurationController@saveConfiguration')->middleware('auth:super_admin');
-});
+Route::apiResource('configurations', ConfigurationController::class)->only(['show', 'update', 'index'])->middleware('auth');
+
+// Route::group(['prefix' => 'configurations'], function () {
+// 	Route::get('/', 'ConfigurationController@getConfigurationNames');
+// 	Route::get('/{id}', 'ConfigurationController@getConfiguration')->middleware('auth:super_admin');
+// 	Route::patch('/{id}', 'ConfigurationController@update')->middleware('auth:super_admin');
+// });
 
 Route::group(['prefix' => 'devices'], function () {
 	Route::get('/{id}/configuration', 'DeviceController@getDeviceConfiguration');
@@ -76,7 +78,6 @@ Route::group(['prefix' => 'dashboard'], function () {
 Route::apiResource('machines/enabled-properties', EnabledPropertiesController::class);
 
 Route::group(['prefix' => 'customers'], function () {
-	Route::get('/', 'CompanyController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 	Route::post('/add', 'CompanyController@addCustomer')->middleware('auth:acs_admin,acs_manager');
 	Route::get('/{id}', 'CompanyController@getCustomer')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/update-account/{id}', 'CompanyController@updateCustomerAccount')->middleware('auth:acs_admin,acs_manager');
@@ -84,7 +85,8 @@ Route::group(['prefix' => 'customers'], function () {
 });
 
 Route::group(['prefix' => 'companies'], function () {
-	Route::get('/', 'CompanyController@getCompanies')->middleware('auth:acs_admin,acs_manager,acs_viewer');
+	Route::get('/admins', 'CompanyController@getCompanyAdmins')->middleware('auth:acs_admin,acs_manager,acs_viewer');
+	Route::get('/', 'CompanyController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 });
 
 Route::group(['prefix' => 'devices'], function () {
@@ -95,10 +97,10 @@ Route::group(['prefix' => 'devices'], function () {
 	Route::post('/suspend-device', 'DeviceController@suspendDevice')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/device-configuration', 'DeviceController@sendDeviceConfiguration')->middleware('auth:acs_admin,acs_manager');
 
-	Route::post('/query-sim/{iccid}', 'DeviceController@querySIM')->middleware('auth:acs_admin,acs_manager');
-	Route::post('/suspend-sim/{iccid}', 'DeviceController@suspendSIM')->middleware('auth:acs_admin,acs_manager');
-	Route::post('/remote-web/{deviceid}', 'DeviceController@remoteWeb')->middleware('auth:acs_admin,acs_manager');
-	Route::post('/remote-cli/{deviceid}', 'DeviceController@remoteCli')->middleware('auth:acs_admin,acs_manager');
+	Route::get('/query-sim/{iccid}', 'DeviceController@querySIM')->middleware('auth:acs_admin,acs_manager');
+	Route::get('/suspend-sim/{iccid}', 'DeviceController@suspendSIM')->middleware('auth:acs_admin,acs_manager');
+	Route::get('/remote-web/{deviceid}', 'DeviceController@remoteWeb')->middleware('auth:acs_admin,acs_manager');
+	Route::get('/remote-cli/{deviceid}', 'DeviceController@remoteCli')->middleware('auth:acs_admin,acs_manager');
 });
 
 Route::group(['prefix' => 'analytics'], function () {

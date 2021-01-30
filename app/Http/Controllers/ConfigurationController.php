@@ -11,7 +11,7 @@ class ConfigurationController extends Controller
     /*
 		Get all configurations - id and name only
 	*/
-	public function getConfigurationNames() {
+	public function index() {
 		$configurations = Machine::select('id', 'name')->get();
 
 		return response()->json(compact('configurations'));
@@ -20,13 +20,13 @@ class ConfigurationController extends Controller
 	/*
 		Get configuration details with full json
 	*/
-	public function getConfiguration($id) {
+	public function show($id) {
 		$configuration = Machine::findOrFail($id);
 
 		return response()->json(compact('configuration'));
 	}
 
-	public function saveConfiguration(Request $request, $id) {
+	public function update(Request $request, $id) {
 		$validator = Validator::make($request->all(), [ 
             'name' => 'required'
         ]);

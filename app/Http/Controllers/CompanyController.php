@@ -18,25 +18,10 @@ class CompanyController extends Controller
 {
 	use MailTrait;
 
-	public function index()
-	{
-		$customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
-		$customer_admins = $customer_admin_role->users;
-
-		$companies = Company::select('id', 'name', 'created_at')->get();
-
-		foreach ($customer_admins as $customer_admin) {
-			$customer_admin->companyName = $customer_admin->company->name;
-			$customer_admin->administratorName = $customer_admin->name;
-		}
-
-		return response()->json(compact('customer_admins'));
-	}
-
 	/*
 		Get all companies
 	*/
-	public function getCompanies() {
+	public function index() {
 		$companies = Company::orderBy('name')->get();
 
 		return response()->json(compact('companies'));
@@ -99,10 +84,9 @@ class CompanyController extends Controller
 		$customer = User::findOrFail($id);
 		$customer->companyName = $customer->company->name;
 		$profile = $customer->profile;
-		$companies = Company::get();
 		$cities = City::where('state', $profile->state)->orderBy('city')->get();
 		
-		return response()->json(compact('customer', 'profile', 'companies', 'cities'));
+		return response()->json(compact('customer', 'profile', 'cities'));
 	}
 
 	public function updateCustomerAccount(Request $request, $id)
@@ -159,6 +143,21 @@ class CompanyController extends Controller
         $profile->save();
 
         return response()->json('Updated Successfully.', 200);
+	}
+
+	public function getCompanyAdmins()
+	{
+		$customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
+		$customer_admins = $customer_admin_role->users;
+
+		$companies = Company::select('id', 'name', 'created_at')->get();
+
+		foreach ($customer_admins as $customer_admin) {
+			$customer_admin->companyName = $customer_admin->company->name;
+			$customer_admin->administratorName = $customer_admin->name;
+		}
+
+		return response()->json(compact('customer_admins'));
 	}
 
 	public function testMail(Request $request)
