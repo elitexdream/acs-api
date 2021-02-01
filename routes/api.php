@@ -75,8 +75,6 @@ Route::group(['prefix' => 'dashboard'], function () {
 	Route::post('/devices-for-dashboard-table', 'DeviceController@getDashboardMachinesTable')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 });
 
-Route::apiResource('machines/enabled-properties', EnabledPropertiesController::class);
-
 Route::group(['prefix' => 'customers'], function () {
 	Route::post('/add', 'CompanyController@addCustomer')->middleware('auth:acs_admin,acs_manager');
 	Route::get('/{id}', 'CompanyController@getCustomer')->middleware('auth:acs_admin,acs_manager');
@@ -96,6 +94,7 @@ Route::group(['prefix' => 'devices'], function () {
 	Route::post('/device-register-update', 'DeviceController@updateRegistered')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/suspend-device', 'DeviceController@suspendDevice')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/device-configuration', 'DeviceController@sendDeviceConfiguration')->middleware('auth:acs_admin,acs_manager');
+	Route::post('/enabled-properties', 'DeviceController@updateEnabledProperties');
 
 	Route::get('/query-sim/{iccid}', 'DeviceController@querySIM')->middleware('auth:acs_admin,acs_manager');
 	Route::get('/suspend-sim/{iccid}', 'DeviceController@suspendSIM')->middleware('auth:acs_admin,acs_manager');

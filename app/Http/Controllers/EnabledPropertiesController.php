@@ -63,41 +63,7 @@ class EnabledPropertiesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $user = $request->user('api');
-
-        $row = DB::table('enabled_properties')->where('user_id', $user->id)->where('machine_id', $id);
-        if($row->count()) {
-            $ids = [];
-            $existing_ids = json_decode($row->first()->property_ids);
-
-            if($request->isImportant) {
-                foreach ($existing_ids as $value) {
-                    if($value > 100) array_push($ids, $value);
-                }
-                $ids = array_merge($ids, $request->enabledProperties);
-            } else {
-                foreach ($existing_ids as $value) {
-                    if($value < 100) array_push($ids, $value);
-                }
-                $ids = array_merge($ids, $request->enabledProperties);
-            }
-
-            $row->update(
-                [
-                    'property_ids' => json_encode($ids)
-                ]
-            );
-        } else {
-            DB::table('enabled_properties')->insert(
-                [
-                    'machine_id' => $id,
-                    'user_id' => $user->id,
-                    'property_ids' => json_encode($request->enabledProperties)
-                ]
-            );
-        }
-
-        return response()->json('Updated successfully');
+        
     }
 
     /**

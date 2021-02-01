@@ -11,6 +11,7 @@ use App\Location;
 use App\DeviceData;
 use App\EnergyConsumption;
 use App\Utilization;
+use App\TeltonikaConfiguration;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
@@ -107,20 +108,76 @@ class DeviceController extends Controller
         ]);
 	}
 
-    public function getDeviceConfiguration($id) {
-        $device = Device::where('serial_number', $id)->first();
+    public function getDeviceConfiguration(Request $request, $id) {
+        $user = $request->user('api');
 
-        if(!$device) {
-            return response()->json('Device Not Found', 404);
+        $teltonika_configuration = TeltonikaConfiguration::where('teltonika_id', $id)->first();
+
+        if(!$teltonika_configuration) {
+            return response()->json([
+                'status' => 'device_not_connected',
+                'message' => 'Device not connected yet'], 404);
         }
 
         $configuration = new stdClass();
-        $configuration->tcu_added = $device->tcu_added;
-        $configuration->configuration_id = $device->machine_id;
-        $configuration->name = $device->configuration->name;
-        $configuration->device_name = $device->customer_assigned_name;
+
+        $configuration->isTcuConnected = $teltonika_configuration->isTcuConnected();
+        $configuration->plcMachineId = $teltonika_configuration->plcMachine()->id;
+        $configuration->plcMachineName = $teltonika_configuration->plcMachine()->name;
+        $configuration->plcSerialNumber = $teltonika_configuration->plcSerialNumber();
+        $configuration->tcuMachineName = 'TrueTemp TCU';
+        $configuration->isTcuConnected = $teltonika_configuration->isTcuConnected();
+        $configuration->tcuSerialNumber = $teltonika_configuration->tcuSerialNumber();
+        $configuration->plcAnalyticsGraphs = $teltonika_configuration->plcAnalyticsGraphs();
+        $configuration->plcPropertiesGraphs = $teltonika_configuration->plcPropertiesGraphs();
+        $configuration->plcEnabledAnalyticsGraphs = $teltonika_configuration->plcEnabledAnalyticsGraphs($user->id, $teltonika_configuration->plc_serial_number);
+        $configuration->plcEnabledPropertiesGraphs = $teltonika_configuration->plcEnabledPropertiesGraphs($user->id, $teltonika_configuration->plc_serial_number);
+        $configuration->tcuAnalyticsGraphs = $teltonika_configuration->tcuAnalyticsGraphs();
+        $configuration->tcuPropertiesGraphs = $teltonika_configuration->tcuPropertiesGraphs();
+        $configuration->tcuEnabledAnalyticsGraphs = $teltonika_configuration->tcuEnabledAnalyticsGraphs($user->id, $teltonika_configuration->tcu_serial_number);
+        $configuration->tcuEnabledPropertiesGraphs = $teltonika_configuration->tcuEnabledPropertiesGraphs($user->id, $teltonika_configuration->tcu_serial_number);
 
         return response()->json(compact('configuration'));
+    }
+
+    public function updateEnabledProperties(Request $request)
+    {
+        $user = $request->user('api');
+
+        $rows = DB::table('enabled_properties')->where('user_id', $user->id)->where('serial_number', $request->serial_number);
+        if($rows->count()) {
+            $obj = $rows->first();
+            $ids = [];
+            $existing_ids = json_decode($obj->property_ids);
+
+            if($request->isImportant) {
+                foreach ($existing_ids as $value) {
+                    if($value > 100) array_push($ids, $value);
+                }
+                $ids = array_merge($ids, $request->enabled_properties);
+            } else {
+                foreach ($existing_ids as $value) {
+                    if($value < 100) array_push($ids, $value);
+                }
+                $ids = array_merge($ids, $request->enabled_properties);
+            }
+
+            $rows->update(
+                [
+                    'property_ids' => json_encode($ids)
+                ]
+            );
+        } else {
+            DB::table('enabled_properties')->insert(
+                [
+                    'serial_number' => $request->serial_number,
+                    'user_id' => $user->id,
+                    'property_ids' => json_encode($request->enabled_properties)
+                ]
+            );
+        }
+
+        return response()->json('Updated successfully');
     }
 
     public function toggleActiveDevices() {

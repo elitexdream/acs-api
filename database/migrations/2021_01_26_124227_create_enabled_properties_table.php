@@ -16,7 +16,7 @@ class CreateEnabledPropertiesTable extends Migration
         Schema::create('enabled_properties', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->integer('machine_id')->default(0);
+            $table->integer('serial_number')->default(0);
             $table->json('property_ids')->nullable();
             $table->timestamps();
         });
