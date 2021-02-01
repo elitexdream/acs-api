@@ -62,7 +62,7 @@ Route::apiResource('users', UserController::class)->only(['edit', 'update', 'ind
 Route::group(['prefix' => 'app-settings'], function () {
 	Route::post('/grab-colors', 'SwatchController@grabColors');
 	Route::post('/get-setting', 'SettingController@getSetting');
-	Route::post('/set-private-colors', 'SettingController@setPrivateColors');
+	Route::post('/website-colors', 'SettingController@applyWebsiteColors');
 	Route::post('/upload-logo', 'SettingController@uploadLogo');
 	Route::post('/update-auth-background', 'SettingController@updateAuthBackground');
 	Route::post('/reset', 'SettingController@resetSettings');

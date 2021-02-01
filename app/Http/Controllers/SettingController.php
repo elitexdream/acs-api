@@ -92,41 +92,51 @@ class SettingController extends Controller
         return response()->download($path, $logo_filename->value, $header);
     }
 
-    public function setPrivateColors(Request $request)
+    public function applyWebsiteColors(Request $request)
     {
-        $private_color_primary = Setting::where('type', 'private_color_primary')->first();
-        if(!$private_color_primary) {
-            Setting::create([
-                'type' => 'private_color_primary',
-                'value' => $request->colors[0]
-            ]);
-        } else {
-            $private_color_primary->value = $request->colors[0];
-            $private_color_primary->save();
-        }
+        $colors = $request->colors;
 
-        if (count($request->colors) >= 2) {
-            $private_color_accent = Setting::where('type', 'private_color_accent')->first();
-            if(!$private_color_accent) {
-                Setting::create([
-                    'type' => 'private_color_accent',
-                    'value' => $request->colors[1]
+        foreach($colors as $color) {
+            $setting = Setting::where('type', $color['key'])->first();
+
+            if($setting)
+                $setting->update([
+                    'value' => $color['color']
                 ]);
-                Setting::create([
-                    'type' => 'private_color_background',
-                    'value' => $request->colors[2]
-                ]);
-            } else {
-                $private_color_accent->value = $request->colors[1];
-                $private_color_accent->save();
-                $private_color_background = Setting::where('type', 'private_color_background')->first();
-                $private_color_background->value = $request->colors[2];
-                $private_color_background->save();
-            } 
         }
+        // $private_color_primary = Setting::where('type', 'private_color_primary')->first();
+        // if(!$private_color_primary) {
+        //     Setting::create([
+        //         'type' => 'private_color_primary',
+        //         'value' => $request->colors[0]
+        //     ]);
+        // } else {
+        //     $private_color_primary->value = $request->colors[0];
+        //     $private_color_primary->save();
+        // }
+
+        // if (count($request->colors) >= 2) {
+        //     $private_color_accent = Setting::where('type', 'private_color_accent')->first();
+        //     if(!$private_color_accent) {
+        //         Setting::create([
+        //             'type' => 'private_color_accent',
+        //             'value' => $request->colors[1]
+        //         ]);
+        //         Setting::create([
+        //             'type' => 'private_color_background',
+        //             'value' => $request->colors[2]
+        //         ]);
+        //     } else {
+        //         $private_color_accent->value = $request->colors[1];
+        //         $private_color_accent->save();
+        //         $private_color_background = Setting::where('type', 'private_color_background')->first();
+        //         $private_color_background->value = $request->colors[2];
+        //         $private_color_background->save();
+        //     } 
+        // }
 
         return response()->json([
-    		'private_colors' => $request->colors
+            'message' => 'Successfully updated'
         ]);
     }
 
