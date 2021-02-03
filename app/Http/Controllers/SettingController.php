@@ -39,8 +39,23 @@ class SettingController extends Controller
     {
         Setting::where('type', 'logo_filepath')
                     ->orWhere('type', 'auth_background_filepath')
-                    ->orWhere('type', 'LIKE', 'private_color_%')
                     ->delete();
+
+        Setting::where('type', 'color_background')->first()->update([
+            'value' => '#ffffff'
+        ]);
+        Setting::where('type', 'color_primary')->first()->update([
+            'value' => '#092954'
+        ]);
+        Setting::where('type', 'color_secondary')->first()->update([
+            'value' => '#508FF0'
+        ]);
+        Setting::where('type', 'color_accent')->first()->update([
+            'value' => '#003066'
+        ]);
+        Setting::where('type', 'color_surface')->first()->update([
+            'value' => '#f2f5f8'
+        ]);
 
         return response()->json([
             'success'=>'Reset Successfully.'
@@ -104,36 +119,6 @@ class SettingController extends Controller
                     'value' => $color['color']
                 ]);
         }
-        // $private_color_primary = Setting::where('type', 'private_color_primary')->first();
-        // if(!$private_color_primary) {
-        //     Setting::create([
-        //         'type' => 'private_color_primary',
-        //         'value' => $request->colors[0]
-        //     ]);
-        // } else {
-        //     $private_color_primary->value = $request->colors[0];
-        //     $private_color_primary->save();
-        // }
-
-        // if (count($request->colors) >= 2) {
-        //     $private_color_accent = Setting::where('type', 'private_color_accent')->first();
-        //     if(!$private_color_accent) {
-        //         Setting::create([
-        //             'type' => 'private_color_accent',
-        //             'value' => $request->colors[1]
-        //         ]);
-        //         Setting::create([
-        //             'type' => 'private_color_background',
-        //             'value' => $request->colors[2]
-        //         ]);
-        //     } else {
-        //         $private_color_accent->value = $request->colors[1];
-        //         $private_color_accent->save();
-        //         $private_color_background = Setting::where('type', 'private_color_background')->first();
-        //         $private_color_background->value = $request->colors[2];
-        //         $private_color_background->save();
-        //     } 
-        // }
 
         return response()->json([
             'message' => 'Successfully updated'
