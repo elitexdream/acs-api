@@ -222,24 +222,30 @@ class DeviceController extends Controller
             
         	$devices = json_decode($response->getBody())->data;
             foreach ($devices as $key => $device) {
-            	if ($existing_devices->where('serial_number', $device->serial)->count() > 0) {
+                $exisitng_device = $existing_devices->where('serial_number', $device->serial)->first();
+            	if ($exisitng_device) {
+                    $exisitng_device->update([
+                        'name' => $device->name,
+                        'lan_mac_address' => $device->mac,
+                    ]);
             		$numDuplicates++;
             		continue;
-            	}
-            	Device::create([
-    	           'device_id' => $device->id,
-                   'name' => $device->name,
-                   'customer_assigned_name' => $device->name,
-                   'serial_number' => $device->serial,
-    	           'imei' => $device->imei, 
-    	           'lan_mac_address' => $device->mac,
-                   'iccid' => substr($device->iccid, 0, -1),
-                   'public_ip_sim' => null,
-                   'machine_id' => null,
-                   'company_id' => null,
-                   'registered' => false
-            	]);
-            	$numAdded++;
+            	} else {
+                	Device::create([
+        	           'device_id' => $device->id,
+                       'name' => $device->name,
+                       'customer_assigned_name' => $device->name,
+                       'serial_number' => $device->serial,
+        	           'imei' => $device->imei, 
+        	           'lan_mac_address' => $device->mac,
+                       'iccid' => substr($device->iccid, 0, -1),
+                       'public_ip_sim' => null,
+                       'machine_id' => null,
+                       'company_id' => null,
+                       'registered' => false
+                	]);
+                	$numAdded++;
+                }
             }
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
