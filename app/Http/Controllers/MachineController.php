@@ -53,7 +53,7 @@ class MachineController extends Controller
 		return: Object
 	*/
 	public function getProductOverview(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
+		$product = Device::where('serial_number', $request->productId)->first();
 
 		if(!$product) {
 			return response()->json([
@@ -61,32 +61,24 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
+		$configuration = $product->teltonikaConfiguration();
 
-		if($request->isAdditional) {
-			if(!$configuration || !$configuration->tcu_status){
-				return response()->json([
-					'message' => 'Device is not connected'
-				], 404);
-			}
+		if(!$configuration)
+			return response()->json([
+				'message' => 'Device is not connected'
+			], 404);
 
-			$machine = Machine::findOrFail(MACHINE_TRUETEMP_TCU);
-		} else {
-			if(!$configuration || !$configuration->plc_status){
-				return response()->json([
-					'message' => 'Device is not connected'
-				], 404);
-			}
-
-			$machine = Machine::where('device_type', $configuration->plc_type)->first();
-		}
+		$machine = $configuration->machineBySerialNumber($request->serialNumber);
 
 		if(!$machine)
 			return response()->json([
-				'message' => 'Can\'t find device type'
+				'message' => 'Wrong serial number'
 			], 404);
 
 		if($machine->id == MACHINE_TRUETEMP_TCU) {
+			// return response()->json([
+			// 	"overview" => $machine
+			// ]);
 			// product version
 			if($version_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
 								->where('tag_id', 1)
@@ -191,7 +183,8 @@ class MachineController extends Controller
 			$product->serial = mb_convert_encoding($serial_year . $serial_month . $serial_unit, 'UTF-8', 'UTF-8');
 		}
 
-		$product->configuration = $machine;
+		$product->machineName = $machine->name;
+		$product->machineId = $machine->id;
 
 		return response()->json([
 			"overview" => $product

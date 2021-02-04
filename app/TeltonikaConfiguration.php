@@ -9,6 +9,15 @@ class TeltonikaConfiguration extends Model
 {
     public $table = 'device_configurations';
 
+    public function machineBySerialNumber($serial_number) {
+    	if($this->plc_serial_number == $serial_number)
+    		return Machine::where('device_type', $this->plc_type)->first();
+    	else if($this->tcu_serial_number == $serial_number)
+    		return Machine::where('id', MACHINE_TRUETEMP_TCU)->first();
+    	else
+    		return null;
+    }
+
     public function plcMachine() {
     	return Machine::where('device_type', $this->plc_type)->first();
     }
@@ -40,11 +49,11 @@ class TeltonikaConfiguration extends Model
     }
 
     public function tcuAnalyticsGraphs() {
-		return DB::table('graphs')->where('machine_id', 11)->where('graph_id', '<', 100)->get();
+		return DB::table('graphs')->where('machine_id', MACHINE_TRUETEMP_TCU)->where('graph_id', '<', 100)->get();
     }
 
     public function tcuPropertiesGraphs() {
-		return DB::table('graphs')->where('machine_id', 11)->where('graph_id', '>', 100)->get();
+		return DB::table('graphs')->where('machine_id', MACHINE_TRUETEMP_TCU)->where('graph_id', '>', 100)->get();
     }
 
     public function plcEnabledAnalyticsGraphs($user_id, $serial_number) {
@@ -73,7 +82,7 @@ class TeltonikaConfiguration extends Model
 		$v = DB::table('enabled_properties')->where('user_id', $user_id)->where('serial_number', $serial_number)->first();
 
 		if($v) {
-			return DB::table('graphs')->where('machine_id', 11)->whereIn('graph_id', json_decode($v->property_ids))->where('graph_id', '<', 100)->get();
+			return DB::table('graphs')->where('machine_id', MACHINE_TRUETEMP_TCU)->whereIn('graph_id', json_decode($v->property_ids))->where('graph_id', '<', 100)->get();
 		}
 		else
 			return [];
@@ -83,7 +92,7 @@ class TeltonikaConfiguration extends Model
 		$v = DB::table('enabled_properties')->where('user_id', $user_id)->where('serial_number', $serial_number)->first();
 
 		if($v) {
-			return DB::table('graphs')->where('machine_id', 11)->whereIn('graph_id', json_decode($v->property_ids))->where('graph_id', '>', 100)->get();
+			return DB::table('graphs')->where('machine_id', MACHINE_TRUETEMP_TCU)->whereIn('graph_id', json_decode($v->property_ids))->where('graph_id', '>', 100)->get();
 		}
 		else
 			return [];

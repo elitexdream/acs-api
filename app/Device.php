@@ -84,4 +84,8 @@ class Device extends Model
 
         return false;
     }
+
+    public function teltonikaConfiguration() {
+        return TeltonikaConfiguration::where('teltonika_id', $this->serial_number)->first();
+    }
 }
