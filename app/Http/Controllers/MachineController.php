@@ -119,7 +119,7 @@ class MachineController extends Controller
 			}
 
 			// software build
-			$tag_software_build = Tag::where('tag_name', 'software_build')->where('configuration_id', $configuration->id)->first();
+			$tag_software_build = Tag::where('tag_name', 'software_build')->where('configuration_id', $machine->id)->first();
 
 			if(!$tag_software_build) {
 				return response()->json('Software build tag not found', 404);
@@ -142,9 +142,9 @@ class MachineController extends Controller
 			$serial_month = "";
 			$serial_unit = "";
 
-			$tag_serial_year = Tag::where('tag_name', 'serial_number_year')->where('configuration_id', $configuration->id)->first();
-			$tag_serial_month = Tag::where('tag_name', 'serial_number_month')->where('configuration_id', $configuration->id)->first();
-			$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit')->where('configuration_id', $configuration->id)->first();
+			$tag_serial_year = Tag::where('tag_name', 'serial_number_year')->where('configuration_id', $machine->id)->first();
+			$tag_serial_month = Tag::where('tag_name', 'serial_number_month')->where('configuration_id', $machine->id)->first();
+			$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit')->where('configuration_id', $machine->id)->first();
 
 			if(!$tag_serial_year || !$tag_serial_month || !$tag_serial_unit) {
 				return response()->json('Serial number tag not found', 404);
