@@ -751,6 +751,7 @@ class DeviceController extends Controller
                 $query = $user->company->devices()->orderBy('sim_status')->orderBy('id');
         }
 
+        $query->with('teltonikaConfiguration');
         $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
         foreach ($devices as $key => $device) {
             $device->status = $device->isRunning();
