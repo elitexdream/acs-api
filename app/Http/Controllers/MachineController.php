@@ -220,13 +220,14 @@ class MachineController extends Controller
 				'message' => 'Can\'t find device type'
 			], 404);
 
-		$inventories = DeviceData::where('serial_number', $configuration->plc_serial_number)
-									->whereIn('tag_id', [15, 16])
+		$hop_inventory = DeviceData::where('serial_number', $configuration->plc_serial_number)
+									->where('tag_id', 15)
 									->latest('timedata')
-									->get();
-
-		$hop_inventory = $inventories->firstWhere('tag_id', 15);
-		$actual_inventory = $inventories->firstWhere('tag_id', 16);
+									->first();
+		$actual_inventory = DeviceData::where('serial_number', $configuration->plc_serial_number)
+									->where('tag_id', 16)
+									->latest('timedata')
+									->first();
 
 		$inventories = [];
 
@@ -1392,7 +1393,7 @@ class MachineController extends Controller
 		Get Drying hopper states for NGX Dryer
 	*/
 	public function getDryingHopperStates($id) {
-		$product = Device::where('serial_number', $request->id)->first();
+		$product = Device::where('serial_number', $id)->first();
 
 		if(!$product) {
 			return response()->json([
@@ -1495,7 +1496,7 @@ class MachineController extends Controller
 		params: device_id
 	*/
 	public function getHopperTemperatures($id) {
-		$product = Device::where('serial_number', $request->id)->first();
+		$product = Device::where('serial_number', $id)->first();
 
 		if(!$product) {
 			return response()->json([
