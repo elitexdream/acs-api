@@ -772,6 +772,7 @@ class DeviceController extends Controller
             $query = $user->company->devices()->where('location_id', $location)->where('zone_id', $zone);
         }
 
+        $query->with('teltonikaConfiguration');
         $devices = $query->paginate($request->itemsPerPage, ['*'], 'page', $page);
 
         foreach ($devices as $key => $device) {
@@ -784,7 +785,6 @@ class DeviceController extends Controller
             $device->performance = '78%';
             $device->rate = 56;
             $device->downtimeDistribution = $downtime_distribution;
-            $device->running = $device->isRunning();
         }
 
         return response()->json(compact('devices'));
