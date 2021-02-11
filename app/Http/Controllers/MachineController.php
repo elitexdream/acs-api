@@ -1392,7 +1392,7 @@ class MachineController extends Controller
 		Get Drying hopper states for NGX Dryer
 	*/
 	public function getDryingHopperStates($id) {
-		$product = Device::where('serial_number', $request->id)->first();
+		$product = Device::where('serial_number', $id)->first();
 
 		if(!$product) {
 			return response()->json([
@@ -1495,7 +1495,7 @@ class MachineController extends Controller
 		params: device_id
 	*/
 	public function getHopperTemperatures($id) {
-		$product = Device::where('serial_number', $request->id)->first();
+		$product = Device::where('serial_number', $id)->first();
 
 		if(!$product) {
 			return response()->json([

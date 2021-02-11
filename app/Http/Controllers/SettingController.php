@@ -11,7 +11,7 @@ use App\Machine;
 
 class SettingController extends Controller
 {
-    public function getSetting(Request $request)
+    public function getSetting()
     {
         $value = Setting::all();
         
