@@ -76,10 +76,6 @@ class MachineController extends Controller
 			], 404);
 
 		if($machine->id == MACHINE_TRUETEMP_TCU) {
-			// return response()->json([
-			// 	"overview" => $machine
-			// ]);
-			// product version
 			if($version_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
 								->where('tag_id', 1)
 								->latest('timedata')
