@@ -41,7 +41,7 @@ class MachineController extends Controller
 			$values = $chunk->map(function($value) {
 				return json_decode($value->values)[0];
 			});
-			return [$timestamp, array_sum($values->all()) / $chunk->count()];
+			return [$timestamp, round(array_sum($values->all()) / $chunk->count(), 2)];
 		});
 
 		return $ret;
@@ -76,10 +76,6 @@ class MachineController extends Controller
 			], 404);
 
 		if($machine->id == MACHINE_TRUETEMP_TCU) {
-			// return response()->json([
-			// 	"overview" => $machine
-			// ]);
-			// product version
 			if($version_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
 								->where('tag_id', 1)
 								->latest('timedata')
@@ -643,9 +639,9 @@ class MachineController extends Controller
 		$energy_consumptions_object = DB::table('energy_consumptions')
 										->where('serial_number', $configuration->plc_serial_number)
 										->where('tag_id', $tag_energy_consumption->tag_id)
+										->orderBy('timestamp')
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
 										->get();
 
 		$energy_consumption = $this->averagedSeries($energy_consumptions_object, 50);
@@ -1479,11 +1475,11 @@ class MachineController extends Controller
 										->where('tag_id', 23)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
-										->latest('timedata')
+										->orderBy('timedata')
 										->get();
 
 		$temperatures = $temperatures_object->map(function($temperature_object) {
-			return [($temperature_object->timestamp + $this->timeshift) * 1000, json_decode($temperature_object->values)[0]];
+			return [($temperature_object->timestamp + $this->timeshift) * 1000, round(json_decode($temperature_object->values)[0], 2)];
 		});
 
 		$items = [$temperatures];
@@ -1562,17 +1558,17 @@ class MachineController extends Controller
 						->latest('timedata')
 						->first();
 
-		if($inletHopper1) $inlets[0] = json_decode($inletHopper1->values)[0];
-		if($inletHopper2) $inlets[1] = json_decode($inletHopper2->values)[0];
-		if($inletHopper3) $inlets[2] = json_decode($inletHopper3->values)[0];
+		if($inletHopper1) $inlets[0] = round(json_decode($inletHopper1->values)[0], 2);
+		if($inletHopper2) $inlets[1] = round(json_decode($inletHopper2->values)[0], 2);
+		if($inletHopper3) $inlets[2] = round(json_decode($inletHopper3->values)[0], 2);
 
-		if($outletHopper1) $outlets[0] = json_decode($outletHopper1->values)[0];
-		if($outletHopper2) $outlets[1] = json_decode($outletHopper2->values)[0];
-		if($outletHopper3) $outlets[2] = json_decode($outletHopper3->values)[0];
+		if($outletHopper1) $outlets[0] = round(json_decode($outletHopper1->values)[0], 2);
+		if($outletHopper2) $outlets[1] = round(json_decode($outletHopper2->values)[0], 2);
+		if($outletHopper3) $outlets[2] = round(json_decode($outletHopper3->values)[0], 2);
 
-		if($targetHopper1) $targets[0] = json_decode($targetHopper1->values)[0];
-		if($targetHopper2) $targets[1] = json_decode($targetHopper2->values)[0];
-		if($targetHopper3) $targets[2] = json_decode($targetHopper3->values)[0];
+		if($targetHopper1) $targets[0] = round(json_decode($targetHopper1->values)[0], 2);
+		if($targetHopper2) $targets[1] = round(json_decode($targetHopper2->values)[0], 2);
+		if($targetHopper3) $targets[2] = round(json_decode($targetHopper3->values)[0], 2);
 
 		$items = [$inlets, $outlets, $targets];
 
@@ -1711,9 +1707,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr1_objects) {
-			$hr1 = $hr1_objects->map(function($hr1_object) {
-				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
-			});
+			$hr1 = $this->averagedSeries($hr1_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'DH1 Online Hrs - Maint';
@@ -1729,9 +1723,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr2_objects) {
-			$hr2 = $hr2_objects->map(function($hr2_object) {
-				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
-			});
+			$hr2 = $this->averagedSeries($hr2_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'DH1 Online Hrs – Total';
@@ -1747,9 +1739,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr3_objects) {
-			$hr3 = $hr3_objects->map(function($hr3_object) {
-				return [($hr3_object->timestamp + $this->timeshift) * 1000, json_decode($hr3_object->values)[0]];
-			});
+			$hr3 = $this->averagedSeries($hr3_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'DH2 Online Hrs - Maint';
@@ -1765,9 +1755,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr4_objects) {
-			$hr4 = $hr4_objects->map(function($hr4_object) {
-				return [($hr4_object->timestamp + $this->timeshift) * 1000, json_decode($hr4_object->values)[0]];
-			});
+			$hr4 = $this->averagedSeries($hr4_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'DH2 Online Hrs – Total';
@@ -1783,9 +1771,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr5_objects) {
-			$hr5 = $hr5_objects->map(function($hr5_object) {
-				return [($hr5_object->timestamp + $this->timeshift) * 1000, json_decode($hr5_object->values)[0]];
-			});
+			$hr5 = $this->averagedSeries($hr5_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'DH3 Online Hrs - Maint';
@@ -1801,9 +1787,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr6_objects) {
-			$hr6 = $hr6_objects->map(function($hr6_object) {
-				return [($hr6_object->timestamp + $this->timeshift) * 1000, json_decode($hr6_object->values)[0]];
-			});
+			$hr6 = $this->averagedSeries($hr6_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'DH3 Online Hrs – Total';
@@ -1853,15 +1837,14 @@ class MachineController extends Controller
 
 		$hr1_objects = DeviceData::where('serial_number', $configuration->plc_serial_number)
 										->where('tag_id', 50)
+										->orderBy('timestamp')
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
 										->get();
 
+
 		if($hr1_objects) {
-			$hr1 = $hr1_objects->map(function($hr1_object) {
-				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
-			});
+			$hr1 = $this->averagedSeries($hr1_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'Dryer Online Hrs – Maint';
@@ -1877,9 +1860,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr2_objects) {
-			$hr2 = $hr2_objects->map(function($hr2_object) {
-				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
-			});
+			$hr2 = $this->averagedSeries($hr2_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'Dryer Online Hrs – Total';
@@ -1931,13 +1912,11 @@ class MachineController extends Controller
 										->where('tag_id', 52)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
+										->orderBy('timedata')
 										->get();
 
 		if($hr1_objects) {
-			$hr1 = $hr1_objects->map(function($hr1_object) {
-				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
-			});
+			$hr1 = $this->averagedSeries($hr1_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'Process Blower Run Hrs - Maint';
@@ -1949,13 +1928,11 @@ class MachineController extends Controller
 										->where('tag_id', 53)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
+										->orderBy('timedata')
 										->get();
 
 		if($hr2_objects) {
-			$hr2 = $hr2_objects->map(function($hr2_object) {
-				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
-			});
+			$hr2 = $this->averagedSeries($hr2_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'Process Blower Run Hrs – Total';
