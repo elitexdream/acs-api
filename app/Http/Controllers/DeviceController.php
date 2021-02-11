@@ -784,6 +784,7 @@ class DeviceController extends Controller
             $device->performance = '78%';
             $device->rate = 56;
             $device->downtimeDistribution = $downtime_distribution;
+            $device->running = $device->isRunning();
         }
 
         return response()->json(compact('devices'));

@@ -3,7 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class Device extends Model
 {
@@ -33,52 +33,23 @@ class Device extends Model
     }
 
     public function isRunning() {
-        $config = $this->configuration;
-
-        if(!$config) return false;
-
-        $tag_id = 0;
-
-        switch ($config->id) {
-            case MACHINE_BD_BATCH_BLENDER:
-                $tag_id = 9;
-                break;
-            case MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER:
-                $tag_id = 10;
-                break;
-            case MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER:
-                $tag_id = 13;
-                break;
-            case MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER:
-                $tag_id = 11;
-                break;
-            case MACHINE_VTC_PLUS_CONVEYING_SYSTEM:
-                $tag_id = 10;
-                break;
-            case MACHINE_NGX_DRYER:
-                $tag_id = 36;
-                break;
-            case MACHINE_NGX_NOMAD_DRYER:
-                $tag_id = 28;
-                break;
-            case MACHINE_T50_CENTRAL_GRANULATOR:
-                $tag_id = 9;
-                break;
-            case MACHINE_GP_PORTABLE_CHILLER:
-                $tag_id = 4;
-                break;
-            case MACHINE_HE_CENTRAL_CHILLER:
-                $tag_id = 194;
-                break;
-            default:
-                break;
+        if (!$config = $this->configuration) {
+            return false;
         }
 
-        if($tag_id) {
-            $running_object = DB::table('runnings')->where('device_id', $this->serial_number)->where('tag_id', $tag_id)->latest('timestamp')->first();
+        $tag = Tag::where('configuration_id', $config->id)
+            ->where('tag_name', Tag::NAMES['RUNNING'])
+            ->first();
 
-            if($running_object) {
-                return json_decode($running_object->values)[0];
+        if ($tag) {
+            $running = DB::table('runnings')
+                ->where('device_id', $this->serial_number)
+                ->where('tag_id', $tag->tag_id)
+                ->latest('timestamp')
+                ->first();
+
+            if ($running) {
+                return json_decode($running->values)[0];
             }
         }
 
