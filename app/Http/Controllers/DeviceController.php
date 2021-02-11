@@ -772,6 +772,7 @@ class DeviceController extends Controller
             $query = $user->company->devices()->where('location_id', $location)->where('zone_id', $zone);
         }
 
+        $query->with('teltonikaConfiguration');
         $devices = $query->paginate($request->itemsPerPage, ['*'], 'page', $page);
 
         foreach ($devices as $key => $device) {
