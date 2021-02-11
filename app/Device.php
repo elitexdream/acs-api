@@ -57,6 +57,6 @@ class Device extends Model
     }
 
     public function teltonikaConfiguration() {
-        return TeltonikaConfiguration::where('teltonika_id', $this->serial_number)->first();
+        return $this->hasOne(TeltonikaConfiguration::class, 'teltonika_id', 'serial_number');
     }
 }

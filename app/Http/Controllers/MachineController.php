@@ -61,7 +61,7 @@ class MachineController extends Controller
 			], 404);
 		}
 
-		$configuration = $product->teltonikaConfiguration();
+		$configuration = $product->teltonikaConfiguration;
 
 		if(!$configuration)
 			return response()->json([
