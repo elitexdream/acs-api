@@ -1707,9 +1707,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr1_objects) {
-			$hr1 = $hr1_objects->map(function($hr1_object) {
-				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
-			});
+			$hr1 = $this->averagedSeries($hr1_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'DH1 Online Hrs - Maint';
@@ -1725,9 +1723,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr2_objects) {
-			$hr2 = $hr2_objects->map(function($hr2_object) {
-				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
-			});
+			$hr2 = $this->averagedSeries($hr2_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'DH1 Online Hrs – Total';
@@ -1743,9 +1739,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr3_objects) {
-			$hr3 = $hr3_objects->map(function($hr3_object) {
-				return [($hr3_object->timestamp + $this->timeshift) * 1000, json_decode($hr3_object->values)[0]];
-			});
+			$hr3 = $this->averagedSeries($hr3_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'DH2 Online Hrs - Maint';
@@ -1761,9 +1755,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr4_objects) {
-			$hr4 = $hr4_objects->map(function($hr4_object) {
-				return [($hr4_object->timestamp + $this->timeshift) * 1000, json_decode($hr4_object->values)[0]];
-			});
+			$hr4 = $this->averagedSeries($hr4_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'DH2 Online Hrs – Total';
@@ -1779,9 +1771,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr5_objects) {
-			$hr5 = $hr5_objects->map(function($hr5_object) {
-				return [($hr5_object->timestamp + $this->timeshift) * 1000, json_decode($hr5_object->values)[0]];
-			});
+			$hr5 = $this->averagedSeries($hr5_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'DH3 Online Hrs - Maint';
@@ -1797,9 +1787,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr6_objects) {
-			$hr6 = $hr6_objects->map(function($hr6_object) {
-				return [($hr6_object->timestamp + $this->timeshift) * 1000, json_decode($hr6_object->values)[0]];
-			});
+			$hr6 = $this->averagedSeries($hr6_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'DH3 Online Hrs – Total';
@@ -1857,9 +1845,6 @@ class MachineController extends Controller
 
 		if($hr1_objects) {
 			$hr1 = $this->averagedSeries($hr1_objects, 50);
-			// $hr1 = $averaged_hr1_objects->map(function($hr1_object) {
-			// 	return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
-			// });
 
 			$hr = new stdClass();
 			$hr->name = 'Dryer Online Hrs – Maint';
@@ -1876,9 +1861,6 @@ class MachineController extends Controller
 
 		if($hr2_objects) {
 			$hr2 = $this->averagedSeries($hr2_objects, 50);
-			// $hr2 = $hr2_objects->map(function($hr2_object) {
-			// 	return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
-			// });
 
 			$hr = new stdClass();
 			$hr->name = 'Dryer Online Hrs – Total';
@@ -1930,13 +1912,11 @@ class MachineController extends Controller
 										->where('tag_id', 52)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
+										->orderBy('timedata')
 										->get();
 
 		if($hr1_objects) {
-			$hr1 = $hr1_objects->map(function($hr1_object) {
-				return [($hr1_object->timestamp + $this->timeshift) * 1000, json_decode($hr1_object->values)[0]];
-			});
+			$hr1 = $this->averagedSeries($hr1_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'Process Blower Run Hrs - Maint';
@@ -1948,13 +1928,11 @@ class MachineController extends Controller
 										->where('tag_id', 53)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
+										->orderBy('timedata')
 										->get();
 
 		if($hr2_objects) {
-			$hr2 = $hr2_objects->map(function($hr2_object) {
-				return [($hr2_object->timestamp + $this->timeshift) * 1000, json_decode($hr2_object->values)[0]];
-			});
+			$hr2 = $this->averagedSeries($hr2_objects, 50);
 
 			$hr = new stdClass();
 			$hr->name = 'Process Blower Run Hrs – Total';
