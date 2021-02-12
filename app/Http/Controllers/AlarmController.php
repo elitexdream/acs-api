@@ -28,7 +28,7 @@ class AlarmController extends Controller
 			$alarm_tag_ids = [];
 
 			foreach ($alarm_types as $key => $alarm_type) {
-				$alarm_tag_ids = array_merge(json_decode($alarm_type->tag_id));
+				$alarm_tag_ids[] = $alarm_type->tag_id;
 			}
 			
 			$device->alarms_count = DeviceData::where('device_id', $device->serial_number)->whereIn('tag_id', $alarm_tag_ids)->count();

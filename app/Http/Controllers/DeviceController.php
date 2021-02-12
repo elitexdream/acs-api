@@ -720,7 +720,16 @@ class DeviceController extends Controller
 
     public function getCustomerDevices(Request $request) {
         $user = $request->user('api');
-        $devices = $user->company->devices;
+        $devices = $user->company->devices()
+            ->leftJoin(
+                'alarms',
+                DB::raw('alarms.device_id::varchar(255)'),
+                '=',
+                'devices.serial_number'
+            )
+            ->groupBy('devices.id', 'devices.serial_number')
+            ->select(DB::raw("devices.*"),DB::raw("COUNT(alarms.id) as alarms_count"))
+            ->get();
 
         return response()->json([
             'devices' => $devices
