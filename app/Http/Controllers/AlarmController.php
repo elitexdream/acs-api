@@ -37,28 +37,11 @@ class AlarmController extends Controller
 		return response()->json(compact('devices'));
 	}
 
-    public function getProductAlarms(Request $request, $id) {
-    	$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = $product->teltonikaConfiguration;
-
-		if(!$configuration) {
-			return response()->json([
-				'message' => 'Device Not Configured'
-			], 404);
-		}
-		
-		$alarm_types = AlarmType::where('machine_id', $configuration->plcMachine()->id)->orderBy('id')->get();
+    public function getProductAlarms(Request $request) {
+		$alarm_types = AlarmType::where('machine_id', $request->machineId)->orderBy('id')->get();
 		$tag_ids = $alarm_types->unique('tag_id')->pluck('tag_id');
 
-		$alarms_object = Alarm::where('serial_number', $configuration->plc_serial_number)
-								->where('device_id', $id)
+		$alarms_object = Alarm::where('serial_number', $request->serialNumber)
 								->whereIn('tag_id', $tag_ids)
 								->latest('timedata')
 								->get()
