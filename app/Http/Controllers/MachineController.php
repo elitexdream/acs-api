@@ -11,6 +11,7 @@ use App\Machine;
 use App\Location;
 use App\Zone;
 use App\Device;
+use App\TeltonikaConfiguration;
 use App\DowntimePlan;
 use App\Tag;
 use DB;
@@ -32,7 +33,7 @@ class MachineController extends Controller
 		}
     }
 
-    public function averagedSeries($collection, $series_count = 100) {
+    public function averagedSeries($collection, $series_count = 200) {
     	$total = $collection->count();
 		$chunks = $collection->chunk($total / $series_count + 1);
 
@@ -53,30 +54,10 @@ class MachineController extends Controller
 		return: Object
 	*/
 	public function getProductOverview(Request $request) {
-		$product = Device::where('serial_number', $request->productId)->first();
+		$product = new stdClass();
 
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = $product->teltonikaConfiguration;
-
-		if(!$configuration)
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-
-		$machine = $configuration->machineBySerialNumber($request->serialNumber);
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Wrong serial number'
-			], 404);
-
-		if($machine->id == MACHINE_TRUETEMP_TCU) {
-			if($version_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
+		if($request->machineId == MACHINE_TRUETEMP_TCU) {
+			if($version_object = DeviceData::where('serial_number', $request->serialNumber)
 								->where('tag_id', 1)
 								->latest('timedata')
 								->first()) {
@@ -87,7 +68,7 @@ class MachineController extends Controller
 				}
 			}
 		} else {
-			$tag_software_version = Tag::where('tag_name', 'software_version')->where('configuration_id', $machine->id)->first();
+			$tag_software_version = Tag::where('tag_name', 'software_version')->where('configuration_id', $request->machineId)->first();
 
 			if(!$tag_software_version) {
 				return response()->json('Software version tag not found', 404);
@@ -95,7 +76,7 @@ class MachineController extends Controller
 
 			// product version
 			if($version_object = DB::table('software_version')
-								->where('serial_number', $configuration->plc_serial_number)
+								->where('serial_number', $request->serialNumber)
 								->where('tag_id', $tag_software_version->tag_id)
 								->latest('timedata')
 								->first()) {
@@ -107,68 +88,65 @@ class MachineController extends Controller
 			}
 
 			// software build
-			$tag_software_build = Tag::where('tag_name', 'software_build')->where('configuration_id', $machine->id)->first();
+			$tag_software_build = Tag::where('tag_name', 'software_build')->where('configuration_id', $request->machineId)->first();
 
-			if(!$tag_software_build) {
-				return response()->json('Software build tag not found', 404);
-			}
-
-			if($software_build_object = DB::table('software_builds')
-											->where('serial_number', $configuration->plc_serial_number)
-											->where('tag_id', $tag_software_build->tag_id)
-											->latest('timedata')
-											->first()) {
-				try {
-					$product->software_build = json_decode($software_build_object->values)[0];
-				} catch (\Exception $e) {
-					$product->software_build = '';
+			if($tag_software_build) {
+				// return response()->json('Software build tag not found', 404);
+				if($software_build_object = DB::table('software_builds')
+												->where('serial_number', $request->serialNumber)
+												->where('tag_id', $tag_software_build->tag_id)
+												->latest('timedata')
+												->first()) {
+					try {
+						$product->software_build = json_decode($software_build_object->values)[0];
+					} catch (\Exception $e) {
+						$product->software_build = '';
+					}
 				}
 			}
+
 
 			// serial number
 			$serial_year = "";
 			$serial_month = "";
 			$serial_unit = "";
 
-			$tag_serial_year = Tag::where('tag_name', 'serial_number_year')->where('configuration_id', $machine->id)->first();
-			$tag_serial_month = Tag::where('tag_name', 'serial_number_month')->where('configuration_id', $machine->id)->first();
-			$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit')->where('configuration_id', $machine->id)->first();
+			$tag_serial_year = Tag::where('tag_name', 'serial_number_year')->where('configuration_id', $request->machineId)->first();
+			$tag_serial_month = Tag::where('tag_name', 'serial_number_month')->where('configuration_id', $request->machineId)->first();
+			$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit')->where('configuration_id', $request->machineId)->first();
 
-			if(!$tag_serial_year || !$tag_serial_month || !$tag_serial_unit) {
-				return response()->json('Serial number tag not found', 404);
-			}
-
-			$serial_year_object = DB::table('serial_number_year')
-										->where('serial_number', $configuration->plc_serial_number)
-										->where('tag_id', $tag_serial_year->tag_id)
-										->latest('timedata')
-										->first();
-			$serial_month_object = DB::table('serial_number_month')
-										->where('serial_number', $configuration->plc_serial_number)
-										->where('tag_id', $tag_serial_month->tag_id)
-										->latest('timedata')
-										->first();
-			$serial_unit_object = DB::table('serial_number_unit')
-										->where('serial_number', $configuration->plc_serial_number)
-										->where('tag_id', $tag_serial_unit->tag_id)
-										->latest('timedata')
-										->first();
-
-			if($serial_year_object) {
+			if($tag_serial_year) {
+				$serial_year_object = DB::table('serial_number_year')
+											->where('serial_number', $request->serialNumber)
+											->where('tag_id', $tag_serial_year->tag_id)
+											->latest('timedata')
+											->first();
 				try {
 					$serial_year = json_decode($serial_year_object->values)[0];
 				} catch (\Exception $e) {
 					$serial_year = '';
 				}
 			}
-			if($serial_month_object) {
+
+			if($tag_serial_month) {
+				$serial_month_object = DB::table('serial_number_month')
+											->where('serial_number', $request->serialNumber)
+											->where('tag_id', $tag_serial_month->tag_id)
+											->latest('timedata')
+											->first();
 				try {
 					$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
 				} catch (\Exception $e) {
 					$serial_month = '';
 				}
 			}
-			if($serial_unit_object) {
+
+			if($tag_serial_unit) {
+				$serial_unit_object = DB::table('serial_number_unit')
+											->where('serial_number', $request->serialNumber)
+											->where('tag_id', $tag_serial_unit->tag_id)
+											->latest('timedata')
+											->first();
 				try {
 					$serial_unit = json_decode($serial_unit_object->values)[0];
 				} catch (\Exception $e) {
@@ -178,6 +156,8 @@ class MachineController extends Controller
 
 			$product->serial = mb_convert_encoding($serial_year . $serial_month . $serial_unit, 'UTF-8', 'UTF-8');
 		}
+
+		$machine = Machine::findOrFail($request->machineId);
 
 		$product->machineName = $machine->name;
 		$product->machineId = $machine->id;
@@ -192,35 +172,12 @@ class MachineController extends Controller
 		L30_0_8_HopInv and L30_16_23_FracInv are grouped together
 		return: array
 	*/
-	public function getInventories($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
-		$hop_inventory = DeviceData::where('serial_number', $configuration->plc_serial_number)
+	public function getInventories(Request $request) {
+		$hop_inventory = DeviceData::where('serial_number', $request->serialNumber)
 									->where('tag_id', 15)
 									->latest('timedata')
 									->first();
-		$actual_inventory = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$actual_inventory = DeviceData::where('serial_number', $request->serialNumber)
 									->where('tag_id', 16)
 									->latest('timedata')
 									->first();
@@ -250,35 +207,12 @@ class MachineController extends Controller
 		description: feeder calibration factors
 		tag: L21_0_11_RecipeVal
 	*/
-	public function getCurrentRecipe($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
+	public function getCurrentRecipe(Request $request) {
 		$mode = 0;
 		$recipe_values = [];
 		$ez_types = [0, 0, 0, 0, 0, 0, 0, 0];
 
-		$mode_object = DeviceData::where('serial_number', $machine->plc_serial_number)
+		$mode_object = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 45)
 						->latest('timedata')
 						->first();
@@ -286,7 +220,7 @@ class MachineController extends Controller
 		if($mode_object) {
 			$mode = json_decode($mode_object->values)[0];
 
-			$last_object = DeviceData::where('serial_number', $machine->plc_serial_number)
+			$last_object = DeviceData::where('serial_number', $request->serialNumber)
 							->where('tag_id', 47)
 							->latest('timedata')
 							->first();
@@ -294,7 +228,7 @@ class MachineController extends Controller
 			if( $last_object)
 				$recipe_values = json_decode($last_object->values);
 			if($mode == 2) {
-				$last_object = DeviceData::where('serial_number', $machine->plc_serial_number)
+				$last_object = DeviceData::where('serial_number', $request->serialNumber)
 								->where('tag_id', 46)
 								->latest('timedata')
 								->first();
@@ -314,37 +248,14 @@ class MachineController extends Controller
 	/*
 		actual and target weight in BD_Batch_Blender
 	*/
-	public function getProductWeight($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
-		$actual_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+	public function getProductWeight(Request $request) {
+		$actual_object = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 13)
 						->whereJsonLength('values', 8)
 						->latest('timedata')
 						->first();
 
-		$target_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$target_object = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 14)
 						->whereJsonLength('values', 8)
 						->latest('timedata')
@@ -375,31 +286,8 @@ class MachineController extends Controller
 		configuration: BD Blender configuration
 		description: get station conveying series
 	*/
-	public function getStationConveyings($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
-		$last_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+	public function getStationConveyings(Request $request) {
+		$last_object = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 26)
 						->latest('timedata')
 						->first();
@@ -418,32 +306,8 @@ class MachineController extends Controller
 		description: get hopper stables
 		tag: B3_17_8_15_FIFOStable
 	*/
-	public function getHopperStables($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
-		$last_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
-						->where('device_id', $id)
+	public function getHopperStables(Request $request) {
+		$last_object = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 25)
 						->latest('timedata')
 						->first();
@@ -463,40 +327,17 @@ class MachineController extends Controller
 		tag: L51_0_8_AvgFeedCal
 	*/
 	public function getBDBlenderCalibrationFactors(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$factors_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$factors_object = DeviceData::where('serial_number', $request->serialNumber)
 									->where('tag_id', 19)
 									->where('timestamp', '>', $from)
 									->where('timestamp', '<', $to)
 									->orderBy('timestamp')
 									->get();
 
-		$calibration_factors = $this->averagedSeries($factors_object, 50);
+		$calibration_factors = $this->averagedSeries($factors_object);
 
 		$items = [$calibration_factors];
 		return response()->json(compact('items'));
@@ -508,40 +349,17 @@ class MachineController extends Controller
 		tag: L30_30_0_average_pr
 	*/
 	public function getBlenderProcessRate(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$process_rates_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$process_rates_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 18)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->orderBy('timestamp')
 										->get();
 
-		$process_rate = $this->averagedSeries($process_rates_object, 50);
+		$process_rate = $this->averagedSeries($process_rates_object);
 
 		$items = [$process_rate];
 		return response()->json(compact('items'));
@@ -552,30 +370,7 @@ class MachineController extends Controller
 		return: Utilization Series Array
 	*/
 	public function getProductUtilization(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
-		$tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $machine->id)->first();
+		$tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $request->machineId)->first();
 
 		if(!$tag_utilization) {
 			return response()->json('Capacity utilization tag not found', 404);
@@ -585,14 +380,14 @@ class MachineController extends Controller
 		$to = $this->getFromTo($request->timeRange)["to"];
 
 		$utilizations_object = DB::table('utilizations')
-								->where('serial_number', $configuration->plc_serial_number)
+								->where('serial_number', $request->serialNumber)
 								->where('tag_id', $tag_utilization->tag_id)
 								->where('timestamp', '>', $from)
 								->where('timestamp', '<', $to)
 								->orderBy('timestamp')
 								->get();
 
-		$utilizations = $this->averagedSeries($utilizations_object, 50);
+		$utilizations = $this->averagedSeries($utilizations_object);
 
 		$items = [$utilizations];
 
@@ -604,30 +399,7 @@ class MachineController extends Controller
 		return: Energy consumption series array
 	*/
 	public function getEnergyConsumption(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
-		$tag_energy_consumption = Tag::where('tag_name', 'energy_consumption')->where('configuration_id', $machine->id)->first();
+		$tag_energy_consumption = Tag::where('tag_name', 'energy_consumption')->where('configuration_id', $request->machineId)->first();
 
 		if(!$tag_energy_consumption) {
 			return response()->json('Energy consumption tag not found', 404);
@@ -637,14 +409,14 @@ class MachineController extends Controller
 		$to = $this->getFromTo($request->timeRange)["to"];
 
 		$energy_consumptions_object = DB::table('energy_consumptions')
-										->where('serial_number', $configuration->plc_serial_number)
+										->where('serial_number', $request->serialNumber)
 										->where('tag_id', $tag_energy_consumption->tag_id)
 										->orderBy('timestamp')
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->get();
 
-		$energy_consumption = $this->averagedSeries($energy_consumptions_object, 50);
+		$energy_consumption = $this->averagedSeries($energy_consumptions_object);
 
 		$items = [$energy_consumption];
 		
@@ -656,72 +428,65 @@ class MachineController extends Controller
 		params: device_id
 		return: Actual and target recipes
 	*/
-	public function getTgtActualRecipes($id) {
-		$product = Device::where('serial_number', $id)->first();
+	public function getTgtActualRecipes(Request $request) {
+		$targets = [];
+		$actuals = [];
 
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
-		$serial_number = $configuration->plc_serial_number;
-
-		$targets = [0, 0, 0, 0, 0, 0];
-		$actuals = [0, 0, 0, 0, 0, 0];
-
-		$target_object = DeviceData::where('serial_number', $serial_number)
+		$target_object = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 11)
 						->latest('timedata')
 						->first();
 
 		if($target_object) {
 			$targets = json_decode($target_object->values);
-		}
 
-		$actual_recipe_object1 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 12)->latest('timedata')->first();
-		if($actual_recipe_object1) {
-			$actuals[0] = round(json_decode($actual_recipe_object1->values)[0], 2);
-		}
+			$actual_recipe_object1 = DeviceData::where('serial_number', $request->serialNumber)
+									->where('tag_id', 12)
+									->where('timestamp', $target_object->timestamp)
+									->first();
+			if($actual_recipe_object1) {
+				$actuals[0] = round(json_decode($actual_recipe_object1->values)[0], 2);
+			}
 
-		$actual_recipe_object2 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 13)->latest('timedata')->first();
-		if($actual_recipe_object2) {
-			$actuals[1] = round(json_decode($actual_recipe_object2->values)[0], 2);
-		}
+			$actual_recipe_object2 = DeviceData::where('serial_number', $request->serialNumber)
+									->where('tag_id', 13)
+									->where('timestamp', $target_object->timestamp)
+									->first();
+			if($actual_recipe_object2) {
+				$actuals[1] = round(json_decode($actual_recipe_object2->values)[0], 2);
+			}
 
-		$actual_recipe_object3 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 14)->latest('timedata')->first();
-		if($actual_recipe_object3) {
-			$actuals[2] = round(json_decode($actual_recipe_object3->values)[0], 2);
-		}
+			$actual_recipe_object3 = DeviceData::where('serial_number', $request->serialNumber)
+									->where('tag_id', 14)
+									->where('timestamp', $target_object->timestamp)
+									->first();
+			if($actual_recipe_object3) {
+				$actuals[2] = round(json_decode($actual_recipe_object3->values)[0], 2);
+			}
 
-		$actual_recipe_object4 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 15)->latest('timedata')->first();
-		if($actual_recipe_object4) {
-			$actuals[3] = round(json_decode($actual_recipe_object4->values)[0], 2);
-		}
+			$actual_recipe_object4 = DeviceData::where('serial_number', $request->serialNumber)
+									->where('tag_id', 15)
+									->where('timestamp', $target_object->timestamp)
+									->first();
+			if($actual_recipe_object4) {
+				$actuals[3] = round(json_decode($actual_recipe_object4->values)[0], 2);
+			}
 
-		$actual_recipe_object5 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 16)->latest('timedata')->first();
-		if($actual_recipe_object5) {
-			$actuals[4] = round(json_decode($actual_recipe_object5->values)[0], 2);
-		}
+			$actual_recipe_object5 = DeviceData::where('serial_number', $request->serialNumber)
+									->where('tag_id', 16)
+									->where('timestamp', $target_object->timestamp)
+									->first();
+			if($actual_recipe_object5) {
+				$actuals[4] = round(json_decode($actual_recipe_object5->values)[0], 2);
+			}
 
-		$actual_recipe_object6 = DeviceData::where('serial_number', $serial_number)->where('tag_id', 17)->latest('timedata')->first();
-		if($actual_recipe_object6) {
-			$actuals[5] = round(json_decode($actual_recipe_object6->values)[0], 2);
+			$actual_recipe_object6 = DeviceData::where('serial_number', $request->serialNumber)
+									->where('tag_id', 17)
+									->where('timestamp', $target_object->timestamp)
+									->first();
+			if($actual_recipe_object6) {
+				$actuals[5] = round(json_decode($actual_recipe_object6->values)[0], 2);
+			}
 		}
 
 		$items = [$actuals, $targets];
@@ -733,31 +498,8 @@ class MachineController extends Controller
 		configuration: Accumeter Ovation Continuous Blender configuration
 		description: Get Feeder stables
 	*/
-	public function getFeederStables($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
-		$feeders_object = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 26)->latest('timedata')->first();
+	public function getFeederStables(Request $request) {
+		$feeders_object = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 26)->latest('timedata')->first();
 
 		if($feeders_object) {
 			$feeders = json_decode($feeders_object->values);
@@ -774,42 +516,17 @@ class MachineController extends Controller
 		return: Rate Series Array
 	*/
 	public function getProductProcessRate(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$process_rates_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$process_rates_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 23)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->latest('timedata')
 										->get();
 
-		$process_rate = $process_rates_object->map(function($process_rate_object) {
-			return [($process_rate_object->timestamp + $this->timeshift) * 1000, json_decode($process_rate_object->values)[0]];
-		});
+		$process_rate = $this->averagedSeries($process_rates_object);
 
 		$items = [$process_rate];
 
@@ -821,47 +538,14 @@ class MachineController extends Controller
 		description: Get Machine state, system steady, mass flow hopper and RPM
 	*/
 	public function getProductStates(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if($request->isAdditional) {
-			if(!$configuration || !$configuration->tcu_status){
-				return response()->json([
-					'message' => 'Device is not connected'
-				], 404);
-			}
-
-			$machine = Machine::findOrFail(MACHINE_TRUETEMP_TCU);
-		} else {
-			if(!$configuration || !$configuration->plc_status){
-				return response()->json([
-					'message' => 'Device is not connected'
-				], 404);
-			}
-
-			$machine = Machine::where('device_type', $configuration->plc_type)->first();
-		}
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$machine_states = new stdClass();
 
-		if($machine->id == MACHINE_TRUETEMP_TCU) {
+		if($request->machineId == MACHINE_TRUETEMP_TCU) {
 			$machine_states->pump_status = 0;
 			$machine_states->heater_status = 0;
 			$machine_states->vent_status = 0;
 			
-			if($pump_status_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
+			if($pump_status_object = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 40)
 						->latest('timedata')
 						->first()) {
@@ -872,7 +556,7 @@ class MachineController extends Controller
 				}
 			}
 
-			if($heater_status_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
+			if($heater_status_object = DeviceData::where('serial_number', $request->serialNumber)
 				->where('tag_id', 41)
 				->latest('timedata')
 				->first()) {
@@ -883,7 +567,7 @@ class MachineController extends Controller
 				}
 			}
 
-			if($vent_status_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
+			if($vent_status_object = DeviceData::where('serial_number', $request->serialNumber)
 				->where('tag_id', 42)
 				->latest('timedata')
 				->first()) {
@@ -899,7 +583,7 @@ class MachineController extends Controller
 			$machine_states->mass_flow_hopper = false;
 			$machine_states->rpm = false;
 
-			$states_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+			$states_object = DeviceData::where('serial_number', $request->serialNumber)
 				->whereIn('tag_id', [10, 24, 25, 27])
 				->latest('timedata')
 				->get()
@@ -937,42 +621,17 @@ class MachineController extends Controller
 		tag: F17_7_0_system_max
 	*/
 	public function getBlenderCapabilities(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$capabilities_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$capabilities_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 22)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->orderBy('timestamp')
 										->get();
 
-		$capabilities = $capabilities_object->map(function($capability_object) {
-			return [($capability_object->timestamp + $this->timeshift) * 1000, round(json_decode($capability_object->values)[0], 2)];
-		});
+		$capabilities = $this->averagedSeries($capabilities_object);
 
 		$items = [$capabilities];
 
@@ -985,42 +644,17 @@ class MachineController extends Controller
 		tag: F9_43_0_TotalMass
 	*/
 	public function getTargetRate(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$rates_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$rates_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 18)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->orderBy('timestamp')
 										->get();
 
-		$rates = $rates_object->map(function($rate_object) {
-			return [($rate_object->timestamp + $this->timeshift) * 1000, round(json_decode($rate_object->values)[0], 2)];
-		});
+		$rates = $this->averagedSeries($rates_object);
 
 		$items = [$rates];
 		
@@ -1033,33 +667,10 @@ class MachineController extends Controller
 		tag: F31_3_0_hop_running_feed_factor
 	*/
 	public function getFeederCalibrations(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$calibrations_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$calibrations_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 21)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -1071,6 +682,8 @@ class MachineController extends Controller
 		$calibrations = $calibrations_object->map(function($calibration_object) {
 			return [($calibration_object->timestamp + $this->timeshift) * 1000, json_decode($calibration_object->values)];
 		});
+
+		// $calibrations = $this->averagedSeries($calibrations_object);
 
 		$items = $feeders->map(function ($feeder, $i) use ($calibrations) {
 			$item = new stdClass();
@@ -1091,33 +704,10 @@ class MachineController extends Controller
 		tag: F9_21_0_Feeder_RPM
 	*/
 	public function getFeederSpeeds(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$speeds_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$speeds_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 19)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -1148,38 +738,15 @@ class MachineController extends Controller
 		params: device_id
 		return: Actual and target pump hours oil change
 	*/
-	public function getPumpHoursOil($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
-		$targets = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-		$actuals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+	public function getPumpHoursOil(Request $request) {
+		$targets = [];
+		$actuals = [];
 		
-		$targetValues = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$targetValues = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 17)
 						->latest('timedata')
 						->first();
-		$actualValues = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$actualValues = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 16)
 						->latest('timedata')
 						->first();
@@ -1198,43 +765,20 @@ class MachineController extends Controller
 		params: device_id
 		return: online life in %
 	*/
-	public function getPumpOnlineLife($id) {
-		$product = Device::where('serial_number', $id)->first();
+	public function getPumpOnlineLife(Request $request) {
+		$items = $hours = $targets = $actuals = [];
 
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
-		$items = $hours = $targets = $actuals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-		$hourValues = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$hourValues = DeviceData::where('serial_number', $request->serialNumber)
 			->where('tag_id', 15)
 			->latest('timedata')
 			->first();
 
-		$targetValues = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$targetValues = DeviceData::where('serial_number', $request->serialNumber)
 			->where('tag_id', 17)
 			->latest('timedata')
 			->first();
 
-		$actualValues = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$actualValues = DeviceData::where('serial_number', $request->serialNumber)
 			->where('tag_id', 16)
 			->latest('timedata')
 			->first();
@@ -1266,33 +810,10 @@ class MachineController extends Controller
 		params: device_id
 		return: 12 sized array of hours
 	*/
-	public function getPumpHours($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
-		$items = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+	public function getPumpHours(Request $request) {
+		$items = [];
 		
-		$hourValues = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$hourValues = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 15)
 						->latest('timedata')
 						->first();
@@ -1307,33 +828,10 @@ class MachineController extends Controller
 		description: Get pump online states
 		configuration: VTC Plus Conveying System
 	*/
-	public function getPumpOnlines($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
+	public function getPumpOnlines(Request $request) {
 		$onlines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 		
-		$onlines_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$onlines_object = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 12)
 						->latest('timedata')
 						->first();
@@ -1348,33 +846,10 @@ class MachineController extends Controller
 		description: -pump blowback engaged, 12 points, on change (10min-4hr) pump_blowback_on[1..12], INT
 		configuration: VTC Plus Conveying System
 	*/
-	public function getPumpBlowBacks($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
+	public function getPumpBlowBacks(Request $request) {
 		$blowbacks = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 		
-		$blowback_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$blowback_object = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 14)
 						->latest('timedata')
 						->first();
@@ -1388,49 +863,26 @@ class MachineController extends Controller
 	/*
 		Get Drying hopper states for NGX Dryer
 	*/
-	public function getDryingHopperStates($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
+	public function getDryingHopperStates(Request $request) {
 		$states = new stdClass();
 
 		$states->hopper1 = 0;
 		$states->hopper2 = 0;
 		$states->hopper3 = 0;
 
-		$hopper1 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 33)->latest('timedata')->first();
+		$hopper1 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 33)->latest('timedata')->first();
 
 		if($hopper1) {
 			$states->hopper1 = json_decode($hopper1->values)[0];
 		}
 
-		$hopper2 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 34)->latest('timedata')->first();
+		$hopper2 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 34)->latest('timedata')->first();
 
 		if($hopper2) {
 			$states->hopper2 = json_decode($hopper2->values)[0];
 		}
 
-		$hopper3 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 35)->latest('timedata')->first();
+		$hopper3 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 35)->latest('timedata')->first();
 
 		if($hopper3) {
 			$states->hopper3 = json_decode($hopper3->values)[0];
@@ -1445,42 +897,17 @@ class MachineController extends Controller
 		return: Rate Series Array
 	*/
 	public function getDewPointTemperature(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$temperatures_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$temperatures_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 23)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->orderBy('timedata')
 										->get();
 
-		$temperatures = $temperatures_object->map(function($temperature_object) {
-			return [($temperature_object->timestamp + $this->timeshift) * 1000, round(json_decode($temperature_object->values)[0], 2)];
-		});
+		$temperatures = $this->averagedSeries($temperatures_object);
 
 		$items = [$temperatures];
 
@@ -1491,69 +918,46 @@ class MachineController extends Controller
 		Get Target, actual and outlet hopper temperatures
 		params: device_id
 	*/
-	public function getHopperTemperatures($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
+	public function getHopperTemperatures(Request $request) {
 		$inlets = [0, 0, 0];
 		$outlets = [0, 0, 0];
 		$targets = [0, 0, 0];
 		
-		$inletHopper1 = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$inletHopper1 = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 9)
 						->latest('timedata')
 						->first();
-		$inletHopper2 = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$inletHopper2 = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 12)
 						->latest('timedata')
 						->first();
-		$inletHopper3 = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$inletHopper3 = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 15)
 						->latest('timedata')
 						->first();
 
-		$outletHopper1 = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$outletHopper1 = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 11)
 						->latest('timedata')
 						->first();
-		$outletHopper2 = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$outletHopper2 = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 14)
 						->latest('timedata')
 						->first();
-		$outletHopper3 = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$outletHopper3 = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 17)
 						->latest('timedata')
 						->first();
 
-		$targetHopper1 = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$targetHopper1 = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 10)
 						->latest('timedata')
 						->first();
-		$targetHopper2 = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$targetHopper2 = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 13)
 						->latest('timedata')
 						->first();
-		$targetHopper3 = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$targetHopper3 = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 16)
 						->latest('timedata')
 						->first();
@@ -1584,30 +988,7 @@ class MachineController extends Controller
 				-right bed regen heating, 1 point, on change (1hr-4hr) R03_RB_REG_HEATING bool
 				-right bed regen cooling, 1 point, on change (1hr-4hr) R07_RB_REG_COOLING bool
 	*/
-	public function getNgxDryerBedStates($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
+	public function getNgxDryerBedStates(Request $request) {
 		$states = [
 			[ "name" => "Left bed in regen", "value" => false ],
 			[ "name" => "Left bed regen heating", "value" => false ],
@@ -1617,37 +998,37 @@ class MachineController extends Controller
 			[ "name" => "Right bed regen cooling", "value" => false ]
 		];
 
-		$left1 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 26)->latest('timedata')->first();
+		$left1 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 26)->latest('timedata')->first();
 
 		if($left1) {
 			$states[0]["value"] = json_decode($left1->values)[0];
 		}
 
-		$left2 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 27)->latest('timedata')->first();
+		$left2 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 27)->latest('timedata')->first();
 
 		if($left2) {
 			$states[1]["value"] = json_decode($left2->values)[0];
 		}
 
-		$left3 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 28)->latest('timedata')->first();
+		$left3 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 28)->latest('timedata')->first();
 
 		if($left3) {
 			$states[2]["value"] = json_decode($left3->values)[0];
 		}
 
-		$left4 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 29)->latest('timedata')->first();
+		$left4 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 29)->latest('timedata')->first();
 
 		if($left4) {
 			$states[3]["value"] = json_decode($left4->values)[0];
 		}
 
-		$left5 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 30)->latest('timedata')->first();
+		$left5 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 30)->latest('timedata')->first();
 
 		if($left5) {
 			$states[4]["value"] = json_decode($left5->values)[0];
 		}
 
-		$left6 = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 31)->latest('timedata')->first();
+		$left6 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 31)->latest('timedata')->first();
 
 		if($left6) {
 			$states[5]["value"] = json_decode($left6->values)[0];
@@ -1669,29 +1050,6 @@ class MachineController extends Controller
 				-DH3 Online Hrs – Total, 1 point, on change (1hr) STATS_DH3_TOT_HRS dint
 	*/
 	public function getNgxDryerDhOnlineHours(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
@@ -1699,7 +1057,7 @@ class MachineController extends Controller
 			[], [], [], [], [], []
 		];
 
-		$hr1_objects = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$hr1_objects = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 40)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -1707,7 +1065,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr1_objects) {
-			$hr1 = $this->averagedSeries($hr1_objects, 50);
+			$hr1 = $this->averagedSeries($hr1_objects);
 
 			$hr = new stdClass();
 			$hr->name = 'DH1 Online Hrs - Maint';
@@ -1715,7 +1073,7 @@ class MachineController extends Controller
 			$items[0] = $hr;
 		}
 
-		$hr2_objects = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$hr2_objects = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 41)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -1723,7 +1081,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr2_objects) {
-			$hr2 = $this->averagedSeries($hr2_objects, 50);
+			$hr2 = $this->averagedSeries($hr2_objects);
 
 			$hr = new stdClass();
 			$hr->name = 'DH1 Online Hrs – Total';
@@ -1731,7 +1089,7 @@ class MachineController extends Controller
 			$items[1] = $hr;
 		}
 
-		$hr3_objects = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$hr3_objects = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 42)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -1739,7 +1097,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr3_objects) {
-			$hr3 = $this->averagedSeries($hr3_objects, 50);
+			$hr3 = $this->averagedSeries($hr3_objects);
 
 			$hr = new stdClass();
 			$hr->name = 'DH2 Online Hrs - Maint';
@@ -1747,7 +1105,7 @@ class MachineController extends Controller
 			$items[2] = $hr;
 		}
 
-		$hr4_objects = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$hr4_objects = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 43)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -1755,7 +1113,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr4_objects) {
-			$hr4 = $this->averagedSeries($hr4_objects, 50);
+			$hr4 = $this->averagedSeries($hr4_objects);
 
 			$hr = new stdClass();
 			$hr->name = 'DH2 Online Hrs – Total';
@@ -1763,7 +1121,7 @@ class MachineController extends Controller
 			$items[3] = $hr;
 		}
 
-		$hr5_objects = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$hr5_objects = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 44)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -1771,7 +1129,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr5_objects) {
-			$hr5 = $this->averagedSeries($hr5_objects, 50);
+			$hr5 = $this->averagedSeries($hr5_objects);
 
 			$hr = new stdClass();
 			$hr->name = 'DH3 Online Hrs - Maint';
@@ -1779,7 +1137,7 @@ class MachineController extends Controller
 			$items[4] = $hr;
 		}
 
-		$hr6_objects = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$hr6_objects = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 45)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -1787,7 +1145,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr6_objects) {
-			$hr6 = $this->averagedSeries($hr6_objects, 50);
+			$hr6 = $this->averagedSeries($hr6_objects);
 
 			$hr = new stdClass();
 			$hr->name = 'DH3 Online Hrs – Total';
@@ -1805,29 +1163,6 @@ class MachineController extends Controller
 				-Dryer Online Hrs – Total, 1 point, on change (1hr) STATS_ONLINE_TOT_HRS dint
 	*/
 	public function getNgxDryerDryerOnlineHours(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
@@ -1835,16 +1170,15 @@ class MachineController extends Controller
 			[], []
 		];
 
-		$hr1_objects = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$hr1_objects = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 50)
 										->orderBy('timestamp')
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->get();
 
-
 		if($hr1_objects) {
-			$hr1 = $this->averagedSeries($hr1_objects, 50);
+			$hr1 = $this->averagedSeries($hr1_objects);
 
 			$hr = new stdClass();
 			$hr->name = 'Dryer Online Hrs – Maint';
@@ -1852,7 +1186,7 @@ class MachineController extends Controller
 			$items[0] = $hr;
 		}
 
-		$hr2_objects = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$hr2_objects = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 51)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -1860,7 +1194,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr2_objects) {
-			$hr2 = $this->averagedSeries($hr2_objects, 50);
+			$hr2 = $this->averagedSeries($hr2_objects);
 
 			$hr = new stdClass();
 			$hr->name = 'Dryer Online Hrs – Total';
@@ -1878,29 +1212,6 @@ class MachineController extends Controller
 				-Process Blower Run Hrs – Total, 1 point, on change (1hr) STATS_PROC_BLWR_TOT_HRS dint
 	*/
 	public function getNgxDryerBlowerRunHours(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
@@ -1908,7 +1219,7 @@ class MachineController extends Controller
 			[], []
 		];
 
-		$hr1_objects = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$hr1_objects = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 52)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -1916,7 +1227,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr1_objects) {
-			$hr1 = $this->averagedSeries($hr1_objects, 50);
+			$hr1 = $this->averagedSeries($hr1_objects);
 
 			$hr = new stdClass();
 			$hr->name = 'Process Blower Run Hrs - Maint';
@@ -1924,7 +1235,7 @@ class MachineController extends Controller
 			$items[0] = $hr;
 		}
 
-		$hr2_objects = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$hr2_objects = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 53)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -1932,7 +1243,7 @@ class MachineController extends Controller
 										->get();
 
 		if($hr2_objects) {
-			$hr2 = $this->averagedSeries($hr2_objects, 50);
+			$hr2 = $this->averagedSeries($hr2_objects);
 
 			$hr = new stdClass();
 			$hr->name = 'Process Blower Run Hrs – Total';
@@ -2011,29 +1322,6 @@ class MachineController extends Controller
 		Get Machine state for machine 3
 	*/
 	public function getMachineStates3($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$machine_states = new stdClass();
 
 		$machine_states->wtp = false;
@@ -2041,25 +1329,25 @@ class MachineController extends Controller
 		$machine_states->halloff = false;
 		$machine_states->rpm = false;
 
-		$wtp = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 26)->latest('timedata')->first();
+		$wtp = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 26)->latest('timedata')->first();
 
 		if($wtp && json_decode($wtp->values)[0] == true) {
 			$machine_states->wtp = true;
 		}
 
-		$system_steady = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 25)->latest('timedata')->first();
+		$system_steady = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 25)->latest('timedata')->first();
 
 		if($system_steady && json_decode($system_steady->values)[0] == true) {
 			$machine_states->system_steady = true;
 		}
 
-		$halloff = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 28)->latest('timedata')->first();
+		$halloff = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 28)->latest('timedata')->first();
 
 		if($halloff && json_decode($halloff->values)[0] == true) {
 			$machine_states->halloff = true;
 		}
 
-		$rpm = DeviceData::where('serial_number', $configuration->plc_serial_number)->where('tag_id', 27)->latest('timedata')->first();
+		$rpm = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 27)->latest('timedata')->first();
 
 		if($rpm && json_decode($rpm->values)[0] == true) {
 			$machine_states->rpm = true;
@@ -2075,33 +1363,10 @@ class MachineController extends Controller
 		return: array
 	*/
 	public function getInventories3(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$inventories_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$inventories_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 23)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -2128,33 +1393,10 @@ class MachineController extends Controller
 		return: array
 	*/
 	public function getHauloffLengths(Request $request) {
-		$product = Device::where('serial_number', $request->id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $request->id)->first();
-
-		if(!$configuration || !$configuration->plc_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::where('device_type', $configuration->plc_type)->first();
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$lengths_object = DeviceData::where('serial_number', $configuration->plc_serial_number)
+		$lengths_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 24)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
@@ -2179,35 +1421,11 @@ class MachineController extends Controller
 		description: actual target temperature
 		tag: Return Temp, Setpoint 1
 	*/
-	public function getTcuActTgtTemperature($id) {
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		$configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		if(!$configuration || !$configuration->tcu_status){
-			return response()->json([
-				'message' => 'Device is not connected'
-			], 404);
-		}
-
-		$machine = Machine::findOrFail(MACHINE_TRUETEMP_TCU);
-
-		if(!$machine)
-			return response()->json([
-				'message' => 'Can\'t find device type'
-			], 404);
-
+	public function getTcuActTgtTemperature(Request $request) {
 		$items = [0, 0, 0];
 		$unit = 0;
 
-		$unit_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
-			->where('machine_id', MACHINE_TRUETEMP_TCU)
+		$unit_object = DeviceData::where('serial_number', $request->serialNumber)
 			->where('tag_id', 7)
 			->latest('timedata')
 			->first();
@@ -2215,8 +1433,7 @@ class MachineController extends Controller
 			$unit = json_decode($unit_object->values)[0];
 		}
 
-		$delivery_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
-			->where('machine_id', MACHINE_TRUETEMP_TCU)
+		$delivery_object = DeviceData::where('serial_number', $request->serialNumber)
 			->where('tag_id', 2)
 			->latest('timedata')
 			->first();
@@ -2225,8 +1442,7 @@ class MachineController extends Controller
 			$items[0] = json_decode($delivery_object->values)[0];
 		}
 
-		$actual_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
-			->where('machine_id', MACHINE_TRUETEMP_TCU)
+		$actual_object = DeviceData::where('serial_number', $request->serialNumber)
 			->where('tag_id', 4)
 			->latest('timedata')
 			->first();
@@ -2235,7 +1451,7 @@ class MachineController extends Controller
 			$items[1] = json_decode($actual_object->values)[0];
 		}
 
-		$target_object = DeviceData::where('serial_number', $configuration->tcu_serial_number)
+		$target_object = DeviceData::where('serial_number', $request->serialNumber)
 			->where('tag_id', 8)
 			->latest('timedata')
 			->first();
@@ -2258,33 +1474,10 @@ class MachineController extends Controller
 		tag_id: 85
 		return: array
 	*/
-	public function getProcessOutTemperature($id) { 
-		$product = Device::where('serial_number', $id)->first();
-
-		if(!$product) {
-			return response()->json([
-				'message' => 'Device Not Found'
-			], 404);
-		}
-
-		// $configuration = DB::table('device_configurations')->where('teltonika_id', $id)->first();
-
-		// if(!$configuration || !$configuration->tcu_status){
-		// 	return response()->json([
-		// 		'message' => 'Device is not connected'
-		// 	], 404);
-		// }
-
-		// $machine = Machine::findOrFail(MACHINE_TRUETEMP_TCU);
-
-		// if(!$machine)
-		// 	return response()->json([
-		// 		'message' => 'Can\'t find device type'
-		// 	], 404);
-
+	public function getProcessOutTemperature(Request $request) { 
 		$items = [0, 0];
 
-		$actual_object = DeviceData::where('device_id', $id)
+		$actual_object = DeviceData::where('serial_number', $request->serialNumber)
 			->where('tag_id', 80)
 			->latest('timedata')
 			->first();
@@ -2293,7 +1486,7 @@ class MachineController extends Controller
 			$items[0] = json_decode($actual_object->values)[0];
 		}
 
-		$target_object = DeviceData::where('device_id', $id)
+		$target_object = DeviceData::where('serial_number', $request->serialNumber)
 			->where('tag_id', 77)
 			->latest('timedata')
 			->first();
@@ -2349,56 +1542,6 @@ class MachineController extends Controller
 		return response()->json([
 			'hours' => $ret
 		]);
-	}
-
-	private function parseValid($raw_array, $i) {
-		try {
-			$width = $raw_array->count() / $this->num_chunks + 1;
-			$chunks = array_chunk(json_decode($raw_array), $width);
-			return array_map(function($chunk) use ($i, $width) {
-				$sum = 0; $count = 0;
-				foreach ($chunk as $key => $item) {
-					$sum += json_decode($item)[$i];
-					$count ++;
-				}
-				return (int)($sum / $count);
-				// return (int)($sum / $count);
-			}, $chunks);
-		} catch (\Exception $e) {
-			return 0;
-		}
-	}
-
-	private function parseValid1($raw_array) {
-		try {
-			$width = $raw_array->count() / $this->num_chunks + 1;
-			$chunks = array_chunk(json_decode($raw_array), $width);
-			return array_map(function($chunk) use ($width) {
-				$sum = 0; $count = 0;
-				foreach ($chunk as $key => $item) {
-					$tmp = json_decode($item)[0];
-					$sum += $tmp;
-					$count ++;
-				}
-
-				return (int)($sum / $count);
-			}, $chunks);
-		} catch (\Exception $e) {
-			return 0;
-		}
-	}
-
-	public function parseValidWithTime($raw_array, $i, $from, $to) {
-		$width = $raw_array->count() / 12 + 1;
-		$chunks = array_chunk(json_decode($raw_array), $width);
-		return array_map(function($chunk, $index) use ($i, $width, $from, $to) {
-			$sum = 0; $count = 0;
-			foreach ($chunk as $key => $item) {
-				$sum += json_decode($item)[$i];
-				$count ++;
-			}
-			return [($from + $index * ($to - $from) / 12) * 1000, (int)($sum / $count)];
-		}, $chunks, array_keys($chunks));
 	}
 
 	/*

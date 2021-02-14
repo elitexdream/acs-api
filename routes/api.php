@@ -106,42 +106,42 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/product-overview', 'MachineController@getProductOverview');
 	Route::post('/product-utilization', 'MachineController@getProductUtilization');
 	Route::post('/product-energy-consumption', 'MachineController@getEnergyConsumption');
-	Route::get('/product-inventory/{id}', 'MachineController@getInventories');
-	Route::get('/product-station-conveyings/{id}', 'MachineController@getStationConveyings');
+	Route::post('/product-inventory', 'MachineController@getInventories');
+	Route::post('/product-station-conveyings', 'MachineController@getStationConveyings');
 	Route::get('/weekly-running-hours/{id}', 'MachineController@getWeeklyRunningHours');
-	Route::get('/product-weight/{id}', 'MachineController@getProductWeight');
-	Route::get('/product-current-recipe/{id}', 'MachineController@getCurrentRecipe');
+	Route::post('/product-weight', 'MachineController@getProductWeight');
+	Route::post('/product-current-recipe', 'MachineController@getCurrentRecipe');
 	Route::post('/blender/process-rate', 'MachineController@getBlenderProcessRate');
 	Route::post('/blender/calibration-factors', 'MachineController@getBDBlenderCalibrationFactors');
 	Route::post('/accumeter/blender-capabilities', 'MachineController@getBlenderCapabilities');
 	Route::post('/accumeter/feeder-calibrations', 'MachineController@getFeederCalibrations');
 	Route::post('/accumeter/feeder-speeds', 'MachineController@getFeederSpeeds');
 	Route::post('/accumeter/target-rate', 'MachineController@getTargetRate');
-	Route::get('/accumeter/recipe/{id}', 'MachineController@getTgtActualRecipes');
+	Route::post('/accumeter/recipe', 'MachineController@getTgtActualRecipes');
 	Route::post('/product-system-states', 'MachineController@getProductStates');
-	Route::get('/product-hopper-stables/{id}', 'MachineController@getHopperStables');
-	Route::get('/product-system-states-3/{id}', 'MachineController@getMachineStates3');
-	Route::get('/product-feeder-stables/{id}', 'MachineController@getFeederStables');
+	Route::post('/product-hopper-stables', 'MachineController@getHopperStables');
+	Route::post('/product-system-states-3/{id}', 'MachineController@getMachineStates3');
+	Route::post('/product-feeder-stables', 'MachineController@getFeederStables');
 	Route::post('/product-production-rate', 'MachineController@getProductProcessRate');
 	Route::post('/product-hopper-inventories', 'MachineController@getInventories3');
 	Route::post('/product-hauloff-lengths', 'MachineController@getHauloffLengths');
-	Route::get('/vtc-plus/pump-onlines/{id}', 'MachineController@getPumpOnlines');
-	Route::get('/vtc-plus/pump-blowbacks/{id}', 'MachineController@getPumpBlowBacks');
-	Route::get('/vtc-plus/pump-hours-oil/{id}', 'MachineController@getPumpHoursOil');
-	Route::get('/vtc-plus/pump-hours/{id}', 'MachineController@getPumpHours');
-	Route::get('/vtc-plus/pump-online-life/{id}', 'MachineController@getPumpOnlineLife');
-	Route::get('/product-drying-hopper-states/{id}', 'MachineController@getDryingHopperStates');
-	Route::get('/product-hopper-temperatures/{id}', 'MachineController@getHopperTemperatures');
+	Route::post('/vtc-plus/pump-onlines', 'MachineController@getPumpOnlines');
+	Route::post('/vtc-plus/pump-blowbacks', 'MachineController@getPumpBlowBacks');
+	Route::post('/vtc-plus/pump-hours-oil', 'MachineController@getPumpHoursOil');
+	Route::post('/vtc-plus/pump-hours', 'MachineController@getPumpHours');
+	Route::post('/vtc-plus/pump-online-life', 'MachineController@getPumpOnlineLife');
+	Route::post('/product-drying-hopper-states', 'MachineController@getDryingHopperStates');
+	Route::post('/product-hopper-temperatures', 'MachineController@getHopperTemperatures');
 
-	Route::get('/ngx-dryer/bed-states/{id}', 'MachineController@getNgxDryerBedStates');
+	Route::post('/ngx-dryer/bed-states', 'MachineController@getNgxDryerBedStates');
 	Route::post('/ngx-dryer/dh-online-hours', 'MachineController@getNgxDryerDhOnlineHours');
 	Route::post('/ngx-dryer/dryer-online-hours', 'MachineController@getNgxDryerDryerOnlineHours');
 	Route::post('/ngx-dryer/blower-run-hours', 'MachineController@getNgxDryerBlowerRunHours');
 	Route::post('/ngx-dryer/dew-point-temperature', 'MachineController@getDewPointTemperature');
 
-	Route::get('/tcu/actual-target-temperature/{id}', 'MachineController@getTcuActTgtTemperature');
+	Route::post('/tcu/actual-target-temperature', 'MachineController@getTcuActTgtTemperature');
 
-	Route::get('/portable-chiller/process-out-temperature/{id}', 'MachineController@getProcessOutTemperature');
+	Route::post('/portable-chiller/process-out-temperature', 'MachineController@getProcessOutTemperature');
 });
 
 Route::group(['prefix' => 'notes', 'middleware' => 'auth'], function () {

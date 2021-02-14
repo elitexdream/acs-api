@@ -46,7 +46,7 @@ class AlarmController extends Controller
 			], 404);
 		}
 
-		$configuration = $product->configuration;
+		$configuration = $product->teltonikaConfiguration;
 
 		if(!$configuration) {
 			return response()->json([
@@ -54,13 +54,13 @@ class AlarmController extends Controller
 			], 404);
 		}
 		
-		$alarm_types = AlarmType::where('machine_id', $configuration->id)->orderBy('id')->get();
+		$alarm_types = AlarmType::where('machine_id', $configuration->plcMachine()->id)->orderBy('id')->get();
 		$tag_ids = $alarm_types->unique('tag_id')->pluck('tag_id');
-		
-		$alarms_object = Alarm::where('serial_number', $configuration->serial_number)
+
+		$alarms_object = Alarm::where('serial_number', $configuration->plc_serial_number)
 								->where('device_id', $id)
 								->whereIn('tag_id', $tag_ids)
-								->latest('timestamp')
+								->latest('timedata')
 								->get()
 								->unique('tag_id');
 
@@ -87,7 +87,7 @@ class AlarmController extends Controller
 				} else if($alarm_type->bytes != 0) {
 					$alarm->active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
 				}
-				// $alarm->active = $alarm_type->bytes == 0 ? $value32 : ($value32 >> $alarm_type->offset) & $alarm_type->bytes;
+
 				$alarm->type_id = $alarm_type->id;
 
 				array_push($alarms, $alarm);
