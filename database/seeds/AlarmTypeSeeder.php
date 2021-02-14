@@ -21,12 +21,54 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 0,
                 'bytes' => 0
             ], [
-	          	'name' => 'Out of Material',
+	          	'name' => 'Out of Material [1]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 28,
-                'offset' => 0,
+                'offset' => 1,
                 'bytes' => 0
 	      	], [
+                'name' => 'Out of Material [2]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 28,
+                'offset' => 2,
+                'bytes' => 0
+            ], [
+                'name' => 'Out of Material [3]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 28,
+                'offset' => 3,
+                'bytes' => 0
+            ], [
+                'name' => 'Out of Material [4]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 28,
+                'offset' => 4,
+                'bytes' => 0
+            ], [
+                'name' => 'Out of Material [5]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 28,
+                'offset' => 5,
+                'bytes' => 0
+            ], [
+                'name' => 'Out of Material [6]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 28,
+                'offset' => 6,
+                'bytes' => 0
+            ], [
+                'name' => 'Out of Material [7]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 28,
+                'offset' => 7,
+                'bytes' => 0
+            ], [
+                'name' => 'Out of Material [8]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 28,
+                'offset' => 8,
+                'bytes' => 0
+            ], [
 	          	'name' => 'Hopper Unstable (Feeder 1)',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 31,
@@ -75,10 +117,52 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Hopper Overfeed',
+                'name' => 'Hopper Overfeed [1]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 39,
-                'offset' => 0,
+                'offset' => 1,
+                'bytes' => 0
+            ], [
+                'name' => 'Hopper Overfeed [2]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 39,
+                'offset' => 2,
+                'bytes' => 0
+            ], [
+                'name' => 'Hopper Overfeed [3]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 39,
+                'offset' => 3,
+                'bytes' => 0
+            ], [
+                'name' => 'Hopper Overfeed [4]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 39,
+                'offset' => 4,
+                'bytes' => 0
+            ], [
+                'name' => 'Hopper Overfeed [5]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 39,
+                'offset' => 5,
+                'bytes' => 0
+            ], [
+                'name' => 'Hopper Overfeed [6]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 39,
+                'offset' => 6,
+                'bytes' => 0
+            ], [
+                'name' => 'Hopper Overfeed [7]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 39,
+                'offset' => 7,
+                'bytes' => 0
+            ], [
+                'name' => 'Hopper Overfeed [8]',
+                'machine_id' => MACHINE_BD_BATCH_BLENDER,
+                'tag_id' => 39,
+                'offset' => 8,
                 'bytes' => 0
             ], [
                 'name' => 'Hopper Over Max',
