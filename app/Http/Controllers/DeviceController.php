@@ -97,6 +97,8 @@ class DeviceController extends Controller
             $device_checkin = DB::table('device_checkins')->where('device_id', $device->serial_number)->first();
             if($device_checkin)
                 $device->checkin = true;
+
+            $device->teltonikaConfiguration = $device->teltonikaConfiguration;
         }
 
         return response()->json([
