@@ -225,16 +225,23 @@ class MachineController extends Controller
 							->latest('timedata')
 							->first();
 
-			if( $last_object)
+			if( $last_object) {
 				$recipe_values = json_decode($last_object->values);
+
+				$recipe_values = array_map(function($i) {
+					return $i / 100;
+				}, $recipe_values);
+			}
+
 			if($mode == 2) {
 				$last_object = DeviceData::where('serial_number', $request->serialNumber)
 								->where('tag_id', 46)
 								->latest('timedata')
 								->first();
 
-				if( $last_object)
+				if( $last_object) {
 					$ez_types = json_decode($last_object->values);
+				}
 			}
 		}
 
