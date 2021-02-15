@@ -2266,7 +2266,7 @@ class AlarmTypeSeeder extends Seeder
                 'tag_id' => 162,
                 'offset' => 12,
                 'bytes' => 1
-            ],
+            ]
        ];
 
         DB::table('alarm_types')->insert($alarm_types);

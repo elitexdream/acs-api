@@ -162,6 +162,12 @@ class MachineController extends Controller
 		$product->machineName = $machine->name;
 		$product->machineId = $machine->id;
 
+		$configuration = TeltonikaConfiguration::where('plc_serial_number', $request->serialNumber)->first();
+
+		if ($configuration) {
+			$product->teltonikaDevice = Device::where('serial_number', $configuration->teltonika_id)->first();
+		}
+
 		return response()->json([
 			"overview" => $product
 		]);
