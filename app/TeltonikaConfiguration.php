@@ -64,7 +64,7 @@ class TeltonikaConfiguration extends Model
 			return DB::table('graphs')->where('machine_id', $machine_id)->whereIn('graph_id', json_decode($v->property_ids))->where('graph_id', '<', 100)->get();
 		}
 		else
-			return [];
+			return DB::table('graphs')->where('machine_id', $machine_id)->where('graph_id', '<', 100)->get();
     }
 
     public function plcEnabledPropertiesGraphs($user_id, $serial_number) {
@@ -75,7 +75,7 @@ class TeltonikaConfiguration extends Model
 			return DB::table('graphs')->where('machine_id', $machine_id)->whereIn('graph_id', json_decode($v->property_ids))->where('graph_id', '>', 100)->get();
 		}
 		else
-			return [];
+			return DB::table('graphs')->where('machine_id', $machine_id)->where('graph_id', '>', 100)->get();
     }
 
     public function tcuEnabledAnalyticsGraphs($user_id, $serial_number) {
@@ -85,7 +85,7 @@ class TeltonikaConfiguration extends Model
 			return DB::table('graphs')->where('machine_id', MACHINE_TRUETEMP_TCU)->whereIn('graph_id', json_decode($v->property_ids))->where('graph_id', '<', 100)->get();
 		}
 		else
-			return [];
+			return DB::table('graphs')->where('machine_id', MACHINE_TRUETEMP_TCU)->where('graph_id', '<', 100)->get();
     }
 
     public function tcuEnabledPropertiesGraphs($user_id, $serial_number) {
@@ -95,6 +95,6 @@ class TeltonikaConfiguration extends Model
 			return DB::table('graphs')->where('machine_id', MACHINE_TRUETEMP_TCU)->whereIn('graph_id', json_decode($v->property_ids))->where('graph_id', '>', 100)->get();
 		}
 		else
-			return [];
+			return DB::table('graphs')->where('machine_id', MACHINE_TRUETEMP_TCU)->where('graph_id', '>', 100)->get();
     }
 }

@@ -33,14 +33,14 @@ class MachineController extends Controller
 		}
     }
 
-    public function averagedSeries($collection, $series_count = 200) {
+    public function averagedSeries($collection, $series_count = 200, $devide_by = 1) {
     	$total = $collection->count();
 		$chunks = $collection->chunk($total / $series_count + 1);
 
-		$ret = $chunks->map(function($chunk) {
+		$ret = $chunks->map(function($chunk) use ($devide_by) {
 			$timestamp = ($chunk->first()->timestamp + $this->timeshift) * 1000;
-			$values = $chunk->map(function($value) {
-				return json_decode($value->values)[0];
+			$values = $chunk->map(function($value) use ($devide_by) {
+				return json_decode($value->values)[0] / $devide_by;
 			});
 			return [$timestamp, round(array_sum($values->all()) / $chunk->count(), 2)];
 		});
@@ -275,6 +275,17 @@ class MachineController extends Controller
 			$product->teltonikaDevice = Device::where('serial_number', $configuration->teltonika_id)->first();
 		}
 
+		if ($request->machineId == MACHINE_VTC_PLUS_CONVEYING_SYSTEM) {
+			$plus_model = '';
+
+			$plus_model_object = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 9)->latest('timedata')->first();
+
+			if ($plus_model_object) {
+				$plus_model = json_decode($plus_model_object->values)[0];
+				$product->teltonikaDevice->name = $product->teltonikaDevice->name . ' (VTC Plus' . $plus_model . ')';
+			}
+		}
+
 		return response()->json([
 			"overview" => $product
 		]);
@@ -507,7 +518,7 @@ class MachineController extends Controller
 								->orderBy('timestamp')
 								->get();
 
-		$utilizations = $this->averagedSeries($utilizations_object);
+		$utilizations = $this->averagedSeries($utilizations_object, 200, 10);
 
 		$items = [$utilizations];
 
@@ -536,7 +547,7 @@ class MachineController extends Controller
 										->where('timestamp', '<', $to)
 										->get();
 
-		$energy_consumption = $this->averagedSeries($energy_consumptions_object);
+		$energy_consumption = $this->averagedSeries($energy_consumptions_object, 200, 10);
 
 		$items = [$energy_consumption];
 		
@@ -639,6 +650,13 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
+		$isImperial = false;
+
+		$unit = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 56)->latest('timedata')->first();
+
+		if($unit)
+			$isImperial = json_decode($unit->values)[0];
+
 		$process_rates_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 23)
 										->where('timestamp', '>', $from)
@@ -650,7 +668,7 @@ class MachineController extends Controller
 
 		$items = [$process_rate];
 
-		return response()->json(compact('items'));
+		return response()->json(compact('items', 'isImperial'));
 	}
 
 	/*
@@ -744,6 +762,13 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
+		$isImperial = false;
+
+		$unit = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 56)->latest('timedata')->first();
+
+		if($unit)
+			$isImperial = json_decode($unit->values)[0];
+
 		$capabilities_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 22)
 										->where('timestamp', '>', $from)
@@ -755,7 +780,7 @@ class MachineController extends Controller
 
 		$items = [$capabilities];
 
-		return response()->json(compact('items'));
+		return response()->json(compact('items', 'isImperial'));
 	}
 
 	/*
@@ -766,6 +791,13 @@ class MachineController extends Controller
 	public function getTargetRate(Request $request) {
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$isImperial = false;
+
+		$unit = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 56)->latest('timedata')->first();
+
+		if($unit)
+			$isImperial = json_decode($unit->values)[0];
 
 		$rates_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 18)
@@ -778,7 +810,7 @@ class MachineController extends Controller
 
 		$items = [$rates];
 		
-		return response()->json(compact('items'));
+		return response()->json(compact('items', 'isImperial'));
 	}
 
 	/*
