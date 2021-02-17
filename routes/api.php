@@ -142,6 +142,8 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/tcu/actual-target-temperature', 'MachineController@getTcuActTgtTemperature');
 
 	Route::post('/portable-chiller/process-out-temperature', 'MachineController@getProcessOutTemperature');
+
+	Route::post('/central-chiller/chiller-in-out-temperature', 'MachineController@getCentralChillerTemperature');
 });
 
 Route::group(['prefix' => 'notes', 'middleware' => 'auth'], function () {

@@ -68,22 +68,86 @@ class MachineController extends Controller
 				}
 			}
 		} else {
-			$tag_software_version = Tag::where('tag_name', 'software_version')->where('configuration_id', $request->machineId)->first();
+			if($request->machineId == MACHINE_HE_CENTRAL_CHILLER) {
+				switch ($request->circuitId) {
+					case 1:
+						$tag_software_version = 264;
+						break;
 
-			if(!$tag_software_version) {
-				return response()->json('Software version tag not found', 404);
-			}
+					case 2:
+						$tag_software_version = 265;
+						break;
+						
+					case 3:
+						$tag_software_version = 266;
+						break;
+						
+					case 4:
+						$tag_software_version = 267;
+						break;
+						
+					case 5:
+						$tag_software_version = 268;
+						break;
+						
+					case 6:
+						$tag_software_version = 269;
+						break;
+						
+					case 7:
+						$tag_software_version = 270;
+						break;
+						
+					case 8:
+						$tag_software_version = 271;
+						break;
 
-			// product version
-			if($version_object = DB::table('software_version')
-								->where('serial_number', $request->serialNumber)
-								->where('tag_id', $tag_software_version->tag_id)
-								->latest('timedata')
-								->first()) {
-				try {
-					$product->version = json_decode($version_object->values)[0] / 10;
-				} catch (\Exception $e) {
-					$product->version = '';
+					case 9:
+						$tag_software_version = 272;
+						break;
+
+					case 10:
+						$tag_software_version = 273;
+						break;
+
+					default:
+						$tag_software_version = 264;
+						break;
+				}
+
+				if(!$tag_software_version) {
+					return response()->json('Software version tag not found', 404);
+				}
+
+				// product version
+				if($version_object = DB::table('device_data')
+									->where('serial_number', $request->serialNumber)
+									->where('tag_id', $tag_software_version)
+									->latest('timedata')
+									->first()) {
+					try {
+						$product->version = json_decode($version_object->values)[0] / 10;
+					} catch (\Exception $e) {
+						$product->version = '';
+					}
+				}
+			} else {
+				$tag_software_version = Tag::where('tag_name', 'software_version')->where('configuration_id', $request->machineId)->first();
+				if(!$tag_software_version) {
+					return response()->json('Software version tag not found', 404);
+				}
+
+				// product version
+				if($version_object = DB::table('software_version')
+									->where('serial_number', $request->serialNumber)
+									->where('tag_id', $tag_software_version->tag_id)
+									->latest('timedata')
+									->first()) {
+					try {
+						$product->version = json_decode($version_object->values)[0] / 10;
+					} catch (\Exception $e) {
+						$product->version = '';
+					}
 				}
 			}
 
@@ -105,52 +169,95 @@ class MachineController extends Controller
 				}
 			}
 
-
 			// serial number
 			$serial_year = "";
 			$serial_month = "";
 			$serial_unit = "";
 
-			$tag_serial_year = Tag::where('tag_name', 'serial_number_year')->where('configuration_id', $request->machineId)->first();
-			$tag_serial_month = Tag::where('tag_name', 'serial_number_month')->where('configuration_id', $request->machineId)->first();
-			$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit')->where('configuration_id', $request->machineId)->first();
+			if($request->machineId == MACHINE_HE_CENTRAL_CHILLER) {
+				$circuit_id = $request->circuitId || 1;
 
-			if($tag_serial_year) {
-				$serial_year_object = DB::table('serial_number_year')
-											->where('serial_number', $request->serialNumber)
-											->where('tag_id', $tag_serial_year->tag_id)
-											->latest('timedata')
-											->first();
-				try {
-					$serial_year = json_decode($serial_year_object->values)[0];
-				} catch (\Exception $e) {
-					$serial_year = '';
+				$tag_serial_year = Tag::where('tag_name', 'serial_number_year_' . $circuit_id)->where('configuration_id', $request->machineId)->first();
+				$tag_serial_month = Tag::where('tag_name', 'serial_number_month_' . $circuit_id)->where('configuration_id', $request->machineId)->first();
+				$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit_' . $circuit_id)->where('configuration_id', $request->machineId)->first();
+
+				if($tag_serial_year) {
+					$serial_year_object = DeviceData::where('serial_number', $request->serialNumber)
+												->where('tag_id', $tag_serial_year->tag_id)
+												->latest('timedata')
+												->first();
+					try {
+						$serial_year = json_decode($serial_year_object->values)[0];
+					} catch (\Exception $e) {
+						$serial_year = '';
+					}
 				}
-			}
 
-			if($tag_serial_month) {
-				$serial_month_object = DB::table('serial_number_month')
-											->where('serial_number', $request->serialNumber)
-											->where('tag_id', $tag_serial_month->tag_id)
-											->latest('timedata')
-											->first();
-				try {
-					$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
-				} catch (\Exception $e) {
-					$serial_month = '';
+				if($tag_serial_month) {
+					$serial_month_object = DeviceData::where('serial_number', $request->serialNumber)
+												->where('tag_id', $tag_serial_month->tag_id)
+												->latest('timedata')
+												->first();
+					try {
+						$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
+					} catch (\Exception $e) {
+						$serial_month = '';
+					}
 				}
-			}
 
-			if($tag_serial_unit) {
-				$serial_unit_object = DB::table('serial_number_unit')
-											->where('serial_number', $request->serialNumber)
-											->where('tag_id', $tag_serial_unit->tag_id)
-											->latest('timedata')
-											->first();
-				try {
-					$serial_unit = json_decode($serial_unit_object->values)[0];
-				} catch (\Exception $e) {
-					$serial_unit = '';
+				if($tag_serial_unit) {
+					$serial_unit_object = DeviceData::where('serial_number', $request->serialNumber)
+												->where('tag_id', $tag_serial_unit->tag_id)
+												->latest('timedata')
+												->first();
+					try {
+						$serial_unit = json_decode($serial_unit_object->values)[0];
+					} catch (\Exception $e) {
+						$serial_unit = '';
+					}
+				}
+			} else {
+				$tag_serial_year = Tag::where('tag_name', 'serial_number_year')->where('configuration_id', $request->machineId)->first();
+				$tag_serial_month = Tag::where('tag_name', 'serial_number_month')->where('configuration_id', $request->machineId)->first();
+				$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit')->where('configuration_id', $request->machineId)->first();
+
+				if($tag_serial_year) {
+					$serial_year_object = DB::table('serial_number_year')
+												->where('serial_number', $request->serialNumber)
+												->where('tag_id', $tag_serial_year->tag_id)
+												->latest('timedata')
+												->first();
+					try {
+						$serial_year = json_decode($serial_year_object->values)[0];
+					} catch (\Exception $e) {
+						$serial_year = '';
+					}
+				}
+
+				if($tag_serial_month) {
+					$serial_month_object = DB::table('serial_number_month')
+												->where('serial_number', $request->serialNumber)
+												->where('tag_id', $tag_serial_month->tag_id)
+												->latest('timedata')
+												->first();
+					try {
+						$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
+					} catch (\Exception $e) {
+						$serial_month = '';
+					}
+				}
+
+				if($tag_serial_unit) {
+					$serial_unit_object = DB::table('serial_number_unit')
+												->where('serial_number', $request->serialNumber)
+												->where('tag_id', $tag_serial_unit->tag_id)
+												->latest('timedata')
+												->first();
+					try {
+						$serial_unit = json_decode($serial_unit_object->values)[0];
+					} catch (\Exception $e) {
+						$serial_unit = '';
+					}
 				}
 			}
 
@@ -1506,6 +1613,88 @@ class MachineController extends Controller
 
 		if($target_object) {
 			$items[1] = json_decode($target_object->values)[0];
+		}
+
+		return response()->json(compact('items'));
+	}
+
+	public function getCentralChillerTemperature(Request $request) { 
+		$items = [0, 0];
+
+		$tag_id_in = 3;
+		$tag_id_out = 4;
+
+		switch ($request->circuitId) {
+			case 1:
+				$tag_id_in = 3;
+				$tag_id_out = 4;
+				break;
+
+			case 2:
+				$tag_id_in = 19;
+				$tag_id_out = 20;
+				break;
+				
+			case 3:
+				$tag_id_in = 35;
+				$tag_id_out = 36;
+				break;
+				
+			case 4:
+				$tag_id_in = 51;
+				$tag_id_out = 52;
+				break;
+				
+			case 5:
+				$tag_id_in = 67;
+				$tag_id_out = 68;
+				break;
+				
+			case 6:
+				$tag_id_in = 83;
+				$tag_id_out = 84;
+				break;
+				
+			case 7:
+				$tag_id_in = 99;
+				$tag_id_out = 100;
+				break;
+				
+			case 8:
+				$tag_id_in = 115;
+				$tag_id_out = 116;
+				break;
+
+			case 9:
+				$tag_id_in = 131;
+				$tag_id_out = 132;
+				break;
+
+			case 10:
+				$tag_id_in = 147;
+				$tag_id_out = 148;
+				break;
+
+			default:
+				break;
+		}
+
+		$chill_in_object = DeviceData::where('serial_number', $request->serialNumber)
+			->where('tag_id', $tag_id_in)
+			->latest('timedata')
+			->first();
+
+		if($chill_in_object) {
+			$items[0] = json_decode($chill_in_object->values)[0];
+		}
+
+		$chill_out_object = DeviceData::where('serial_number', $request->serialNumber)
+			->where('tag_id', $tag_id_out)
+			->latest('timedata')
+			->first();
+
+		if($chill_out_object) {
+			$items[1] = json_decode($chill_out_object->values)[0];
 		}
 
 		return response()->json(compact('items'));
