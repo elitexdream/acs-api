@@ -450,7 +450,9 @@ class DeviceController extends Controller
         $device_configuration->cmd = 'daemon_config';
 
         $device_configuration->plc = $device_configuration_plc;
-        $device_configuration->true_temp = $device_configuration_tcu;
+
+        if($request->device_configuration_form['tcuAdded'])
+            $device_configuration->true_temp = $device_configuration_tcu;
 
         $req = [
             "targetDevice" => $device->serial_number,
