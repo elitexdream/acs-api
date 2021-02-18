@@ -43,7 +43,7 @@ class AlarmController extends Controller
 
 		$alarms_object = Alarm::where('serial_number', $request->serialNumber)
 								->whereIn('tag_id', $tag_ids)
-								->latest('timedata')
+								->orderBy('timestamp', 'DESC')
 								->get()
 								->unique('tag_id');
 
