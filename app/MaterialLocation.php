@@ -4,9 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Material extends Model
+class MaterialLocation extends Model
 {
+	public $table = 'material_locations';
     protected $fillable = [
-        'material'
+        'location'
     ];
 }

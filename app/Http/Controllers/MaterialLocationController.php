@@ -5,19 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Validator;
 
-use App\Material;
+use App\MaterialLocation;
 
-class MaterialController extends Controller
+class MaterialLocationController extends Controller
 {
     public function index() {
-		$materials = Material::get();
+		$locations = MaterialLocation::get();
 
-		return response()->json(compact('materials'));
+		return response()->json(compact('locations'));
 	}
 
 	public function store(Request $request) {
 		$validator = Validator::make($request->all(), [ 
-            'material' => 'required',
+            'location' => 'required',
         ]);
 
         if ($validator->fails())
@@ -25,16 +25,16 @@ class MaterialController extends Controller
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 
-		Material::create([
-			'material' => $request->material,
+		MaterialLocation::create([
+			'location' => $request->location,
 		]);
 
 		return response()->json('Created Successfully');
 	}
 
-	public function update(Request $request, Material $material) {
-		$validator = Validator::make($request->all(), [ 
-            'material' => 'required',
+	public function update(Request $request, $id) {
+		$validator = Validator::make($request->all(), [
+            'location' => 'required',
         ]);
 
         if ($validator->fails())
@@ -42,15 +42,19 @@ class MaterialController extends Controller
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 
-        $material->update([
-        	'material' => $request->material,
+        $location = MaterialLocation::findOrFail($id);
+
+        $location->update([
+        	'location' => $request->location,
         ]);
 
 		return response()->json('Updated Successfully');
 	}
 
-	public function destroy(Material $material) {
-		$material->delete();
+	public function destroy($id) {
+		$location = MaterialLocation::findOrFail($id);
+		
+		$location->delete();
 
 		return response()->json('Deleted Successfully');
 	}
