@@ -122,7 +122,7 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/accumeter/recipe', 'MachineController@getTgtActualRecipes');
 	Route::post('/product-system-states', 'MachineController@getProductStates');
 	Route::post('/product-hopper-stables', 'MachineController@getHopperStables');
-	Route::post('/product-system-states-3/{id}', 'MachineController@getMachineStates3');
+	Route::post('/product-system-states-3', 'MachineController@getMachineStates3');
 	Route::post('/product-feeder-stables', 'MachineController@getFeederStables');
 	Route::post('/product-production-rate', 'MachineController@getProductProcessRate');
 	Route::post('/product-hopper-inventories', 'MachineController@getInventories3');

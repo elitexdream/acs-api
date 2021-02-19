@@ -1473,7 +1473,7 @@ class MachineController extends Controller
 	/*
 		Get Machine state for machine 3
 	*/
-	public function getMachineStates3($id) {
+	public function getMachineStates3(Request $request) {
 		$machine_states = new stdClass();
 
 		$machine_states->wtp = false;
