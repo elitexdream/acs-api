@@ -449,7 +449,7 @@ class DeviceController extends Controller
         $device_configuration->batch_timeout = 60;
         $device_configuration->cmd = 'daemon_config';
 
-        if($request->device_configuration_form['tcuAdded'])
+        if(!$request->device_configuration_form['tcuAdded'])
             $device_configuration_tcu->port = '';
 
         $device_configuration->plc = $device_configuration_plc;
