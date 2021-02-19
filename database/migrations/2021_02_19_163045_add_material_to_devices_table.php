@@ -16,6 +16,9 @@ class AddMaterialToDevicesTable extends Migration
         Schema::table('devices', function (Blueprint $table) {
             $table->unsignedBigInteger('material_id')->nullable();
             $table->unsignedBigInteger('location_id')->nullable();
+
+            $table->foreign('material_id')->references('id')->on('materials');
+            $table->foreign('location_id')->references('id')->on('material_locations');
         });
     }
 
@@ -26,8 +29,9 @@ class AddMaterialToDevicesTable extends Migration
      */
     public function down()
     {
-        Schema::table('machines', function (Blueprint $table) {
-            $table->dropColumn('serial_number');
+        Schema::table('devices', function (Blueprint $table) {
+            $table->dropColumn('material_id');
+            $table->dropColumn('location_id');
         });
     }
 }
