@@ -21,6 +21,10 @@ class InventoryMaterial extends Model
     	'location3_id',
     	'location4_id',
     	'location5_id',
-    	'location6_id'
+    	'location6_id',
+        'location7_id',
+        'location7_id',
+        'location8_id',
+        'location8_id'
     ];
 }

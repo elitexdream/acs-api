@@ -198,73 +198,73 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'System Not Stable',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 9,
+                'offset' => 8,
                 'bytes' => 1
             ], [
                 'name' => 'Out Of Material',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 1,
+                'offset' => 0,
                 'bytes' => 1
             ], [
                 'name' => 'Load Cell Failure',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 7,
+                'offset' => 6,
                 'bytes' => 1
             ], [
                 'name' => 'No Extruder Flow',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 5,
+                'offset' => 4,
                 'bytes' => 1
             ], [
                 'name' => 'No Extruder RPM',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 4,
+                'offset' => 3,
                 'bytes' => 1
             ], [
                 'name' => 'Extruder Drive Failure',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 18,
+                'offset' => 17,
                 'bytes' => 1
             ], [
                 'name' => 'Hauloff Drive Failure',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 6,
+                'offset' => 5,
                 'bytes' => 1
             ], [
                 'name' => 'Extruder Underspeed',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 12,
+                'offset' => 11,
                 'bytes' => 1
             ], [
                 'name' => 'Extruder Overspeed',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 11,
+                'offset' => 10,
                 'bytes' => 1
             ], [
                 'name' => 'Hauloff Underspeed',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 15,
+                'offset' => 14,
                 'bytes' => 1
             ], [
                 'name' => 'Hauloff Overspeed',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 14,
+                'offset' => 13,
                 'bytes' => 1
             ], [
                 'name' => 'Hopper Over Max Flow',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 10,
+                'offset' => 9,
                 'bytes' => 1
             ], [
                 'name' => 'Out Of Material (Feeder 1)',
@@ -2187,6 +2187,1913 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 0,
                 'bytes' => 0
             ], 
+
+            [
+                'name' => 'Circuit 1 - Ambient Temperature Sensor Faiure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Aux Alarm Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Aux Alarm Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Chill In Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Chill Out Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Chilled Water Dirty Filter Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Compressor A Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Compressor B Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Compressor Refrigerant Differential Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 8,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Condenser Fan Overload Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Condenser Fan VFD Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Discharge Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - EVD Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 12,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - High Discharge Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 13,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - High Discharge Pressure Switch Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 163,
+                'offset' => 14,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Low Discharge Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 164,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Low Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 164,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Low Suction Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 164,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Low Superheat Temperature Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 164,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Retain Memory Write Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 164,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Too Many Writes to Retentive Memory Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 164,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Phase Monitor Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 164,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Reduced Fluid Flow Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 164,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Reduced Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 164,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Refrigerant Liquid Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 164,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - Suction Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 164,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 1 - High Suction Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 165,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+
+
+
+            [
+                'name' => 'Circuit 2 - Ambient Temperature Sensor Faiure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Aux Alarm Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Aux Alarm Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Chill In Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Chill Out Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Chilled Water Dirty Filter Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Compressor A Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Compressor B Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Compressor Refrigerant Differential Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 8,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Condenser Fan Overload Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Condenser Fan VFD Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Discharge Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - EVD Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 12,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - High Discharge Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 13,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - High Discharge Pressure Switch Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 166,
+                'offset' => 14,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Low Discharge Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 167,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Low Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 167,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Low Suction Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 167,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Low Superheat Temperature Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 167,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Retain Memory Write Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 167,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Too Many Writes to Retentive Memory Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 167,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Phase Monitor Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 167,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Reduced Fluid Flow Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 167,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Reduced Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 167,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Refrigerant Liquid Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 167,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - Suction Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 167,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 2 - High Suction Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 168,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+
+
+            [
+                'name' => 'Circuit 3 - Ambient Temperature Sensor Faiure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Aux Alarm Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Aux Alarm Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Chill In Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Chill Out Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Chilled Water Dirty Filter Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Compressor A Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Compressor B Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Compressor Refrigerant Differential Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 8,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Condenser Fan Overload Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Condenser Fan VFD Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Discharge Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - EVD Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 12,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - High Discharge Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 13,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - High Discharge Pressure Switch Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 169,
+                'offset' => 14,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Low Discharge Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 170,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Low Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 170,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Low Suction Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 170,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Low Superheat Temperature Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 170,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Retain Memory Write Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 170,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Too Many Writes to Retentive Memory Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 170,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Phase Monitor Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 170,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Reduced Fluid Flow Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 170,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Reduced Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 170,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Refrigerant Liquid Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 170,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - Suction Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 170,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 3 - High Suction Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 171,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+
+
+            [
+                'name' => 'Circuit 4 - Ambient Temperature Sensor Faiure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Aux Alarm Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Aux Alarm Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Chill In Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Chill Out Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Chilled Water Dirty Filter Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Compressor A Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Compressor B Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Compressor Refrigerant Differential Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 8,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Condenser Fan Overload Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Condenser Fan VFD Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Discharge Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - EVD Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 12,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - High Discharge Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 13,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - High Discharge Pressure Switch Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 172,
+                'offset' => 14,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Low Discharge Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 173,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Low Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 173,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Low Suction Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 173,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Low Superheat Temperature Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 173,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Retain Memory Write Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 173,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Too Many Writes to Retentive Memory Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 173,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Phase Monitor Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 173,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Reduced Fluid Flow Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 173,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Reduced Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 173,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Refrigerant Liquid Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 173,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - Suction Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 173,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 4 - High Suction Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 174,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+
+
+            [
+                'name' => 'Circuit 5 - Ambient Temperature Sensor Faiure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Aux Alarm Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Aux Alarm Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Chill In Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Chill Out Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Chilled Water Dirty Filter Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Compressor A Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Compressor B Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Compressor Refrigerant Differential Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 8,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Condenser Fan Overload Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Condenser Fan VFD Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Discharge Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - EVD Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 12,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - High Discharge Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 13,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - High Discharge Pressure Switch Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 175,
+                'offset' => 14,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Low Discharge Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 176,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Low Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 176,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Low Suction Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 176,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Low Superheat Temperature Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 176,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Retain Memory Write Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 176,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Too Many Writes to Retentive Memory Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 176,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Phase Monitor Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 176,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Reduced Fluid Flow Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 176,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Reduced Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 176,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Refrigerant Liquid Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 176,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - Suction Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 176,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 5 - High Suction Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 177,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+
+            [
+                'name' => 'Circuit 6 - Ambient Temperature Sensor Faiure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Aux Alarm Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Aux Alarm Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Chill In Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Chill Out Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Chilled Water Dirty Filter Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Compressor A Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Compressor B Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Compressor Refrigerant Differential Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 8,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Condenser Fan Overload Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Condenser Fan VFD Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Discharge Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - EVD Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 12,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - High Discharge Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 13,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - High Discharge Pressure Switch Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 178,
+                'offset' => 14,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Low Discharge Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 179,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Low Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 179,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Low Suction Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 179,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Low Superheat Temperature Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 179,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Retain Memory Write Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 179,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Too Many Writes to Retentive Memory Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 179,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Phase Monitor Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 179,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Reduced Fluid Flow Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 179,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Reduced Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 179,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Refrigerant Liquid Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 179,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - Suction Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 179,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 6 - High Suction Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 180,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+
+            [
+                'name' => 'Circuit 7 - Ambient Temperature Sensor Faiure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Aux Alarm Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Aux Alarm Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Chill In Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Chill Out Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Chilled Water Dirty Filter Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Compressor A Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Compressor B Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Compressor Refrigerant Differential Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 8,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Condenser Fan Overload Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Condenser Fan VFD Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Discharge Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - EVD Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 12,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - High Discharge Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 13,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - High Discharge Pressure Switch Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 181,
+                'offset' => 14,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Low Discharge Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 182,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Low Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 182,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Low Suction Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 182,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Low Superheat Temperature Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 182,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Retain Memory Write Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 182,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Too Many Writes to Retentive Memory Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 182,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Phase Monitor Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 182,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Reduced Fluid Flow Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 182,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Reduced Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 182,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Refrigerant Liquid Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 182,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - Suction Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 182,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 7 - High Suction Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 183,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+
+
+            [
+                'name' => 'Circuit 8 - Ambient Temperature Sensor Faiure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Aux Alarm Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Aux Alarm Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Chill In Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Chill Out Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Chilled Water Dirty Filter Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Compressor A Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Compressor B Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Compressor Refrigerant Differential Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 8,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Condenser Fan Overload Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Condenser Fan VFD Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Discharge Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - EVD Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 12,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - High Discharge Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 13,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - High Discharge Pressure Switch Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 184,
+                'offset' => 14,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Low Discharge Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 185,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Low Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 185,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Low Suction Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 185,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Low Superheat Temperature Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 185,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Retain Memory Write Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 185,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Too Many Writes to Retentive Memory Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 185,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Phase Monitor Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 185,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Reduced Fluid Flow Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 185,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Reduced Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 185,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Refrigerant Liquid Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 185,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - Suction Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 185,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 8 - High Suction Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 186,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+
+            [
+                'name' => 'Circuit 9 - Ambient Temperature Sensor Faiure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Aux Alarm Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Aux Alarm Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Chill In Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Chill Out Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Chilled Water Dirty Filter Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Compressor A Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Compressor B Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Compressor Refrigerant Differential Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 8,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Condenser Fan Overload Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Condenser Fan VFD Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Discharge Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - EVD Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 12,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - High Discharge Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 13,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - High Discharge Pressure Switch Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 187,
+                'offset' => 14,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Low Discharge Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 188,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Low Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 188,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Low Suction Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 188,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Low Superheat Temperature Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 188,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Retain Memory Write Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 188,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Too Many Writes to Retentive Memory Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 188,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Phase Monitor Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 188,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Reduced Fluid Flow Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 188,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Reduced Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 188,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Refrigerant Liquid Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 188,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - Suction Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 188,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 9 - High Suction Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 189,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+
+            [
+                'name' => 'Circuit 10 - Ambient Temperature Sensor Faiure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Aux Alarm Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Aux Alarm Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Chill In Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Chill Out Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Chilled Water Dirty Filter Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Compressor A Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Compressor B Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Compressor Refrigerant Differential Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 8,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Condenser Fan Overload Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Condenser Fan VFD Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Discharge Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - EVD Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 12,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - High Discharge Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 13,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - High Discharge Pressure Switch Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 190,
+                'offset' => 14,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Low Discharge Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 191,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Low Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 191,
+                'offset' => 1,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Low Suction Pressure Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 191,
+                'offset' => 2,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Low Superheat Temperature Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 191,
+                'offset' => 3,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Retain Memory Write Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 191,
+                'offset' => 4,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Too Many Writes to Retentive Memory Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 191,
+                'offset' => 5,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Phase Monitor Fault',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 191,
+                'offset' => 6,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Reduced Fluid Flow Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 191,
+                'offset' => 7,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Reduced Fluid Flow Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 191,
+                'offset' => 9,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Refrigerant Liquid Temperature Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 191,
+                'offset' => 10,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - Suction Pressure Sensor Failure',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 191,
+                'offset' => 11,
+                'bytes' => 1
+            ],
+            [
+                'name' => 'Circuit 10 - High Suction Pressure Warning',
+                'machine_id' => MACHINE_HE_CENTRAL_CHILLER,
+                'tag_id' => 192,
+                'offset' => 0,
+                'bytes' => 1
+            ],
+
 
             [
                 'name' => 'Communications Loss Circuit 2',
