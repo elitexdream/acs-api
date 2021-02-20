@@ -14,6 +14,7 @@ use App\Device;
 use App\TeltonikaConfiguration;
 use App\DowntimePlan;
 use App\Tag;
+use App\InventoryMaterial;
 use DB;
 use \stdClass;
 
@@ -323,7 +324,76 @@ class MachineController extends Controller
 			$inventories = [];
 		}
 		
-		return response()->json(compact('inventories'));
+		$inventory_material = InventoryMaterial::where('plc_id', $request->serialNumber)->first();
+
+		if(!$inventory_material)
+			$inventory_material = InventoryMaterial::create([
+				'plc_id' => $request->serialNumber
+			]);
+
+		return response()->json(compact('inventories', 'inventory_material'));
+	}
+
+	public function updateInventoryMaterial(Request $request) {
+		$inventory_material = InventoryMaterial::where('plc_id', $request->serialNumber)->first();
+
+		if(!$inventory_material)
+			$inventory_material = InventoryMaterial::create([
+				'plc_id' => $request->serialNumber
+			]);
+
+		switch($request->id) {
+		case 0:
+			$inventory_material->update([
+				'material1_id' => $request->material,
+				'location1_id' => $request->location
+			]);
+			break;
+		case 1:
+			$inventory_material->update([
+				'material2_id' => $request->material,
+				'location2_id' => $request->location
+			]);
+			break;
+		case 2:
+			$inventory_material->update([
+				'material3_id' => $request->material,
+				'location3_id' => $request->location
+			]);
+			break;
+		case 3:
+			$inventory_material->update([
+				'material4_id' => $request->material,
+				'location4_id' => $request->location
+			]);
+			break;
+		case 4:
+			$inventory_material->update([
+				'material5_id' => $request->material,
+				'location5_id' => $request->location
+			]);
+			break;
+		case 5:
+			$inventory_material->update([
+				'material6_id' => $request->material,
+				'location6_id' => $request->location
+			]);
+			break;
+		case 6:
+			$inventory_material->update([
+				'material7_id' => $request->material,
+				'location7_id' => $request->location
+			]);
+			break;
+		case 7:
+			$inventory_material->update([
+				'material8_id' => $request->material,
+				'location8_id' => $request->location
+			]);
+			break;
+		}
+
+		return response()->json('Updated Successfully');
 	}
 
 	/*

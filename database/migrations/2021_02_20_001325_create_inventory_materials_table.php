@@ -29,6 +29,10 @@ class CreateInventoryMaterialsTable extends Migration
             $table->unsignedBigInteger('location5_id')->nullable();
             $table->unsignedBigInteger('material6_id')->nullable();
             $table->unsignedBigInteger('location6_id')->nullable();
+            $table->unsignedBigInteger('material7_id')->nullable();
+            $table->unsignedBigInteger('location7_id')->nullable();
+            $table->unsignedBigInteger('material8_id')->nullable();
+            $table->unsignedBigInteger('location8_id')->nullable();
 
             $table->foreign('material1_id')->references('id')->on('materials');
             $table->foreign('material2_id')->references('id')->on('materials');
@@ -36,12 +40,16 @@ class CreateInventoryMaterialsTable extends Migration
             $table->foreign('material4_id')->references('id')->on('materials');
             $table->foreign('material5_id')->references('id')->on('materials');
             $table->foreign('material6_id')->references('id')->on('materials');
+            $table->foreign('material7_id')->references('id')->on('materials');
+            $table->foreign('material8_id')->references('id')->on('materials');
             $table->foreign('location1_id')->references('id')->on('material_locations');
             $table->foreign('location2_id')->references('id')->on('material_locations');
             $table->foreign('location3_id')->references('id')->on('material_locations');
             $table->foreign('location4_id')->references('id')->on('material_locations');
             $table->foreign('location5_id')->references('id')->on('material_locations');
             $table->foreign('location6_id')->references('id')->on('material_locations');
+            $table->foreign('location7_id')->references('id')->on('material_locations');
+            $table->foreign('location8_id')->references('id')->on('material_locations');
 
             $table->timestamps();
         });
