@@ -840,7 +840,7 @@ class MachineController extends Controller
 			$isImperial = json_decode($unit->values)[0];
 
 		if ($request->machineId === MACHINE_BD_BATCH_BLENDER)
-			$tag_id = 19;
+			$tag_id = 17;
 		else if ($request->machineId === MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER)
 			$tag_id = 22;
 
