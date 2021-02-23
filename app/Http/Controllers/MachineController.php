@@ -839,8 +839,13 @@ class MachineController extends Controller
 		if($unit)
 			$isImperial = json_decode($unit->values)[0];
 
+		if ($request->machineId === MACHINE_BD_BATCH_BLENDER)
+			$tag_id = 19;
+		else if ($request->machineId === MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER)
+			$tag_id = 22;
+
 		$capabilities_object = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 22)
+										->where('tag_id', $tag_id)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->orderBy('timestamp')
