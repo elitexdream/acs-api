@@ -531,6 +531,13 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
+		$isImperial = false;
+
+		$unit = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 51)->latest('timedata')->first();
+
+		if($unit)
+			$isImperial = json_decode($unit->values)[0];
+
 		$factors_object = DeviceData::where('serial_number', $request->serialNumber)
 									->where('tag_id', 19)
 									->where('timestamp', '>', $from)
@@ -541,7 +548,7 @@ class MachineController extends Controller
 		$calibration_factors = $this->averagedSeries($factors_object);
 
 		$items = [$calibration_factors];
-		return response()->json(compact('items'));
+		return response()->json(compact('items', 'isImperial'));
 	}
 
 	/*
@@ -553,6 +560,13 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
+		$isImperial = false;
+
+		$unit = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 51)->latest('timedata')->first();
+
+		if($unit)
+			$isImperial = json_decode($unit->values)[0];
+
 		$process_rates_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 18)
 										->where('timestamp', '>', $from)
@@ -563,7 +577,7 @@ class MachineController extends Controller
 		$process_rate = $this->averagedSeries($process_rates_object);
 
 		$items = [$process_rate];
-		return response()->json(compact('items'));
+		return response()->json(compact('items', 'isImperial'));
 	}
 
 	/*
@@ -834,15 +848,18 @@ class MachineController extends Controller
 
 		$isImperial = false;
 
-		$unit = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 56)->latest('timedata')->first();
+		if ($request->machineId === MACHINE_BD_BATCH_BLENDER) {
+			$tag_id = 17;
+			$unit_tag_id = 51;
+		} else if ($request->machineId === MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER) {
+			$tag_id = 22;
+			$unit_tag_id = 56;
+		}
+
+		$unit = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $unit_tag_id)->latest('timedata')->first();
 
 		if($unit)
 			$isImperial = json_decode($unit->values)[0];
-
-		if ($request->machineId === MACHINE_BD_BATCH_BLENDER)
-			$tag_id = 17;
-		else if ($request->machineId === MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER)
-			$tag_id = 22;
 
 		$capabilities_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', $tag_id)
