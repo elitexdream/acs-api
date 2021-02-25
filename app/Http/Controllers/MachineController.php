@@ -583,22 +583,24 @@ class MachineController extends Controller
 		tag: L51_0_8_AvgFeedCal
 	*/
 	public function getBDBlenderCalibrationFactors(Request $request) {
-		$from = $this->getFromTo($request->timeRange)["from"];
-		$to = $this->getFromTo($request->timeRange)["to"];
+		$calibration_factors = [];
 
 		$isImperial = $this->isImperial(MACHINE_BD_BATCH_BLENDER, $request->serialNumber);
 
 		$factors_object = DeviceData::where('serial_number', $request->serialNumber)
 									->where('tag_id', 19)
-									->where('timestamp', '>', $from)
-									->where('timestamp', '<', $to)
-									->orderBy('timestamp')
-									->get();
+									->latest('timedata')
+									->first();
 
-		$calibration_factors = $this->averagedSeries($factors_object);
+		if($factors_object) {
+			$calibration_factors = json_decode($factors_object->values);
+			foreach ($calibration_factors as &$factor) {
+				$factor = $factor / 100;
+			}
+		}
 
-		$items = [$calibration_factors];
-		return response()->json(compact('items', 'isImperial'));
+		$items = $calibration_factors;
+		return response()->json(compact('items'));
 	}
 
 	/*
