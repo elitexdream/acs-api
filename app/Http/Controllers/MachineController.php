@@ -49,6 +49,47 @@ class MachineController extends Controller
 		return $ret;
     }
 
+    public function isImperial($machineId, $serialNumber, $tag_id = 0) {
+    	$isImperial = false;
+
+    	if (!$tag_id) {
+	    	switch ($machineId) {
+	    		case MACHINE_BD_BATCH_BLENDER:
+	    			$tag_id = 51;
+	    			break;
+	    		
+	    		default:
+	    			break;
+	    	}
+	    }
+
+		$unit = DeviceData::where('serial_number', $serialNumber)->where('tag_id', $tag_id)->latest('timedata')->first();
+
+		if($unit)
+			$isImperial = !json_decode($unit->values)[0];
+
+		return $isImperial;
+    }
+
+    public function isPlcRunning($machineId, $serialNumber) {
+		$tag = Tag::where('configuration_id', $machineId)
+            ->where('tag_name', Tag::NAMES['RUNNING'])
+            ->first();
+
+        if ($tag) {
+            $running = DB::table('runnings')
+                ->where('serial_number', $serialNumber)
+                ->where('tag_id', $tag->tag_id)
+                ->latest('timestamp')
+                ->first();
+
+            if ($running) {
+                return json_decode($running->values)[0];
+            }
+        }
+
+        return false;
+    }
 	/*
 		Get general information of product
 		They are Name, Serial number, Software build, and version
@@ -162,11 +203,10 @@ class MachineController extends Controller
 												->where('tag_id', $tag_software_build->tag_id)
 												->latest('timedata')
 												->first()) {
-					try {
-						$product->software_build = json_decode($software_build_object->values)[0];
-					} catch (\Exception $e) {
+					if ($software_build_object)
+						$product->software_build = sprintf('%03d', json_decode($software_build_object->values)[0]);
+					else
 						$product->software_build = '';
-					}
 				}
 			}
 
@@ -212,7 +252,7 @@ class MachineController extends Controller
 												->latest('timedata')
 												->first();
 					try {
-						$serial_unit = json_decode($serial_unit_object->values)[0];
+						$serial_unit = sprintf('%04d', json_decode($serial_unit_object->values)[0]);
 					} catch (\Exception $e) {
 						$serial_unit = '';
 					}
@@ -250,15 +290,15 @@ class MachineController extends Controller
 
 				if($tag_serial_unit) {
 					$serial_unit_object = DB::table('serial_number_unit')
-												->where('serial_number', $request->serialNumber)
-												->where('tag_id', $tag_serial_unit->tag_id)
-												->latest('timedata')
-												->first();
-					try {
-						$serial_unit = json_decode($serial_unit_object->values)[0];
-					} catch (\Exception $e) {
-						$serial_unit = '';
+											->where('serial_number', $request->serialNumber)
+											->where('tag_id', $tag_serial_unit->tag_id)
+											->latest('timedata')
+											->first();
+					if ($serial_unit_object) {
+						$serial_unit = sprintf('%04d', json_decode($serial_unit_object->values)[0]);
 					}
+					else
+						$serial_unit = '';
 				}
 			}
 
@@ -286,6 +326,8 @@ class MachineController extends Controller
 				$product->teltonikaDevice->name = $product->teltonikaDevice->name . ' (VTC Plus' . $plus_model . ')';
 			}
 		}
+
+		$product->running = $this->isPlcRunning($request->machineId, $request->serialNumber);
 
 		return response()->json([
 			"overview" => $product
@@ -317,13 +359,15 @@ class MachineController extends Controller
 				} else {
 					$inv2 = sprintf('%03d', $inventory_values[$i]);
 				}
-				$inv = strval(json_decode($hop_inventory->values)[$i]) . ',' . $inv2;
+				$inv = strval(json_decode($hop_inventory->values)[$i]) . '.' . $inv2;
 				array_push($inventories, $inv);
 			}
 		} else {
 			$inventories = [];
 		}
-		
+
+		$isImperial = $this->isImperial(MACHINE_BD_BATCH_BLENDER, $request->serialNumber, 50);
+
 		$inventory_material = InventoryMaterial::where('plc_id', $request->serialNumber)->first();
 
 		if(!$inventory_material)
@@ -331,7 +375,13 @@ class MachineController extends Controller
 				'plc_id' => $request->serialNumber
 			]);
 
-		return response()->json(compact('inventories', 'inventory_material'));
+		return response()->json([
+			'data' => [
+				'inventories' => $inventories,
+				'inventory_material' => $inventory_material,
+				'unit' => $isImperial ? 'lbs' : 'kgs'
+			]
+		]);
 	}
 
 	public function updateInventoryMaterial(Request $request) {
@@ -479,8 +529,13 @@ class MachineController extends Controller
 			}
 		}
 
+		$isImperial = $this->isImperial(MACHINE_BD_BATCH_BLENDER, $request->serialNumber, 51);
+
 		$items = [$actuals, $targets];
-		return response()->json(compact('items'));
+		return response()->json([
+			'items' => $items,
+			'unit' => $isImperial ? 'lbs' : 'kgs'
+		]);
 	}
 
 	/*
@@ -531,12 +586,7 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$isImperial = false;
-
-		$unit = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 51)->latest('timedata')->first();
-
-		if($unit)
-			$isImperial = json_decode($unit->values)[0];
+		$isImperial = $this->isImperial(MACHINE_BD_BATCH_BLENDER, $request->serialNumber);
 
 		$factors_object = DeviceData::where('serial_number', $request->serialNumber)
 									->where('tag_id', 19)
@@ -560,12 +610,7 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$isImperial = false;
-
-		$unit = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 51)->latest('timedata')->first();
-
-		if($unit)
-			$isImperial = json_decode($unit->values)[0];
+		$isImperial = $this->isImperial(MACHINE_BD_BATCH_BLENDER, $request->serialNumber);
 
 		$process_rates_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 18)
@@ -846,20 +891,15 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$isImperial = false;
-
 		if ($request->machineId === MACHINE_BD_BATCH_BLENDER) {
 			$tag_id = 17;
 			$unit_tag_id = 51;
+			$isImperial = $this->isImperial(MACHINE_BD_BATCH_BLENDER, $request->serialNumber);
 		} else if ($request->machineId === MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER) {
 			$tag_id = 22;
 			$unit_tag_id = 56;
+			$isImperial = $this->isImperial(MACHINE_BD_BATCH_BLENDER, $request->serialNumber);
 		}
-
-		$unit = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $unit_tag_id)->latest('timedata')->first();
-
-		if($unit)
-			$isImperial = json_decode($unit->values)[0];
 
 		$capabilities_object = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', $tag_id)

@@ -725,7 +725,7 @@ class DeviceController extends Controller
 
     public function getCustomerDevices(Request $request) {
         $user = $request->user('api');
-        $devices = $user->company->devices;
+        $devices = $user->company->devices();
 
         return response()->json([
             'devices' => $devices
