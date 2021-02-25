@@ -1191,9 +1191,58 @@ class MachineController extends Controller
 										->orderBy('timedata')
 										->get();
 
-		$temperatures = $this->averagedSeries($temperatures_object);
+		$temperatures = $temperatures_object->map(function($t) {
+			return [$t->timestamp * 1000, round((json_decode($t->values)[0] - 32) * 5 / 9, 2)];
+		});
 
 		$items = [$temperatures];
+
+		return response()->json(compact('items'));
+	}
+
+	public function getRegionAirTemperature(Request $request) {
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		$items = [
+			[], []
+		];
+
+		$rg_left_objects = DeviceData::where('serial_number', $request->serialNumber)
+										->where('tag_id', 20)
+										->orderBy('timestamp')
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->get();
+
+		if($rg_left_objects) {
+			$rg_left = $rg_left_objects->map(function($t) {
+				return [$t->timestamp * 1000, round((json_decode($t->values)[0] - 32) * 5 / 9, 2)];
+			});
+
+			$rg_l = new stdClass();
+			$rg_l->name = 'Region Left Air Temperature';
+			$rg_l->data = $rg_left;
+			$items[0] = $rg_l;
+		}
+
+		$rg_right_objects = DeviceData::where('serial_number', $request->serialNumber)
+										->where('tag_id', 21)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($rg_right_objects) {
+			$rg_right = $rg_right_objects->map(function($t) {
+				return [$t->timestamp * 1000, round((json_decode($t->values)[0] - 32) * 5 / 9, 2)];
+			});
+
+			$rg_r = new stdClass();
+			$rg_r->name = 'Region Right Air Temperature';
+			$rg_r->data = $rg_right;
+			$items[1] = $rg_r;
+		}
 
 		return response()->json(compact('items'));
 	}
@@ -1246,21 +1295,24 @@ class MachineController extends Controller
 						->latest('timedata')
 						->first();
 
-		if($inletHopper1) $inlets[0] = round(json_decode($inletHopper1->values)[0], 2);
-		if($inletHopper2) $inlets[1] = round(json_decode($inletHopper2->values)[0], 2);
-		if($inletHopper3) $inlets[2] = round(json_decode($inletHopper3->values)[0], 2);
+		if($inletHopper1) $inlets[0] = round((json_decode($inletHopper1->values)[0] - 32) * 5 / 9, 2);
+		if($inletHopper2) $inlets[1] = round((json_decode($inletHopper2->values)[0] - 32) * 5 / 9, 2);
+		if($inletHopper3) $inlets[2] = round((json_decode($inletHopper3->values)[0] - 32) * 5 / 9, 2);
 
-		if($outletHopper1) $outlets[0] = round(json_decode($outletHopper1->values)[0], 2);
-		if($outletHopper2) $outlets[1] = round(json_decode($outletHopper2->values)[0], 2);
-		if($outletHopper3) $outlets[2] = round(json_decode($outletHopper3->values)[0], 2);
+		if($outletHopper1) $outlets[0] = round((json_decode($outletHopper1->values)[0] - 32) * 5 / 9, 2);
+		if($outletHopper2) $outlets[1] = round((json_decode($outletHopper2->values)[0] - 32) * 5 / 9, 2);
+		if($outletHopper3) $outlets[2] = round((json_decode($outletHopper3->values)[0] - 32) * 5 / 9, 2);
 
-		if($targetHopper1) $targets[0] = round(json_decode($targetHopper1->values)[0], 2);
-		if($targetHopper2) $targets[1] = round(json_decode($targetHopper2->values)[0], 2);
-		if($targetHopper3) $targets[2] = round(json_decode($targetHopper3->values)[0], 2);
+		if($targetHopper1) $targets[0] = round((json_decode($targetHopper1->values)[0] - 32) * 5 / 9, 2);
+		if($targetHopper2) $targets[1] = round((json_decode($targetHopper2->values)[0] - 32) * 5 / 9, 2);
+		if($targetHopper3) $targets[2] = round((json_decode($targetHopper3->values)[0] - 32) * 5 / 9, 2);
 
 		$items = [$inlets, $outlets, $targets];
 
-		return response()->json(compact('items'));
+		return response()->json([
+			'items' => $items,
+			'unit' => '℃'
+		]);
 	}
 
 	/*

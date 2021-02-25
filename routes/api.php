@@ -142,6 +142,7 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/ngx-dryer/dryer-online-hours', 'MachineController@getNgxDryerDryerOnlineHours');
 	Route::post('/ngx-dryer/blower-run-hours', 'MachineController@getNgxDryerBlowerRunHours');
 	Route::post('/ngx-dryer/dew-point-temperature', 'MachineController@getDewPointTemperature');
+	Route::post('/ngx-dryer/region-air-temperature', 'MachineController@getRegionAirTemperature');
 
 	Route::post('/tcu/actual-target-temperature', 'MachineController@getTcuActTgtTemperature');
 
