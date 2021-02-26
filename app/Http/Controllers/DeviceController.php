@@ -759,7 +759,7 @@ class DeviceController extends Controller
         $query->with('teltonikaConfiguration');
         $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
         foreach ($devices as $key => $device) {
-            $device->status = $device->isRunning();
+            $device->status = $device->teltonikaConfiguration !== null;
         }
 
         return response()->json(compact('devices'));
