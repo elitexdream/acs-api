@@ -1751,6 +1751,91 @@ class MachineController extends Controller
 		return response()->json(compact('items'));
 	}
 
+
+	public function getT50Runnings(Request $request) {
+		$states = [
+			[ 'name' => 'Granulator motor', 'value' => 0 ],
+			[ 'name' => 'Convey motor', 'value' => 0 ],
+			[ 'name' => 'Blow motor', 'value' => 0 ],
+			[ 'name' => 'Aux1 motor', 'value' => 0 ],
+			[ 'name' => 'Aux2 motor', 'value' => 0 ]
+		];
+
+		$tags = [19, 20, 21, 22, 23];
+
+		for ($i=0; $i < 5; $i++) { 
+			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $tags[$i])->latest('timedata')->first();
+
+			if($obj) {
+				$states[$i]['value'] = json_decode($obj->values)[0];
+			}
+		}
+
+		return response()->json([
+			'states' => $states
+		]);
+	}
+
+	public function getT50Hours(Request $request) {
+		$hours = [
+			[ 'name' => 'Granulator motor', 'maint_value' => 0, 'total_value' => 0 ],
+			[ 'name' => 'Convey motor', 'maint_value' => 0, 'total_value' => 0 ],
+			[ 'name' => 'Blow motor', 'maint_value' => 0, 'total_value' => 0 ],
+			[ 'name' => 'Aux1 motor', 'maint_value' => 0, 'total_value' => 0 ],
+			[ 'name' => 'Aux2 motor', 'maint_value' => 0, 'total_value' => 0 ]
+		];
+
+		$maint_tags = [29, 30, 31, 32, 33];
+		$total_tags = [35, 36, 37, 38, 39];
+
+		for ($i=0; $i < 5; $i++) { 
+			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $maint_tags[$i])->latest('timedata')->first();
+
+			if($obj) {
+				$hours[$i]['maint_value'] = json_decode($obj->values)[0];
+			}
+		}
+
+		for ($i=0; $i < 5; $i++) { 
+			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $total_tags[$i])->latest('timedata')->first();
+
+			if($obj) {
+				$hours[$i]['total_value'] = json_decode($obj->values)[0];
+			}
+		}
+
+		return response()->json([
+			'hours' => $hours
+		]);
+	}
+
+	public function getT50BearingTemp(Request $request) {
+		$items = [0, 0];
+
+		$temp1_object = DeviceData::where('serial_number', $request->serialNumber)
+						->where('tag_id', 26)
+						->latest('timedata')
+						->first();
+
+		$temp2_object = DeviceData::where('serial_number', $request->serialNumber)
+						->where('tag_id', 27)
+						->latest('timedata')
+						->first();
+
+		if($temp1_object) {
+			$items[0] = json_decode($temp1_object->values)[0];
+		}
+
+		if($temp2_object) {
+			$items[1] = json_decode($temp2_object->values)[0];
+		}
+
+		return response()->json([
+			'items' => $items,
+			'unit' => 'ºC'
+		]);
+	}
+
 	/*
 		Get running hours of weekdays
 		return: 7 length array

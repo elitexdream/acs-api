@@ -147,6 +147,10 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/portable-chiller/process-out-temperature', 'MachineController@getProcessOutTemperature');
 
 	Route::post('/central-chiller/chiller-in-out-temperature', 'MachineController@getCentralChillerTemperature');
+
+	Route::post('/t50-granulator/runnings', 'MachineController@getT50Runnings');
+	Route::post('/t50-granulator/hours', 'MachineController@getT50Hours');
+	Route::post('/t50-granulator/bearing-temp', 'MachineController@getT50BearingTemp');
 });
 
 Route::group(['prefix' => 'notes', 'middleware' => 'auth'], function () {
