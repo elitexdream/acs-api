@@ -101,7 +101,7 @@ class MachineController extends Controller
 		if($request->machineId == MACHINE_TRUETEMP_TCU) {
 			if($version_object = DeviceData::where('serial_number', $request->serialNumber)
 								->where('tag_id', 1)
-								->latest('timedata')
+								->latest('timestamp')
 								->first()) {
 				try {
 					$product->version = json_decode($version_object->values)[0];
@@ -165,7 +165,7 @@ class MachineController extends Controller
 				if($version_object = DB::table('device_data')
 									->where('serial_number', $request->serialNumber)
 									->where('tag_id', $tag_software_version)
-									->latest('timedata')
+									->latest('timestamp')
 									->first()) {
 					try {
 						$product->version = json_decode($version_object->values)[0] / 10;
@@ -183,7 +183,7 @@ class MachineController extends Controller
 				if($version_object = DB::table('software_version')
 									->where('serial_number', $request->serialNumber)
 									->where('tag_id', $tag_software_version->tag_id)
-									->latest('timedata')
+									->latest('timestamp')
 									->first()) {
 					try {
 						$product->version = json_decode($version_object->values)[0] / 10;
@@ -197,11 +197,10 @@ class MachineController extends Controller
 			$tag_software_build = Tag::where('tag_name', 'software_build')->where('configuration_id', $request->machineId)->first();
 
 			if($tag_software_build) {
-				// return response()->json('Software build tag not found', 404);
 				if($software_build_object = DB::table('software_builds')
 												->where('serial_number', $request->serialNumber)
 												->where('tag_id', $tag_software_build->tag_id)
-												->latest('timedata')
+												->latest('timestamp')
 												->first()) {
 					if ($software_build_object)
 						$product->software_build = sprintf('%03d', json_decode($software_build_object->values)[0]);
@@ -225,7 +224,7 @@ class MachineController extends Controller
 				if($tag_serial_year) {
 					$serial_year_object = DeviceData::where('serial_number', $request->serialNumber)
 												->where('tag_id', $tag_serial_year->tag_id)
-												->latest('timedata')
+												->latest('timestamp')
 												->first();
 					try {
 						$serial_year = json_decode($serial_year_object->values)[0];
@@ -237,7 +236,7 @@ class MachineController extends Controller
 				if($tag_serial_month) {
 					$serial_month_object = DeviceData::where('serial_number', $request->serialNumber)
 												->where('tag_id', $tag_serial_month->tag_id)
-												->latest('timedata')
+												->latest('timestamp')
 												->first();
 					try {
 						$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
@@ -249,7 +248,7 @@ class MachineController extends Controller
 				if($tag_serial_unit) {
 					$serial_unit_object = DeviceData::where('serial_number', $request->serialNumber)
 												->where('tag_id', $tag_serial_unit->tag_id)
-												->latest('timedata')
+												->latest('timestamp')
 												->first();
 					try {
 						$serial_unit = sprintf('%04d', json_decode($serial_unit_object->values)[0]);
@@ -266,7 +265,7 @@ class MachineController extends Controller
 					$serial_year_object = DB::table('serial_number_year')
 												->where('serial_number', $request->serialNumber)
 												->where('tag_id', $tag_serial_year->tag_id)
-												->latest('timedata')
+												->latest('timestamp')
 												->first();
 					try {
 						$serial_year = json_decode($serial_year_object->values)[0];
@@ -279,7 +278,7 @@ class MachineController extends Controller
 					$serial_month_object = DB::table('serial_number_month')
 												->where('serial_number', $request->serialNumber)
 												->where('tag_id', $tag_serial_month->tag_id)
-												->latest('timedata')
+												->latest('timestamp')
 												->first();
 					try {
 						$serial_month = chr(json_decode($serial_month_object->values)[0] + 65);
@@ -292,7 +291,7 @@ class MachineController extends Controller
 					$serial_unit_object = DB::table('serial_number_unit')
 											->where('serial_number', $request->serialNumber)
 											->where('tag_id', $tag_serial_unit->tag_id)
-											->latest('timedata')
+											->latest('timestamp')
 											->first();
 					if ($serial_unit_object) {
 						$serial_unit = sprintf('%04d', json_decode($serial_unit_object->values)[0]);
@@ -1187,7 +1186,7 @@ class MachineController extends Controller
 		$to = $this->getFromTo($request->timeRange)["to"];
 
 		$temperatures_object = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 23)
+										->where('tag_id', 18)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->orderBy('timedata')

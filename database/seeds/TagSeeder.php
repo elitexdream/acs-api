@@ -24,7 +24,7 @@ class TagSeeder extends Seeder
             [ 'tag_name' => 'device_type', 'configuration_id' => MACHINE_T50_CENTRAL_GRANULATOR, 'tag_id' => 1 ],
             [ 'tag_name' => 'device_type', 'configuration_id' => MACHINE_GP_PORTABLE_CHILLER, 'tag_id' => 120 ],
             [ 'tag_name' => 'device_type', 'configuration_id' => MACHINE_HE_CENTRAL_CHILLER, 'tag_id' => 229 ],
-            
+
             [ 'tag_name' => 'software_version', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 4 ],
             [ 'tag_name' => 'software_version', 'configuration_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER, 'tag_id' => 4 ],
             [ 'tag_name' => 'software_version', 'configuration_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER, 'tag_id' => 4 ],
