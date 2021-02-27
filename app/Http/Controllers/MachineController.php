@@ -1394,219 +1394,35 @@ class MachineController extends Controller
 		]);
 	}
 
-	/*
-		description: DH Online Hrs
-		tags: 	
-				-DH1 Online Hrs - Maint, 1 point, on change (1hr) STATS_DH1_MNT_HRS dint
-				-DH1 Online Hrs – Total, 1 point, on change (1hr) STATS_DH1_TOT_HRS dint
-				-DH2 Online Hrs - Maint, 1 point, on change (1hr) STATS_DH2_MNT_HRS dint
-				-DH2 Online Hrs – Total, 1 point, on change (1hr) STATS_DH2_TOT_HRS dint
-				-DH3 Online Hrs - Maint, 1 point, on change (1hr) STATS_DH3_MNT_HRS dint
-				-DH3 Online Hrs – Total, 1 point, on change (1hr) STATS_DH3_TOT_HRS dint
-	*/
-	public function getNgxDryerDhOnlineHours(Request $request) {
-		$from = $this->getFromTo($request->timeRange)["from"];
-		$to = $this->getFromTo($request->timeRange)["to"];
-
-		$items = [
-			[], [], [], [], [], []
+	public function getNgxDryerOnlineHours(Request $request) {
+		$hours = [
+			[ 'name' => 'DH1 Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
+			[ 'name' => 'DH2 Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
+			[ 'name' => 'DH3 Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
+			[ 'name' => 'Dryer Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
+			[ 'name' => 'Blower Run Hours', 'maint_value' => 0, 'total_value' => 0 ]
 		];
 
-		$hr1_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 40)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
+		$maint_tags = [40, 42, 44, 50, 52];
+		$total_tags = [41, 43, 45, 51, 53];
 
-		if($hr1_objects) {
-			$hr1 = $this->averagedSeries($hr1_objects);
+		for ($i=0; $i < 5; $i++) { 
+			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $maint_tags[$i])->latest('timedata')->first();
 
-			$hr = new stdClass();
-			$hr->name = 'DH1 Online Hrs - Maint';
-			$hr->data = $hr1;
-			$items[0] = $hr;
+			if($obj) {
+				$hours[$i]['maint_value'] = json_decode($obj->values)[0];
+			}
+
+			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $total_tags[$i])->latest('timedata')->first();
+
+			if($obj) {
+				$hours[$i]['total_value'] = json_decode($obj->values)[0];
+			}
 		}
 
-		$hr2_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 41)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
-
-		if($hr2_objects) {
-			$hr2 = $this->averagedSeries($hr2_objects);
-
-			$hr = new stdClass();
-			$hr->name = 'DH1 Online Hrs – Total';
-			$hr->data = $hr2;
-			$items[1] = $hr;
-		}
-
-		$hr3_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 42)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
-
-		if($hr3_objects) {
-			$hr3 = $this->averagedSeries($hr3_objects);
-
-			$hr = new stdClass();
-			$hr->name = 'DH2 Online Hrs - Maint';
-			$hr->data = $hr3;
-			$items[2] = $hr;
-		}
-
-		$hr4_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 43)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
-
-		if($hr4_objects) {
-			$hr4 = $this->averagedSeries($hr4_objects);
-
-			$hr = new stdClass();
-			$hr->name = 'DH2 Online Hrs – Total';
-			$hr->data = $hr4;
-			$items[3] = $hr;
-		}
-
-		$hr5_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 44)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
-
-		if($hr5_objects) {
-			$hr5 = $this->averagedSeries($hr5_objects);
-
-			$hr = new stdClass();
-			$hr->name = 'DH3 Online Hrs - Maint';
-			$hr->data = $hr5;
-			$items[4] = $hr;
-		}
-
-		$hr6_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 45)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
-
-		if($hr6_objects) {
-			$hr6 = $this->averagedSeries($hr6_objects);
-
-			$hr = new stdClass();
-			$hr->name = 'DH3 Online Hrs – Total';
-			$hr->data = $hr6;
-			$items[5] = $hr;
-		}
-
-		return response()->json(compact('items'));
-	}
-
-	/*
-		description: Dryer Online Hrs
-		tags: 	
-				-Dryer Online Hrs – Maint, 1 point, on change (1hr) STATS_ONLINE_MAINT_HRS dint
-				-Dryer Online Hrs – Total, 1 point, on change (1hr) STATS_ONLINE_TOT_HRS dint
-	*/
-	public function getNgxDryerDryerOnlineHours(Request $request) {
-		$from = $this->getFromTo($request->timeRange)["from"];
-		$to = $this->getFromTo($request->timeRange)["to"];
-
-		$items = [
-			[], []
-		];
-
-		$hr1_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 50)
-										->orderBy('timestamp')
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->get();
-
-		if($hr1_objects) {
-			$hr1 = $this->averagedSeries($hr1_objects);
-
-			$hr = new stdClass();
-			$hr->name = 'Dryer Online Hrs – Maint';
-			$hr->data = $hr1;
-			$items[0] = $hr;
-		}
-
-		$hr2_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 51)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
-
-		if($hr2_objects) {
-			$hr2 = $this->averagedSeries($hr2_objects);
-
-			$hr = new stdClass();
-			$hr->name = 'Dryer Online Hrs – Total';
-			$hr->data = $hr2;
-			$items[1] = $hr;
-		}
-
-		return response()->json(compact('items'));
-	}
-
-	/*
-		description: Blower Run Hrs
-		tags: 	
-				-Process Blower Run Hrs - Maint, 1 point, on change (1hr) STATS_PROC_BLWR_MNT_HRS dint
-				-Process Blower Run Hrs – Total, 1 point, on change (1hr) STATS_PROC_BLWR_TOT_HRS dint
-	*/
-	public function getNgxDryerBlowerRunHours(Request $request) {
-		$from = $this->getFromTo($request->timeRange)["from"];
-		$to = $this->getFromTo($request->timeRange)["to"];
-
-		$items = [
-			[], []
-		];
-
-		$hr1_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 52)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timedata')
-										->get();
-
-		if($hr1_objects) {
-			$hr1 = $this->averagedSeries($hr1_objects);
-
-			$hr = new stdClass();
-			$hr->name = 'Process Blower Run Hrs - Maint';
-			$hr->data = $hr1;
-			$items[0] = $hr;
-		}
-
-		$hr2_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 53)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timedata')
-										->get();
-
-		if($hr2_objects) {
-			$hr2 = $this->averagedSeries($hr2_objects);
-
-			$hr = new stdClass();
-			$hr->name = 'Process Blower Run Hrs – Total';
-			$hr->data = $hr2;
-			$items[1] = $hr;
-		}
-
-		return response()->json(compact('items'));
+		return response()->json([
+			'hours' => $hours
+		]);
 	}
 
 	/*
