@@ -210,9 +210,9 @@ class MachineController extends Controller
 			}
 
 			// serial number
-			$serial_year = "";
-			$serial_month = "";
-			$serial_unit = "";
+			$serial_year = '';
+			$serial_month = '';
+			$serial_unit = '';
 
 			if($request->machineId == MACHINE_HE_CENTRAL_CHILLER) {
 				$circuit_id = $request->circuitId || 1;
@@ -1222,7 +1222,7 @@ class MachineController extends Controller
 			});
 
 			$rg_l = new stdClass();
-			$rg_l->name = 'Region Left Air Temperature';
+			$rg_l->name = 'Regen Left Air Temperature';
 			$rg_l->data = $rg_left;
 			$items[0] = $rg_l;
 		}
@@ -1240,9 +1240,27 @@ class MachineController extends Controller
 			});
 
 			$rg_r = new stdClass();
-			$rg_r->name = 'Region Right Air Temperature';
+			$rg_r->name = 'Regen Right Air Temperature';
 			$rg_r->data = $rg_right;
 			$items[1] = $rg_r;
+		}
+
+		$rg_exhaust_objects = DeviceData::where('serial_number', $request->serialNumber)
+										->where('tag_id', 23)
+										->where('timestamp', '>', $from)
+										->where('timestamp', '<', $to)
+										->orderBy('timestamp')
+										->get();
+
+		if($rg_exhaust_objects) {
+			$rg_exhause = $rg_exhaust_objects->map(function($t) {
+				return [$t->timestamp * 1000, round((json_decode($t->values)[0] - 32) * 5 / 9, 2)];
+			});
+
+			$rg_e = new stdClass();
+			$rg_e->name = 'Regen Exhause Air Temperature';
+			$rg_e->data = $rg_exhause;
+			$items[2] = $rg_e;
 		}
 
 		return response()->json(compact('items'));
