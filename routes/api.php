@@ -142,6 +142,8 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/ngx-dryer/dew-point-temperature', 'MachineController@getDewPointTemperature');
 	Route::post('/ngx-dryer/region-air-temperature', 'MachineController@getRegionAirTemperature');
 
+	Route::post('/ngx-nomad-dryer/hopper-states', 'MachineController@getNomadHopperStates');
+
 	Route::post('/tcu/actual-target-temperature', 'MachineController@getTcuActTgtTemperature');
 
 	Route::post('/portable-chiller/process-out-temperature', 'MachineController@getProcessOutTemperature');
@@ -151,6 +153,7 @@ Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/t50-granulator/runnings', 'MachineController@getT50Runnings');
 	Route::post('/t50-granulator/hours', 'MachineController@getT50Hours');
 	Route::post('/t50-granulator/bearing-temp', 'MachineController@getT50BearingTemp');
+	Route::post('/t50-granulator/amps', 'MachineController@getT50Amps');
 });
 
 Route::group(['prefix' => 'notes', 'middleware' => 'auth'], function () {

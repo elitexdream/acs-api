@@ -1185,8 +1185,10 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
+		$tag_id = $request->machineId === 6 ? 18 : 12;
+
 		$temperatures_object = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 18)
+										->where('tag_id', $tag_id)
 										->where('timestamp', '>', $from)
 										->where('timestamp', '<', $to)
 										->orderBy('timedata')
@@ -1205,62 +1207,29 @@ class MachineController extends Controller
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$items = [
-			[], []
-		];
+		$items = [];
 
-		$rg_left_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 20)
-										->orderBy('timestamp')
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->get();
+		$tag_ids = $request->machineId === 6 ? [20, 21, 23] : [14, 15, 17];
+		$names = ['Regen Left Air Temperature', 'Regen Right Air Temperature', 'Regen Exhause Air Temperature'];
 
-		if($rg_left_objects) {
-			$rg_left = $rg_left_objects->map(function($t) {
-				return [$t->timestamp * 1000, round((json_decode($t->values)[0] - 32) * 5 / 9, 2)];
-			});
+		for ($i=0; $i < 3; $i++) { 
+			$obj = DeviceData::where('serial_number', $request->serialNumber)
+											->where('tag_id', $tag_ids[$i])
+											->orderBy('timestamp')
+											->where('timestamp', '>', $from)
+											->where('timestamp', '<', $to)
+											->get();
 
-			$rg_l = new stdClass();
-			$rg_l->name = 'Regen Left Air Temperature';
-			$rg_l->data = $rg_left;
-			$items[0] = $rg_l;
-		}
+			if($obj) {
+				$data = $obj->map(function($t) {
+					return [$t->timestamp * 1000, round((json_decode($t->values)[0] - 32) * 5 / 9, 2)];
+				});
 
-		$rg_right_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 21)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
-
-		if($rg_right_objects) {
-			$rg_right = $rg_right_objects->map(function($t) {
-				return [$t->timestamp * 1000, round((json_decode($t->values)[0] - 32) * 5 / 9, 2)];
-			});
-
-			$rg_r = new stdClass();
-			$rg_r->name = 'Regen Right Air Temperature';
-			$rg_r->data = $rg_right;
-			$items[1] = $rg_r;
-		}
-
-		$rg_exhaust_objects = DeviceData::where('serial_number', $request->serialNumber)
-										->where('tag_id', 23)
-										->where('timestamp', '>', $from)
-										->where('timestamp', '<', $to)
-										->orderBy('timestamp')
-										->get();
-
-		if($rg_exhaust_objects) {
-			$rg_exhause = $rg_exhaust_objects->map(function($t) {
-				return [$t->timestamp * 1000, round((json_decode($t->values)[0] - 32) * 5 / 9, 2)];
-			});
-
-			$rg_e = new stdClass();
-			$rg_e->name = 'Regen Exhause Air Temperature';
-			$rg_e->data = $rg_exhause;
-			$items[2] = $rg_e;
+				$rg_l = new stdClass();
+				$rg_l->name = $names[$i];
+				$rg_l->data = $data;
+				$items[$i] = $rg_l;
+			}
 		}
 
 		return response()->json(compact('items'));
@@ -1271,60 +1240,59 @@ class MachineController extends Controller
 		params: device_id
 	*/
 	public function getHopperTemperatures(Request $request) {
-		$inlets = [0, 0, 0];
-		$outlets = [0, 0, 0];
-		$targets = [0, 0, 0];
-		
-		$inletHopper1 = DeviceData::where('serial_number', $request->serialNumber)
-						->where('tag_id', 9)
+		if ($request->machineId === 6) {
+			$inlets = [0, 0, 0];
+			$outlets = [0, 0, 0];
+			$targets = [0, 0, 0];
+
+			$tag_1_ids = [9, 11, 10];
+			$tag_2_ids = [12, 14, 13];
+			$tag_3_ids = [15, 17,16];
+
+			for ($i=0; $i < 3; $i++) { 
+				$inlet = DeviceData::where('serial_number', $request->serialNumber)
+						->where('tag_id', $tag_1_ids[$i])
 						->latest('timedata')
 						->first();
-		$inletHopper2 = DeviceData::where('serial_number', $request->serialNumber)
-						->where('tag_id', 12)
+				$outlet = DeviceData::where('serial_number', $request->serialNumber)
+						->where('tag_id', $tag_2_ids[$i])
 						->latest('timedata')
 						->first();
-		$inletHopper3 = DeviceData::where('serial_number', $request->serialNumber)
-						->where('tag_id', 15)
+				$target = DeviceData::where('serial_number', $request->serialNumber)
+						->where('tag_id', $tag_3_ids[$i])
 						->latest('timedata')
 						->first();
 
-		$outletHopper1 = DeviceData::where('serial_number', $request->serialNumber)
-						->where('tag_id', 11)
+				if($inlet) $inlets[$i] = round((json_decode($inlet->values)[0] - 32) * 5 / 9, 2);
+				if($outlet) $outlets[$i] = round((json_decode($outlet->values)[0] - 32) * 5 / 9, 2);
+				if($target) $targets[$i] = round((json_decode($target->values)[0] - 32) * 5 / 9, 2);
+			}
+		} else {
+			$inlets = [0];
+			$outlets = [0];
+			$targets = [0];
+
+			$tag_ids = [9, 11, 10];
+
+			for ($i=0; $i < 1; $i++) {
+				$inlet = DeviceData::where('serial_number', $request->serialNumber)
+						->where('tag_id', $tag_ids[0])
 						->latest('timedata')
 						->first();
-		$outletHopper2 = DeviceData::where('serial_number', $request->serialNumber)
-						->where('tag_id', 14)
+				$outlet = DeviceData::where('serial_number', $request->serialNumber)
+						->where('tag_id', $tag_ids[1])
 						->latest('timedata')
 						->first();
-		$outletHopper3 = DeviceData::where('serial_number', $request->serialNumber)
-						->where('tag_id', 17)
+				$target = DeviceData::where('serial_number', $request->serialNumber)
+						->where('tag_id', $tag_ids[2])
 						->latest('timedata')
 						->first();
 
-		$targetHopper1 = DeviceData::where('serial_number', $request->serialNumber)
-						->where('tag_id', 10)
-						->latest('timedata')
-						->first();
-		$targetHopper2 = DeviceData::where('serial_number', $request->serialNumber)
-						->where('tag_id', 13)
-						->latest('timedata')
-						->first();
-		$targetHopper3 = DeviceData::where('serial_number', $request->serialNumber)
-						->where('tag_id', 16)
-						->latest('timedata')
-						->first();
-
-		if($inletHopper1) $inlets[0] = round((json_decode($inletHopper1->values)[0] - 32) * 5 / 9, 2);
-		if($inletHopper2) $inlets[1] = round((json_decode($inletHopper2->values)[0] - 32) * 5 / 9, 2);
-		if($inletHopper3) $inlets[2] = round((json_decode($inletHopper3->values)[0] - 32) * 5 / 9, 2);
-
-		if($outletHopper1) $outlets[0] = round((json_decode($outletHopper1->values)[0] - 32) * 5 / 9, 2);
-		if($outletHopper2) $outlets[1] = round((json_decode($outletHopper2->values)[0] - 32) * 5 / 9, 2);
-		if($outletHopper3) $outlets[2] = round((json_decode($outletHopper3->values)[0] - 32) * 5 / 9, 2);
-
-		if($targetHopper1) $targets[0] = round((json_decode($targetHopper1->values)[0] - 32) * 5 / 9, 2);
-		if($targetHopper2) $targets[1] = round((json_decode($targetHopper2->values)[0] - 32) * 5 / 9, 2);
-		if($targetHopper3) $targets[2] = round((json_decode($targetHopper3->values)[0] - 32) * 5 / 9, 2);
+				if($inlet) $inlets[$i] = round((json_decode($inlet->values)[0] - 32) * 5 / 9, 2);
+				if($outlet) $outlets[$i] = round((json_decode($outlet->values)[0] - 32) * 5 / 9, 2);
+				if($target) $targets[$i] = round((json_decode($target->values)[0] - 32) * 5 / 9, 2);
+			}
+		}
 
 		$items = [$inlets, $outlets, $targets];
 
@@ -1353,40 +1321,14 @@ class MachineController extends Controller
 			[ "name" => "Right bed regen cooling", "value" => false ]
 		];
 
-		$left1 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 26)->latest('timedata')->first();
+		$tag_ids = $request->machineId === 6 ? [26, 27, 28, 29, 30, 31] : [20, 21, 22, 23, 24, 25];
 
-		if($left1) {
-			$states[0]["value"] = json_decode($left1->values)[0];
-		}
+		for ($i=0; $i < 6; $i++) { 
+			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $tag_ids[$i])->latest('timedata')->first();
 
-		$left2 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 27)->latest('timedata')->first();
-
-		if($left2) {
-			$states[1]["value"] = json_decode($left2->values)[0];
-		}
-
-		$left3 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 28)->latest('timedata')->first();
-
-		if($left3) {
-			$states[2]["value"] = json_decode($left3->values)[0];
-		}
-
-		$left4 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 29)->latest('timedata')->first();
-
-		if($left4) {
-			$states[3]["value"] = json_decode($left4->values)[0];
-		}
-
-		$left5 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 30)->latest('timedata')->first();
-
-		if($left5) {
-			$states[4]["value"] = json_decode($left5->values)[0];
-		}
-
-		$left6 = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 31)->latest('timedata')->first();
-
-		if($left6) {
-			$states[5]["value"] = json_decode($left6->values)[0];
+			if($obj) {
+				$states[0]["value"] = json_decode($obj->values)[0];
+			}
 		}
 
 		return response()->json([
@@ -1395,18 +1337,30 @@ class MachineController extends Controller
 	}
 
 	public function getNgxDryerOnlineHours(Request $request) {
-		$hours = [
-			[ 'name' => 'DH1 Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
-			[ 'name' => 'DH2 Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
-			[ 'name' => 'DH3 Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
-			[ 'name' => 'Dryer Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
-			[ 'name' => 'Blower Run Hours', 'maint_value' => 0, 'total_value' => 0 ]
-		];
+		if ($request->machineId === 6) {
+			$hours = [
+				[ 'name' => 'DH1 Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
+				[ 'name' => 'DH2 Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
+				[ 'name' => 'DH3 Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
+				[ 'name' => 'Dryer Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
+				[ 'name' => 'Blower Run Hours', 'maint_value' => 0, 'total_value' => 0 ]
+			];
 
-		$maint_tags = [40, 42, 44, 50, 52];
-		$total_tags = [41, 43, 45, 51, 53];
+			$maint_tags = [40, 42, 44, 50, 52];
+			$total_tags = [41, 43, 45, 51, 53];
+		} else {
+			$hours = [
+				[ 'name' => 'Dryer Online Hours', 'maint_value' => 0, 'total_value' => 0 ],
+				[ 'name' => 'Process Blower Run Hours', 'maint_value' => 0, 'total_value' => 0 ],
+				[ 'name' => 'Left Regen Heater hours', 'maint_value' => 0, 'total_value' => 0 ],
+				[ 'name' => 'Right Regen Heater hours', 'maint_value' => 0, 'total_value' => 0 ]
+			];
 
-		for ($i=0; $i < 5; $i++) { 
+			$maint_tags = [34, 36, 40, 42];
+			$total_tags = [35, 37, 41, 43];
+		}
+
+		for ($i=0; $i < count($maint_tags); $i++) { 
 			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $maint_tags[$i])->latest('timedata')->first();
 
 			if($obj) {
@@ -1425,6 +1379,30 @@ class MachineController extends Controller
 		]);
 	}
 
+	public function getNomadHopperStates(Request $request) {
+		$states = [
+			[ "name" => "Drying Hopper Status", "value" => 0 ],
+			[ "name" => "Convey status", "value" => 0 ],
+			[ 'name' => 'Machine loader 1 status', 'value' => 0 ],
+			[ 'name' => 'Machine loader 2 status', 'value' => 0 ],
+			[ 'name' => 'Hopper loader status', 'value' => 0 ],
+
+		];
+
+		$tag_ids = [27, 55, 58, 59, 30];
+
+		for ($i=0; $i < count($tag_ids); $i++) { 
+			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $tag_ids[$i])->latest('timedata')->first();
+
+			if($obj) {
+				$states[0]["value"] = json_decode($obj->values)[0];
+			}
+		}
+
+		return response()->json([
+			'states' => $states
+		]);
+	}
 	/*
 		configuration: NGX Dryer
 		description: Reg air temperature
@@ -1834,6 +1812,30 @@ class MachineController extends Controller
 			'items' => $items,
 			'unit' => 'ºC'
 		]);
+	}
+
+	public function getT50Amps(Request $request) {
+		$items = [0, 0];
+
+		$amp1_object = DeviceData::where('serial_number', $request->serialNumber)
+						->where('tag_id', 24)
+						->latest('timedata')
+						->first();
+
+		$amp2_object = DeviceData::where('serial_number', $request->serialNumber)
+						->where('tag_id', 49)
+						->latest('timedata')
+						->first();
+
+		if($amp1_object) {
+			$items[0] = round(json_decode($amp1_object->values)[0], 2);
+		}
+
+		if($amp2_object) {
+			$items[1] = round(json_decode($amp2_object->values)[0], 2);
+		}
+
+		return response()->json(compact('items'));
 	}
 
 	/*
