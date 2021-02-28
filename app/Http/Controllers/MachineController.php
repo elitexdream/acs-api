@@ -1389,13 +1389,13 @@ class MachineController extends Controller
 
 		];
 
-		$tag_ids = [27, 55, 58, 59, 30];
+		$tag_ids = [27, 55, 58, 59, 60];
 
 		for ($i=0; $i < count($tag_ids); $i++) { 
 			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $tag_ids[$i])->latest('timedata')->first();
 
 			if($obj) {
-				$states[0]["value"] = json_decode($obj->values)[0];
+				$states[$i]["value"] = json_decode($obj->values)[0];
 			}
 		}
 
