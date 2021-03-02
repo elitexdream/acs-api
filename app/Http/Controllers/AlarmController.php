@@ -9,6 +9,8 @@ use App\Alarm;
 use App\Device;
 use App\Machine;
 use App\Tag;
+use App\Company;
+use App\TeltonikaConfiguration;
 use DB;
 use \stdClass;
 
@@ -35,6 +37,118 @@ class AlarmController extends Controller
 		}
 
 		return response()->json(compact('devices'));
+	}
+
+	public function getAlarmsOverview(Request $request) {
+		$machine_types = Machine::select('id', 'name')->get();
+
+		foreach ($machine_types as $key => &$machine_type) {
+			if ($machine_type->id != 1)
+				continue;
+			$alarm_types = AlarmType::select('name', 'bytes', 'offset', 'tag_id')->where('machine_id', $machine_type->id)->orderBy('id')->get();
+			$tag_ids = $alarm_types->unique('tag_id')->pluck('tag_id');
+
+			$alarms_object = Alarm::where('machine_id', $machine_type->id)
+									->whereIn('tag_id', $tag_ids)
+									->get();
+
+			foreach ($alarms_object as $alarm_object) {
+				$value32 = json_decode($alarm_object->values);
+
+				$alarm_types_for_tag = $alarm_types->filter(function ($alarm_type, $key) use ($alarm_object) {
+				    return $alarm_type->tag_id == $alarm_object->tag_id;
+				});
+
+				foreach ($alarm_types_for_tag as &$alarm_type) {
+					try {
+						$active = false;
+						if($alarm_type->bytes == 0 && $alarm_type->offset == 0)
+							$active = $value32[0];
+						else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
+							$active = $value32[$alarm_type->offset - 1];
+						} else if($alarm_type->bytes != 0) {
+							$active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
+						}
+
+						if($active) {
+							$alarm_type->machine_name = $machine_type->name;
+							$alarm_type->count++;
+						}
+					} catch (\Exception $e) {
+
+					}
+				}
+			}
+
+			$machine_type->alarm_types = $alarm_types->toArray();
+		}
+
+		$alarm_arrays = [];
+
+		foreach ($machine_types as $key => $machine_type) {
+			if ($machine_type->alarm_types) {
+				$alarm_arrays = array_merge($alarm_arrays, $machine_type->alarm_types);
+			}
+		}
+
+		$max1 = collect($alarm_arrays)->max('count');
+		$max2 = collect($alarm_arrays)->max('count');
+		$max3 = collect($alarm_arrays)->max('count');
+
+		return response()->json([
+			'top_alarms' => [ $max1, $max2, $max3 ],
+			'total' => collect($alarm_arrays)->sum('count')
+		]);
+	}
+
+	public function getAlarmsForCompany(Request $request) {
+		$company = Company::findOrFail($request->companyId);
+		$devices = $company->devices->where('machine_id', $request->machineId)->pluck('serial_number');
+
+		$alarm_types = AlarmType::select('name', 'bytes', 'offset', 'tag_id')->where('machine_id', $request->machineId)->orderBy('id')->get();
+		foreach ($alarm_types as $key => &$type) {
+			$type->counts = 0;
+		}
+
+		$tag_ids = $alarm_types->unique('tag_id')->pluck('tag_id');
+
+		foreach ($devices as $key => $device) {
+			$teltonika = TeltonikaConfiguration::where('teltonika_id', $device)->first();
+
+			if ($teltonika)
+				$serial_number = $teltonika->plc_serial_number;
+			else
+				continue;
+
+			$alarms_object = Alarm::where('serial_number', $serial_number)
+									->whereIn('tag_id', $tag_ids)
+									->orderBy('timestamp', 'DESC')
+									->get();
+
+			foreach ($alarms_object as $alarm_object) {
+				$value32 = json_decode($alarm_object->values);
+
+				$alarm_types_for_tag = $alarm_types->filter(function ($alarm_type, $key) use ($alarm_object) {
+				    return $alarm_type->tag_id == $alarm_object->tag_id;
+				});
+
+				foreach ($alarm_types_for_tag as &$alarm_type) {
+					$active = false;
+					if($alarm_type->bytes == 0 && $alarm_type->offset == 0)
+						$active = $value32[0];
+					else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
+						$active = $value32[$alarm_type->offset - 1];
+					} else if($alarm_type->bytes != 0) {
+						$active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
+					}
+
+					if($active)
+						$alarm_type->counts++;
+				}
+			}
+		}
+
+		return response()->json(compact('alarm_types'));
 	}
 
     public function getProductAlarms(Request $request) {

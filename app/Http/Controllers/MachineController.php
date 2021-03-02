@@ -1249,6 +1249,10 @@ class MachineController extends Controller
 			$tag_2_ids = [12, 14, 13];
 			$tag_3_ids = [15, 17,16];
 
+			$tag_1_ids = [9, 12, 15];
+			$tag_2_ids = [11, 14, 13];
+			$tag_3_ids = [10, 13,16];
+
 			for ($i=0; $i < 3; $i++) { 
 				$inlet = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', $tag_1_ids[$i])
@@ -1327,7 +1331,7 @@ class MachineController extends Controller
 			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $tag_ids[$i])->latest('timedata')->first();
 
 			if($obj) {
-				$states[0]["value"] = json_decode($obj->values)[0];
+				$states[$i]["value"] = json_decode($obj->values)[0];
 			}
 		}
 

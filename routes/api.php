@@ -164,6 +164,8 @@ Route::group(['prefix' => 'notes', 'middleware' => 'auth'], function () {
 Route::group(['prefix' => 'alarms'], function () {
 	Route::post('/alarms-for-customer-devices', 'AlarmController@getAlarmsForCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
 	Route::post('/', 'AlarmController@getProductAlarms');
+	Route::post('/overview', 'AlarmController@getAlarmsOverview');
+	Route::post('/per-company-configuration', 'AlarmController@getAlarmsForCompany');
 	Route::get('/alarms-by-company-id/{company_id}', 'AlarmController@getAlarmsByCompanyId');
 	Route::post('/severity-by-company-id', 'AlarmController@getSeverityByCompanyId');
 	Route::post('/alarms-per-type-by-machine', 'AlarmController@getAlarmsPerTypeByMachine');
