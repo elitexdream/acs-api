@@ -25,6 +25,9 @@ class InventoryMaterial extends Model
     	'location5_id',
     	'location6_id',
         'location7_id',
-        'location8_id'
+        'location8_id',
+        'start',
+        'stop',
+        'in_progress'
     ];
 }

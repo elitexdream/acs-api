@@ -17,6 +17,7 @@ use App\Tag;
 use App\InventoryMaterial;
 use DB;
 use \stdClass;
+use Carbon\Carbon;
 
 class MachineController extends Controller
 {
@@ -445,6 +446,29 @@ class MachineController extends Controller
 		return response()->json('Updated Successfully');
 	}
 
+	public function updateTrackingStatus(Request $request) {
+		$inventory_material = InventoryMaterial::where('plc_id', $request->serialNumber)->first();
+
+		if ($inventory_material->in_progress) {
+			$inventory_material->update([
+				'in_progress' => false,
+				'stop' => Carbon::now()->timestamp
+			]);
+
+			return response()->json([
+				'in_progress' => false
+			]);
+		} else {
+			$inventory_material->update([
+				'in_progress' => true,
+				'start' => Carbon::now()->timestamp
+			]);
+
+			return response()->json([
+				'in_progress' => true
+			]);
+		}
+	}
 	/*
 		configuration: BD Blender configuration
 		description: feeder calibration factors
