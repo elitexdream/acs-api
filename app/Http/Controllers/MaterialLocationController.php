@@ -9,15 +9,23 @@ use App\MaterialLocation;
 
 class MaterialLocationController extends Controller
 {
-    public function index() {
-		$locations = MaterialLocation::get();
+    public function index(Request $request) {
+		$user = $request->user('api');
+
+    	$company = $user->company;
+
+		$locations = $company->materialLocations;
 
 		return response()->json(compact('locations'));
 	}
 
 	public function store(Request $request) {
+		$user = $request->user('api');
+
+    	$company = $user->company;
+
 		$validator = Validator::make($request->all(), [ 
-            'location' => 'required',
+            'location' => 'required'
         ]);
 
         if ($validator->fails())
@@ -25,7 +33,7 @@ class MaterialLocationController extends Controller
             return response()->json(['error'=>$validator->errors()], 422);            
         }
 
-		MaterialLocation::create([
+        $company->materialLocations()->create([
 			'location' => $request->location,
 		]);
 

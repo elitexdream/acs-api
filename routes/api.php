@@ -33,8 +33,14 @@ Route::middleware('auth')->group(function () {
 
 Route::apiResource('locations', LocationController::class)->only(['update', 'index', 'store'])->middleware('auth');
 Route::apiResource('zones', ZoneController::class)->only(['update', 'index', 'store'])->middleware('auth');
-Route::apiResource('materials', MaterialController::class)->only(['index', 'store', 'update', 'destroy'])->middleware('auth');
-Route::apiResource('material-locations', MaterialLocationController::class)->only(['index', 'store', 'update', 'destroy'])->middleware('auth');
+Route::apiResource('materials', MaterialController::class)->only(['index', 'store', 'update', 'destroy'])->middleware('auth:customer_admin');
+
+Route::apiResource('material-locations', MaterialLocationController::class)->only(['index', 'store', 'update', 'destroy'])->middleware('auth:customer_admin');
+
+Route::group(['prefix' => 'materials'], function () {
+	Route::post('/report', 'MaterialController@getMaterialReport');
+	Route::post('/tracks', 'MaterialController@getTracks');
+});
 
 Route::apiResource('configurations', ConfigurationController::class)->only(['show', 'update', 'index'])->middleware('auth');
 

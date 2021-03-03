@@ -375,6 +375,8 @@ class MachineController extends Controller
 				'plc_id' => $request->serialNumber
 			]);
 
+		$inventory_material->in_progress = $inventory_material->isInProgress();
+
 		return response()->json([
 			'data' => [
 				'inventories' => $inventories,
@@ -385,11 +387,14 @@ class MachineController extends Controller
 	}
 
 	public function updateInventoryMaterial(Request $request) {
+		$user = $request->user('api');
+
 		$inventory_material = InventoryMaterial::where('plc_id', $request->serialNumber)->first();
 
 		if(!$inventory_material)
 			$inventory_material = InventoryMaterial::create([
-				'plc_id' => $request->serialNumber
+				'plc_id' => $request->serialNumber,
+				'company_id' => $user->company->id
 			]);
 
 		switch($request->id) {
@@ -449,19 +454,20 @@ class MachineController extends Controller
 	public function updateTrackingStatus(Request $request) {
 		$inventory_material = InventoryMaterial::where('plc_id', $request->serialNumber)->first();
 
-		if ($inventory_material->in_progress) {
-			$inventory_material->update([
-				'in_progress' => false,
-				'stop' => Carbon::now()->timestamp
+		if ($inventory_material->isInProgress()) {
+			$inventory_material->materialTracks()->latest('start')->first()->update([
+				'stop' => Carbon::now()->timestamp,
+				'in_progress' => false
 			]);
 
 			return response()->json([
 				'in_progress' => false
 			]);
 		} else {
-			$inventory_material->update([
+			$inventory_material->materialTracks()->create([
+				'start' => Carbon::now()->timestamp,
 				'in_progress' => true,
-				'start' => Carbon::now()->timestamp
+				'initial_materials' => json_encode($inventory_material)
 			]);
 
 			return response()->json([

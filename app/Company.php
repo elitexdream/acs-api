@@ -24,6 +24,18 @@ class Company extends Model
         return User::where('company_id', $this->id)->whereIn('id', $admin_ids)->get();
     }
 
+    public function materials() {
+        return $this->hasMany('App\Material', 'company_id');
+    }
+
+    public function materialLocations() {
+        return $this->hasMany('App\MaterialLocation', 'company_id');
+    }
+
+    public function inventoryMaterials() {
+        return $this->hasMany('App\InventoryMaterial', 'company_id');
+    }
+
     public function downtimePlans() {
         return $this->hasMany('App\DowntimePlan');
     }

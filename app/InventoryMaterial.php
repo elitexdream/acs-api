@@ -26,8 +26,29 @@ class InventoryMaterial extends Model
     	'location6_id',
         'location7_id',
         'location8_id',
-        'start',
-        'stop',
-        'in_progress'
+        'company_id'
     ];
+
+    public function materialTracks() {
+        return $this->hasMany('App\MaterialTrack', 'inventory_material_id');
+    }
+
+    public function isInProgress() {
+        $tracks = $this->materialTracks()->latest('start')->first();
+
+        if ($tracks && $tracks->in_progress)
+            return true;
+        else
+            return false;
+    }
+
+    public function inventoryMaterial()
+    {
+        return $this->belongsTo('App\InventoryMaterial', 'inventory_material_id');
+    }
+
+    public function teltonika()
+    {
+        return $this->belongsTo('App\TeltonikaConfiguration', 'plc_id', 'plc_serial_number');
+    }
 }
