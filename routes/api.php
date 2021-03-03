@@ -39,7 +39,7 @@ Route::apiResource('material-locations', MaterialLocationController::class)->onl
 
 Route::group(['prefix' => 'materials'], function () {
 	Route::post('/report', 'MaterialController@getMaterialReport');
-	Route::post('/tracks', 'MaterialController@getTracks');
+	Route::post('/blenders', 'MaterialController@getBlenders');
 });
 
 Route::apiResource('configurations', ConfigurationController::class)->only(['show', 'update', 'index'])->middleware('auth');
