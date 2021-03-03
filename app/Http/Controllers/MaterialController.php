@@ -14,6 +14,10 @@ use App\InventoryMaterial;
 use App\Device;
 
 use \stdClass;
+use File;
+
+use App\Exports\ReportExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MaterialController extends Controller
 {
@@ -97,17 +101,29 @@ class MaterialController extends Controller
         $location_keys = ['location1_id', 'location2_id', 'location3_id', 'location4_id', 'location5_id', 'location6_id', 'location7_id', 'location8_id'];
 
         foreach ($tracks as $key => &$track) {
-            $hop_materials = DeviceData::where('serial_number', $serial_number)
+            $hop_material1 = DeviceData::where('serial_number', $serial_number)
                 ->where('tag_id', 15)
-                ->where('timestamp', '>', $track->start)
-                ->where('timestamp', '<', $track->stop)
-                ->get();
+                ->where('timestamp', '<', $track->start)
+                ->latest('timedata')
+                ->first();
 
-            $actual_materials = DeviceData::where('serial_number', $serial_number)
-                ->where('tag_id', 16)
-                ->where('timestamp', '>', $track->start)
+            $hop_material2 = DeviceData::where('serial_number', $serial_number)
+                ->where('tag_id', 15)
                 ->where('timestamp', '<', $track->stop)
-                ->get();
+                ->latest('timedata')
+                ->first();
+
+            $actual_material1 = DeviceData::where('serial_number', $serial_number)
+                ->where('tag_id', 16)
+                ->where('timestamp', '<', $track->start)
+                ->latest('timedata')
+                ->first();
+
+            $actual_material2 = DeviceData::where('serial_number', $serial_number)
+                ->where('tag_id', 16)
+                ->where('timestamp', '<', $track->stop)
+                ->latest('timedata')
+                ->first();
 
             $initial_materials = (array)json_decode($track->initial_materials);
 
@@ -120,18 +136,14 @@ class MaterialController extends Controller
                 if ($material_id) {
                     $item = new stdClass();
 
-                    $item->value = 0;
-
                     $material = $materials->where('id', $material_id)->first();
                     $item->material = $material ? $material->material : '';
 
                     $location = $locations->where('id', $location_id)->first();
                     $item->location = $location ? $location->location : '';
 
-                    foreach ($hop_materials as $hop_material) {
-                        $actual_material = $actual_materials->where('timestamp', $hop_material->timestamp)->first();
-                        $item->value += json_decode($hop_material->values)[$i] + json_decode($actual_material->values)[$i] / 1000;
-                    }
+                    $item->value = (json_decode($hop_material2->values)[$i] + json_decode($actual_material2->values)[$i] / 1000) -
+                        (json_decode($hop_material1->values)[$i] + json_decode($actual_material1->values)[$i] / 1000);
 
                     $item->value = round($item->value, 3);
                     array_push($reportItems, $item);
@@ -142,5 +154,83 @@ class MaterialController extends Controller
         }
 
         return response()->json(compact('tracks'));
+    }
+
+    public function deleteReport(Request $request) {
+        $report = MaterialTrack::findOrFail($request->id);
+
+        $report->delete();
+
+        return response()->json('Successfully Deleted');
+    }
+
+    public function exportReport(Request $request) {
+        $track = MaterialTrack::findOrFail($request->id);
+
+        $device = Device::where('serial_number', $request->blenderId)->first();
+        $serial_number = $device->teltonikaConfiguration->plcSerialNumber();
+
+        $materials = Material::get();
+        $locations = MaterialLocation::get();
+
+        $material_keys = ['material1_id', 'material2_id', 'material3_id', 'material4_id', 'material5_id', 'material6_id', 'material7_id', 'material8_id'];
+        $location_keys = ['location1_id', 'location2_id', 'location3_id', 'location4_id', 'location5_id', 'location6_id', 'location7_id', 'location8_id'];
+
+        $hop_material1 = DeviceData::where('serial_number', $serial_number)
+            ->where('tag_id', 15)
+            ->where('timestamp', '<', $track->start)
+            ->latest('timedata')
+            ->first();
+
+        $hop_material2 = DeviceData::where('serial_number', $serial_number)
+            ->where('tag_id', 15)
+            ->where('timestamp', '<', $track->stop)
+            ->latest('timedata')
+            ->first();
+
+        $actual_material1 = DeviceData::where('serial_number', $serial_number)
+            ->where('tag_id', 16)
+            ->where('timestamp', '<', $track->start)
+            ->latest('timedata')
+            ->first();
+
+        $actual_material2 = DeviceData::where('serial_number', $serial_number)
+            ->where('tag_id', 16)
+            ->where('timestamp', '<', $track->stop)
+            ->latest('timedata')
+            ->first();
+
+        $initial_materials = (array)json_decode($track->initial_materials);
+
+        $reportItems = [];
+
+        for ($i=0; $i < 8; $i++) {
+            $material_id = $initial_materials[$material_keys[$i]];
+            $location_id = $initial_materials[$location_keys[$i]];
+
+            if ($material_id) {
+                $item = [];
+
+                $material = $materials->where('id', $material_id)->first();
+                $item['material'] = $material ? $material->material : '';
+
+                $location = $locations->where('id', $location_id)->first();
+                $item['location'] = $location ? $location->location : '';
+
+                $item['value'] = (json_decode($hop_material2->values)[$i] + json_decode($actual_material2->values)[$i] / 1000) -
+                    (json_decode($hop_material1->values)[$i] + json_decode($actual_material1->values)[$i] / 1000);
+
+                $item['value'] = round($item['value'], 3);
+                array_push($reportItems, $item);
+            }
+        }
+
+        Excel::store(new ReportExport($reportItems), 'report.xlsx');
+        // File::move(storage_path('app\report.xlsx'), public_path('report.xlsx'));
+
+        return response()->json([
+            'mesage' => 'Successfully exported',
+            'path' => 'report.xlsx'
+        ]);
     }
 }

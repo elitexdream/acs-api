@@ -15,6 +15,7 @@
         "laravel/framework": "^7.2.8",
         "laravel/passport": "^9.0",
         "laravel/tinker": "^2.3",
+        "maatwebsite/excel": "^3.1",
         "php-mqtt/client": "^0.3.0",
         "pusher/pusher-php-server": "^4.0",
         "rennokki/laravel-eloquent-query-cache": "^2.5",
