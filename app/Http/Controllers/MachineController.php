@@ -452,7 +452,15 @@ class MachineController extends Controller
 	}
 
 	public function updateTrackingStatus(Request $request) {
+		$user = $request->user('api');
+		
 		$inventory_material = InventoryMaterial::where('plc_id', $request->serialNumber)->first();
+
+		if(!$inventory_material)
+			$inventory_material = InventoryMaterial::create([
+				'plc_id' => $request->serialNumber,
+				'company_id' => $user->company->id
+			]);
 
 		if ($inventory_material->isInProgress()) {
 			$inventory_material->materialTracks()->latest('start')->first()->update([
