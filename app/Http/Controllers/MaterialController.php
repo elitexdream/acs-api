@@ -12,11 +12,13 @@ use App\MaterialTrack;
 use App\TeltonikaConfiguration;
 use App\InventoryMaterial;
 use App\Device;
+use App\SystemInventory;
 
 use \stdClass;
 use File;
 
 use App\Exports\ReportExport;
+use App\Exports\SystemInventoryReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MaterialController extends Controller
@@ -235,6 +237,143 @@ class MaterialController extends Controller
         $filename = 'Blender - ' . $track->id . '.xlsx';
 
         Excel::store(new ReportExport($reportItems), 'report.xlsx');
+        File::move(storage_path('app/report.xlsx'), public_path('assets/app/reports/' . $filename));
+
+        return response()->json([
+            'mesage' => 'Successfully exported',
+            'filename' => $filename
+        ]);
+    }
+
+    public function getSystemInventoryReport(Request $request) {
+        $keyed_materials = $this->helperGetSystemInventoryReport($request);
+
+        return response()->json(compact('keyed_materials'));
+    }
+
+    public function helperGetSystemInventoryReport(Request $request) {
+        $user = $request->user('api');
+        $company = $user->company;
+        $materials = $company->materials;
+        $inventory_materials = $company->inventoryMaterials;
+
+        // 1. change materials to useful keyed array values
+        $keyed_materials = $materials->mapWithKeys(function ($material) {
+            return [
+                $material['id'] => [
+                    'material' => $material['material'],
+                    'value' => 0,
+                ],
+            ];
+        })->all();
+
+        // 2. calculate inventories for each material till now
+        foreach ($inventory_materials as $key => $inventory_material) {
+            $system_inventories_for_inventory_material = $inventory_material->systemInventories;
+
+            foreach ($system_inventories_for_inventory_material as $system_inventory) {
+                $last_material = $system_inventories_for_inventory_material->where('hopper_id', $system_inventory->hopper_id)
+                    ->where('created_at', '<', $system_inventory->created_at)
+                    ->sortByDesc('created_at')
+                    ->first();
+
+                if ($last_material)
+                    $keyed_materials[$last_material->material_id]['value'] += ($system_inventory->inventory - $last_material->inventory);
+            }
+            
+            // 3. account current inventory into materials inventory
+            $hop_material = DeviceData::where('serial_number', $inventory_material->plc_id)
+                ->where('tag_id', 15)
+                ->latest('timedata')
+                ->first();
+            $actual_material = DeviceData::where('serial_number', $inventory_material->plc_id)
+                ->where('tag_id', 16)
+                ->latest('timedata')
+                ->first();
+
+            if ($inventory_material->material1_id) {
+                $current_inventory_for_material_1 = json_decode($hop_material->values)[0] + json_decode($actual_material->values)[0] / 1000;
+                $last_material = $system_inventories_for_inventory_material->where('hopper_id', 0)
+                    ->sortByDesc('created_at')
+                    ->first();
+                if ($last_material)
+                    $keyed_materials[$inventory_material->material1_id]['value'] += ($current_inventory_for_material_1 - $last_material->inventory);
+            }
+
+            if ($inventory_material->material2_id) {
+                $current_inventory_for_material_2 = json_decode($hop_material->values)[1] + json_decode($actual_material->values)[1] / 1000;
+                $last_material = $system_inventories_for_inventory_material->where('hopper_id', 1)
+                    ->sortByDesc('created_at')
+                    ->first();
+                if ($last_material)
+                    $keyed_materials[$inventory_material->material2_id]['value'] += ($current_inventory_for_material_2 - $last_material->inventory);
+            }
+
+            if ($inventory_material->material3_id) {
+                $current_inventory_for_material_3 = json_decode($hop_material->values)[2] + json_decode($actual_material->values)[2] / 1000;
+                $last_material = $system_inventories_for_inventory_material->where('hopper_id', 2)
+                    ->sortByDesc('created_at')
+                    ->first();
+                if ($last_material)
+                    $keyed_materials[$inventory_material->material3_id]['value'] += ($current_inventory_for_material_3 - $last_material->inventory);
+            }
+
+            if ($inventory_material->material4_id) {
+                $current_inventory_for_material_4 = json_decode($hop_material->values)[3] + json_decode($actual_material->values)[3] / 1000;
+                $last_material = $system_inventories_for_inventory_material->where('hopper_id', 3)
+                    ->sortByDesc('created_at')
+                    ->first();
+                if ($last_material)
+                    $keyed_materials[$inventory_material->material4_id]['value'] += ($current_inventory_for_material_4 - $last_material->inventory);
+            }
+
+            if ($inventory_material->material5_id) {
+                $current_inventory_for_material_5 = json_decode($hop_material->values)[4] + json_decode($actual_material->values)[4] / 1000;
+                $last_material = $system_inventories_for_inventory_material->where('hopper_id', 4)
+                    ->sortByDesc('created_at')
+                    ->first();
+                if ($last_material)
+                    $keyed_materials[$inventory_material->material5_id]['value'] += ($current_inventory_for_material_5 - $last_material->inventory);
+            }
+
+            if ($inventory_material->material6_id) {
+                $current_inventory_for_material_6 = json_decode($hop_material->values)[5] + json_decode($actual_material->values)[5] / 1000;
+                $last_material = $system_inventories_for_inventory_material->where('hopper_id', 5)
+                    ->sortByDesc('created_at')
+                    ->first();
+                if ($last_material)
+                    $keyed_materials[$inventory_material->material6_id]['value'] += ($current_inventory_for_material_6 - $last_material->inventory);
+            }
+
+            if ($inventory_material->material7_id) {
+                $current_inventory_for_material_7 = json_decode($hop_material->values)[6] + json_decode($actual_material->values)[6] / 1000;
+                $last_material = $system_inventories_for_inventory_material->where('hopper_id', 6)
+                    ->sortByDesc('created_at')
+                    ->first();
+                if ($last_material)
+                    $keyed_materials[$inventory_material->material7_id]['value'] += ($current_inventory_for_material_7 - $last_material->inventory);
+            }
+
+            if ($inventory_material->material8_id) {
+                $current_inventory_for_material_8 = json_decode($hop_material->values)[7] + json_decode($actual_material->values)[7] / 1000;
+                $last_material = $system_inventories_for_inventory_material->where('hopper_id', 7)
+                    ->sortByDesc('created_at')
+                    ->first();
+                if ($last_material)
+                    $keyed_materials[$inventory_material->material8_id]['value'] += ($current_inventory_for_material_8 - $last_material->inventory);
+            }
+        }
+
+        return $keyed_materials;
+        // return response()->json(compact('keyed_materials'));
+    }
+
+    public function exportSystemInventoryReport(Request $request) {
+        $keyed_materials = $this->helperGetSystemInventoryReport($request);
+
+        $filename = $request->user('api')->company->name . ' - System Inventory Report' . '.xlsx';
+
+        Excel::store(new SystemInventoryReportExport($keyed_materials), 'report.xlsx');
         File::move(storage_path('app/report.xlsx'), public_path('assets/app/reports/' . $filename));
 
         return response()->json([

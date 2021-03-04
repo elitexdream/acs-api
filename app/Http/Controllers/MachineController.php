@@ -15,6 +15,7 @@ use App\TeltonikaConfiguration;
 use App\DowntimePlan;
 use App\Tag;
 use App\InventoryMaterial;
+use App\SystemInventory;
 use DB;
 use \stdClass;
 use Carbon\Carbon;
@@ -446,14 +447,37 @@ class MachineController extends Controller
 				'location8_id' => $request->location
 			]);
 			break;
+		default:
+			break;
 		}
+
+		$hop_material = DeviceData::where('serial_number', $request->serialNumber)
+            ->where('tag_id', 15)
+            ->latest('timedata')
+            ->first();
+
+        $actual_material = DeviceData::where('serial_number', $request->serialNumber)
+            ->where('tag_id', 16)
+            ->latest('timedata')
+            ->first();
+
+        $inventory = json_decode($hop_material->values)[$request->id] + json_decode($actual_material->values)[$request->id] / 1000;
+
+		SystemInventory::create([
+			'hopper_id' => $request->id,
+			'material_id' => $request->material,
+			'location_id' => $request->location,
+			'inventory' => $inventory,
+			'serial_number' => $request->serialNumber,
+			'company_id' => $user->company->id
+		]);
 
 		return response()->json('Updated Successfully');
 	}
 
 	public function updateTrackingStatus(Request $request) {
 		$user = $request->user('api');
-		
+
 		$inventory_material = InventoryMaterial::where('plc_id', $request->serialNumber)->first();
 
 		if(!$inventory_material)

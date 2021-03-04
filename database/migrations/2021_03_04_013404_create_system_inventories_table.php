@@ -15,7 +15,7 @@ class CreateSystemInventoriesTable extends Migration
     {
         Schema::create('system_inventories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('inventory')->default(0);
+            $table->float('inventory')->default(0);
             $table->unsignedBigInteger('material_id')->nullable();
             $table->unsignedBigInteger('location_id')->nullable();
             $table->unsignedBigInteger('hopper_id');

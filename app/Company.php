@@ -36,6 +36,10 @@ class Company extends Model
         return $this->hasMany('App\InventoryMaterial', 'company_id');
     }
 
+    public function systemInventories() {
+        return $this->hasMany('App\SystemInventory', 'company_id');
+    }
+
     public function downtimePlans() {
         return $this->hasMany('App\DowntimePlan');
     }

@@ -51,4 +51,8 @@ class InventoryMaterial extends Model
     {
         return $this->belongsTo('App\TeltonikaConfiguration', 'plc_id', 'plc_serial_number');
     }
+
+    public function systemInventories() {
+        return $this->hasMany('App\SystemInventory', 'serial_number', 'plc_id');
+    }
 }

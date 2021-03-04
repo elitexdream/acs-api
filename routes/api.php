@@ -42,6 +42,9 @@ Route::group(['prefix' => 'materials'], function () {
 	Route::delete('/report/{id}', 'MaterialController@deleteReport');
 	Route::post('/blenders', 'MaterialController@getBlenders');
 	Route::post('/export', 'MaterialController@exportReport');
+
+	Route::post('/system-inventory-report', 'MaterialController@getSystemInventoryReport')->middleware('auth:customer_admin');
+	Route::post('/system-inventory-report/export', 'MaterialController@exportSystemInventoryReport')->middleware('auth:customer_admin');
 });
 
 Route::apiResource('configurations', ConfigurationController::class)->only(['show', 'update', 'index'])->middleware('auth');
