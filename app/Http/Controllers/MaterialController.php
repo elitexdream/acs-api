@@ -167,8 +167,9 @@ class MaterialController extends Controller
     public function exportReport(Request $request) {
         $track = MaterialTrack::findOrFail($request->id);
 
-        $device = Device::where('serial_number', $request->blenderId)->first();
-        $serial_number = $device->teltonikaConfiguration->plcSerialNumber();
+        // $device = Device::where('serial_number', $request->blenderId)->first();
+        // $serial_number = $device->teltonikaConfiguration->plcSerialNumber();
+        $serial_number = $track->inventoryMaterial->teltonika->plc_serial_number;
 
         $materials = Material::get();
         $locations = MaterialLocation::get();
@@ -225,12 +226,20 @@ class MaterialController extends Controller
             }
         }
 
+        // $filename = $device->customer_assigned_name .
+        //             date('Y-m-d H-i-s', $track->start) .
+        //             ' - ' .
+        //             date('Y-m-d H-i-s', $track->stop) .
+        //             '.xlsx';
+
+        $filename = 'Blender - ' . $track->id . '.xlsx';
+
         Excel::store(new ReportExport($reportItems), 'report.xlsx');
-        // File::move(storage_path('app\report.xlsx'), public_path('report.xlsx'));
+        File::move(storage_path('app\report.xlsx'), public_path($filename));
 
         return response()->json([
             'mesage' => 'Successfully exported',
-            'path' => 'report.xlsx'
+            'filename' => $filename
         ]);
     }
 }

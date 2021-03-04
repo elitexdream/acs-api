@@ -2,30 +2,35 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class ReportExport implements FromArray
+class ReportExport implements FromArray, WithHeadings
 {
-	// private $data;
+	private $data;
 
 	public function __construct($request)
     {
-        // $this->data = $request;
+        $this->data = $request;
     }
 
 	public function array(): array
     {
-    	return [
-            [1, 2, 3],
-            [4, 5, 6]
+        return array_map(function($d) {
+    		return [
+    			$d['material'],
+    			$d['location'],
+    			$d['value'] ? $d['value'] : '0'
+    		];
+    	}, $this->data);
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Material',
+            'Location',
+            'Value',
         ];
-        // return array_map(function($d) {
-    		// return [[
-    		// 	'material',
-    		// 	'location',
-    		// 	'value'
-    		// ]];
-    	// }, $this->data);
     }
 
 }
