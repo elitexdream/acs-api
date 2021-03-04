@@ -235,7 +235,7 @@ class MaterialController extends Controller
         $filename = 'Blender - ' . $track->id . '.xlsx';
 
         Excel::store(new ReportExport($reportItems), 'report.xlsx');
-        File::move(storage_path('app/report.xlsx'), public_path($filename));
+        File::move(storage_path('app/report.xlsx'), public_path('assets/app/reports/' . $filename));
 
         return response()->json([
             'mesage' => 'Successfully exported',
