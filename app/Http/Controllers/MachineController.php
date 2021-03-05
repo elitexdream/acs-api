@@ -618,6 +618,32 @@ class MachineController extends Controller
 		return response()->json(compact('items'));
 	}
 
+	public function getLoadCells(Request $request) {
+		$loadCells = [];
+
+		$tag_ids = [11, 12, 20, 21, 22, 23];
+		$names = ['Batch Size', 'Batch Counter', 'Load cell A zero bits', 'Load cell A cal bits', 'Load cell B zero bits', 'Load cell B cal bits'];
+
+		for ($i=0; $i < 6; $i++) { 
+			$last_object = DeviceData::where('serial_number', $request->serialNumber)
+							->where('tag_id', $tag_ids[$i])
+							->latest('timedata')
+							->first();
+
+			$item = new stdClass();
+			$item->name = $names[$i];
+			$item->value = 0;
+
+			if( $last_object) {
+				$item->value = json_decode($last_object->values)[0];
+			}
+
+			array_push($loadCells, $item);
+		}
+
+		return response()->json(compact('loadCells'));
+	}
+
 	/*
 		configuration: BD Blender configuration
 		description: get hopper stables
