@@ -1271,10 +1271,10 @@ class MachineController extends Controller
 
 		$items = [];
 
-		$tag_ids = $request->machineId === 6 ? [20, 21, 23] : [14, 15, 17];
-		$names = ['Regen Left Air Temperature', 'Regen Right Air Temperature', 'Regen Exhause Air Temperature'];
+		$tag_ids = $request->machineId === 6 ? [22, 20, 21, 23] : [16, 14, 15, 17];
+		$names = ['Set Point', 'Regen Left', 'Regen Right', 'Regen Exhause'];
 
-		for ($i=0; $i < 3; $i++) { 
+		for ($i=0; $i < 4; $i++) { 
 			$obj = DeviceData::where('serial_number', $request->serialNumber)
 											->where('tag_id', $tag_ids[$i])
 											->orderBy('timestamp')
