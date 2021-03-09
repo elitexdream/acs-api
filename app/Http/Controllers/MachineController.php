@@ -635,7 +635,11 @@ class MachineController extends Controller
 			$item->value = 0;
 
 			if( $last_object) {
-				$item->value = json_decode($last_object->values)[0];
+				if ($i === 0) {
+					$item->value = sprintf('%01.1f', json_decode($last_object->values)[0] / 10);
+				} else {
+					$item->value = json_decode($last_object->values)[0];
+				}
 			}
 
 			array_push($loadCells, $item);
