@@ -90,7 +90,7 @@ class SettingController extends Controller
 
         return response()->json([
             'filepath'=>$file_path,
-            'success'=>'Uploaded Successfully.'
+            'message'=>'Uploaded Successfully.'
         ]);
     }
 
