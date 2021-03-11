@@ -122,7 +122,7 @@ class SettingController extends Controller
 
         return response()->json([
             'filepath'=>$file_path,
-            'success'=>'Uploaded Successfully.'
+            'message'=>'Uploaded Successfully.'
         ]);
     }
 
@@ -161,8 +161,7 @@ class SettingController extends Controller
         }
 
         return response()->json([
-            'product_name'=>$product_name->value,
-            'product_version'=>$product_version->value
+            'message' => 'Updated Successfully'
         ]);
     }
 
@@ -189,7 +188,7 @@ class SettingController extends Controller
         }
 
         return response()->json([
-            'page_title'=>$page_title->value
+            'message' => 'Updated Successfully'
         ]);
     }
 
