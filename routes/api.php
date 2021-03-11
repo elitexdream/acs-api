@@ -77,8 +77,11 @@ Route::group(['prefix' => 'app-settings'], function () {
 	Route::post('/get-setting', 'SettingController@getSetting');
 	Route::post('/website-colors', 'SettingController@applyWebsiteColors');
 	Route::post('/upload-logo', 'SettingController@uploadLogo');
+	Route::post('/upload-image', 'SettingController@uploadImage');
 	Route::post('/update-auth-background', 'SettingController@updateAuthBackground');
 	Route::post('/reset', 'SettingController@resetSettings');
+	Route::post('/set-product-info', 'SettingController@setProductInfo');
+	Route::post('/set-page-title', 'SettingController@setPageTitle');
 });
 
 Route::group(['prefix' => 'dashboard'], function () {
