@@ -190,7 +190,7 @@ class SettingController extends Controller
         }
 
         return response()->json([
-            'page_title'=>$page_title->value,
+            'page_title' => $request->pageTitle,
             'message' => 'Updated Successfully'
         ]);
     }
