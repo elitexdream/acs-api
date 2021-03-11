@@ -161,6 +161,8 @@ class SettingController extends Controller
         }
 
         return response()->json([
+            'product_name'=>$product_name->value,
+            'product_version'=>$product_version->value,
             'message' => 'Updated Successfully'
         ]);
     }
@@ -178,7 +180,7 @@ class SettingController extends Controller
 
         $page_title = Setting::where('type', 'page_title')->first();
         if (!$page_title) {
-            Setting::create([
+            $page_title = Setting::create([
                 'type' => 'page_title',
                 'value' => $request->pageTitle
             ]);
@@ -188,6 +190,7 @@ class SettingController extends Controller
         }
 
         return response()->json([
+            'page_title'=>$page_title->value,
             'message' => 'Updated Successfully'
         ]);
     }
