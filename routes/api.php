@@ -118,7 +118,12 @@ Route::group(['prefix' => 'devices'], function () {
 	Route::get('/remote-cli/{deviceid}', 'DeviceController@remoteCli')->middleware('auth:acs_admin,acs_manager');
 });
 
+Route::group(['prefix' => 'machine-tags'], function () {
+	Route::get('/{id}', 'MachineTagController@getMachineTags');
+});
+
 Route::group(['prefix' => 'analytics'], function () {
+	Route::post('/data-tool-series', 'MachineController@getDataToolSeries');
 	Route::post('/product-overview', 'MachineController@getProductOverview');
 	Route::post('/product-utilization', 'MachineController@getProductUtilization');
 	Route::post('/product-energy-consumption', 'MachineController@getEnergyConsumption');

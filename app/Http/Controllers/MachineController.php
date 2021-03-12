@@ -16,6 +16,8 @@ use App\DowntimePlan;
 use App\Tag;
 use App\InventoryMaterial;
 use App\SystemInventory;
+use App\MachineTag;
+
 use DB;
 use \stdClass;
 use Carbon\Carbon;
@@ -2060,6 +2062,38 @@ class MachineController extends Controller
 		}
 
 		return response()->json(compact('devices'));
+	}
+
+	public function getDataToolSeries(Request $request) {
+		$series = [];
+		$tags = $request->selectedTags;
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		foreach ($tags as $key => $tag) {
+			$series_obj = DeviceData::where('tag_id', $tag['tag_id'])
+				->where('serial_number', $request->serialNumber)
+				->where('timestamp', '>', $from)
+				->where('timestamp', '<', $to)
+				->get();
+
+			if($series_obj) {
+				$ss = $series_obj->map(function($object) {
+					return [($object->timestamp) * 1000, round(json_decode($object->values)[0], 2)];
+				});
+			} else {
+				$ss = [];
+			}
+
+			$sery = new stdClass();
+			$sery->name = $tag['name'];
+			$sery->type = $tag['type'];
+			$sery->data = $ss;
+
+			array_push($series, $sery);
+		}
+
+		return response()->json(compact('series'));
 	}
 
 	/*
