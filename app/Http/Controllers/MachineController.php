@@ -2079,7 +2079,12 @@ class MachineController extends Controller
 
 			if($series_obj) {
 				$ss = $series_obj->map(function($object) use ($tag) {
-					return [($object->timestamp) * 1000, round(json_decode($object->values)[$tag['offset']] / $tag['divided_by'], 2)];
+					// $divide_by = $tag['divided_by'] ? $tag['divided_by'] : 1;
+					// if ($divide_by == 1) {
+						return [($object->timestamp) * 1000, json_decode($object->values)[$tag['offset']]];
+					// } else {
+						// return [($object->timestamp) * 1000, round(json_decode($object->values)[$tag['offset']] / $divide_by, 2)];
+					// }
 				});
 			} else {
 				$ss = [];
@@ -2087,7 +2092,7 @@ class MachineController extends Controller
 
 			$sery = new stdClass();
 			$sery->name = $tag['name'];
-			$sery->type = $tag['type'];
+			$sery->type = isset($tag['type']) ? $tag['type'] : 'line';
 			$sery->data = $ss;
 
 			array_push($series, $sery);

@@ -47,14 +47,14 @@ class MachineTagsSeeder extends Seeder
             [ 'name' => 'Calibration Factor[6]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 19, 'type' => 'line', 'offset' => 5, 'divided_by' => 100 ],
             [ 'name' => 'Calibration Factor[7]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 19, 'type' => 'line', 'offset' => 6, 'divided_by' => 100 ],
             [ 'name' => 'Calibration Factor[8]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 19, 'type' => 'line', 'offset' => 7, 'divided_by' => 100 ],
-            [ 'name' => 'Hopper Stable[1]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'bar', 'offset' => 0, 'divided_by' => 1 ],
-            [ 'name' => 'Hopper Stable[2]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'bar', 'offset' => 1, 'divided_by' => 1 ],
-            [ 'name' => 'Hopper Stable[3]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'bar', 'offset' => 2, 'divided_by' => 1 ],
-            [ 'name' => 'Hopper Stable[4]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'bar', 'offset' => 3, 'divided_by' => 1 ],
-            [ 'name' => 'Hopper Stable[5]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'bar', 'offset' => 4, 'divided_by' => 1 ],
-            [ 'name' => 'Hopper Stable[6]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'bar', 'offset' => 5, 'divided_by' => 1 ],
-            [ 'name' => 'Hopper Stable[7]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'bar', 'offset' => 6, 'divided_by' => 1 ],
-            [ 'name' => 'Hopper Stable[8]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'bar', 'offset' => 7, 'divided_by' => 1 ],
+            [ 'name' => 'Hopper Stable[1]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'line', 'offset' => 0, 'divided_by' => 1 ],
+            [ 'name' => 'Hopper Stable[2]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'line', 'offset' => 1, 'divided_by' => 1 ],
+            [ 'name' => 'Hopper Stable[3]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'line', 'offset' => 2, 'divided_by' => 1 ],
+            [ 'name' => 'Hopper Stable[4]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'line', 'offset' => 3, 'divided_by' => 1 ],
+            [ 'name' => 'Hopper Stable[5]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'line', 'offset' => 4, 'divided_by' => 1 ],
+            [ 'name' => 'Hopper Stable[6]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'line', 'offset' => 5, 'divided_by' => 1 ],
+            [ 'name' => 'Hopper Stable[7]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'line', 'offset' => 6, 'divided_by' => 1 ],
+            [ 'name' => 'Hopper Stable[8]', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 25, 'type' => 'line', 'offset' => 7, 'divided_by' => 1 ],
         ];
 
         DB::table('machine_tags')->insert($machine_tags);

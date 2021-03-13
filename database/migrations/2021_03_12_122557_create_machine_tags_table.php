@@ -20,7 +20,7 @@ class CreateMachineTagsTable extends Migration
             $table->integer('tag_id');
             $table->string('type');
             $table->integer('offset')->default(0);
-            $table->float('divided_by')->default(1);
+            $table->integer('divided_by')->default(1);
 
             $table->foreign('configuration_id')->references('id')->on('machines');
         });
