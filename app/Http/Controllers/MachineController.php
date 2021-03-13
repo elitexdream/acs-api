@@ -2078,8 +2078,8 @@ class MachineController extends Controller
 				->get();
 
 			if($series_obj) {
-				$ss = $series_obj->map(function($object) {
-					return [($object->timestamp) * 1000, round(json_decode($object->values)[0], 2)];
+				$ss = $series_obj->map(function($object) use ($tag) {
+					return [($object->timestamp) * 1000, round(json_decode($object->values)[$tag['offset']] / $tag['divided_by'], 2)];
 				});
 			} else {
 				$ss = [];
