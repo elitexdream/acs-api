@@ -675,19 +675,19 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 9,
                 'bytes' => 0
             ], [
-                'name' => 'Vacuum Levels Option' [10],
+                'name' => 'Vacuum Levels Option [10]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
                 'offset' => 10,
                 'bytes' => 0
             ], [
-                'name' => 'Vacuum Levels Option' [11],
+                'name' => 'Vacuum Levels Option [11]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
                 'offset' => 11,
                 'bytes' => 0
             ], [
-                'name' => 'Vacuum Levels Option' [12],
+                'name' => 'Vacuum Levels Option [12]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
                 'offset' => 12,
