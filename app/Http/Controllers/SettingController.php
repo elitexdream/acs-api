@@ -56,6 +56,9 @@ class SettingController extends Controller
         Setting::where('type', 'color_surface')->first()->update([
             'value' => '#f2f5f8'
         ]);
+        Setting::where('type', 'page_title')->first()->update([
+            'value' => 'ACS Digital Solutions'
+        ]);
 
         return response()->json([
             'success'=>'Reset Successfully.'
