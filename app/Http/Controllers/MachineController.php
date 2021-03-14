@@ -2084,7 +2084,7 @@ class MachineController extends Controller
 					$offset = $tag['offset'] ? $tag['offset'] : 0;
 					$bytes = isset($tag['bytes']) ? $tag['bytes'] : 0;
 					if ($bytes) {
-						$value = ((json_decode($object->values)[0] >> $tag['offset']) & $tag['bytes'])
+						$value = ((json_decode($object->values)[0] >> $tag['offset']) & $tag['bytes']);
 					} else {
 						$value = json_decode($object->values)[$offset] / $divide_by;
 					}
