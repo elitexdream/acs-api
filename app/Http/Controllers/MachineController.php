@@ -2080,7 +2080,7 @@ class MachineController extends Controller
 
 			if($series_obj) {
 				$ss = $series_obj->map(function($object) use ($tag) {
-					$divide_by = $tag['divided_by'] ? $tag['divided_by'] : 1;
+					$divide_by = isset($tag['divided_by']) ? $tag['divided_by'] : 1;
 					$offset = $tag['offset'] ? $tag['offset'] : 0;
 
 					return [($object->timestamp) * 1000, round(json_decode($object->values)[$tag['offset']] / $divide_by, 2)];
