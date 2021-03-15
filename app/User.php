@@ -122,8 +122,10 @@ class User extends Authenticatable
     public function getMyLocations() {
         if($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
             return Location::get();
-        } else {
+        } else if($this->hasRole(['customer_admin'])) {
             return $this->customerLocations;
+        } else {
+            return $this->locations;
         }
     }
 
@@ -135,8 +137,10 @@ class User extends Authenticatable
     public function getMyzones() {
         if($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
             return Zone::get();
-        } else {
+        } else if($this->hasRole(['customer_admin'])) {
             return $this->customerZones;
+        } else {
+            return $this->zones;
         }
     }
 
