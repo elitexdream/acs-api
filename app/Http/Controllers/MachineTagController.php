@@ -9,8 +9,8 @@ use App\AlarmType;
 class MachineTagController extends Controller
 {
     public function getMachineTags($machine_id) {
-    	$tags = MachineTag::where('configuration_id', $machine_id)->get();
-    	$alarm_tags = AlarmType::where('machine_id', $machine_id)->get();
+    	$tags = MachineTag::where('configuration_id', $machine_id)->orderBy('name')->get();
+    	$alarm_tags = AlarmType::where('machine_id', $machine_id)->orderBy('name')->get();
 
     	$tags = $tags->merge($alarm_tags);
 
