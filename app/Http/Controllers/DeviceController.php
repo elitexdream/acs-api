@@ -756,11 +756,10 @@ class DeviceController extends Controller
                 $query = $user->company->devices()->orderBy('sim_status')->orderBy('id');
         }
 
-        $query->with('teltonikaConfiguration');
+        $query->with(['teltonikaConfiguration', 'configuration:id,name']);
         $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
         foreach ($devices as $key => $device) {
             $device->status = $device->teltonikaConfiguration !== null;
-            $device->machine_type = $device->configuration->name;
         }
 
         return response()->json(compact('devices'));
