@@ -36,7 +36,7 @@ class RequestService extends Mailable
                         'username' => $this->data->user->username,
                         'company_name' => $this->data->company_name,
                         'machine_type' => $this->data->overview->machineName,
-                        'firmware_version' => $this->data->overview->teltonikaDevice->serial_number,
+                        'firmware_version' => $this->data->overview->version,
                         'serial_number' => $this->data->overview->serial
                     ]);
     }
