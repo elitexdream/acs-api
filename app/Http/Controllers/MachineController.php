@@ -17,6 +17,7 @@ use App\Tag;
 use App\InventoryMaterial;
 use App\SystemInventory;
 use App\MachineTag;
+use App\Mail\RequestService;
 
 use DB;
 use \stdClass;
@@ -895,6 +896,15 @@ class MachineController extends Controller
 		return response()->json(compact('items', 'isImperial'));
 	}
 
+	public function requestService(Request $request) {
+		$company = Company::where('id', $request->user->companyId);
+		$request['company_name'] = $company->name;
+		Mail::to($request->email)->send(new RequestService($request));
+		return response()->json([
+			'message' => 'Sent service request successfully'
+		]);
+	}
+
 	/*
 		configuration: Accumeter Ovation Continuous Blender configuration
 		description: Get Machine state, system steady, mass flow hopper and RPM
@@ -906,7 +916,7 @@ class MachineController extends Controller
 			$machine_states->pump_status = 0;
 			$machine_states->heater_status = 0;
 			$machine_states->vent_status = 0;
-			
+
 			if($pump_status_object = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 40)
 						->latest('timedata')

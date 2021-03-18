@@ -30,6 +30,7 @@ class UserSeeder extends Seeder
             'email' => 'acsdev@acsgroup.com',
             'verified' => true,
             'password' => bcrypt('gJwsEqpdYjbDFapAH4nVTstW'),
+            'company_id' => 7
         ];
 
         $acs_admin_profile = [
