@@ -30,14 +30,14 @@ class RequestService extends Mailable
     public function build()
     {
         return $this->view('emails.request-service')
-                    ->from($data->user->email, $data->user->username)
+                    ->from(config('mail.from.address'), config('mail.from.name'))
                     ->subject('Request Service')
                     ->with([
-                        'username' => $this->data->user->username,
+                        'username' => $this->data->user['username'],
                         'company_name' => $this->data->company_name,
-                        'machine_type' => $this->data->overview->machineName,
-                        'firmware_version' => $this->data->overview->version,
-                        'serial_number' => $this->data->overview->serial
+                        'machine_type' => $this->data->overview['machineName'],
+                        'firmware_version' => $this->data->overview['version'],
+                        'serial_number' => $this->data->overview['serial']
                     ]);
     }
 }
