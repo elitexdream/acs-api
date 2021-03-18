@@ -20,6 +20,7 @@ use App\MachineTag;
 use App\Mail\RequestService;
 
 use DB;
+use Mail;
 use \stdClass;
 use Carbon\Carbon;
 
@@ -897,7 +898,7 @@ class MachineController extends Controller
 	}
 
 	public function requestService(Request $request) {
-		$company = Company::where('id', $request->user->companyId);
+		$company = Company::where('id', $request->user['companyId'])->first();
 		$request['company_name'] = $company->name;
 		Mail::to($request->email)->send(new RequestService($request));
 		return response()->json([
