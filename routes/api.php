@@ -124,6 +124,7 @@ Route::group(['prefix' => 'machine-tags'], function () {
 
 Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/data-tool-series', 'MachineController@getDataToolSeries');
+	Route::post('/request-service', 'MachineController@requestService');
 	Route::post('/product-overview', 'MachineController@getProductOverview');
 	Route::post('/product-utilization', 'MachineController@getProductUtilization');
 	Route::post('/product-energy-consumption', 'MachineController@getEnergyConsumption');
