@@ -10,6 +10,8 @@ use App\DeviceData;
 use App\Machine;
 use App\Location;
 use App\Zone;
+use App\SavedMachine;
+use App\User;
 use App\Device;
 use App\TeltonikaConfiguration;
 use App\DowntimePlan;
@@ -102,6 +104,7 @@ class MachineController extends Controller
 		return: Object
 	*/
 	public function getProductOverview(Request $request) {
+		$user = $request->user('api');
 		$product = new stdClass();
 
 		if($request->machineId == MACHINE_TRUETEMP_TCU) {
@@ -333,6 +336,14 @@ class MachineController extends Controller
 		}
 
 		$product->running = $this->isPlcRunning($request->machineId, $request->serialNumber);
+
+		$saved_machine = SavedMachine::where('user_id', $user->id)
+									->where('device_id', $product->teltonikaDevice->id)->first();
+		if (!$saved_machine) {
+			$product->isSavedMachine = false;
+		} else {
+			$product->isSavedMachine = true;
+		}
 
 		return response()->json([
 			"overview" => $product
@@ -904,6 +915,47 @@ class MachineController extends Controller
 		return response()->json([
 			'message' => 'Sent service request successfully'
 		]);
+	}
+
+	public function saveMachine(Request $request) {
+		$user = $request->user('api');
+
+		$saved_machine = SavedMachine::where('user_id', $user->id)
+									->where('device_id', $request->deviceId)->first();
+
+		if($saved_machine) {
+			$saved_machine->delete();
+			return response()->json([
+				'status' => false,
+				'message' => 'Remove from the favorite'
+			]);
+		} else {
+			SavedMachine::create([
+				'user_id' => $user->id,
+				'device_id' => $request->deviceId
+			]);
+			return response()->json([
+				'status' => true,
+				'message' => 'Add to favorite'
+			]);
+		}
+	}
+
+	public function getSavedStatus(Request $request) {
+		$user = $request->user('api');
+
+		$status = SavedMachine::where('user_id', $user->id)
+								->where('device_id', $request->deviceId)->first();
+
+		if (!$status) {
+			return response()->json([
+				'status' => false
+			]);
+		} else {
+			return response()->json([
+				'status' => true
+			]);
+		}
 	}
 
 	/*

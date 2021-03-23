@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Device;
 use App\Company;
 use App\Machine;
+use App\SavedMachine;
 use App\Zone;
 use App\Location;
 use App\DeviceData;
@@ -277,6 +278,7 @@ class DeviceController extends Controller
         $device->machine_id = $request->machine_id;
         $device->tcu_added = $request->tcu_added;
         $device->plc_ip = $request->plc_ip;
+        $device->name = $request->device_name;
 
         $device->save();
 
@@ -314,114 +316,6 @@ class DeviceController extends Controller
         $device->save();
 
         return response()->json('Successfully assigned.');
-    }
-
-    public function updateRegistered(Request $request) {
-        $device = Device::findOrFail($request->device_id);
-
-        $configuration = $device->configuration;
-
-        if(!$configuration) {
-            return response()->json([
-                'message' => 'Configuration Not Assinged'
-            ], 422);
-        }
-
-        $configuration = json_decode($configuration->full_json);
-
-        if(!$device->tcu_added) {
-            if($request->register) {
-                // Generate hash
-                $config_hash = bin2hex(random_bytes(10));
-
-                // Save hash in devices table
-                $device->hash1 = $config_hash;
-                $device->save();
-
-                $configuration->config_hash = $config_hash;
-            } else {
-                $configuration->config_hash = $device->hash1;
-
-                // if the request is revoke, plc tags should be empty
-                $configuration->plctags = [];
-            }
-
-            // assign updated plc ip
-            $configuration->plc_ip = $device->plc_ip;
-
-            $req = [
-                "targetDevice" => $device->serial_number,
-                "requestJson" => $configuration
-            ];
-        } else {
-            $tcu_configuration = json_decode(Machine::findOrFail(MACHINE_TRUETEMP_TCU)->full_json);
-
-            if($request->register) {
-                // Generate hash
-                $config_hash1 = bin2hex(random_bytes(10));
-                $config_hash2 = bin2hex(random_bytes(10));
-
-                // Save hash in devices table
-                $device->hash1 = $config_hash1;
-                $device->hash2 = $config_hash2;
-                $device->save();
-
-                $configuration->config_hash = $config_hash1;
-                $tcu_configuration->config_hash = $config_hash2;
-            } else {
-                $configuration->config_hash = $device->hash1;
-                $tcu_configuration->config_hash = $device->hash2;
-
-                // if the request is revoke, plc tags should be empty for both
-                $configuration->plctags = [];
-                $tcu_configuration->plctags = [];
-            }
-
-            // assign updated plc ip
-            $configuration->plc_ip = $device->plc_ip;
-            $tcu_configuration->plc_ip = $device->plc_ip;
-
-            $device0 = new stdClass();
-            $device1 = new stdClass();
-
-            $device0->device_id = 0;
-            $device0->config = $configuration;
-
-            $device1->device_id = 1;
-            $device1->config = $tcu_configuration;
-
-            $multi_configuration = new stdClass();
-            $multi_configuration->cmd = "multi_config";
-            $multi_configuration->devices = [ $device0, $device1 ];
-
-            // $fp = fopen('ngx_nomad_dryer_tcu.json', 'w');
-            // fwrite($fp, json_encode($multi_configuration, JSON_PRETTY_PRINT));
-            // fclose($fp);
-
-            // dd($multi_configuration);
-
-            $req = [
-                "targetDevice" => $device->serial_number,
-                "requestJson" => $multi_configuration
-            ];
-        }
-
-        $client = new Client();
-
-        try {
-            $response = $client->post(
-                config('app.acs_middleware_url'),
-                [
-                    'json' => $req
-                ]
-            );
-
-            $device->registered = $request->register;
-            $device->save();
-            return response()->json('Successfully updated.');
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
-        }
     }
 
     public function sendDeviceConfiguration(Request $request) {
@@ -758,6 +652,26 @@ class DeviceController extends Controller
 
         $query->with(['teltonikaConfiguration', 'configuration:id,name']);
         $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
+        foreach ($devices as $key => $device) {
+            $device->status = $device->teltonikaConfiguration !== null;
+        }
+
+        return response()->json(compact('devices'));
+    }
+
+    public function getSavedMachines(Request $request) {
+        $user = $request->user('api');
+        $page = $request->page;
+        $itemsPerPage = $request->itemsPerPage;
+
+        $query = null;
+
+        $query = Device::join('saved_machines', 'saved_machines.device_id', '=', 'devices.id')
+                        ->where('saved_machines.user_id', $user->id)
+                        ->select('devices.*')->orderBy('sim_status')->orderBy('id');
+        $query->with(['teltonikaConfiguration', 'configuration:id,name']);
+        $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
+
         foreach ($devices as $key => $device) {
             $device->status = $device->teltonikaConfiguration !== null;
         }

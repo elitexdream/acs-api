@@ -61,6 +61,7 @@ Route::group(['prefix' => 'devices'], function () {
 	Route::get('/all', 'DeviceController@getAllDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 	Route::post('/toggle-active-devices', 'DeviceController@toggleActiveDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 	Route::post('/devices-analytics', 'DeviceController@getDevicesAnalytics')->middleware('auth:customer_admin,customer_manager,customer_operator,acs_admin,acs_manager,acs_viewer');
+	Route::post('/saved-machines', 'DeviceController@getSavedMachines')->middleware('auth:customer_admin,customer_manager,customer_operator,acs_admin,acs_manager,acs_viewer');
 	Route::post('/assign-zone', 'DeviceController@updateCustomerDevice')->middleware('auth:customer_admin,customer_manager,customer_operator');
 });
 
@@ -107,7 +108,6 @@ Route::group(['prefix' => 'devices'], function () {
 	Route::post('/', 'DeviceController@getACSDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
 	Route::post('/import', 'DeviceController@importDevices')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/device-assigned', 'DeviceController@deviceAssigned')->middleware('auth:acs_admin,acs_manager');
-	Route::post('/device-register-update', 'DeviceController@updateRegistered')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/suspend-device', 'DeviceController@suspendDevice')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/device-configuration', 'DeviceController@sendDeviceConfiguration')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/enabled-properties', 'DeviceController@updateEnabledProperties');
@@ -125,6 +125,8 @@ Route::group(['prefix' => 'machine-tags'], function () {
 Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/data-tool-series', 'MachineController@getDataToolSeries');
 	Route::post('/request-service', 'MachineController@requestService');
+	Route::post('/save-machine', 'MachineController@saveMachine');
+	Route::post('/get-saved-status', 'MachineController@getSavedStatus');
 	Route::post('/product-overview', 'MachineController@getProductOverview');
 	Route::post('/product-utilization', 'MachineController@getProductUtilization');
 	Route::post('/product-energy-consumption', 'MachineController@getEnergyConsumption');
