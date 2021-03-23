@@ -927,7 +927,7 @@ class MachineController extends Controller
 			$saved_machine->delete();
 			return response()->json([
 				'status' => false,
-				'message' => 'Remove from the favorite'
+				'message' => 'Removed from the favorite'
 			]);
 		} else {
 			SavedMachine::create([
@@ -936,7 +936,7 @@ class MachineController extends Controller
 			]);
 			return response()->json([
 				'status' => true,
-				'message' => 'Add to favorite'
+				'message' => 'Added to Favorites'
 			]);
 		}
 	}
