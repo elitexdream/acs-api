@@ -2328,18 +2328,18 @@ class MachineController extends Controller
 				];
 			case 'last7Days':
 				return [
-					"from" => strtotime("-7 days"),
+					"from" => strtotime('-7 days', time()),
 					"to" => time()
 				];
 			case 'last24Days':
 				return [
-					"from" => strtotime("-24 days"),
+					"from" => strtotime('-24 days', time()),
 					"to" => time()
 				];
 			case 'custom':
 				return [
-					"from" => strtotime($data["dates"][0]),
-					"to" => strtotime($data["dates"][1])
+					"from" => strtotime($data["dates"]['0']),
+					"to" => strtotime($data["dates"]['1'])
 				];
 				break;
 			default:
