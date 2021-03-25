@@ -2328,7 +2328,7 @@ class MachineController extends Controller
 				];
 			case 'last7Days':
 				return [
-					"from" => strtotime("-1 week"),
+					"from" => strtotime("-7 days"),
 					"to" => time()
 				];
 			case 'last24Days':
@@ -2338,8 +2338,8 @@ class MachineController extends Controller
 				];
 			case 'custom':
 				return [
-					"from" => strtotime($data["dateFrom"] . ' ' . $data["timeFrom"]),
-					"to" => strtotime($data["dateTo"] . ' ' . $data["timeTo"])
+					"from" => strtotime($data["dates"][0]),
+					"to" => strtotime($data["dates"][1])
 				];
 				break;
 			default:
