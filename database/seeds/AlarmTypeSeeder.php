@@ -24,49 +24,49 @@ class AlarmTypeSeeder extends Seeder
 	          	'name' => 'Out of Material [1]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 28,
-                'offset' => 1,
+                'offset' => 0,
                 'bytes' => 0
 	      	], [
                 'name' => 'Out of Material [2]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 28,
-                'offset' => 2,
+                'offset' => 1,
                 'bytes' => 0
             ], [
                 'name' => 'Out of Material [3]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 28,
-                'offset' => 3,
+                'offset' => 2,
                 'bytes' => 0
             ], [
                 'name' => 'Out of Material [4]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 28,
-                'offset' => 4,
+                'offset' => 3,
                 'bytes' => 0
             ], [
                 'name' => 'Out of Material [5]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 28,
-                'offset' => 5,
+                'offset' => 4,
                 'bytes' => 0
             ], [
                 'name' => 'Out of Material [6]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 28,
-                'offset' => 6,
+                'offset' => 5,
                 'bytes' => 0
             ], [
                 'name' => 'Out of Material [7]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 28,
-                'offset' => 7,
+                'offset' => 6,
                 'bytes' => 0
             ], [
                 'name' => 'Out of Material [8]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 28,
-                'offset' => 8,
+                'offset' => 7,
                 'bytes' => 0
             ], [
 	          	'name' => 'Hopper Unstable (Feeder 1)',
@@ -120,49 +120,49 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'Hopper Overfeed [1]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 39,
-                'offset' => 1,
+                'offset' => 0,
                 'bytes' => 0
             ], [
                 'name' => 'Hopper Overfeed [2]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 39,
-                'offset' => 2,
+                'offset' => 1,
                 'bytes' => 0
             ], [
                 'name' => 'Hopper Overfeed [3]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 39,
-                'offset' => 3,
+                'offset' => 2,
                 'bytes' => 0
             ], [
                 'name' => 'Hopper Overfeed [4]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 39,
-                'offset' => 4,
+                'offset' => 3,
                 'bytes' => 0
             ], [
                 'name' => 'Hopper Overfeed [5]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 39,
-                'offset' => 5,
+                'offset' => 4,
                 'bytes' => 0
             ], [
                 'name' => 'Hopper Overfeed [6]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 39,
-                'offset' => 6,
+                'offset' => 5,
                 'bytes' => 0
             ], [
                 'name' => 'Hopper Overfeed [7]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 39,
-                'offset' => 7,
+                'offset' => 6,
                 'bytes' => 0
             ], [
                 'name' => 'Hopper Overfeed [8]',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 39,
-                'offset' => 8,
+                'offset' => 7,
                 'bytes' => 0
             ], [
                 'name' => 'Hopper Over Max',
@@ -339,6 +339,12 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 0,
                 'bytes' => 0
             ], [
+                'name' => 'Load Cell Failure (Massflow Hopper)',
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
+                'tag_id' => 40,
+                'offset' => 0,
+                'bytes' => 0
+            ], [
                 'name' => 'Load Cell Overload (Feeder 1)',
                 'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 41,
@@ -372,6 +378,12 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'Load Cell Overload (Feeder 6)',
                 'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 46,
+                'offset' => 0,
+                'bytes' => 0
+            ], [
+                'name' => 'Load Cell Overload (Massflow Hopper)',
+                'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
+                'tag_id' => 58,
                 'offset' => 0,
                 'bytes' => 0
             ], [
@@ -474,73 +486,73 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'Pump Oil Change Required [1]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 1,
+                'offset' => 0,
                 'bytes' => 0
             ], [
                 'name' => 'Pump Oil Change Required [2]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 2,
+                'offset' => 1,
                 'bytes' => 0
             ], [
                 'name' => 'Pump Oil Change Required [3]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 3,
+                'offset' => 2,
                 'bytes' => 0
             ], [
                 'name' => 'Pump Oil Change Required [4]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 4,
+                'offset' => 3,
                 'bytes' => 0
             ], [
                 'name' => 'Pump Oil Change Required [5]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 5,
+                'offset' => 4,
                 'bytes' => 0
             ], [
                 'name' => 'Pump Oil Change Required [6]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 6,
+                'offset' => 5,
                 'bytes' => 0
             ], [
                 'name' => 'Pump Oil Change Required [7]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 7,
+                'offset' => 6,
                 'bytes' => 0
             ], [
                 'name' => 'Pump Oil Change Required [8]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 8,
+                'offset' => 7,
                 'bytes' => 0
             ], [
                 'name' => 'Pump Oil Change Required [9]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 9,
+                'offset' => 8,
                 'bytes' => 0
             ], [
                 'name' => 'Pump Oil Change Required [10]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 10,
+                'offset' => 9,
                 'bytes' => 0
             ], [
                 'name' => 'Pump Oil Change Required [11]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 11,
+                'offset' => 10,
                 'bytes' => 0
             ], [
                 'name' => 'Pump Oil Change Required [12]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 18,
-                'offset' => 12,
+                'offset' => 11,
                 'bytes' => 0
             ], [
                 'name' => 'Pump Starter Fault [1]',
@@ -624,73 +636,73 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'Vacuum Levels Option [1]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 1,
+                'offset' => 0,
                 'bytes' => 0
             ], [
                 'name' => 'Vacuum Levels Option [2]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 2,
+                'offset' => 1,
                 'bytes' => 0
             ], [
                 'name' => 'Vacuum Levels Option [3]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 3,
+                'offset' => 2,
                 'bytes' => 0
             ], [
                 'name' => 'Vacuum Levels Option [4]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 4,
+                'offset' => 3,
                 'bytes' => 0
             ], [
                 'name' => 'Vacuum Levels Option [5]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 5,
+                'offset' => 4,
                 'bytes' => 0
             ], [
                 'name' => 'Vacuum Levels Option [6]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 6,
+                'offset' => 5,
                 'bytes' => 0
             ], [
                 'name' => 'Vacuum Levels Option [7]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 7,
+                'offset' => 6,
                 'bytes' => 0
             ], [
                 'name' => 'Vacuum Levels Option [8]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 8,
+                'offset' => 7,
                 'bytes' => 0
             ], [
                 'name' => 'Vacuum Levels Option [9]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 9,
+                'offset' => 8,
                 'bytes' => 0
             ], [
                 'name' => 'Vacuum Levels Option [10]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 10,
+                'offset' => 9,
                 'bytes' => 0
             ], [
                 'name' => 'Vacuum Levels Option [11]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 11,
+                'offset' => 10,
                 'bytes' => 0
             ], [
                 'name' => 'Vacuum Levels Option [12]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 21,
-                'offset' => 12,
+                'offset' => 11,
                 'bytes' => 0
             ], [
                 'name' => 'Dirty Filter Pressure Switch Warning',

@@ -330,7 +330,7 @@ class MachineController extends Controller
 			$plus_model_object = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', 9)->latest('timedata')->first();
 
 			if ($plus_model_object) {
-				$plus_model = json_decode($plus_model_object->values)[0];
+				$plus_model = json_decode($plus_model_object->values)[0] + 1;
 				$product->teltonikaDevice->name = $product->teltonikaDevice->name . ' (VTC Plus' . $plus_model . ')';
 			}
 		}
@@ -2139,6 +2139,7 @@ class MachineController extends Controller
 				->where('serial_number', $request->serialNumber)
 				->where('timestamp', '>', $from)
 				->where('timestamp', '<', $to)
+				->orderBy('timestamp')
 				->get();
 
 			if($series_obj) {
