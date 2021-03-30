@@ -203,9 +203,9 @@ class AlarmController extends Controller
 	}
 	
 	public function getMachineIdByMachineName($machine_name) {		
-		$machine_id = Device::select('machine_id')->where('customer_assigned_name', $machine_name)->get()->first()->machine_id;
+		$machineInfo = Device::select('machine_id', 'serial_number')->where('customer_assigned_name', $machine_name)->get()->first();
 
-		return $machine_id;
+		return $machineInfo;
 	}
 
 	public function getAssignedMachinesByCompanyId($company_id) {
@@ -251,21 +251,56 @@ class AlarmController extends Controller
 
 		if ($machine_id) {
 			// $query .= ' AND device_data.machine_id = ' . $machine_id;
-			$device_data = DeviceData::select('tag_id', 'timestamp', 'values', 'machine_id')
+			$device_data = Alarm::select('tag_id', 'timestamp', 'values', 'machine_id')
 									->whereIn('tag_id', $tag_ids)
 									->where('machine_id', $machine_id)
+									->orderBy('timestamp')
 									->get();
 		}
 
 		if ($dates) {
 			// $query .= ' AND device_data.timestamp BETWEEN ' . strtotime($dates[0]) . ' AND ' . strtotime($dates[1]);
-			$device_data = DeviceData::select('tag_id', 'timestamp', 'values', 'machine_id')
+			$device_data = Alarm::select('tag_id', 'timestamp', 'values', 'machine_id')
 									->whereIn('tag_id', $tag_ids)
 									->whereBetween('timestamp', [strtotime($dates[0]), strtotime($dates[1])])
+									->orderBy('timestamp')
 									->get();
 		}
 
 		// $device_data = DB::select(DB::raw($query));
+
+		foreach($device_data as $item) {
+			$sum = 0;
+			$value = json_decode($item->values);
+			foreach($value as $num) {
+				$sum += $num;
+			}
+			$item->values = $sum;
+			$item->times = 1;
+			$alarm_type_name = AlarmType::select('name')->where('machine_id', $item->machine_id)->where('tag_id', 'LIKE', '%' . $item->tag_id . '%')->get();
+			$item->alarm_type_name = $alarm_type_name->first()->name;
+		}
+
+		return $device_data;
+	}
+
+	public function getBasicDeviceDataWithSerial($machine_id, $serial_number) {
+		$alarm_types = AlarmType::select('name', 'machine_id', 'tag_id', 'offset')
+									->where('machine_id', $machine_id)
+									->get();
+
+		$tag_ids = [];
+		foreach($alarm_types as $alarm_type) {
+			$tag_ids = array_merge($tag_ids, [json_decode($alarm_type->tag_id)]);
+		}
+
+		$device_data = DeviceData::select('tag_id', 'timestamp', 'values', 'machine_id')
+									->whereIn('tag_id', $tag_ids)
+									->where('machine_id', $machine_id)
+									->where('serial_number', $serial_number)
+									->orderBy('timestamp')
+									->get();
+
 
 		foreach($device_data as $item) {
 			$sum = 0;
@@ -344,12 +379,17 @@ class AlarmController extends Controller
 	}
 
 	public function getAlarmsDistributionByMachine(Request $request) {
-
-		$machine_id = $this->getMachineIdByMachineName($request->machine_name);
-		$device_data = $this->getBasicDeviceData($request->company_id, $machine_id, $request->dates);
+		$user = $request->user('api');
+		$machine_id = $this->getMachineIdByMachineName($request->machine_name)->machine_id;
+		$serial_number = $this->getMachineIdByMachineName($request->machine_name)->serial_number;
+		if ($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+			$device_data = $this->getBasicDeviceData($request->company_id, $machine_id, $request->dates);
+		} else {
+			$device_data = $this->getBasicDeviceDataWithSerial($machine_id, $serial_number);
+		}
 		$alarm_type_names = $this->getAlarmTypesByMachineId($machine_id);
 
-		$data = [0];
+		$data = [];
 		if (!count($alarm_type_names))
 			$data = [0, 0];
 		foreach($alarm_type_names as $item) {
@@ -362,9 +402,20 @@ class AlarmController extends Controller
 			foreach($results as $item) {
 				$val = 0;
 				if ($item->name == $row->alarm_type_name) {
-					$val = $row->values;
+					if ($row->values !== 0) {
+						$val = 1;
+					}
 				}
 				$item->data[] = $val;
+			}
+		}
+		foreach($results as $item) {
+			$val = 0;
+			foreach($item->data as $value) {
+				if ($value === 1) {
+					$val += 1;
+				}
+				$value = $val;
 			}
 		}
 		return response()->json(compact('results'));
