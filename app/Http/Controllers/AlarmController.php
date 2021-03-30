@@ -203,7 +203,7 @@ class AlarmController extends Controller
 	}
 	
 	public function getMachineIdByMachineName($machine_name) {		
-		$machine_id = Machine::select('id')->where('name', $machine_name)->get()->first()->id;
+		$machine_id = Device::select('machine_id')->where('customer_assigned_name', $machine_name)->get()->first()->machine_id;
 
 		return $machine_id;
 	}
@@ -222,7 +222,7 @@ class AlarmController extends Controller
 	public function getBasicDeviceData($company_id, $machine_id = 0, $dates = NULL) {
 		if ($machine_id) {
 			// $query = 'SELECT alarm_types.name, alarm_types.machine_id, alarm_types.tag_id, alarm_types.machine_id FROM alarm_types WHERE alarm_types.machine_id = '. $machine_id;
-			$alarm_types = AlarmType::select('name', 'machine_id', 'tag_id')
+			$alarm_types = AlarmType::select('name', 'machine_id', 'tag_id', 'offset')
 									->where('machine_id', $machine_id)
 									->get();			
 		} else {
@@ -235,7 +235,7 @@ class AlarmController extends Controller
 			// $query = 'SELECT alarm_types.name, alarm_types.machine_id, alarm_types.tag_id, alarm_types.machine_id FROM alarm_types WHERE alarm_types.machine_id IN (' 
 			// 	. implode("," , $machine_ids) . 
 			// 	')';
-			$alarm_types = AlarmType::select('name', 'machine_id', 'tag_id')
+			$alarm_types = AlarmType::select('name', 'machine_id', 'tag_id', 'offset')
 				->whereIn('machine_id', $machine_ids)
 				->get();
 		}
@@ -243,7 +243,7 @@ class AlarmController extends Controller
 
 		$tag_ids = [];
 		foreach($alarm_types as $alarm_type) {
-			$tag_ids = array_merge($tag_ids, json_decode($alarm_type->tag_id));	
+			$tag_ids = array_merge($tag_ids, [json_decode($alarm_type->tag_id)]);
 		}
 
 		// $query = 'SELECT device_data.tag_id, device_data.timestamp, device_data.values, device_data.machine_id from device_data WHERE device_data.tag_id IN (' 
@@ -253,7 +253,6 @@ class AlarmController extends Controller
 			// $query .= ' AND device_data.machine_id = ' . $machine_id;
 			$device_data = DeviceData::select('tag_id', 'timestamp', 'values', 'machine_id')
 									->whereIn('tag_id', $tag_ids)
-									->where('customer_id', $company_id)
 									->where('machine_id', $machine_id)
 									->get();
 		}
@@ -262,7 +261,6 @@ class AlarmController extends Controller
 			// $query .= ' AND device_data.timestamp BETWEEN ' . strtotime($dates[0]) . ' AND ' . strtotime($dates[1]);
 			$device_data = DeviceData::select('tag_id', 'timestamp', 'values', 'machine_id')
 									->whereIn('tag_id', $tag_ids)
-									->where('customer_id', $company_id)
 									->whereBetween('timestamp', [strtotime($dates[0]), strtotime($dates[1])])
 									->get();
 		}
@@ -386,7 +384,7 @@ class AlarmController extends Controller
 						$value += $item->values;
 						$tag_ids[] = $item->tag_id;
 					}
-				}				
+				}
 			}
 			$machine->amount = $value;
 		}

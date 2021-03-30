@@ -198,7 +198,7 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'System Not Stable',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 8,
+                'offset' => 7,
                 'bytes' => 1
             ], [
                 'name' => 'Out Of Material',
@@ -210,61 +210,61 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'Load Cell Failure',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 6,
+                'offset' => 5,
                 'bytes' => 1
             ], [
                 'name' => 'No Extruder Flow',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 4,
+                'offset' => 3,
                 'bytes' => 1
             ], [
                 'name' => 'No Extruder RPM',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 3,
+                'offset' => 2,
                 'bytes' => 1
             ], [
                 'name' => 'Extruder Drive Failure',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 17,
+                'offset' => 16,
                 'bytes' => 1
             ], [
                 'name' => 'Hauloff Drive Failure',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 5,
+                'offset' => 4,
                 'bytes' => 1
             ], [
                 'name' => 'Extruder Underspeed',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 11,
+                'offset' => 10,
                 'bytes' => 1
             ], [
                 'name' => 'Extruder Overspeed',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 10,
+                'offset' => 9,
                 'bytes' => 1
             ], [
                 'name' => 'Hauloff Underspeed',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 14,
+                'offset' => 13,
                 'bytes' => 1
             ], [
                 'name' => 'Hauloff Overspeed',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 13,
+                'offset' => 12,
                 'bytes' => 1
             ], [
                 'name' => 'Hopper Over Max Flow',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 9,
+                'offset' => 8,
                 'bytes' => 1
             ], [
                 'name' => 'Out Of Material (Feeder 1)',
@@ -444,43 +444,43 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'System Not Stable',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 9,
+                'offset' => 7,
                 'bytes' => 1
             ], [
                 'name' => 'Out Of Material',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 1,
+                'offset' => 0,
                 'bytes' => 1
             ], [
                 'name' => 'Load Cell Failure',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 7,
+                'offset' => 5,
                 'bytes' => 1
             ], [
                 'name' => 'No Feeder Flow',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 5,
+                'offset' => 3,
                 'bytes' => 1
             ], [
                 'name' => 'Feeder Underspeed',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 12,
+                'offset' => 10,
                 'bytes' => 1
             ], [
                 'name' => 'Feeder Overspeed',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 11,
+                'offset' => 9,
                 'bytes' => 1
             ], [
                 'name' => 'Hopper Over Max Flow',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 10,
+                'offset' => 8,
                 'bytes' => 1
             ], [
                 'name' => 'Pump Oil Change Required [1]',
@@ -555,6 +555,12 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 11,
                 'bytes' => 0
             ], [
+                'name' => 'Power Loss While Running Alarm',
+                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
+                'tag_id' => 19,
+                'offset' => 0,
+                'bytes' => 0
+            ], [
                 'name' => 'Pump Starter Fault [1]',
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 20,
@@ -625,12 +631,6 @@ class AlarmTypeSeeder extends Seeder
                 'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
                 'tag_id' => 20,
                 'offset' => 11,
-                'bytes' => 1
-            ], [
-                'name' => 'Power Loss While Running',
-                'machine_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM,
-                'tag_id' => 19,
-                'offset' => 0,
                 'bytes' => 1
             ], [
                 'name' => 'Vacuum Levels Option [1]',
@@ -4105,7 +4105,6 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 0,
                 'bytes' => 1
             ],
-
 
             [
                 'name' => 'Communications Loss Circuit 2',
