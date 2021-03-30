@@ -186,7 +186,7 @@ Route::group(['prefix' => 'notes', 'middleware' => 'auth'], function () {
 });
 
 Route::group(['prefix' => 'alarms'], function () {
-	Route::post('/alarms-for-customer-devices', 'AlarmController@getAlarmsForCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
+	Route::post('/alarms-for-customer-devices', 'AlarmController@getAlarmsForCustomerDevices');
 	Route::post('/', 'AlarmController@getProductAlarms');
 	Route::post('/overview', 'AlarmController@getAlarmsOverview');
 	Route::post('/per-company-configuration', 'AlarmController@getAlarmsForCompany');
