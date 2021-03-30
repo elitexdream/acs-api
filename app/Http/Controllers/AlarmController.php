@@ -411,11 +411,11 @@ class AlarmController extends Controller
 		}
 		foreach($results as $item) {
 			$val = 0;
-			foreach($item->data as $value) {
-				if ($value === 1) {
+			for ($i = 0; $i < count($item->data); $i++) {
+				if ($item->data[$i] === 1 ) {
 					$val += 1;
 				}
-				$value = $val;
+				$item->data[$i] = $val;
 			}
 		}
 		return response()->json(compact('results'));
