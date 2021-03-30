@@ -38,13 +38,13 @@ Route::apiResource('materials', MaterialController::class)->only(['index', 'stor
 Route::apiResource('material-locations', MaterialLocationController::class)->only(['index', 'store', 'update', 'destroy'])->middleware('auth');
 
 Route::group(['prefix' => 'materials'], function () {
-	Route::post('/report', 'MaterialController@getMaterialReport');
-	Route::delete('/report/{id}', 'MaterialController@deleteReport');
-	Route::post('/blenders', 'MaterialController@getBlenders');
-	Route::post('/export', 'MaterialController@exportReport');
+	Route::post('/report', 'MaterialController@getMaterialReport')->middleware('auth:customer_admin,customer_manager');
+	Route::delete('/report/{id}', 'MaterialController@deleteReport')->middleware('auth:customer_admin,customer_manager');
+	Route::post('/blenders', 'MaterialController@getBlenders')->middleware('auth:customer_admin,customer_manager');
+	Route::post('/export', 'MaterialController@exportReport')->middleware('auth:customer_admin,customer_manager');
 
-	Route::post('/system-inventory-report', 'MaterialController@getSystemInventoryReport')->middleware('auth:customer_admin');
-	Route::post('/system-inventory-report/export', 'MaterialController@exportSystemInventoryReport')->middleware('auth:customer_admin');
+	Route::post('/system-inventory-report', 'MaterialController@getSystemInventoryReport')->middleware('auth:customer_admin,customer_manager');
+	Route::post('/system-inventory-report/export', 'MaterialController@exportSystemInventoryReport')->middleware('auth:customer_admin,customer_manager');
 });
 
 Route::apiResource('configurations', ConfigurationController::class)->only(['show', 'update', 'index'])->middleware('auth');
@@ -74,15 +74,15 @@ Route::group(['prefix' => 'downtime-plans'], function () {
 Route::apiResource('users', UserController::class)->only(['edit', 'update', 'index', 'store'])->middleware('auth');
 
 Route::group(['prefix' => 'app-settings'], function () {
-	Route::post('/grab-colors', 'SwatchController@grabColors');
-	Route::post('/get-setting', 'SettingController@getSetting');
-	Route::post('/website-colors', 'SettingController@applyWebsiteColors');
-	Route::post('/upload-logo', 'SettingController@uploadLogo');
-	Route::post('/upload-image', 'SettingController@uploadImage');
-	Route::post('/update-auth-background', 'SettingController@updateAuthBackground');
-	Route::post('/reset', 'SettingController@resetSettings');
-	Route::post('/set-product-info', 'SettingController@setProductInfo');
-	Route::post('/set-page-title', 'SettingController@setPageTitle');
+	Route::post('/grab-colors', 'SwatchController@grabColors')->middleware('auth:super_admin');
+	Route::post('/get-setting', 'SettingController@getSetting')->middleware('auth:super_admin');
+	Route::post('/website-colors', 'SettingController@applyWebsiteColors')->middleware('auth:super_admin');
+	Route::post('/upload-logo', 'SettingController@uploadLogo')->middleware('auth:super_admin');
+	Route::post('/upload-image', 'SettingController@uploadImage')->middleware('auth:super_admin');
+	Route::post('/update-auth-background', 'SettingController@updateAuthBackground')->middleware('auth:super_admin');
+	Route::post('/reset', 'SettingController@resetSettings')->middleware('auth:super_admin');
+	Route::post('/set-product-info', 'SettingController@setProductInfo')->middleware('auth:super_admin');
+	Route::post('/set-page-title', 'SettingController@setPageTitle')->middleware('auth:super_admin');
 });
 
 Route::group(['prefix' => 'dashboard'], function () {
@@ -110,7 +110,7 @@ Route::group(['prefix' => 'devices'], function () {
 	Route::post('/device-assigned', 'DeviceController@deviceAssigned')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/suspend-device', 'DeviceController@suspendDevice')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/device-configuration', 'DeviceController@sendDeviceConfiguration')->middleware('auth:acs_admin,acs_manager');
-	Route::post('/enabled-properties', 'DeviceController@updateEnabledProperties');
+	Route::post('/enabled-properties', 'DeviceController@updateEnabledProperties')->middleware('auth:acs_admin,acs_manager');
 
 	Route::get('/query-sim/{iccid}', 'DeviceController@querySIM')->middleware('auth:acs_admin,acs_manager');
 	Route::get('/suspend-sim/{iccid}', 'DeviceController@suspendSIM')->middleware('auth:acs_admin,acs_manager');
@@ -119,7 +119,7 @@ Route::group(['prefix' => 'devices'], function () {
 });
 
 Route::group(['prefix' => 'machine-tags'], function () {
-	Route::get('/{id}', 'MachineTagController@getMachineTags');
+	Route::get('/{id}', 'MachineTagController@getMachineTags')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 });
 
 Route::group(['prefix' => 'analytics'], function () {
@@ -181,20 +181,20 @@ Route::group(['prefix' => 'analytics'], function () {
 });
 
 Route::group(['prefix' => 'notes', 'middleware' => 'auth'], function () {
-	Route::post('/', 'NoteController@store');
-	Route::get('/{device_id}', 'NoteController@index');
+	Route::post('/', 'NoteController@store')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::get('/{device_id}', 'NoteController@index')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 });
 
 Route::group(['prefix' => 'alarms'], function () {
 	Route::post('/alarms-for-customer-devices', 'AlarmController@getAlarmsForCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
-	Route::post('/', 'AlarmController@getProductAlarms');
-	Route::post('/overview', 'AlarmController@getAlarmsOverview');
-	Route::post('/per-company-configuration', 'AlarmController@getAlarmsForCompany');
-	Route::get('/alarms-by-company-id/{company_id}', 'AlarmController@getAlarmsByCompanyId');
-	Route::post('/severity-by-company-id', 'AlarmController@getSeverityByCompanyId');
-	Route::post('/alarms-per-type-by-machine', 'AlarmController@getAlarmsPerTypeByMachine');
-	Route::post('/alarms-distribution-by-machine', 'AlarmController@getAlarmsDistributionByMachine');
-	Route::post('/alarms-amount-per-machine-by-company-id', 'AlarmController@getAlarmsAmountPerMachineByCompanyId');
+	Route::post('/', 'AlarmController@getProductAlarms')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::post('/overview', 'AlarmController@getAlarmsOverview')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::post('/per-company-configuration', 'AlarmController@getAlarmsForCompany')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::get('/alarms-by-company-id/{company_id}', 'AlarmController@getAlarmsByCompanyId')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::post('/severity-by-company-id', 'AlarmController@getSeverityByCompanyId')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::post('/alarms-per-type-by-machine', 'AlarmController@getAlarmsPerTypeByMachine')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::post('/alarms-distribution-by-machine', 'AlarmController@getAlarmsDistributionByMachine')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
+	Route::post('/alarms-amount-per-machine-by-company-id', 'AlarmController@getAlarmsAmountPerMachineByCompanyId')->middleware('auth:acs_admin,acs_manager,acs_viewer,customer_admin,customer_manager,customer_operator');
 });
 
 Route::group(['prefix' => 'cities'], function () {
@@ -202,7 +202,7 @@ Route::group(['prefix' => 'cities'], function () {
 });
 
 Route::group(['prefix' => 'settings'], function () {
-	Route::get('/app-settings', 'SettingController@appSettings');
+	Route::get('/app-settings', 'SettingController@appSettings')->middleware('auth:super_admin');
 });
 
 Route::post('test/send-mail', 'CompanyController@testMail');
