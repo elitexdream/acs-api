@@ -65,7 +65,7 @@ class AlarmController extends Controller
 						if($alarm_type->bytes == 0 && $alarm_type->offset == 0)
 							$active = $value32[0];
 						else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
-							$active = $value32[$alarm_type->offset - 1];
+							$active = $value32[$alarm_type->offset];
 						} else if($alarm_type->bytes != 0) {
 							$active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
 						}
@@ -137,7 +137,7 @@ class AlarmController extends Controller
 					if($alarm_type->bytes == 0 && $alarm_type->offset == 0)
 						$active = $value32[0];
 					else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
-						$active = $value32[$alarm_type->offset - 1];
+						$active = $value32[$alarm_type->offset];
 					} else if($alarm_type->bytes != 0) {
 						$active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
 					}
@@ -180,7 +180,7 @@ class AlarmController extends Controller
 				if($alarm_type->bytes == 0 && $alarm_type->offset == 0)
 					$alarm->active = $value32[0];
 				else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
-					$alarm->active = $value32[$alarm_type->offset - 1] == 1;
+					$alarm->active = $value32[$alarm_type->offset] == 1;
 				} else if($alarm_type->bytes != 0) {
 					$alarm->active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
 				}
@@ -406,16 +406,16 @@ class AlarmController extends Controller
 						$val = 1;
 					}
 				}
-				$item->data[] = $val;
+				$item->data[] = [$row->timestamp * 1000, $val];
 			}
 		}
 		foreach($results as $item) {
 			$val = 0;
 			for ($i = 0; $i < count($item->data); $i++) {
-				if ($item->data[$i] === 1 ) {
+				if ($item->data[$i][1] === 1 ) {
 					$val += 1;
 				}
-				$item->data[$i] = $val;
+				$item->data[$i][1] = $val;
 			}
 		}
 		return response()->json(compact('results'));

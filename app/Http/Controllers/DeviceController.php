@@ -384,7 +384,7 @@ class DeviceController extends Controller
                 [
                     'headers' => ['Content-type' => 'application/json'],
                     'auth' => [
-                        'ACSGroup_API', 
+                        'ACSGroup_API',
                         'HBSMYJM2'
                     ],
                     'json' => [
