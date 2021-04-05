@@ -2152,7 +2152,7 @@ class MachineController extends Controller
 					} else {
 						$value = json_decode($object->values)[$offset] / $divide_by;
 					}
-					return [($object->timestamp) * 1000, round($value, 2)];
+					return [($object->timestamp) * 1000, round($value, 3)];
 				});
 			} else {
 				$ss = [];
