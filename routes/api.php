@@ -195,6 +195,7 @@ Route::group(['prefix' => 'alarms'], function () {
 	Route::post('/alarms-per-type-by-machine', 'AlarmController@getAlarmsPerTypeByMachine');
 	Route::post('/alarms-distribution-by-machine', 'AlarmController@getAlarmsDistributionByMachine');
 	Route::post('/alarms-amount-per-machine-by-company-id', 'AlarmController@getAlarmsAmountPerMachineByCompanyId');
+	Route::post('/alarms-reports', 'AlarmController@getAlarmsReports');
 });
 
 Route::group(['prefix' => 'cities'], function () {
