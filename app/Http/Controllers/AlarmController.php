@@ -236,7 +236,7 @@ class AlarmController extends Controller
 		}
 
 		foreach ($alarm_types as $alarm_type) {
-			$machine = Machine::where('id', $alarm_type->machine_id)->get();
+			$machine = Machine::select('name')->where('id', $alarm_type->machine_id)->get()->first();
 
 			$alarm_type['machine_name'] = $machine->name;
 		}
