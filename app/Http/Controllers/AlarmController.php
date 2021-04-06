@@ -194,6 +194,56 @@ class AlarmController extends Controller
 		return response()->json(compact('alarms', 'alarm_types'));
 	}
 
+	public function getAlarmsReports(Request $request) {
+		$user = $request->user('api');
+		$machine_ids = $user->company->devices->pluck('machine_id');
+		$alarm_types = AlarmType::whereIn('machine_id', $machine_ids)->orderBy('id')->get();
+		$tag_ids = $alarm_types->unique('tag_id')->pluck('tag_id');
+
+		$alarms_object = Alarm::whereIn('tag_id', $tag_ids)
+								->orderBy('timestamp', 'DESC')
+								->get()
+								->unique('tag_id');
+
+		$alarms = [];
+
+		foreach ($alarms_object as $alarm_object) {
+			$value32 = json_decode($alarm_object->values);
+
+			$alarm_types_for_tag = $alarm_types->filter(function ($alarm_type, $key) use ($alarm_object) {
+			    return $alarm_type->tag_id == $alarm_object->tag_id;
+			});
+
+			foreach ($alarm_types_for_tag as $alarm_type) {
+
+				$alarm = new stdClass();
+
+				$alarm->id = $alarm_object->id;
+				$alarm->tag_id = $alarm_object->tag_id;
+				$alarm->timestamp = $alarm_object->timestamp * 1000;
+				if($alarm_type->bytes == 0 && $alarm_type->offset == 0)
+					$alarm->active = $value32[0];
+				else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
+					$alarm->active = $value32[$alarm_type->offset] == 1;
+				} else if($alarm_type->bytes != 0) {
+					$alarm->active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
+				}
+
+				$alarm->type_id = $alarm_type->id;
+
+				array_push($alarms, $alarm);
+			}
+		}
+
+		foreach ($alarm_types as $alarm_type) {
+			$machine = Machine::where('id', $alarm_type->machine_id)->get();
+
+			$alarm_type['machine_name'] = $machine->name;
+		}
+
+		return response()->json(compact('alarms', 'alarm_types'));
+	}
+
 	public function getAlarmTypesByMachineId($id) {
 		$alarm_types = AlarmType::select('name')
 							->where('machine_id', $id)
