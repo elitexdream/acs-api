@@ -171,7 +171,7 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 0,
                 'bytes' => 0
             ], [
-				'name' => 'Unable to make rate',
+				'name' => 'Unable to Make Rate',
                 'machine_id' => MACHINE_BD_BATCH_BLENDER,
                 'tag_id' => 43,
                 'offset' => 0,
@@ -201,7 +201,7 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 7,
                 'bytes' => 1
             ], [
-                'name' => 'Out Of Material',
+                'name' => 'Out of Material',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
                 'offset' => 0,
@@ -267,37 +267,37 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 8,
                 'bytes' => 1
             ], [
-                'name' => 'Out Of Material (Feeder 1)',
+                'name' => 'Out of Material (Feeder 1)',
                 'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 28,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Out Of Material (Feeder 2)',
+                'name' => 'Out of Material (Feeder 2)',
                 'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 29,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Out Of Material (Feeder 3)',
+                'name' => 'Out of Material (Feeder 3)',
                 'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 30,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Out Of Material (Feeder 4)',
+                'name' => 'Out of Material (Feeder 4)',
                 'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 31,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Out Of Material (Feeder 5)',
+                'name' => 'Out of Material (Feeder 5)',
                 'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 32,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Out Of Material (Feeder 6)',
+                'name' => 'Out of Material (Feeder 6)',
                 'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 33,
                 'offset' => 0,
@@ -423,7 +423,7 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Unable to make rate',
+                'name' => 'Unable to Make Rate',
                 'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 53,
                 'offset' => 0,
@@ -435,7 +435,7 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Blender Rate Out Of Range',
+                'name' => 'Blender Rate Out of Range',
                 'machine_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER,
                 'tag_id' => 55,
                 'offset' => 0,
@@ -447,7 +447,7 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 7,
                 'bytes' => 1
             ], [
-                'name' => 'Out Of Material',
+                'name' => 'Out of Material',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
                 'offset' => 0,
@@ -777,7 +777,7 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 11,
                 'bytes' => 1
             ], [
-                'name' => 'Regen Low air Temperature Fault',
+                'name' => 'Regen Low Air Temperature Fault',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 60,
                 'offset' => 12,
@@ -945,43 +945,43 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 8,
                 'bytes' => 1
             ], [
-                'name' => 'Mach Loader MCP tripped',
+                'name' => 'Mach Loader MCP Tripped',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 10,
                 'bytes' => 1
             ], [
-                'name' => 'Mach Loader Aux run contact',
+                'name' => 'Mach Loader Aux Run Contact',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 11,
                 'bytes' => 1
             ], [
-                'name' => 'Mach Loader 1 no convey',
+                'name' => 'Mach Loader 1 No Convey',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 12,
                 'bytes' => 1
             ], [
-                'name' => 'Mach Loader 2 no convey',
+                'name' => 'Mach Loader 2 No Convey',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 13,
                 'bytes' => 1
             ], [
-                'name' => 'Hopper Loader MCP tripped',
+                'name' => 'Hopper Loader MCP Tripped',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 14,
                 'bytes' => 1
             ], [
-                'name' => 'Hopper Loader Aux run contact',
+                'name' => 'Hopper Loader Aux Run Contact',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 15,
                 'bytes' => 1
             ], [
-                'name' => 'Hopper Loader no convey',
+                'name' => 'Hopper Loader No Convey',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 16,
@@ -1005,67 +1005,67 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 19,
                 'bytes' => 1
             ], [
-                'name' => 'After-Cooler T/C failure',
+                'name' => 'After-Cooler T/C Failure',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 20,
                 'bytes' => 1
             ], [
-                'name' => 'After-Cooler high temperature warning',
+                'name' => 'After-Cooler High Temperature Warning',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 21,
                 'bytes' => 1
             ], [
-                'name' => 'After-Cooler high temperature shutdown',
+                'name' => 'After-Cooler High Temperature Shutdown',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 22,
                 'bytes' => 1
             ], [
-                'name' => 'DH1 Return Air high temp Warning',
+                'name' => 'DH1 Return Air High Temp Warning',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 23,
                 'bytes' => 1
             ], [
-                'name' => 'DH1 Return Air high temp shutdown',
+                'name' => 'DH1 Return Air High Temp Shutdown',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 24,
                 'bytes' => 1
             ], [
-                'name' => 'DH2 Return Air high temp Warning',
+                'name' => 'DH2 Return Air High Temp Warning',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 25,
                 'bytes' => 1
             ], [
-                'name' => 'DH2 Return Air high temp shutdown',
+                'name' => 'DH2 Return Air High Temp Shutdown',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 26,
                 'bytes' => 1
             ], [
-                'name' => 'DH3 Return Air high temp Warning',
+                'name' => 'DH3 Return Air High Temp Warning',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 27,
                 'bytes' => 1
             ], [
-                'name' => 'DH3 Return Air high temp shutdown',
+                'name' => 'DH3 Return Air High Temp Shutdown',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 28,
                 'bytes' => 1
             ], [
-                'name' => 'Low Temperature Selected with no Pre-Cooler',
+                'name' => 'Low Temperature Selected With no Pre-Cooler',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 29,
                 'bytes' => 1
             ], [
-                'name' => 'High Temperature Selected with no After-Cooler',
+                'name' => 'High Temperature Selected With no After-Cooler',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 61,
                 'offset' => 30,
@@ -1107,25 +1107,25 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 5,
                 'bytes' => 1
             ], [
-                'name' => 'PLC initialize',
+                'name' => 'PLC Initialize',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 62,
                 'offset' => 6,
                 'bytes' => 1
             ], [
-                'name' => 'DH1 - Pressure switch verification fail',
+                'name' => 'DH1 - Pressure Switch Verification Fail',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 62,
                 'offset' => 7,
                 'bytes' => 1
             ], [
-                'name' => 'DH2 - Pressure switch verification fail',
+                'name' => 'DH2 - Pressure Switch Verification Fail',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 62,
                 'offset' => 8,
                 'bytes' => 1
             ], [
-                'name' => 'DH3 - Pressure switch verification fail',
+                'name' => 'DH3 - Pressure Switch Verification Fail',
                 'machine_id' => MACHINE_NGX_DRYER,
                 'tag_id' => 62,
                 'offset' => 9,
@@ -1437,43 +1437,43 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 8,
                 'bytes' => 1
             ], [
-                'name' => 'Mach Loader MCP tripped',
+                'name' => 'Mach Loader MCP Tripped',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 10,
                 'bytes' => 1
             ], [
-                'name' => 'Mach Loader Aux run contact',
+                'name' => 'Mach Loader Aux Run Contact',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 11,
                 'bytes' => 1
             ], [
-                'name' => 'Mach Loader 1 no convey',
+                'name' => 'Mach Loader 1 No Convey',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 12,
                 'bytes' => 1
             ], [
-                'name' => 'Mach Loader 2 no convey',
+                'name' => 'Mach Loader 2 No Convey',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 13,
                 'bytes' => 1
             ], [
-                'name' => 'Hopper Loader MCP tripped',
+                'name' => 'Hopper Loader MCP Tripped',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 14,
                 'bytes' => 1
             ], [
-                'name' => 'Hopper Loader Aux run contact',
+                'name' => 'Hopper Loader Aux Run Contact',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 15,
                 'bytes' => 1
             ], [
-                'name' => 'Hopper Loader no convey',
+                'name' => 'Hopper Loader No Convey',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 16,
@@ -1497,67 +1497,67 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 19,
                 'bytes' => 1
             ], [
-                'name' => 'After-Cooler T/C failure',
+                'name' => 'After-Cooler T/C Failure',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 20,
                 'bytes' => 1
             ], [
-                'name' => 'After-Cooler high temperature warning',
+                'name' => 'After-Cooler High Temperature Warning',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 21,
                 'bytes' => 1
             ], [
-                'name' => 'After-Cooler high temperature shutdown',
+                'name' => 'After-Cooler High Temperature Shutdown',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 22,
                 'bytes' => 1
             ], [
-                'name' => 'DH1 Return Air high temp Warning',
+                'name' => 'DH1 Return Air High Temp Warning',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 23,
                 'bytes' => 1
             ], [
-                'name' => 'DH1 Return Air high temp shutdown',
+                'name' => 'DH1 Return Air High Temp Shutdown',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 24,
                 'bytes' => 1
             ], [
-                'name' => 'DH2 Return Air high temp Warning',
+                'name' => 'DH2 Return Air High Temp Warning',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 25,
                 'bytes' => 1
             ], [
-                'name' => 'DH2 Return Air high temp shutdown',
+                'name' => 'DH2 Return Air High Temp Shutdown',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 26,
                 'bytes' => 1
             ], [
-                'name' => 'DH3 Return Air high temp Warning',
+                'name' => 'DH3 Return Air High Temp Warning',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 27,
                 'bytes' => 1
             ], [
-                'name' => 'DH3 Return Air high temp shutdown',
+                'name' => 'DH3 Return Air High Temp Shutdown',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 28,
                 'bytes' => 1
             ], [
-                'name' => 'Low Temperature Selected with no Pre-Cooler',
+                'name' => 'Low Temperature Selected With no Pre-Cooler',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 29,
                 'bytes' => 1
             ], [
-                'name' => 'High Temperature Selected with no After-Cooler',
+                'name' => 'High Temperature Selected With no After-Cooler',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 47,
                 'offset' => 30,
@@ -1599,25 +1599,25 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 5,
                 'bytes' => 1
             ], [
-                'name' => 'PLC initialize',
+                'name' => 'PLC Initialize',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 48,
                 'offset' => 6,
                 'bytes' => 1
             ], [
-                'name' => 'DH1 - Pressure switch verification fail',
+                'name' => 'DH1 - Pressure Switch Verification Fail',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 48,
                 'offset' => 7,
                 'bytes' => 1
             ], [
-                'name' => 'DH2 - Pressure switch verification fail',
+                'name' => 'DH2 - Pressure Switch Verification Fail',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 48,
                 'offset' => 8,
                 'bytes' => 1
             ], [
-                'name' => 'DH3 - Pressure switch verification fail',
+                'name' => 'DH3 - Pressure Switch Verification Fail',
                 'machine_id' => MACHINE_NGX_NOMAD_DRYER,
                 'tag_id' => 48,
                 'offset' => 9,
@@ -1821,7 +1821,7 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 21,
                 'bytes' => 1
             ], [
-                'name' => 'Safety Relay output off',
+                'name' => 'Safety Relay Output Off',
                 'machine_id' => MACHINE_T50_CENTRAL_GRANULATOR,
                 'tag_id' => 47,
                 'offset' => 22,
@@ -1893,307 +1893,307 @@ class AlarmTypeSeeder extends Seeder
                 'offset' => 8,
                 'bytes' => 1
             ], [
-                'name' => 'No flow alarm for pump 1',
+                'name' => 'No Flow Alarm For Pump 1',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 26,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'High temperature warning alarm',
+                'name' => 'High Temperature Warning Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 27,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'High temperature fault alarm',
+                'name' => 'High Temperature Fault Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 28,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Low temperature warning alarm',
+                'name' => 'Low Temperature Warning Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 29,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Low temperature fault alarm',
+                'name' => 'Low Temperature Fault Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 30,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Compressor fault alarm',
+                'name' => 'Compressor Fault Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 31,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Low suction pressure at startup alarm',
+                'name' => 'Low Suction Pressure at Startup Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 32,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Low suction pressure warning alarm',
+                'name' => 'Low Suction Pressure Warning Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 33,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Low suction pressure fault alarm',
+                'name' => 'Low Suction Pressure Fault Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 34,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'High suction pressure warning alarm',
+                'name' => 'High Suction Pressure Warning Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 35,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'High suction pressure fault alarm',
+                'name' => 'High Suction Pressure Fault Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 36,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Low discharge pressure warning alarm',
+                'name' => 'Low Discharge Pressure Warning Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 37,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Low discharge pressure fault alarm',
+                'name' => 'Low Discharge Pressure Fault Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 38,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'High discharge pressure warning alarm',
+                'name' => 'High Discharge Pressure Warning Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 39,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'High discharge pressure fault alarm',
+                'name' => 'High Discharge Pressure Fault Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 40,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Low tank level warning alarm',
+                'name' => 'Low Tank Level Warning Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 41,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Low tank level fault alarm',
+                'name' => 'Low Tank Level Fault Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 42,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'High tank level warning alarm',
+                'name' => 'High Tank Level Warning Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 43,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'High tank level fault alarm',
+                'name' => 'High Tank Level Fault Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 44,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'High discharge pressure switch fault',
+                'name' => 'High Discharge Pressure Switch Fault',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 45,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Pump 1 overload alarm',
+                'name' => 'Pump 1 Overload Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 46,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Condenser fan overload alarm',
+                'name' => 'Condenser Fan Overload Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 47,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Chiller out temperature sensor failure',
+                'name' => 'Chiller Out Temperature Sensor Failure',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 48,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Chiller in temperature sensor failure',
+                'name' => 'Chiller In Temperature Sensor Failure',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 49,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Suction pressure sensor failure',
+                'name' => 'Suction Pressure Sensor Failure',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 50,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Discharge pressure sensor failure',
+                'name' => 'Discharge Pressure Sensor Failure',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 51,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Refrigerant suction temperature sensor failure',
+                'name' => 'Refrigerant Suction Temperature Sensor Failure',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 52,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Condenser inlet temperature sensro failure',
+                'name' => 'Condenser Inlet Temperature Sensor Failure',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 53,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Refrigerant liquid temperature sensor failure',
+                'name' => 'Refrigerant Liquid Temperature Sensor Failure',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 54,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Tank level sensor failure',
+                'name' => 'Tank Level Sensor Failure',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 55,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Pump pressure sensor failure',
+                'name' => 'Pump Pressure Sensor Failure',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 56,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Pump flow sensor failure',
+                'name' => 'Pump Flow Sensor Failure',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 57,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Low superheat fault',
+                'name' => 'Low Superheat Fault',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 58,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Auxiliary alarm',
+                'name' => 'Auxiliary Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 59,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Pump down override fault',
+                'name' => 'Pump Down Override Fault',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 60,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Condenser differential pressure warning',
+                'name' => 'Condenser Differential Pressure Warning',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 61,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Evaporator differential pressure warning',
+                'name' => 'Evaporator Differential Pressure Warning',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 62,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Compressor differential pressure fault',
+                'name' => 'Compressor Differential Pressure Fault',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 63,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Compressor differential pressure warning',
+                'name' => 'Compressor Differential Pressure Warning',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 64,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Tank fill rate of change fault',
+                'name' => 'Tank Fill Rate of Change Fault',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 65,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Phase monitor alarm',
+                'name' => 'Phase Monitor Alarm',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 66,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'High temperature switch fault',
+                'name' => 'High Temperature Switch Fault',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 67,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'To process temperature sensor failure',
+                'name' => 'To Process Temperature Sensor Failure',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 68,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'From process temperature sensor failure',
+                'name' => 'From Process Temperature Sensor Failure',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 69,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Process high temperature fault',
+                'name' => 'Process High Temperature Fault',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 70,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Process low temperature fault',
+                'name' => 'Process Low Temperature Fault',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 71,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Condenser fan VFD fault',
+                'name' => 'Condenser Fan VFD Fault',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 72,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Process high temperature warning',
+                'name' => 'Process High Temperature Warning',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 73,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Process low temperature warning',
+                'name' => 'Process Low Temperature Warning',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 74,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Pump 2 no flow fault',
+                'name' => 'Pump 2 No Flow Fault',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 75,
                 'offset' => 0,
                 'bytes' => 0
             ], [
-                'name' => 'Pump 2 overload fault',
+                'name' => 'Pump 2 Overload Fault',
                 'machine_id' => MACHINE_GP_PORTABLE_CHILLER,
                 'tag_id' => 76,
                 'offset' => 0,
