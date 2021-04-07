@@ -1196,7 +1196,7 @@ class MachineController extends Controller
 		if($actualValues)
 			$actuals = json_decode($actualValues->values);
 		if($targetValues)
-			$targets = json_decode($actualValues->values);
+			$targets = json_decode($targetValues->values);
 
 		$items = [$actuals, $targets];
 		return response()->json(compact('items'));
