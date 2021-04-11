@@ -346,6 +346,7 @@ class MachineController extends Controller
 
 		if ($configuration) {
 			$product->teltonikaDevice = Device::where('serial_number', $configuration->teltonika_id)->first();
+			$plcLinkStatus = $configuration->plc_status;
 		}
 
 		if ($request->machineId == MACHINE_VTC_PLUS_CONVEYING_SYSTEM) {
@@ -371,7 +372,7 @@ class MachineController extends Controller
 		} else {
 			if ($plcStatus->connection_state != 'connected') {
 				$product->status = 'routerNotConnected';
-			} else if (!$product->teltonikaDevice->plc_link) {
+			} else if (!$plcLinkStatus) {
 				$product->status = 'plcNotConnected';
 			} else if ($product->running) {
 				$product->status = 'running';
