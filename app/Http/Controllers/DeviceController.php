@@ -13,6 +13,7 @@ use App\DeviceData;
 use App\EnergyConsumption;
 use App\Utilization;
 use App\TeltonikaConfiguration;
+use App\Tag;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
@@ -35,6 +36,48 @@ class DeviceController extends Controller
 
     private $teltonika_import_url = "https://rms.teltonika-networks.com/api/devices?limit=100";
     private $bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI2MjQxODgwMjFiMWIwY2UwNTA5ZDE3OWUzY2IxMDgxOGM2YmUzMjlhNjY3NTMwOGU0ZGI4NTEwODU4OThlZGUzNjY0NDQwODA1MDkwZWJjNSIsImlzcyI6Imh0dHBzOlwvXC9ybXMudGVsdG9uaWthLW5ldHdvcmtzLmNvbVwvYWNjb3VudCIsImlhdCI6MTYwNTY2NzMyNywibmJmIjoxNjA1NjY3MzI3LCJleHAiOjE2MzcyMDMzMjcsInN1YiI6IjI3OTcwIiwiY2xpZW50X2lkIjoiOTEyM2VhNjYtMmYxZC00MzljLWIxYzItMzExYWMwMTBhYWFkIiwiZmlyc3RfcGFydHkiOmZhbHNlfQ.I0kEBbsYDzIsBr3KFY9utxhSuKLM0zRgrPUBcUUNrIU3V58tce3LUgfV6r8yip5_pOe3ybVQdEoyIXNuehPUDIa8ZxJYadGw15cs9PLDyvM00ipAggnCgi0QinxUcb_5QjaMqfemhTlil9Zquly-P9tGy8GuT-QKAxMMCwGgou_LA3JH-5c7hoImbINMMyWQaHIrK3IiSVXyb0k_tP2tczy7TIjM5NFdzTMZXlVYEwTRZJ7U-_Vyb0ZnyyTJ_Y6_6CNp79vtQ8kVD_Xs_MVCQ0vQbO9qPRAxNu8noq7ZVo1eRdc1Q411puyzm3MeVSg1bWqqG4QboGiMYTyYclwhqA";
+
+    public function getPlcStatus($deviceId) {
+		$getLink = 'https://rms.teltonika-networks.com/api/devices/' . $deviceId;
+
+		$client = new Client();
+
+		try {
+			$response = $client->get(
+				$getLink,
+				[
+					'headers' => [
+						'Authorization' => "Bearer " . $this->bearer_token,
+						'Accept' => "application/json"
+					]
+				]
+			);
+
+			return json_decode($response->getBody())->data;
+		} catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
+        }
+	}
+
+    public function isPlcRunning($machineId, $serialNumber) {
+		$tag = Tag::where('configuration_id', $machineId)
+            ->where('tag_name', Tag::NAMES['RUNNING'])
+            ->first();
+
+        if ($tag) {
+            $running = DB::table('runnings')
+                ->where('serial_number', $serialNumber)
+                ->where('tag_id', $tag->tag_id)
+                ->latest('timestamp')
+                ->first();
+
+            if ($running) {
+                return json_decode($running->values)[0];
+            }
+        }
+
+        return false;
+    }
 
 	public function getACSDevices(Request $request) {
         $pageNumber = $request->page ? $request->page : 1;
@@ -653,7 +696,32 @@ class DeviceController extends Controller
         $query->with(['teltonikaConfiguration', 'configuration:id,name']);
         $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
         foreach ($devices as $key => $device) {
-            $device->status = $device->teltonikaConfiguration !== null;
+            $plcStatus = $this->getPlcStatus($device->device_id);
+            if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_serial_number) {
+                $running = $this->isPlcRunning($device->machine_id, $device->teltonikaConfiguration->plc_serial_number);
+            } else {
+                $running = false;
+            }
+
+            if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_status) {
+                $plcLinkStatus = true;
+            } else {
+                $plcLinkStatus = false;
+            }
+
+            if (!isset($plcStatus->connection_state)) {
+                $device->status = 'routerNotConnected';
+            } else {
+                if ($plcStatus->connection_state != 'connected') {
+                    $device->status = 'routerNotConnected';
+                } else if (!$plcLinkStatus) {
+                    $device->status = 'plcNotConnected';
+                } else if ($running) {
+                    $device->status = 'running';
+                } else {
+                    $device->status = 'shutOff';
+                }
+            }
         }
 
         return response()->json(compact('devices'));
@@ -673,7 +741,32 @@ class DeviceController extends Controller
         $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
 
         foreach ($devices as $key => $device) {
-            $device->status = $device->teltonikaConfiguration !== null;
+            $plcStatus = $this->getPlcStatus($device->device_id);
+            if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_serial_number) {
+                $running = $this->isPlcRunning($device->machine_id, $device->teltonikaConfiguration->plc_serial_number);
+            } else {
+                $running = false;
+            }
+
+            if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_status) {
+                $plcLinkStatus = true;
+            } else {
+                $plcLinkStatus = false;
+            }
+
+            if (!isset($plcStatus->connection_state)) {
+                $device->status = 'routerNotConnected';
+            } else {
+                if ($plcStatus->connection_state != 'connected') {
+                    $device->status = 'routerNotConnected';
+                } else if (!$plcLinkStatus) {
+                    $device->status = 'plcNotConnected';
+                } else if ($running) {
+                    $device->status = 'running';
+                } else {
+                    $device->status = 'shutOff';
+                }
+            }
         }
 
         return response()->json(compact('devices'));
