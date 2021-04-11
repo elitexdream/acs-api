@@ -696,7 +696,6 @@ class DeviceController extends Controller
         $query->with(['teltonikaConfiguration', 'configuration:id,name']);
         $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
         foreach ($devices as $key => $device) {
-            $plcStatus = $this->getPlcStatus($device->device_id);
             if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_serial_number) {
                 $running = $this->isPlcRunning($device->machine_id, $device->teltonikaConfiguration->plc_serial_number);
             } else {
@@ -709,17 +708,16 @@ class DeviceController extends Controller
                 $plcLinkStatus = false;
             }
 
-            if (!isset($plcStatus->connection_state)) {
-                $device->status = 'routerNotConnected';
+            if (!$running) {
+                $device->status = 'shutOff';
+            } else if (!$plcLinkStatus) {
+                $device->status = 'plcNotConnected';
             } else {
-                if ($plcStatus->connection_state != 'connected') {
-                    $device->status = 'routerNotConnected';
-                } else if (!$plcLinkStatus) {
-                    $device->status = 'plcNotConnected';
-                } else if ($running) {
+                $plcStatus = $this->getPlcStatus($device->device_id);
+                if (isset($plcStatus->connection_state) && $plcStatus->connection_state == 'connected') {
                     $device->status = 'running';
                 } else {
-                    $device->status = 'shutOff';
+                    $device->status = 'routerNotConnected';
                 }
             }
         }
@@ -741,7 +739,6 @@ class DeviceController extends Controller
         $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
 
         foreach ($devices as $key => $device) {
-            $plcStatus = $this->getPlcStatus($device->device_id);
             if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_serial_number) {
                 $running = $this->isPlcRunning($device->machine_id, $device->teltonikaConfiguration->plc_serial_number);
             } else {
@@ -754,17 +751,16 @@ class DeviceController extends Controller
                 $plcLinkStatus = false;
             }
 
-            if (!isset($plcStatus->connection_state)) {
-                $device->status = 'routerNotConnected';
+            if (!$running) {
+                $device->status = 'shutOff';
+            } else if (!$plcLinkStatus) {
+                $device->status = 'plcNotConnected';
             } else {
-                if ($plcStatus->connection_state != 'connected') {
-                    $device->status = 'routerNotConnected';
-                } else if (!$plcLinkStatus) {
-                    $device->status = 'plcNotConnected';
-                } else if ($running) {
+                $plcStatus = $this->getPlcStatus($device->device_id);
+                if (isset($plcStatus->connection_state) && $plcStatus->connection_state == 'connected') {
                     $device->status = 'running';
                 } else {
-                    $device->status = 'shutOff';
+                    $device->status = 'routerNotConnected';
                 }
             }
         }
