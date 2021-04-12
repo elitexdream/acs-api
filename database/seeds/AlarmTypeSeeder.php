@@ -444,7 +444,7 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'System Not Stable',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 7,
+                'offset' => 9,
                 'bytes' => 1
             ], [
                 'name' => 'Out of Material',
@@ -456,31 +456,31 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'Load Cell Failure',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 5,
+                'offset' => 6,
                 'bytes' => 1
             ], [
                 'name' => 'No Feeder Flow',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 3,
+                'offset' => 4,
                 'bytes' => 1
             ], [
                 'name' => 'Feeder Underspeed',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 10,
+                'offset' => 11,
                 'bytes' => 1
             ], [
                 'name' => 'Feeder Overspeed',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 9,
+                'offset' => 10,
                 'bytes' => 1
             ], [
                 'name' => 'Hopper Over Max Flow',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 8,
+                'offset' => 9,
                 'bytes' => 1
             ], [
                 'name' => 'Pump Oil Change Required [1]',
