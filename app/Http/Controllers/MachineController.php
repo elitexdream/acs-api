@@ -366,15 +366,15 @@ class MachineController extends Controller
 									->where('device_id', $product->teltonikaDevice->id)->first();
 
 		if (!$product->running) {
-			$device['status'] = 'shutOff';
+			$product['status'] = 'shutOff';
 		} else if (!$plcLinkStatus) {
-			$device['status'] = 'plcNotConnected';
+			$product['status'] = 'plcNotConnected';
 		} else {
 			$plcStatus = $this->getPlcStatus($product->teltonikaDevice->device_id);
 			if (isset($plcStatus->connection_state) && $plcStatus->connection_state == 'connected') {
-				$device['status'] = 'running';
+				$product['status'] = 'running';
 			} else {
-				$device['status'] = 'routerNotConnected';
+				$product['status'] = 'routerNotConnected';
 			}
 		}
 
