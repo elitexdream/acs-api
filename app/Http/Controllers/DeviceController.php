@@ -787,6 +787,31 @@ class DeviceController extends Controller
         foreach ($devices as $key => $device) {
             $downtime_distribution = [0, 0, 0];
 
+            if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_serial_number) {
+                $running = $this->isPlcRunning($device->machine_id, $device->teltonikaConfiguration->plc_serial_number);
+            } else {
+                $running = false;
+            }
+
+            if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_status) {
+                $plcLinkStatus = true;
+            } else {
+                $plcLinkStatus = false;
+            }
+
+            if (!$running) {
+                $device->status = 'shutOff';
+            } else if (!$plcLinkStatus) {
+                $device->status = 'plcNotConnected';
+            } else {
+                $plcStatus = $this->getPlcStatus($device->device_id);
+                if (isset($plcStatus->connection_state) && $plcStatus->connection_state == 'connected') {
+                    $device->status = 'running';
+                } else {
+                    $device->status = 'routerNotConnected';
+                }
+            }
+
             $device->utilization = '32%';
             $device->color = 'green';
             $device->value = 75;
@@ -794,6 +819,7 @@ class DeviceController extends Controller
             $device->performance = '78%';
             $device->rate = 56;
             $device->downtimeDistribution = $downtime_distribution;
+
         }
 
         return response()->json(compact('devices'));
