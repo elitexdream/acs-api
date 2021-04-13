@@ -123,6 +123,7 @@ Route::group(['prefix' => 'machine-tags'], function () {
 });
 
 Route::group(['prefix' => 'analytics'], function () {
+	Route::get('/get-machines', 'MachineController@getMachines');
 	Route::post('/data-tool-series', 'MachineController@getDataToolSeries');
 	Route::post('/request-service', 'MachineController@requestService');
 	Route::post('/save-machine', 'MachineController@saveMachine');

@@ -122,6 +122,12 @@ class MachineController extends Controller
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
         }
 	}
+
+	public function getMachines() {
+		$machines = Machine::all();
+
+		return response()->json(compact('machines'));
+	}
 	/*
 		Get general information of product
 		They are Name, Serial number, Software build, and version
