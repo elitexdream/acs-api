@@ -128,7 +128,7 @@ class MachineController extends Controller
 	}
 
 	public function getMachines() {
-		$machines = Machine::select('id', 'name', 'device_type')->orderBy('id')->get();
+		$machines = Machine::all();
 
 		return response()->json(compact('machines'));
 	}
