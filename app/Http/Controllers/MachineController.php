@@ -19,13 +19,17 @@ use App\Tag;
 use App\InventoryMaterial;
 use App\SystemInventory;
 use App\MachineTag;
+use App\Report;
+use App\Exports\MachinesReportSheetExport;
 use App\Mail\RequestService;
 use GuzzleHttp\Client;
 
 use DB;
 use Mail;
+use File;
 use \stdClass;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MachineController extends Controller
 {
@@ -127,6 +131,113 @@ class MachineController extends Controller
 		$machines = Machine::all();
 
 		return response()->json(compact('machines'));
+	}
+
+	public function generateMachinesReport(Request $request) {
+		$response = [];
+		$from = strtotime($request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom']);
+		$to = strtotime($request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo']);
+		foreach ($request->machineTags as $key => $tags) {
+			$machine_info = new stdClass();
+			$tag_ids = [];
+			$tag_info = [];
+			$series = [];
+			foreach ($tags as &$tag) {
+				$tag_infos = DeviceData::where('machine_id', $key)
+								->where('tag_id', $tag['tag_id'])
+								->where('timestamp', '>', $from)
+								->where('timestamp', '<', $to)
+								->orderBy('timestamp')
+								->get();
+
+				if($tag_infos) {
+					$ss = $tag_infos->map(function($object) use ($tag) {
+						$divide_by = isset($tag['divided_by']) ? $tag['divided_by'] : 1;
+						$offset = $tag['offset'] ? $tag['offset'] : 0;
+						$bytes = isset($tag['bytes']) ? $tag['bytes'] : 0;
+						if ($bytes) {
+							$value = ((json_decode($object->values)[0] >> $tag['offset']) & $tag['bytes']);
+						} else {
+							$value = json_decode($object->values)[$offset] / $divide_by;
+						}
+						return [$object->timedata, round($value, 3), $tag['name']];
+					});
+				}
+				array_push($tag_info, $ss);
+			}
+
+			foreach ($tag_info as &$item) {
+				array_push($series, ...$item);
+			}
+
+			$collection = collect($series);
+			$collection->sortBy(function ($item) {
+				return $item[0];
+			});
+
+			$sorted = $collection->all();
+
+			$machine_name = Machine::select('name')->where('id', $key)->first();
+			$machine_info->machine_name = $machine_name->name;
+			$machine_info->tags = $sorted;
+			array_push($response, $machine_info);
+		}
+
+		Excel::store(new MachinesReportSheetExport($response), 'report.xlsx');
+        File::move(storage_path('app/report.xlsx'), public_path('assets/app/reports/' . $request->reportTitle . '.xlsx'));
+
+		$data = Report::where('filename', $request->reportTitle)->first();
+
+		if (!$data) {
+			Report::create([
+				'filename' => $request->reportTitle,
+				'from' => $request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom'],
+				'to' => $request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo']
+			]);
+		} else {
+			$data->filename = $request->reportTitle;
+			$data->from = $request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom'];
+			$data->to = $request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo'];
+
+			$data->save();
+		}
+
+		return response()->json([
+			'message' => 'Successfully generated',
+			'filename' => $request->reportTitle
+		]);
+	}
+
+	public function getMachinesReport() {
+		$reports = Report::all();
+
+		return response()->json(compact('reports'));
+	}
+
+	public function deleteMachinesReport($id) {
+		$report = Report::where('id', $id)->first();
+
+		if ($report) {
+			if (File::exists(public_path('assets/app/reports/' . $report->filename . '.xlsx'))) {
+				File::delete(public_path('assets/app/reports/' . $report->filename . '.xlsx'));
+				$status = true;
+				$message = 'Report deleted successfully.';
+			} else {
+				$status = false;
+				$message = 'File does not exists';
+			}
+
+			$report->delete();
+		}
+
+		$reports = Report::all();
+
+		return response()->json([
+			'status' => $status,
+			'message' => $message,
+			'reports' => $reports
+		]);
+		
 	}
 	/*
 		Get general information of product
