@@ -122,7 +122,14 @@ Route::group(['prefix' => 'machine-tags'], function () {
 	Route::get('/{id}', 'MachineTagController@getMachineTags');
 });
 
+Route::group(['prefix' => 'machines'], function () {
+	Route::post('/generate-machines-report', 'MachineController@generateMachinesReport');
+	Route::get('/get-machines-report', 'MachineController@getMachinesReport');
+	Route::delete('/report/{id}', 'MachineController@deleteMachinesReport');
+});
+
 Route::group(['prefix' => 'analytics'], function () {
+	Route::post('/get-machine-tags', 'MachineTagController@getMachinesTags');
 	Route::get('/get-machines', 'MachineController@getMachines');
 	Route::post('/data-tool-series', 'MachineController@getDataToolSeries');
 	Route::post('/request-service', 'MachineController@requestService');
