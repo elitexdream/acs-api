@@ -1929,7 +1929,7 @@ class MachineController extends Controller
 		if($unit == 1) {
 			$items[0] = round(($items[0] - 32) * 5 / 9, 2);
 			$items[1] = round(($items[1] - 32) * 5 / 9, 2);
-			$items[2] = round(($items[0] - 32) * 5 / 9, 2);
+			$items[2] = round(($items[2] - 32) * 5 / 9, 2);
 		}
 
 		return response()->json(compact('items'));
