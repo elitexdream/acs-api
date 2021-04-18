@@ -130,7 +130,7 @@ Route::group(['prefix' => 'machines'], function () {
 
 Route::group(['prefix' => 'analytics'], function () {
 	Route::post('/get-machine-tags', 'MachineTagController@getMachinesTags');
-	Route::get('/get-machines', 'MachineController@getMachines');
+	Route::post('/get-machines', 'MachineController@getMachines');
 	Route::post('/data-tool-series', 'MachineController@getDataToolSeries');
 	Route::post('/request-service', 'MachineController@requestService');
 	Route::post('/save-machine', 'MachineController@saveMachine');
