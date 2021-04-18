@@ -21,7 +21,7 @@ class MachineTagController extends Controller
     }
 
 	public function getMachinesTags(Request $request) {
-		$device_ids = $request->machineIds;
+		$device_ids = $request->deviceIds;
 		$tags = [];
 		foreach ($device_ids as $key => $device_id) {
 			$device = Device::where('device_id', $device_id)->first();
