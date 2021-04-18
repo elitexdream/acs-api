@@ -232,6 +232,10 @@ class GraphSeeder extends Seeder
                 'machine_id' => 11,
                 'graph_id' => 2,
                 'graph_name' => 'TCU Temperature'
+            ], [
+                'machine_id' => 11,
+                'graph_id' => 3,
+                'graph_name' => 'Capability Utilization'
             ]
         ];
         

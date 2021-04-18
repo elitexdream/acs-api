@@ -806,7 +806,7 @@ class MachineController extends Controller
 			$item->value = 0;
 
 			if( $last_object) {
-				if ($i === 0) {
+				if ($i == 0) {
 					$item->value = sprintf('%01.1f', json_decode($last_object->values)[0] / 10);
 				} else {
 					$item->value = json_decode($last_object->values)[0];
@@ -894,25 +894,49 @@ class MachineController extends Controller
 		return: Utilization Series Array
 	*/
 	public function getProductUtilization(Request $request) {
-		$tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $request->machineId)->first();
-
-		if(!$tag_utilization) {
-			return response()->json('Capacity utilization tag not found', 404);
-		}
-
 		$from = $this->getFromTo($request->timeRange)["from"];
 		$to = $this->getFromTo($request->timeRange)["to"];
 
-		$utilizations_object = DB::table('utilizations')
-								->where('serial_number', $request->serialNumber)
-								->where('tag_id', $tag_utilization->tag_id)
-								->where('timestamp', '>', $from)
-								->where('timestamp', '<', $to)
-								->orderBy('timestamp')
-								->get();
+		if ($request->machineId == 11) {
+			$utilizations_object = DB::table('utilizations')
+									->where('serial_number', $request->serialNumber)
+									->where('tag_id', 28)
+									->where('timestamp', '>', $from)
+									->where('timestamp', '<', $to)
+									->orderBy('timestamp')
+									->get();
 
-		$utilizations = $this->averagedSeries($utilizations_object, 200, 10);
+			if (!$utilizations_object) {
+				$utilizations_object = DB::table('utilizations')
+									->where('serial_number', $request->serialNumber)
+									->where('tag_id', 29)
+									->where('timestamp', '>', $from)
+									->where('timestamp', '<', $to)
+									->orderBy('timestamp')
+									->get();
 
+				$utilizations = $this->averagedSeries($utilizations_object, 200, 10);
+			} else {
+				$utilizations = $this->averagedSeries($utilizations_object, 200, 10);
+			}
+		} else {
+			$tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $request->machineId)->first();
+
+			if(!$tag_utilization) {
+				return response()->json('Capacity utilization tag not found', 404);
+			}
+	
+			$utilizations_object = DB::table('utilizations')
+									->where('serial_number', $request->serialNumber)
+									->where('tag_id', $tag_utilization->tag_id)
+									->where('timestamp', '>', $from)
+									->where('timestamp', '<', $to)
+									->orderBy('timestamp')
+									->get();
+	
+			$utilizations = $this->averagedSeries($utilizations_object, 200, 10);
+	
+		}
 		$items = [$utilizations];
 
 		return response()->json(compact('items'));
@@ -1927,12 +1951,15 @@ class MachineController extends Controller
 		}
 
 		if($unit == 1) {
-			$items[0] = round(($items[0] - 32) * 5 / 9, 2);
-			$items[1] = round(($items[1] - 32) * 5 / 9, 2);
-			$items[2] = round(($items[2] - 32) * 5 / 9, 2);
+			$items[0] = round($items[0] * 9 / 5 + 32, 2);
+			$items[1] = round($items[1] * 9 / 5 + 32, 2);
+			$items[2] = round($items[2] * 9 / 5 + 32, 2);
 		}
 
-		return response()->json(compact('items'));
+		return response()->json([
+			'items' => $items,
+			'unit' => $unit == 0 ? 'ºC' : 'ºF'
+		]);
 	}
 
 	/*
