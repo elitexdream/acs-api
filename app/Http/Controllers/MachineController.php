@@ -147,12 +147,14 @@ class MachineController extends Controller
 		$from = strtotime($request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom']);
 		$to = strtotime($request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo']);
 		foreach ($request->machineTags as $key => $tags) {
+			$machine = Device::where('device_id', $key)->first();
 			$machine_info = new stdClass();
 			$tag_ids = [];
 			$tag_info = [];
 			$series = [];
 			foreach ($tags as &$tag) {
-				$tag_infos = DeviceData::where('machine_id', $key)
+				$tag_infos = DeviceData::where('machine_id', $machine->machine_id)
+								->where('device_id', $machine->serial_number)
 								->where('tag_id', $tag['tag_id'])
 								->where('timestamp', '>', $from)
 								->where('timestamp', '<', $to)
@@ -186,8 +188,7 @@ class MachineController extends Controller
 
 			$sorted = $collection->all();
 
-			$machine_name = Machine::select('name')->where('id', $key)->first();
-			$machine_info->machine_name = $machine_name->name;
+			$machine_info->machine_name = $machine->name;
 			$machine_info->tags = $sorted;
 			array_push($response, $machine_info);
 		}
