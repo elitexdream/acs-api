@@ -127,11 +127,20 @@ class MachineController extends Controller
         }
 	}
 
-	public function getMachines() {
-		$machines = Machine::all();
+	public function getMachines(Request $request) {
+        $user = $request->user('api');
 
-		return response()->json(compact('machines'));
-	}
+        $location = $request->location;
+        $zone = $request->zone;
+
+        if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+            $devices = Device::where('location_id', $location)->where('zone_id', $zone)->get();
+        } else {
+            $devices = $user->company->devices()->where('location_id', $location)->where('zone_id', $zone)->get();
+        }
+
+        return response()->json(compact('devices'));
+    }
 
 	public function generateMachinesReport(Request $request) {
 		$response = [];
