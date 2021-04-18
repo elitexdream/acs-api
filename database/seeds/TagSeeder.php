@@ -82,6 +82,8 @@ class TagSeeder extends Seeder
             [ 'tag_name' => 'capacity_utilization', 'configuration_id' => MACHINE_T50_CENTRAL_GRANULATOR, 'tag_id' => 2 ],
             [ 'tag_name' => 'capacity_utilization', 'configuration_id' => MACHINE_GP_PORTABLE_CHILLER, 'tag_id' => 105 ],
             [ 'tag_name' => 'capacity_utilization', 'configuration_id' => MACHINE_HE_CENTRAL_CHILLER, 'tag_id' => 230 ],
+            [ 'tag_name' => 'capacity_utilization', 'configuration_id' => MACHINE_TRUETEMP_TCU, 'tag_id' => 28 ],
+            [ 'tag_name' => 'capacity_utilization', 'configuration_id' => MACHINE_TRUETEMP_TCU, 'tag_id' => 29 ],
 
             [ 'tag_name' => 'energy_consumption', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 3 ],
             [ 'tag_name' => 'energy_consumption', 'configuration_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER, 'tag_id' => 3 ],

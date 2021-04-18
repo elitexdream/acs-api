@@ -6956,6 +6956,18 @@ class AlarmTypeSeeder extends Seeder
                 'tag_id' => 263,
                 'offset' => 13,
                 'bytes' => 1
+            ], [
+                'name' => 'Alarm 1',
+                'machine_id' => MACHINE_TRUETEMP_TCU,
+                'tag_id' => 10,
+                'offset' => 0,
+                'bytes' => 1
+            ], [
+                'name' => 'Alarm 2',
+                'machine_id' => MACHINE_TRUETEMP_TCU,
+                'tag_id' => 11,
+                'offset' => 0,
+                'bytes' => 1
             ]
        ];
 
