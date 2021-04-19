@@ -1995,7 +1995,7 @@ class MachineController extends Controller
 			->first();
 
 		if($actual_object) {
-			$items[0] = json_decode($actual_object->values)[0];
+			$items[1] = round(json_decode($actual_object->values)[0] / 10, 1);
 		}
 
 		$target_object = DeviceData::where('serial_number', $request->serialNumber)
@@ -2004,10 +2004,13 @@ class MachineController extends Controller
 			->first();
 
 		if($target_object) {
-			$items[1] = json_decode($target_object->values)[0];
+			$items[0] = round(json_decode($target_object->values)[0] / 10, 1);
 		}
 
-		return response()->json(compact('items'));
+		return response()->json([
+			'items' => $items,
+			'unit' => 'ºC'
+		]);
 	}
 
 	public function getCentralChillerTemperature(Request $request) { 
