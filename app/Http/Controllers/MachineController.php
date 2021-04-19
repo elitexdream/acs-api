@@ -193,8 +193,15 @@ class MachineController extends Controller
 			array_push($response, $machine_info);
 		}
 
-		Excel::store(new MachinesReportSheetExport($response), 'report.xlsx');
-        File::move(storage_path('app/report.xlsx'), public_path('assets/app/reports/' . $request->reportTitle . '.xlsx'));
+		try {
+			Excel::store(new MachinesReportSheetExport($response), 'report.xlsx');
+        	File::move(storage_path('app/report.xlsx'), public_path('assets/app/reports/' . $request->reportTitle . '.xlsx'));
+		} catch (\Exception $e) {
+			return response()->json([
+				'error' => $e,
+				'count' => count($series)
+			]);
+		}
 
 		$data = Report::where('filename', $request->reportTitle)->first();
 
@@ -214,7 +221,8 @@ class MachineController extends Controller
 
 		return response()->json([
 			'message' => 'Successfully generated',
-			'filename' => $request->reportTitle
+			'filename' => $request->reportTitle,
+			'count' => count($series)
 		]);
 	}
 
