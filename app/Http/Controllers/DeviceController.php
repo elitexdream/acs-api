@@ -714,7 +714,7 @@ class DeviceController extends Controller
                 $device->status = 'plcNotConnected';
             } else {
                 $plcStatus = $this->getPlcStatus($device->device_id);
-                if (isset($plcStatus->connection_state) && $plcStatus->connection_state == 'connected') {
+                if (isset($plcStatus->status) && $plcStatus->status == 1) {
                     $device->status = 'running';
                 } else {
                     $device->status = 'routerNotConnected';
@@ -757,7 +757,7 @@ class DeviceController extends Controller
                 $device->status = 'plcNotConnected';
             } else {
                 $plcStatus = $this->getPlcStatus($device->device_id);
-                if (isset($plcStatus->connection_state) && $plcStatus->connection_state == 'connected') {
+                if (isset($plcStatus->status) && $plcStatus->status == 1) {
                     $device->status = 'running';
                 } else {
                     $device->status = 'routerNotConnected';
@@ -805,7 +805,7 @@ class DeviceController extends Controller
                 $device->status = 'plcNotConnected';
             } else {
                 $plcStatus = $this->getPlcStatus($device->device_id);
-                if (isset($plcStatus->connection_state) && $plcStatus->connection_state == 'connected') {
+                if (isset($plcStatus->status) && $plcStatus->status == 1) {
                     $device->status = 'running';
                 } else {
                     $device->status = 'routerNotConnected';

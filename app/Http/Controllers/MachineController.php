@@ -161,7 +161,7 @@ class MachineController extends Controller
 									->where('timestamp', '<', $to)
 									->orderBy('timestamp')
 									->get();
-	
+
 					if($tag_infos) {
 						$ss = $tag_infos->map(function($object) use ($tag) {
 							$divide_by = isset($tag['divided_by']) ? $tag['divided_by'] : 1;
@@ -177,18 +177,18 @@ class MachineController extends Controller
 					}
 					array_push($tag_info, $ss);
 				}
-	
+
 				foreach ($tag_info as &$item) {
 					array_push($series, ...$item);
 				}
-	
+
 				$collection = collect($series);
 				$collection->sortBy(function ($item) {
 					return $item[0];
 				});
-	
+
 				$sorted = $collection->all();
-	
+
 				$machine_info->machine_name = $machine->name;
 				$machine_info->tags = $sorted;
 				array_push($response, $machine_info);
@@ -221,7 +221,7 @@ class MachineController extends Controller
 
 		} catch (\Exception $e) {
 			return response()->json([
-				'error' => $e,
+				'message' => $e,
 				'count' => count($series)
 			]);
 		}
@@ -507,7 +507,7 @@ class MachineController extends Controller
 			$product->status = 'plcNotConnected';
 		} else {
 			$plcStatus = $this->getPlcStatus($product->teltonikaDevice->device_id);
-			if (isset($plcStatus->connection_state) && $plcStatus->connection_state == 'connected') {
+			if (isset($plcStatus->status) && $plcStatus->status == 1) {
 				$product->status = 'running';
 			} else {
 				$product->status = 'routerNotConnected';
