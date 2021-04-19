@@ -146,84 +146,85 @@ class MachineController extends Controller
 		$response = [];
 		$from = strtotime($request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom']);
 		$to = strtotime($request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo']);
-		foreach ($request->machineTags as $key => $tags) {
-			$machine = Device::where('device_id', $key)->first();
-			$machine_info = new stdClass();
-			$tag_ids = [];
-			$tag_info = [];
-			$series = [];
-			foreach ($tags as &$tag) {
-				$tag_infos = DeviceData::where('machine_id', $machine->machine_id)
-								->where('device_id', $machine->serial_number)
-								->where('tag_id', $tag['tag_id'])
-								->where('timestamp', '>', $from)
-								->where('timestamp', '<', $to)
-								->orderBy('timestamp')
-								->get();
-
-				if($tag_infos) {
-					$ss = $tag_infos->map(function($object) use ($tag) {
-						$divide_by = isset($tag['divided_by']) ? $tag['divided_by'] : 1;
-						$offset = $tag['offset'] ? $tag['offset'] : 0;
-						$bytes = isset($tag['bytes']) ? $tag['bytes'] : 0;
-						if ($bytes) {
-							$value = ((json_decode($object->values)[0] >> $tag['offset']) & $tag['bytes']);
-						} else {
-							$value = json_decode($object->values)[$offset] / $divide_by;
-						}
-						return [$object->timedata, round($value, 3), $tag['name']];
-					});
-				}
-				array_push($tag_info, $ss);
-			}
-
-			foreach ($tag_info as &$item) {
-				array_push($series, ...$item);
-			}
-
-			$collection = collect($series);
-			$collection->sortBy(function ($item) {
-				return $item[0];
-			});
-
-			$sorted = $collection->all();
-
-			$machine_info->machine_name = $machine->name;
-			$machine_info->tags = $sorted;
-			array_push($response, $machine_info);
-		}
-
 		try {
+			foreach ($request->machineTags as $key => $tags) {
+				$machine = Device::where('device_id', $key)->first();
+				$machine_info = new stdClass();
+				$tag_ids = [];
+				$tag_info = [];
+				$series = [];
+				foreach ($tags as &$tag) {
+					$tag_infos = DeviceData::where('machine_id', $machine->machine_id)
+									->where('device_id', $machine->serial_number)
+									->where('tag_id', $tag['tag_id'])
+									->where('timestamp', '>', $from)
+									->where('timestamp', '<', $to)
+									->orderBy('timestamp')
+									->get();
+	
+					if($tag_infos) {
+						$ss = $tag_infos->map(function($object) use ($tag) {
+							$divide_by = isset($tag['divided_by']) ? $tag['divided_by'] : 1;
+							$offset = $tag['offset'] ? $tag['offset'] : 0;
+							$bytes = isset($tag['bytes']) ? $tag['bytes'] : 0;
+							if ($bytes) {
+								$value = ((json_decode($object->values)[0] >> $tag['offset']) & $tag['bytes']);
+							} else {
+								$value = json_decode($object->values)[$offset] / $divide_by;
+							}
+							return [$object->timedata, round($value, 3), $tag['name']];
+						});
+					}
+					array_push($tag_info, $ss);
+				}
+	
+				foreach ($tag_info as &$item) {
+					array_push($series, ...$item);
+				}
+	
+				$collection = collect($series);
+				$collection->sortBy(function ($item) {
+					return $item[0];
+				});
+	
+				$sorted = $collection->all();
+	
+				$machine_info->machine_name = $machine->name;
+				$machine_info->tags = $sorted;
+				array_push($response, $machine_info);
+			}
+
 			Excel::store(new MachinesReportSheetExport($response), 'report.xlsx');
         	File::move(storage_path('app/report.xlsx'), public_path('assets/app/reports/' . $request->reportTitle . '.xlsx'));
+
+			$data = Report::where('filename', $request->reportTitle)->first();
+
+			if (!$data) {
+				Report::create([
+					'filename' => $request->reportTitle,
+					'from' => $request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom'],
+					'to' => $request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo']
+				]);
+			} else {
+				$data->filename = $request->reportTitle;
+				$data->from = $request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom'];
+				$data->to = $request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo'];
+
+				$data->save();
+			}
+
+			return response()->json([
+				'message' => 'Successfully generated',
+				'filename' => $request->reportTitle,
+				'count' => count($series)
+			]);
+
 		} catch (\Exception $e) {
 			return response()->json([
 				'error' => $e,
 				'count' => count($series)
 			]);
 		}
-
-		$data = Report::where('filename', $request->reportTitle)->first();
-
-		if (!$data) {
-			Report::create([
-				'filename' => $request->reportTitle,
-				'from' => $request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom'],
-				'to' => $request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo']
-			]);
-		} else {
-			$data->filename = $request->reportTitle;
-			$data->from = $request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom'];
-			$data->to = $request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo'];
-
-			$data->save();
-		}
-
-		return response()->json([
-			'message' => 'Successfully generated',
-			'filename' => $request->reportTitle,
-			'count' => count($series)
-		]);
 	}
 
 	public function getMachinesReport() {
