@@ -214,6 +214,10 @@ Route::group(['prefix' => 'settings'], function () {
 	Route::get('/app-settings', 'SettingController@appSettings');
 });
 
+Route::group(['prefix' => 'thresholds', function () {
+	Route::get('/get-target-devices', 'ThresholdController@getTargetDevices');
+}]);
+
 Route::post('test/send-mail', 'CompanyController@testMail');
 Route::post('test/send-sms', 'CompanyController@testSMS');
 Route::post('test/blender-json', 'TestController@store');
