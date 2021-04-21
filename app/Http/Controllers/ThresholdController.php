@@ -17,9 +17,9 @@ class ThresholdController extends Controller
             Threshold::create([
                 'user_id' => $user->id,
                 'device_id' => $request->deviceId,
-                'tag_id' => $condition->telemetry,
-                'operator' => $condition->operator,
-                'value' => $condition->value,
+                'tag_id' => $condition['telemetry'],
+                'operator' => $condition['operator'],
+                'value' => $condition['value'],
                 'sms_info' => $request->smsForm,
                 'email_info' => $request->emailForm
             ]);
