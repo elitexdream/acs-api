@@ -624,7 +624,7 @@ class MachineTagsSeeder extends Seeder
             [ 'name' => 'Serial Number Unit', 'configuration_id' => MACHINE_GP_PORTABLE_CHILLER, 'tag_id' => 104, 'type' => 'line', 'offset' => 0, 'divided_by' => 1 ],
             [ 'name' => 'Capacity Utilization', 'configuration_id' => MACHINE_GP_PORTABLE_CHILLER, 'tag_id' => 105, 'type' => 'line', 'offset' => 0, 'divided_by' => 10 ],
             [ 'name' => 'Energy Consumption', 'configuration_id' => MACHINE_GP_PORTABLE_CHILLER, 'tag_id' => 106, 'type' => 'line', 'offset' => 0, 'divided_by' => 1 ],
-            [ 'name' => '"Device Type', 'configuration_id' => MACHINE_GP_PORTABLE_CHILLER, 'tag_id' => 120, 'type' => 'line', 'offset' => 0, 'divided_by' => 1 ],
+            [ 'name' => 'Device Type', 'configuration_id' => MACHINE_GP_PORTABLE_CHILLER, 'tag_id' => 120, 'type' => 'line', 'offset' => 0, 'divided_by' => 1 ],
 
             [ 'name' => 'Tank Temperature', 'configuration_id' => MACHINE_HE_CENTRAL_CHILLER, 'tag_id' => 1, 'type' => 'line', 'offset' => 0, 'divided_by' => 1 ],
             [ 'name' => 'Circuit 1 Approach Temperature', 'configuration_id' => MACHINE_HE_CENTRAL_CHILLER, 'tag_id' => 2, 'type' => 'line', 'offset' => 0, 'divided_by' => 1 ],

@@ -98,7 +98,11 @@ class MachineController extends Controller
                 ->first();
 
             if ($running) {
-                return json_decode($running->values)[0];
+				if ($machineId == MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER || $machineId == MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER) {
+					return !json_decode($running->values)[0];
+				} else {
+					return json_decode($running->values)[0];
+				}
             }
         }
 
