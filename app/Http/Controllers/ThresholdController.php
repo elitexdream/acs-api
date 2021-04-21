@@ -77,7 +77,7 @@ class ThresholdController extends Controller
                 $condition['email'] = $emailInfo->to;
             }
 
-            $condition['option'] = $tag->name . $this->getMathExpressionFromString($condition['operator']) . $condition['value'];
+            $condition['option'] = $tag->name . " " . $this->getMathExpressionFromString($condition['operator']). " " . $condition['value'];
         }
 
         return response()->json(compact('conditions'));
