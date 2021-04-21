@@ -83,6 +83,14 @@ class ThresholdController extends Controller
         return response()->json(compact('conditions'));
     }
 
+    public function changeStatus(Request $request, $id) {
+        $threshold = Threshold::where('id', $id)->first();
+
+        $threshold->update([
+            'status' => !$threshold->status
+        ]);
+    }
+
 	public function getMathExpressionFromString($string) {
 		if ($string == 'Equals') {
 			return '=';
