@@ -215,6 +215,7 @@ Route::group(['prefix' => 'settings'], function () {
 });
 
 Route::group(['prefix' => 'thresholds'], function () {
+	Route::get('/', 'ThresholdController@getThresholdList');
 	Route::post('/add', 'ThresholdController@addThreshold');
 });
 
