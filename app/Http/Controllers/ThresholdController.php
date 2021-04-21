@@ -3,31 +3,30 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Threshold;
 
 use \stdClass;
 
 class ThresholdController extends Controller
 {
-    public function getTargetDevices(Request $request) {
+    public function addThreshold(Request $request) {
         $user = $request->user('api');
+        $conditions = $request->conditions;
 
-        $response = new stdClass();
-
-        $locations = $user->getMyLocations();
-
-        foreach ($locations as $key => $location) {
-            $zones = $location->zones();
-            foreach ($zones as $key => $zone) {
-                if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
-                    $devices = Device::where('location_id', $location)->where('zone_id', $zone)->get();
-                } else {
-                    $devices = $user->company->devices()->where('location_id', $location)->where('zone_id', $zone)->get();
-                }
-
-                $response[$location->id][$zone->id] = $devices;
-            }
+        foreach ($conditions as $key => $condition) {
+            Threshold::create([
+                'user_id' => $user->id,
+                'device_id' => $request->deviceId,
+                'tag_id' => $condition->telemetry,
+                'operator' => $condition->operator,
+                'value' => $condition->value,
+                'sms_info' => $request->smsForm,
+                'email_info' => $request->emailForm
+            ]);
         }
 
-        return response()->json(compact('response'));
+        return response()->json([
+            'message' => 'Threshold added successfully'
+        ]);
     }
 }

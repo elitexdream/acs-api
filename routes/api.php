@@ -215,7 +215,7 @@ Route::group(['prefix' => 'settings'], function () {
 });
 
 Route::group(['prefix' => 'thresholds', function () {
-	Route::get('/get-target-devices', 'ThresholdController@getTargetDevices');
+	Route::post('/add', 'ThresholdController@addThreshold');
 }]);
 
 Route::post('test/send-mail', 'CompanyController@testMail');

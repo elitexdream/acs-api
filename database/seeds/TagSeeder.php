@@ -98,14 +98,15 @@ class TagSeeder extends Seeder
 
             [ 'tag_name' => 'running', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 9 ],
             [ 'tag_name' => 'running', 'configuration_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER, 'tag_id' => 10 ],
-            [ 'tag_name' => 'running', 'configuration_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER, 'tag_id' => 13 ],
-            [ 'tag_name' => 'running', 'configuration_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER, 'tag_id' => 11 ],
+            [ 'tag_name' => 'running', 'configuration_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER, 'tag_id' => 9 ],
+            [ 'tag_name' => 'running', 'configuration_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER, 'tag_id' => 8 ],
             [ 'tag_name' => 'running', 'configuration_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM, 'tag_id' => 10 ],
             [ 'tag_name' => 'running', 'configuration_id' => MACHINE_NGX_DRYER, 'tag_id' => 36 ],
             [ 'tag_name' => 'running', 'configuration_id' => MACHINE_NGX_NOMAD_DRYER, 'tag_id' => 28 ],
             [ 'tag_name' => 'running', 'configuration_id' => MACHINE_T50_CENTRAL_GRANULATOR, 'tag_id' => 9 ],
             [ 'tag_name' => 'running', 'configuration_id' => MACHINE_GP_PORTABLE_CHILLER, 'tag_id' => 4 ],
-            [ 'tag_name' => 'running', 'configuration_id' => MACHINE_HE_CENTRAL_CHILLER, 'tag_id' => 194 ]
+            [ 'tag_name' => 'running', 'configuration_id' => MACHINE_HE_CENTRAL_CHILLER, 'tag_id' => 194 ],
+            [ 'tag_name' => 'running', 'configuration_id' => MACHINE_TRUETEMP_TCU, 'tag_id' => 40 ]
             
         ];
         DB::table('tags')->insert($tags);
