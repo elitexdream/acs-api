@@ -9,6 +9,6 @@ class Threshold extends Model
     public $table = 'thresholds';
 
     protected $fillable = [
-        'user_id', 'device_id', 'tag_id', 'operator', 'value', 'sms_info', 'email_info'
+        'user_id', 'device_id', 'tag_id', 'operator', 'value', 'sms_info', 'email_info', 'status'
     ];
 }
