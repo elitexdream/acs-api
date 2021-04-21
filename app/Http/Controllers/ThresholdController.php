@@ -20,8 +20,8 @@ class ThresholdController extends Controller
                 'tag_id' => $condition['telemetry'],
                 'operator' => $condition['operator'],
                 'value' => $condition['value'],
-                'sms_info' => $request->smsForm,
-                'email_info' => $request->emailForm
+                'sms_info' => json_encode($request->smsForm),
+                'email_info' => json_encode($request->emailForm)
             ]);
         }
 
