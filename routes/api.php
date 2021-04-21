@@ -214,9 +214,9 @@ Route::group(['prefix' => 'settings'], function () {
 	Route::get('/app-settings', 'SettingController@appSettings');
 });
 
-Route::group(['prefix' => 'thresholds', function () {
+Route::group(['prefix' => 'thresholds'], function () {
 	Route::post('/add', 'ThresholdController@addThreshold');
-}]);
+});
 
 Route::post('test/send-mail', 'CompanyController@testMail');
 Route::post('test/send-sms', 'CompanyController@testSMS');
