@@ -60,10 +60,10 @@ class ThresholdController extends Controller
         foreach ($conditions as $key => $condition) {
             $machine_id = Device::where('device_id', $condition['device_id'])->first()->machine_id;
 
-            $tag = MachineTag::where('configuration_id', $machine_id)->where('tag_id', $condition['telemetry'])->first();
+            $tag = MachineTag::where('configuration_id', $machine_id)->where('tag_id', $condition['tag_id'])->first();
 
             if (!$tag) {
-                $tag = AlarmType::where('machine_id', $machine_id)->where('tag_id', $condition['telemetry'])->first();
+                $tag = AlarmType::where('machine_id', $machine_id)->where('tag_id', $condition['tag_id'])->first();
             }
 
             $smsInfo = json_decode($condition['sms_info']);
