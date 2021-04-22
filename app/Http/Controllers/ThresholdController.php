@@ -131,7 +131,7 @@ class ThresholdController extends Controller
 
         return response()->json([
             'message' => 'Threshold updated successfully'
-        ])
+        ]);
     }
 
 	public function getMathExpressionFromString($string) {
