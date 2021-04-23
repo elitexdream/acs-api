@@ -16,17 +16,21 @@ class ThresholdController extends Controller
         $user = $request->user('api');
         $conditions = $request->conditions;
         $condition_name = [];
-        $machine_id = Device::where('device_id', $request->deviceId)->first()->machine_id;
+        $device = Device::where('device_id', $request->deviceId)->first();
 
         foreach ($conditions as $key => $condition) {
-            $tag = MachineTag::where('configuration_id', $machine_id)->where('id', $condition['telemetry'])->first();
+            $tag = MachineTag::where('configuration_id', $device->machine_id)->where('id', $condition['telemetry'])->first();
 
             if (!$tag) {
-                $tag = AlarmType::where('machine_id', $machine_id)->where('id', $condition['telemetry'])->first();
+                $tag = AlarmType::where('machine_id', $device->machine_id)->where('id', $condition['telemetry'])->first();
             }
 
+            $multipled_by = isset($tag['divided_by']) ? $tag['divided_by'] : 1;
+            $bytes = isset($tag['bytes']) ? $tag['bytes'] : 0;
+            $offset = $tag['offset'] ? $tag['offset'] : 0;
+
             $option = Threshold::where('tag_id', $tag->tag_id)
-                                ->where('offset', $tag->offset)
+                                ->where('offset', $offset)
                                 ->where('operator', $condition['operator'])
                                 ->where('value', $condition['value'])
                                 ->where('device_id', $request->deviceId)
@@ -44,11 +48,14 @@ class ThresholdController extends Controller
                 'user_id' => $user->id,
                 'device_id' => $request->deviceId,
                 'tag_id' => $tag->tag_id,
-                'offset' => $tag->offset,
+                'offset' => $offset,
                 'operator' => $condition['operator'],
                 'value' => $condition['value'],
                 'sms_info' => json_encode($request->smsForm),
-                'email_info' => json_encode($request->emailForm)
+                'email_info' => json_encode($request->emailForm),
+                'serial_number' => $device->serial_number,
+                'multipled_by' => $multipled_by,
+                'bytes' => $bytes
             ]);
         }
 
