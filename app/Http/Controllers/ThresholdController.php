@@ -179,6 +179,22 @@ class ThresholdController extends Controller
 
     }
 
+    public function clearThresholdStatus(Request $request) {
+        $thresholds = $request->thresholds;
+
+        foreach ($thresholds as $key => $threshold) {
+            $row = Threshold::where('id', $threshold['id'])->first();
+
+            $row->update([
+                'message_status' => false
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Cleared thresholds successfully'
+        ]);
+    }
+
 	public function getMathExpressionFromString($string) {
 		if ($string == 'Equals') {
 			return '=';

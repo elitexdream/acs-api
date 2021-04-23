@@ -221,6 +221,7 @@ Route::group(['prefix' => 'thresholds'], function () {
 	Route::post('/change-status/{id}', 'ThresholdController@changeStatus');
 	Route::delete('/{id}', 'ThresholdController@deleteThreshold');
 	Route::put('/{id}', 'ThresholdController@updateThreshold');
+	Route::post('/clear', 'ThresholdContoller@clearThresholdStatus');
 });
 
 Route::post('test/send-mail', 'CompanyController@testMail');
