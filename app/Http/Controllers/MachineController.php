@@ -294,6 +294,41 @@ class MachineController extends Controller
 						$product->version = '';
 					}
 				}
+			} else if($request->machineId == MACHINE_GP_PORTABLE_CHILLER) {
+				if($software_version_x = DB::table('device_data')
+										->where('serial_number', $request->serialNumber)
+										->where('tag_id', 99)
+										->latest('timestamp')
+										->first()) {
+					try {
+						$version_x = json_decode($software_version_x->values)[0];
+					} catch (\Exception $e) {
+						$version_x = '0';
+					}
+				}
+				if($software_version_y = DB::table('device_data')
+										->where('serial_number', $request->serialNumber)
+										->where('tag_id', 100)
+										->latest('timestamp')
+										->first()) {
+					try {
+						$version_y = json_decode($software_version_y->values)[0];
+					} catch (\Exception $e) {
+						$version_y = '0';
+					}
+				}
+				if($software_version_z = DB::table('device_data')
+										->where('serial_number', $request->serialNumber)
+										->where('tag_id', 101)
+										->latest('timestamp')
+										->first()) {
+					try {
+						$version_z = sprintf('%03d', json_decode($software_build_object->values)[0]);
+					} catch (\Exception $e) {
+						$version_z = '000';
+					}
+				}
+				$product->version = mb_convert_encoding($version_x . "." . $version_y . "." . $version_z, 'UTF-8', 'UTF-8');
 			} else {
 				$tag_software_version = Tag::where('tag_name', 'software_version')->where('configuration_id', $request->machineId)->first();
 				if(!$tag_software_version) {

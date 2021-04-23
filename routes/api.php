@@ -216,10 +216,12 @@ Route::group(['prefix' => 'settings'], function () {
 
 Route::group(['prefix' => 'thresholds'], function () {
 	Route::get('/', 'ThresholdController@getThresholdList');
+	Route::get('/active', 'ThresholdController@getActiveThresholds');
 	Route::post('/add', 'ThresholdController@addThreshold');
 	Route::post('/change-status/{id}', 'ThresholdController@changeStatus');
 	Route::delete('/{id}', 'ThresholdController@deleteThreshold');
 	Route::put('/{id}', 'ThresholdController@updateThreshold');
+	Route::post('/clear', 'ThresholdController@clearThresholdStatus');
 });
 
 Route::post('test/send-mail', 'CompanyController@testMail');

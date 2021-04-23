@@ -16,17 +16,21 @@ class ThresholdController extends Controller
         $user = $request->user('api');
         $conditions = $request->conditions;
         $condition_name = [];
-        $machine_id = Device::where('device_id', $request->deviceId)->first()->machine_id;
+        $device = Device::where('device_id', $request->deviceId)->first();
 
         foreach ($conditions as $key => $condition) {
-            $tag = MachineTag::where('configuration_id', $machine_id)->where('id', $condition['telemetry'])->first();
+            $tag = MachineTag::where('configuration_id', $device->machine_id)->where('id', $condition['telemetry'])->first();
 
             if (!$tag) {
-                $tag = AlarmType::where('machine_id', $machine_id)->where('id', $condition['telemetry'])->first();
+                $tag = AlarmType::where('machine_id', $device->machine_id)->where('id', $condition['telemetry'])->first();
             }
 
+            $multipled_by = isset($tag['divided_by']) ? $tag['divided_by'] : 1;
+            $bytes = isset($tag['bytes']) ? $tag['bytes'] : 0;
+            $offset = $tag['offset'] ? $tag['offset'] : 0;
+
             $option = Threshold::where('tag_id', $tag->tag_id)
-                                ->where('offset', $tag->offset)
+                                ->where('offset', $offset)
                                 ->where('operator', $condition['operator'])
                                 ->where('value', $condition['value'])
                                 ->where('device_id', $request->deviceId)
@@ -44,11 +48,14 @@ class ThresholdController extends Controller
                 'user_id' => $user->id,
                 'device_id' => $request->deviceId,
                 'tag_id' => $tag->tag_id,
-                'offset' => $tag->offset,
+                'offset' => $offset,
                 'operator' => $condition['operator'],
                 'value' => $condition['value'],
                 'sms_info' => json_encode($request->smsForm),
-                'email_info' => json_encode($request->emailForm)
+                'email_info' => json_encode($request->emailForm),
+                'serial_number' => $device->serial_number,
+                'multipled_by' => $multipled_by,
+                'bytes' => $bytes
             ]);
         }
 
@@ -131,6 +138,60 @@ class ThresholdController extends Controller
 
         return response()->json([
             'message' => 'Threshold updated successfully'
+        ]);
+    }
+
+    public function getActiveThresholds(Request $request) {
+        $user = $request->user('api');
+
+        if ($user->hasRole(['customer_admin'])) {
+            $conditions = Threshold::where('message_status', true)->get();
+        } else {
+            $conditions = Threshold::where('user_id', $user->id)->where('message_status', true)->get();
+        }
+
+        foreach ($conditions as $key => $condition) {
+            $device = Device::where('device_id', $condition['device_id'])->first();
+
+            $tag = MachineTag::where('configuration_id', $device->machine_id)->where('tag_id', $condition['tag_id'])->where('offset', $condition['offset'])->first();
+
+            if (!$tag) {
+                $tag = AlarmType::where('machine_id', $device->machine_id)->where('tag_id', $condition['tag_id'])->where('offset', $condition['offset'])->first();
+            }
+
+            $smsInfo = json_decode($condition['sms_info']);
+            $emailInfo = json_decode($condition['email_info']);
+
+            if ($smsInfo->name && $smsInfo->to && $smsInfo->note) {
+                $condition['sms'] = $smsInfo->to;
+            }
+            
+            if ($emailInfo->name && $emailInfo->to && $emailInfo->note) {
+                $condition['email'] = $emailInfo->to;
+            }
+
+            $condition['tag_name'] = $tag->name;
+            $condition['device_name'] = $device->name;
+            $condition['option'] = $tag->name . " " . $this->getMathExpressionFromString($condition['operator']). " " . $condition['value'];
+        }
+
+        return response()->json(compact('conditions'));
+
+    }
+
+    public function clearThresholdStatus(Request $request) {
+        $thresholds = $request->thresholds;
+
+        foreach ($thresholds as $key => $threshold) {
+            $row = Threshold::where('id', $threshold['id'])->first();
+
+            $row->update([
+                'message_status' => false
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Cleared thresholds successfully'
         ]);
     }
 
