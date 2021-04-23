@@ -141,6 +141,44 @@ class ThresholdController extends Controller
         ]);
     }
 
+    public function getActiveThresholds(Request $request) {
+        $user = $request->user('api');
+
+        if ($user->hasRole(['customer_admin'])) {
+            $conditions = Threshold::where('message_status', true)->get();
+        } else {
+            $conditions = Threshold::where('user_id', $user->id)->where('message_status', true)->get();
+        }
+
+        foreach ($conditions as $key => $condition) {
+            $device = Device::where('device_id', $condition['device_id'])->first();
+
+            $tag = MachineTag::where('configuration_id', $device->machine_id)->where('tag_id', $condition['tag_id'])->where('offset', $condition['offset'])->first();
+
+            if (!$tag) {
+                $tag = AlarmType::where('machine_id', $device->machine_id)->where('tag_id', $condition['tag_id'])->where('offset', $condition['offset'])->first();
+            }
+
+            $smsInfo = json_decode($condition['sms_info']);
+            $emailInfo = json_decode($condition['email_info']);
+
+            if ($smsInfo->name && $smsInfo->to && $smsInfo->note) {
+                $condition['sms'] = $smsInfo->to;
+            }
+            
+            if ($emailInfo->name && $emailInfo->to && $emailInfo->note) {
+                $condition['email'] = $emailInfo->to;
+            }
+
+            $condition['tag_name'] = $tag->name;
+            $condition['device_name'] = $device->name;
+            $condition['option'] = $tag->name . " " . $this->getMathExpressionFromString($condition['operator']). " " . $condition['value'];
+        }
+
+        return response()->json(compact('conditions'));
+
+    }
+
 	public function getMathExpressionFromString($string) {
 		if ($string == 'Equals') {
 			return '=';

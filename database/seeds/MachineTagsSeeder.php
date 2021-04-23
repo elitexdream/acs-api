@@ -227,6 +227,7 @@ class MachineTagsSeeder extends Seeder
             [ 'name' => 'Units', 'configuration_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER, 'tag_id' => 41, 'type' => 'line', 'offset' => 0, 'divided_by' => 1 ],
             [ 'name' => 'Recipe Setpoint and Actual', 'configuration_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER, 'tag_id' => 42, 'type' => 'line', 'offset' => 0, 'divided_by' => 1 ],
             [ 'name' => 'Idle', 'configuration_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER, 'tag_id' => 43, 'type' => 'line', 'offset' => 0, 'divided_by' => 1 ],
+            [ 'name' => 'Serial Number Unit', 'configuration_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER, 'tag_id' => 44, 'type' => 'line', 'offset' => 0, 'divided_by' => 1 ],
 
             [ 'name' => 'Device Type', 'configuration_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM, 'tag_id' => 1, 'type' => 'line', 'offset' => 0, 'divided_by' => 1 ],
             [ 'name' => 'Capacity Utilization', 'configuration_id' => MACHINE_VTC_PLUS_CONVEYING_SYSTEM, 'tag_id' => 2, 'type' => 'line', 'offset' => 0, 'divided_by' => 10 ],
