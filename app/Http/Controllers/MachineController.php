@@ -71,7 +71,7 @@ class MachineController extends Controller
 	    		case MACHINE_BD_BATCH_BLENDER:
 	    			$tag_id = 51;
 	    			break;
-	    		
+
 	    		default:
 	    			break;
 	    	}
@@ -146,90 +146,38 @@ class MachineController extends Controller
         return response()->json(compact('devices'));
     }
 
-	public function generateMachinesReport(Request $request) {
-		$response = [];
-		$from = strtotime($request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom']);
-		$to = strtotime($request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo']);
-		try {
-			foreach ($request->machineTags as $key => $tags) {
-				$machine = Device::where('device_id', $key)->first();
-				$machine_info = new stdClass();
-				$tag_ids = [];
-				$tag_info = [];
-				$series = [];
-				foreach ($tags as &$tag) {
-					$tag_infos = DeviceData::where('machine_id', $machine->machine_id)
-									->where('device_id', $machine->serial_number)
-									->where('tag_id', $tag['tag_id'])
-									->where('timestamp', '>', $from)
-									->where('timestamp', '<', $to)
-									->orderBy('timestamp')
-									->get();
+    public function generateMachinesReport(Request $request) {
+        try {
 
-					if($tag_infos) {
-						$ss = $tag_infos->map(function($object) use ($tag) {
-							$divide_by = isset($tag['divided_by']) ? $tag['divided_by'] : 1;
-							$offset = $tag['offset'] ? $tag['offset'] : 0;
-							$bytes = isset($tag['bytes']) ? $tag['bytes'] : 0;
-							if ($bytes) {
-								$value = ((json_decode($object->values)[0] >> $tag['offset']) & $tag['bytes']);
-							} else {
-								$value = json_decode($object->values)[$offset] / $divide_by;
-							}
-							return [$object->timedata, round($value, 3), $tag['name']];
-						});
-					}
-					array_push($tag_info, $ss);
-				}
+            if (!Excel::store(new MachinesReportSheetExport($request), 'report.xlsx')) {
+                return response()->json([
+                    'message' => 'Error generating report',
+                    'count' => 0
+                ]);
+            }
 
-				foreach ($tag_info as &$item) {
-					array_push($series, ...$item);
-				}
+            File::move(storage_path('app/report.xlsx'), public_path('assets/app/reports/' . $request->reportTitle . '.xlsx'));
 
-				$collection = collect($series);
-				$collection->sortBy(function ($item) {
-					return $item[0];
-				});
+            Report::where('filename', $request->reportTitle)->updateOrCreate([
+                'filename' => $request->reportTitle
+            ], [
+                'from' => $request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom'],
+                'to' => $request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo']
+            ]);
 
-				$sorted = $collection->all();
+            return response()->json([
+                'message' => 'Successfully generated',
+                'filename' => $request->reportTitle,
+                'count' => count($request->machineTags)
+            ]);
 
-				$machine_info->machine_name = $machine->name;
-				$machine_info->tags = $sorted;
-				array_push($response, $machine_info);
-			}
-
-			Excel::store(new MachinesReportSheetExport($response), 'report.xlsx');
-        	File::move(storage_path('app/report.xlsx'), public_path('assets/app/reports/' . $request->reportTitle . '.xlsx'));
-
-			$data = Report::where('filename', $request->reportTitle)->first();
-
-			if (!$data) {
-				Report::create([
-					'filename' => $request->reportTitle,
-					'from' => $request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom'],
-					'to' => $request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo']
-				]);
-			} else {
-				$data->filename = $request->reportTitle;
-				$data->from = $request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom'];
-				$data->to = $request->timeRange['dateTo'] . ' ' . $request->timeRange['timeTo'];
-
-				$data->save();
-			}
-
-			return response()->json([
-				'message' => 'Successfully generated',
-				'filename' => $request->reportTitle,
-				'count' => count($series)
-			]);
-
-		} catch (\Exception $e) {
-			return response()->json([
-				'message' => $e,
-				'count' => count($series)
-			]);
-		}
-	}
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'count' => 0
+            ]);
+        }
+    }
 
 	public function getMachinesReport() {
 		$reports = Report::all();
@@ -260,7 +208,7 @@ class MachineController extends Controller
 			'message' => $message,
 			'reports' => $reports
 		]);
-		
+
 	}
 	/*
 		Get general information of product
@@ -292,27 +240,27 @@ class MachineController extends Controller
 					case 2:
 						$tag_software_version = 265;
 						break;
-						
+
 					case 3:
 						$tag_software_version = 266;
 						break;
-						
+
 					case 4:
 						$tag_software_version = 267;
 						break;
-						
+
 					case 5:
 						$tag_software_version = 268;
 						break;
-						
+
 					case 6:
 						$tag_software_version = 269;
 						break;
-						
+
 					case 7:
 						$tag_software_version = 270;
 						break;
-						
+
 					case 8:
 						$tag_software_version = 271;
 						break;
@@ -818,7 +766,7 @@ class MachineController extends Controller
 		$tag_ids = [11, 12, 20, 21, 22, 23];
 		$names = ['Batch Size', 'Batch Counter', 'Load cell A zero bits', 'Load cell A cal bits', 'Load cell B zero bits', 'Load cell B cal bits'];
 
-		for ($i=0; $i < 6; $i++) { 
+		for ($i=0; $i < 6; $i++) {
 			$last_object = DeviceData::where('serial_number', $request->serialNumber)
 							->where('tag_id', $tag_ids[$i])
 							->latest('timedata')
@@ -890,7 +838,7 @@ class MachineController extends Controller
 
 	/*
 		configuration: BD Blender configuration
-		description: process rate, 1 point, L30_30_0_average_pr (lbs/hr or kgs/hr) DINT 
+		description: process rate, 1 point, L30_30_0_average_pr (lbs/hr or kgs/hr) DINT
 		tag: L30_30_0_average_pr
 	*/
 	public function getBlenderProcessRate(Request $request) {
@@ -948,7 +896,7 @@ class MachineController extends Controller
 			if(!$tag_utilization) {
 				return response()->json('Capacity utilization tag not found', 404);
 			}
-	
+
 			$utilizations_object = DB::table('utilizations')
 									->where('serial_number', $request->serialNumber)
 									->where('tag_id', $tag_utilization->tag_id)
@@ -956,9 +904,9 @@ class MachineController extends Controller
 									->where('timestamp', '<', $to)
 									->orderBy('timestamp')
 									->get();
-	
+
 			$utilizations = $this->averagedSeries($utilizations_object, 200, 10);
-	
+
 		}
 		$items = [$utilizations];
 
@@ -990,7 +938,7 @@ class MachineController extends Controller
 		$energy_consumption = $this->averagedSeries($energy_consumptions_object, 200, 10);
 
 		$items = [$energy_consumption];
-		
+
 		return response()->json(compact('items'));
 	}
 
@@ -1278,7 +1226,7 @@ class MachineController extends Controller
 
 	/*
 		configuration: Accumeter Ovation Continuous Blender
-		description: -current target rate, 1 point, 1 min update F9_43_0_TotalMass (lbs/hr or kgs/hr) REAL 
+		description: -current target rate, 1 point, 1 min update F9_43_0_TotalMass (lbs/hr or kgs/hr) REAL
 		tag: F9_43_0_TotalMass
 	*/
 	public function getTargetRate(Request $request) {
@@ -1302,7 +1250,7 @@ class MachineController extends Controller
 		$rates = $this->averagedSeries($rates_object);
 
 		$items = [$rates];
-		
+
 		return response()->json(compact('items', 'isImperial'));
 	}
 
@@ -1386,7 +1334,7 @@ class MachineController extends Controller
 	public function getPumpHoursOil(Request $request) {
 		$targets = [];
 		$actuals = [];
-		
+
 		$targetValues = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 17)
 						->latest('timedata')
@@ -1457,7 +1405,7 @@ class MachineController extends Controller
 	*/
 	public function getPumpHours(Request $request) {
 		$items = [];
-		
+
 		$hourValues = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 15)
 						->latest('timedata')
@@ -1475,7 +1423,7 @@ class MachineController extends Controller
 	*/
 	public function getPumpOnlines(Request $request) {
 		$onlines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-		
+
 		$onlines_object = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 12)
 						->latest('timedata')
@@ -1493,7 +1441,7 @@ class MachineController extends Controller
 	*/
 	public function getPumpBlowBacks(Request $request) {
 		$blowbacks = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-		
+
 		$blowback_object = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', 14)
 						->latest('timedata')
@@ -1572,7 +1520,7 @@ class MachineController extends Controller
 		$tag_ids = $request->machineId === 6 ? [22, 20, 21, 23] : [16, 14, 15, 17];
 		$names = ['Set Point', 'Regen Left', 'Regen Right', 'regen exhaust'];
 
-		for ($i=0; $i < 4; $i++) { 
+		for ($i=0; $i < 4; $i++) {
 			$obj = DeviceData::where('serial_number', $request->serialNumber)
 											->where('tag_id', $tag_ids[$i])
 											->orderBy('timestamp')
@@ -1613,7 +1561,7 @@ class MachineController extends Controller
 			$tag_2_ids = [11, 14, 13];
 			$tag_3_ids = [10, 13,16];
 
-			for ($i=0; $i < 3; $i++) { 
+			for ($i=0; $i < 3; $i++) {
 				$inlet = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', $tag_1_ids[$i])
 						->latest('timedata')
@@ -1687,7 +1635,7 @@ class MachineController extends Controller
 
 		$tag_ids = $request->machineId === 6 ? [26, 27, 28, 29, 30, 31] : [20, 21, 22, 23, 24, 25];
 
-		for ($i=0; $i < 6; $i++) { 
+		for ($i=0; $i < 6; $i++) {
 			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $tag_ids[$i])->latest('timedata')->first();
 
 			if($obj) {
@@ -1724,7 +1672,7 @@ class MachineController extends Controller
 			$total_tags = [35, 37, 41, 43];
 		}
 
-		for ($i=0; $i < count($maint_tags); $i++) { 
+		for ($i=0; $i < count($maint_tags); $i++) {
 			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $maint_tags[$i])->latest('timedata')->first();
 
 			if($obj) {
@@ -1755,7 +1703,7 @@ class MachineController extends Controller
 
 		$tag_ids = [27, 55, 58, 59, 60];
 
-		for ($i=0; $i < count($tag_ids); $i++) { 
+		for ($i=0; $i < count($tag_ids); $i++) {
 			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $tag_ids[$i])->latest('timedata')->first();
 
 			if($obj) {
@@ -1770,7 +1718,7 @@ class MachineController extends Controller
 	/*
 		configuration: NGX Dryer
 		description: Reg air temperature
-		tag: 
+		tag:
 	*/
 	// public function getRegAirTemperature($id) {
 	// 	$product = Device::where('serial_number', $id)->first();
@@ -1925,7 +1873,7 @@ class MachineController extends Controller
 		}
 
 		$items = [$lengths];
-		
+
 		return response()->json(compact('items'));
 	}
 
@@ -1990,7 +1938,7 @@ class MachineController extends Controller
 		tag_id: 85
 		return: array
 	*/
-	public function getProcessOutTemperature(Request $request) { 
+	public function getProcessOutTemperature(Request $request) {
 		$items = [0, 0];
 
 		$actual_object = DeviceData::where('serial_number', $request->serialNumber)
@@ -2017,7 +1965,7 @@ class MachineController extends Controller
 		]);
 	}
 
-	public function getCentralChillerTemperature(Request $request) { 
+	public function getCentralChillerTemperature(Request $request) {
 		$items = [0, 0];
 
 		$tag_id_in = 3;
@@ -2033,32 +1981,32 @@ class MachineController extends Controller
 				$tag_id_in = 19;
 				$tag_id_out = 20;
 				break;
-				
+
 			case 3:
 				$tag_id_in = 35;
 				$tag_id_out = 36;
 				break;
-				
+
 			case 4:
 				$tag_id_in = 51;
 				$tag_id_out = 52;
 				break;
-				
+
 			case 5:
 				$tag_id_in = 67;
 				$tag_id_out = 68;
 				break;
-				
+
 			case 6:
 				$tag_id_in = 83;
 				$tag_id_out = 84;
 				break;
-				
+
 			case 7:
 				$tag_id_in = 99;
 				$tag_id_out = 100;
 				break;
-				
+
 			case 8:
 				$tag_id_in = 115;
 				$tag_id_out = 116;
@@ -2111,7 +2059,7 @@ class MachineController extends Controller
 
 		$tags = [19, 20, 21, 22, 23];
 
-		for ($i=0; $i < 5; $i++) { 
+		for ($i=0; $i < 5; $i++) {
 			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $tags[$i])->latest('timedata')->first();
 
 			if($obj) {
@@ -2136,7 +2084,7 @@ class MachineController extends Controller
 		$maint_tags = [29, 30, 31, 32, 33];
 		$total_tags = [35, 36, 37, 38, 39];
 
-		for ($i=0; $i < 5; $i++) { 
+		for ($i=0; $i < 5; $i++) {
 			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $maint_tags[$i])->latest('timedata')->first();
 
 			if($obj) {
@@ -2144,7 +2092,7 @@ class MachineController extends Controller
 			}
 		}
 
-		for ($i=0; $i < 5; $i++) { 
+		for ($i=0; $i < 5; $i++) {
 			$obj = DeviceData::where('serial_number', $request->serialNumber)->where('tag_id', $total_tags[$i])->latest('timedata')->first();
 
 			if($obj) {
@@ -2222,7 +2170,7 @@ class MachineController extends Controller
 							->toArray();
 
 		$count = count($running_values);
-		
+
 		if($count <= 0)
 			return $ret;
 
@@ -2236,7 +2184,7 @@ class MachineController extends Controller
 		$start_timestamp = $running_values[0]->timestamp;
 		$end_timestamp = $running_values[$count]->timestamp;
 
-		for ($i = $start_timestamp; $i < $end_timestamp; $i += 3600) { 
+		for ($i = $start_timestamp; $i < $end_timestamp; $i += 3600) {
 			$weekday = date('N', $i); //1, 2, 3, 4, 5, 6, 7
 			$ret[$weekday - 1] += 1;
 		}
@@ -2392,7 +2340,7 @@ class MachineController extends Controller
 							// 2 - Idle
 
 		$device = Device::where('serial_number', $id)->first();
-		
+
 		if(!$device) return $ret;
 
 		$running_values = DB::table('runnings')
@@ -2470,7 +2418,7 @@ class MachineController extends Controller
 			$ret[0] += $planned;
 			$ret[1] += ($end - $running_values[$count - 1]->timestamp - $planned);
 		}
-		
+
 		return $ret;
 	}
 
