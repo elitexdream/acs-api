@@ -540,18 +540,21 @@ class MachineController extends Controller
 		$saved_machine = SavedMachine::where('user_id', $user->id)
 									->where('device_id', $product->teltonikaDevice->id)->first();
 
-		if (!$product->running) {
-			$product->status = 'shutOff';
-		} else if (!$plcLinkStatus) {
-			$product->status = 'plcNotConnected';
+		$plcStatus = $this->getPlcStatus($product->teltonikaDevice->device_id);
+
+		if (!isset($plcStatus->status)) {
+			$product->status = 'routerNotConnected';
 		} else {
-			$plcStatus = $this->getPlcStatus($product->teltonikaDevice->device_id);
-			if (isset($plcStatus->status) && $plcStatus->status == 1) {
+			if($plcStatus->status != 1) {
+				$product->status = 'routerNotConnected';
+			} else if (!$plcLinkStatus) {
+				$product->status = 'plcNotConnected';
+			} else if ($product->running) {
 				$product->status = 'running';
 			} else {
-				$product->status = 'routerNotConnected';
+				$product->status = 'shutOff';
 			}
-		}
+		} 
 
 		if (!$saved_machine) {
 			$product->isSavedMachine = false;
