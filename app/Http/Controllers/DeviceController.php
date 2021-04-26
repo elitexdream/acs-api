@@ -708,21 +708,29 @@ class DeviceController extends Controller
                 $plcLinkStatus = false;
             }
 
-            $plcStatus = $this->getPlcStatus($device->device_id);
+            // $plcStatus = $this->getPlcStatus($device->device_id);
 
-            if (!isset($plcStatus->status)) {
-                $device->status = 'routerNotConnected';
+            // if (!isset($plcStatus->status)) {
+            //     $device->status = 'routerNotConnected';
+            // } else {
+            //     if($plcStatus->status != 1) {
+            //         $device->status = 'routerNotConnected';
+            //     } else if (!$plcLinkStatus) {
+            //         $device->status = 'plcNotConnected';
+            //     } else if ($running) {
+            //         $device->status = 'running';
+            //     } else {
+            //         $device->status = 'shutOff';
+            //     }
+            // } 
+
+            if (!$plcLinkStatus) {
+                $device->status = 'plcNotConnected';
+            } else if ($running) {
+                $device->status = 'running';
             } else {
-                if($plcStatus->status != 1) {
-                    $device->status = 'routerNotConnected';
-                } else if (!$plcLinkStatus) {
-                    $device->status = 'plcNotConnected';
-                } else if ($running) {
-                    $device->status = 'running';
-                } else {
-                    $device->status = 'shutOff';
-                }
-            } 
+                $device->status = 'shutOff';
+            }
         }
 
         return response()->json(compact('devices'));
