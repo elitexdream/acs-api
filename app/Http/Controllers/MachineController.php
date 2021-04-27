@@ -2465,7 +2465,7 @@ class MachineController extends Controller
 			}
 
 			$seryt = new stdClass();
-			$seryt->name = $hopper['name'] . 'Actual';
+			$seryt->name = $hopper['name'] . ' Actual';
 			$seryt->type = 'line';
 			$seryt->data = $sss;
 
