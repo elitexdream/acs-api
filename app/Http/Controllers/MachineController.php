@@ -2485,7 +2485,7 @@ class MachineController extends Controller
 			$seryt->name = $hopper['name'] . ' Actual';
 			$seryt->type = 'line';
 			$seryt->data = $sss;
-			$seryt->sd = stats_standard_deviation($actual_sd);
+			$seryt->sd = Stand_Deviation($actual_sd);
 			$seryt->average_error = $average_error;
 
 			array_push($series, $seryt);
@@ -2672,4 +2672,24 @@ class MachineController extends Controller
 				break;
 		}
 	}
+
+	// function to calculate the standard deviation of array elements
+    public function Stand_Deviation($arr)
+    {
+        $num_of_elements = count($arr);
+          
+        $variance = 0.0;
+          
+		// calculating mean using array_sum() method
+        $average = array_sum($arr)/$num_of_elements;
+          
+        foreach($arr as $i)
+        {
+            // sum of squares of differences between 
+			// all numbers and means.
+            $variance += pow(($i - $average), 2);
+        }
+          
+        return (float)sqrt($variance/$num_of_elements);
+    }
 }
