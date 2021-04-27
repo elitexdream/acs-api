@@ -2485,7 +2485,7 @@ class MachineController extends Controller
 			$seryt->name = $hopper['name'] . ' Actual';
 			$seryt->type = 'line';
 			$seryt->data = $sss;
-			$seryt->sd = $this->Stand_Deviation($actual_sd);
+			$seryt->sd = $actual_sd;
 			$seryt->average_error = $average_error;
 
 			array_push($series, $seryt);
