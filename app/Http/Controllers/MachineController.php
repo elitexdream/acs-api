@@ -2460,14 +2460,28 @@ class MachineController extends Controller
 					$value = json_decode($object->values)[$hopper['id']] / 1000;
 					return [($object->timestamp) * 1000, round($value, 3)];
 				});
+				$actual_sd = $actual_obj->map(function($object) use ($hopper) {
+					$value = json_decode($object->values)[$hopper['id']] / 1000;
+					return round($value, 3);
+				});
 			} else {
 				$sss = [];
 			}
+
+			$diff_sum = 0;
+
+			for ($i=0; $i < count($sss); $i++) {
+				$diff_sum += abs($sss[$i] - $ss[$i]);
+			}
+
+			$average_error = $diff_sum / count($sss);
 
 			$seryt = new stdClass();
 			$seryt->name = $hopper['name'] . ' Actual';
 			$seryt->type = 'line';
 			$seryt->data = $sss;
+			$seryt->sd = stats_standard_deviation($actual_sd);
+			$seryt->average_error = $average_error;
 
 			array_push($series, $seryt);
 		}
