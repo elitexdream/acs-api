@@ -2471,7 +2471,11 @@ class MachineController extends Controller
 			$diff_sum = 0;
 
 			for ($i=0; $i < count($sss); $i++) {
-				$diff_sum += abs($sss[$i] - $ss[$i]);
+				if ($ss[$i]) {
+					$diff_sum += abs($sss[$i] - $ss[$i]);
+				} else {
+					$diff_sum += abs($sss[i]);
+				}
 			}
 
 			$average_error = $diff_sum / count($sss);
