@@ -2371,6 +2371,7 @@ class MachineController extends Controller
 		$to = $this->getFromTo($request->timeRange)["to"];
 
 		foreach ($hoppers as $key => $hopper) {
+			$diff_sum = 0;
 			$target_obj = DeviceData::where('machine_id', $request->machineId)
 				->where('tag_id', 13)
 				->where('serial_number', $request->serialNumber)
@@ -2416,8 +2417,6 @@ class MachineController extends Controller
 				$sss = [];
 			}
 
-			$diff_sum = 0;
-
 			for ($i=0; $i < count($sss); $i++) {
 				if ($ss[$i]) {
 					$diff = (float) $sss[$i] - (float) $ss[$i];
@@ -2427,14 +2426,16 @@ class MachineController extends Controller
 				}
 			}
 
-			$average_error = $diff_sum / count($sss);
+			$average_error = round($diff_sum / count($sss), 3);
 
 			$seryt = new stdClass();
 			$seryt->name = $hopper['name'] . ' Actual';
 			$seryt->type = 'line';
 			$seryt->data = $sss;
-			$seryt->sd = $this->Stand_Deviation($actual_sd->toArray());
-			$seryt->average_error = round($average_error, 3);
+			$seryt->sd = round($this->Stand_Deviation($actual_sd->toArray()), 3);
+			$seryt->average_error = $average_error;
+			$seryt->diff_sum = $diff_sum;
+			$seryt->count = count($sss);
 
 			array_push($series, $seryt);
 		}
