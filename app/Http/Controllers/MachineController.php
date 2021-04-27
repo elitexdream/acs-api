@@ -2486,7 +2486,7 @@ class MachineController extends Controller
 			$seryt->type = 'line';
 			$seryt->data = $sss;
 			$seryt->sd = $this->Stand_Deviation($actual_sd->toArray());
-			$seryt->average_error = $average_error;
+			$seryt->average_error = round($average_error, 3);
 
 			array_push($series, $seryt);
 		}
