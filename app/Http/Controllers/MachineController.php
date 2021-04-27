@@ -2416,6 +2416,65 @@ class MachineController extends Controller
 		return response()->json(compact('series'));
 	}
 
+	public function getBlenderWeights(Request $request) {
+		$series = [];
+		$hoppers = $request->selectedHoppers;
+		$from = $this->getFromTo($request->timeRange)["from"];
+		$to = $this->getFromTo($request->timeRange)["to"];
+
+		foreach ($hoppers as $key => $hopper) {
+			$target_obj = DeviceData::where('machine_id', $request->machineId)
+				->where('tag_id', 13)
+				->where('serial_number', $request->serialNumber)
+				->where('timestamp', '>', $from)
+				->where('timestamp', '<', $to)
+				->orderBy('timestamp')
+				->get();
+
+			if($target_obj) {
+				$ss = $target_obj->map(function($object) use ($hopper) {
+					$value = json_decode($object->values)[$hopper['id']] / 1000;
+					return [($object->timestamp) * 1000, round($value, 3)];
+				});
+			} else {
+				$ss = [];
+			}
+
+			$sery = new stdClass();
+			$sery->name = $hopper['name'] . 'Target';
+			$sery->type = 'line';
+			$sery->data = $ss;
+
+			array_push($series, $sery);
+
+			$actual_obj = DeviceData::where('machine_id', $request->machineId)
+				->where('tag_id', 14)
+				->where('serial_number', $request->serialNumber)
+				->where('timestamp', '>', $from)
+				->where('timestamp', '<', $to)
+				->orderBy('timestamp')
+				->get();
+
+			if($actual_obj) {
+				$sss = $actual_obj->map(function($object) use ($hopper) {
+					$value = json_decode($object->values)[$hopper['id']] / 1000;
+					return [($object->timestamp) * 1000, round($value, 3)];
+				});
+			} else {
+				$sss = [];
+			}
+
+			$seryt = new stdClass();
+			$seryt->name = $hopper['name'] . 'Actual';
+			$seryt->type = 'line';
+			$seryt->data = $sss;
+
+			array_push($series, $seryt);
+		}
+
+		return response()->json(compact('series'));
+	}
+
 	/*
 		Get downtime distribution of a machine in seconds
 		Defalt start time is a week ago and default end time is now
