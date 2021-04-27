@@ -2441,7 +2441,7 @@ class MachineController extends Controller
 			}
 
 			$sery = new stdClass();
-			$sery->name = $hopper['name'] . 'Target';
+			$sery->name = $hopper['name'] . ' Target';
 			$sery->type = 'line';
 			$sery->data = $ss;
 
