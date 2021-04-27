@@ -42,6 +42,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN groupadd -g 1000 www
 RUN useradd -u 1000 -ms /bin/bash -g www www
 
+# Changing the memory for the php larvel to a 2GB
+RUN cd /usr/local/etc/php/conf.d/ && \
+  echo 'memory_limit = 2G' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini
+
 # Copy existing application directory contents
 COPY . /var/www/html/acs-api
 
