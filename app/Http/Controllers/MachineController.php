@@ -2472,7 +2472,7 @@ class MachineController extends Controller
 
 			for ($i=0; $i < count($sss); $i++) {
 				if ($ss[$i]) {
-					$diff = $sss[$i] - $ss[$i];
+					$diff = (float) $sss[$i] - (float) $ss[$i];
 					$diff_sum += abs($diff);
 				} else {
 					$diff_sum += abs($sss[i]);
