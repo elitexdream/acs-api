@@ -2438,6 +2438,8 @@ class MachineController extends Controller
 			$seryt->data = $sss;
 			$seryt->sd = round($this->Stand_Deviation($actual_sd->toArray()), 3);
 			$seryt->average_error = $average_error;
+			$seryt->min = min($actual_sd->toArray());
+			$seryt->max = max($actual_sd->toArray());
 
 			array_push($series, $seryt);
 		}
