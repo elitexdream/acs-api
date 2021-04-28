@@ -2385,6 +2385,10 @@ class MachineController extends Controller
 					$value = json_decode($object->values)[$hopper['id']] / 1000;
 					return [($object->timestamp) * 1000, round($value, 3)];
 				});
+				$target_sd = $target_obj->map(function($object) use ($hopper) {
+					$value = json_decode($object->values)[$hopper['id']] / 1000;
+					return round($value, 3);
+				});
 			} else {
 				$ss = [];
 			}
@@ -2417,16 +2421,16 @@ class MachineController extends Controller
 				$sss = [];
 			}
 
-			for ($i=0; $i < count($sss); $i++) {
-				if ($ss[$i]) {
-					$diff = (float)$sss[$i] - (float)$ss[$i];
+			for ($i=0; $i < count($actual_sd); $i++) {
+				if ($target_sd[$i]) {
+					$diff = $actual_sd[$i] - $target_sd[$i];
 					$diff_sum = $diff_sum + abs($diff);
 				} else {
-					$diff_sum = $diff_sum + abs($sss[i]);
+					$diff_sum = $diff_sum + abs($actual_sd[$i]);
 				}
 			}
 
-			$average_error = round($diff_sum / count($sss), 3);
+			$average_error = round($diff_sum / count($actual_sd), 3);
 
 			$seryt = new stdClass();
 			$seryt->name = $hopper['name'] . ' Actual';
@@ -2434,8 +2438,6 @@ class MachineController extends Controller
 			$seryt->data = $sss;
 			$seryt->sd = round($this->Stand_Deviation($actual_sd->toArray()), 3);
 			$seryt->average_error = $average_error;
-			$seryt->diff_sum = $diff_sum;
-			$seryt->count = count($sss);
 
 			array_push($series, $seryt);
 		}
