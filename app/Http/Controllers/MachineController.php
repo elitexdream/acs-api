@@ -312,7 +312,7 @@ class MachineController extends Controller
 										->latest('timestamp')
 										->first()) {
 					try {
-						$version_y = json_decode($software_version_y->values)[0];
+						$version_y = sprintf('%02d', json_decode($software_version_y->values)[0]);;
 					} catch (\Exception $e) {
 						$version_y = '0';
 					}
@@ -323,7 +323,7 @@ class MachineController extends Controller
 										->latest('timestamp')
 										->first()) {
 					try {
-						$version_z = sprintf('%03d', json_decode($software_build_object->values)[0]);
+						$version_z = sprintf('%03d', json_decode($software_version_z->values)[0]);
 					} catch (\Exception $e) {
 						$version_z = '000';
 					}

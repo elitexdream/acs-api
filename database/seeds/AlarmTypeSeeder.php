@@ -444,7 +444,7 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'System Not Stable',
                 'machine_id' => MACHINE_GH_F_GRAVIMETRIC_ADDITIVE_FEEDER,
                 'tag_id' => 40,
-                'offset' => 9,
+                'offset' => 8,
                 'bytes' => 1
             ], [
                 'name' => 'Out of Material',
