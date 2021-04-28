@@ -82,17 +82,6 @@ class ThresholdController extends Controller
                 $tag = AlarmType::where('machine_id', $machine_id)->where('tag_id', $condition['tag_id'])->where('offset', $condition['offset'])->first();
             }
 
-            $smsInfo = json_decode($condition['sms_info']);
-            $emailInfo = json_decode($condition['email_info']);
-
-            if ($smsInfo->name && $smsInfo->to && $smsInfo->note) {
-                $condition['sms'] = $smsInfo->to;
-            }
-            
-            if ($emailInfo->name && $emailInfo->to && $emailInfo->note) {
-                $condition['email'] = $emailInfo->to;
-            }
-
             $condition['tag_name'] = $tag->name;
             $condition['option'] = $tag->name . " " . $this->getMathExpressionFromString($condition['operator']). " " . $condition['value'];
         }
@@ -132,8 +121,6 @@ class ThresholdController extends Controller
         $threshold->update([
             'operator' => $request->condition['operator'],
             'value' => $request->condition['value'],
-            'sms_info' => json_encode($request->smsInfo),
-            'email_info' => json_encode($request->emailInfo)
         ]);
 
         return response()->json([
@@ -157,17 +144,6 @@ class ThresholdController extends Controller
 
             if (!$tag) {
                 $tag = AlarmType::where('machine_id', $device->machine_id)->where('tag_id', $condition['tag_id'])->where('offset', $condition['offset'])->first();
-            }
-
-            $smsInfo = json_decode($condition['sms_info']);
-            $emailInfo = json_decode($condition['email_info']);
-
-            if ($smsInfo->name && $smsInfo->to && $smsInfo->note) {
-                $condition['sms'] = $smsInfo->to;
-            }
-            
-            if ($emailInfo->name && $emailInfo->to && $emailInfo->note) {
-                $condition['email'] = $emailInfo->to;
             }
 
             $condition['tag_name'] = $tag->name;
