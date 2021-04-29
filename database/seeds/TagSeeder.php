@@ -44,6 +44,7 @@ class TagSeeder extends Seeder
             [ 'tag_name' => 'software_build', 'configuration_id' => MACHINE_NGX_DRYER, 'tag_id' => 5 ],
             [ 'tag_name' => 'software_build', 'configuration_id' => MACHINE_NGX_NOMAD_DRYER, 'tag_id' => 5 ],
             [ 'tag_name' => 'software_build', 'configuration_id' => MACHINE_T50_CENTRAL_GRANULATOR, 'tag_id' => 5 ],
+            [ 'tag_name' => 'software_build', 'configuration_id' => MACHINE_GP_PORTABLE_CHILLER, 'tag_id' => 101 ],
 
             [ 'tag_name' => 'serial_number_month', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 6 ],
             [ 'tag_name' => 'serial_number_month', 'configuration_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER, 'tag_id' => 6 ],
@@ -53,6 +54,7 @@ class TagSeeder extends Seeder
             [ 'tag_name' => 'serial_number_month', 'configuration_id' => MACHINE_NGX_DRYER, 'tag_id' => 6 ],
             [ 'tag_name' => 'serial_number_month', 'configuration_id' => MACHINE_NGX_NOMAD_DRYER, 'tag_id' => 6 ],
             [ 'tag_name' => 'serial_number_month', 'configuration_id' => MACHINE_T50_CENTRAL_GRANULATOR, 'tag_id' => 6 ],
+            [ 'tag_name' => 'serial_number_month', 'configuration_id' => MACHINE_GP_PORTABLE_CHILLER, 'tag_id' => 102 ],
 
             [ 'tag_name' => 'serial_number_year', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 7 ],
             [ 'tag_name' => 'serial_number_year', 'configuration_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER, 'tag_id' => 7 ],
@@ -62,6 +64,7 @@ class TagSeeder extends Seeder
             [ 'tag_name' => 'serial_number_year', 'configuration_id' => MACHINE_NGX_DRYER, 'tag_id' => 7 ],
             [ 'tag_name' => 'serial_number_year', 'configuration_id' => MACHINE_NGX_NOMAD_DRYER, 'tag_id' => 7 ],
             [ 'tag_name' => 'serial_number_year', 'configuration_id' => MACHINE_T50_CENTRAL_GRANULATOR, 'tag_id' => 7 ],
+            [ 'tag_name' => 'serial_number_year', 'configuration_id' => MACHINE_GP_PORTABLE_CHILLER, 'tag_id' => 103 ],
 
             [ 'tag_name' => 'serial_number_unit', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 8 ],
             [ 'tag_name' => 'serial_number_unit', 'configuration_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER, 'tag_id' => 8 ],
@@ -71,6 +74,7 @@ class TagSeeder extends Seeder
             [ 'tag_name' => 'serial_number_unit', 'configuration_id' => MACHINE_NGX_DRYER, 'tag_id' => 8 ],
             [ 'tag_name' => 'serial_number_unit', 'configuration_id' => MACHINE_NGX_NOMAD_DRYER, 'tag_id' => 8 ],
             [ 'tag_name' => 'serial_number_unit', 'configuration_id' => MACHINE_T50_CENTRAL_GRANULATOR, 'tag_id' => 8 ],
+            [ 'tag_name' => 'serial_number_unit', 'configuration_id' => MACHINE_GP_PORTABLE_CHILLER, 'tag_id' => 104 ],
 
             [ 'tag_name' => 'capacity_utilization', 'configuration_id' => MACHINE_BD_BATCH_BLENDER, 'tag_id' => 2 ],
             [ 'tag_name' => 'capacity_utilization', 'configuration_id' => MACHINE_ACCUMETER_OVATION_CONTINUOUS_BLENDER, 'tag_id' => 2 ],

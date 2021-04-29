@@ -20,6 +20,7 @@ use App\InventoryMaterial;
 use App\SystemInventory;
 use App\MachineTag;
 use App\Report;
+use App\HopperClearedTime;
 use App\Exports\MachinesReportSheetExport;
 use App\Mail\RequestService;
 use GuzzleHttp\Client;
@@ -312,7 +313,7 @@ class MachineController extends Controller
 										->latest('timestamp')
 										->first()) {
 					try {
-						$version_y = json_decode($software_version_y->values)[0];
+						$version_y = sprintf('%02d', json_decode($software_version_y->values)[0]);;
 					} catch (\Exception $e) {
 						$version_y = '0';
 					}
@@ -323,7 +324,7 @@ class MachineController extends Controller
 										->latest('timestamp')
 										->first()) {
 					try {
-						$version_z = sprintf('%03d', json_decode($software_build_object->values)[0]);
+						$version_z = sprintf('%03d', json_decode($software_version_z->values)[0]);
 					} catch (\Exception $e) {
 						$version_z = '000';
 					}
@@ -558,11 +559,14 @@ class MachineController extends Controller
 
 		$inventory_material->in_progress = $inventory_material->isInProgress();
 
+		$last_cleared = HopperClearedTime::where('serial_number', $request->serialNumber)->first();
+
 		return response()->json([
 			'data' => [
 				'inventories' => $inventories,
 				'inventory_material' => $inventory_material,
-				'unit' => $isImperial ? 'lbs' : 'kgs'
+				'unit' => $isImperial ? 'lbs' : 'kgs',
+				'last_cleared_time' => $last_cleared ? $last_cleared->last_cleared_time : ''
 			]
 		]);
 	}
