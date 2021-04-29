@@ -20,6 +20,7 @@ use App\InventoryMaterial;
 use App\SystemInventory;
 use App\MachineTag;
 use App\Report;
+use App\HopperClearedTime;
 use App\Exports\MachinesReportSheetExport;
 use App\Mail\RequestService;
 use GuzzleHttp\Client;
@@ -558,11 +559,14 @@ class MachineController extends Controller
 
 		$inventory_material->in_progress = $inventory_material->isInProgress();
 
+		$last_cleared = HopperClearedTime::where('serial_number', $request->serialNumber)->first();
+
 		return response()->json([
 			'data' => [
 				'inventories' => $inventories,
 				'inventory_material' => $inventory_material,
-				'unit' => $isImperial ? 'lbs' : 'kgs'
+				'unit' => $isImperial ? 'lbs' : 'kgs',
+				'last_cleared_time' => $last_cleared ? $last_cleared->last_cleared_time : ''
 			]
 		]);
 	}
