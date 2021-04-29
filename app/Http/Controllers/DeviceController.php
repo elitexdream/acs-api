@@ -696,25 +696,40 @@ class DeviceController extends Controller
         $query->with(['teltonikaConfiguration', 'configuration:id,name']);
         $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
         foreach ($devices as $key => $device) {
+            if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_serial_number) {
+                $running = $this->isPlcRunning($device->machine_id, $device->teltonikaConfiguration->plc_serial_number);
+            } else {
+                $running = false;
+            }
 
-            //The logic is as follows for the machine status:
-            // - First it checks teltonika to see if router is ON,
-            // - if so, it checks to see if router can talk to machine,
-            // - if so, then it checks to see if machine is running
-            // - else, then status = shutOff
-            $device->status = 'shutOff';
+            if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_status) {
+                $plcLinkStatus = true;
+            } else {
+                $plcLinkStatus = false;
+            }
 
-            $plcStatus = $this->getPlcStatus($device->device_id);
+            // $plcStatus = $this->getPlcStatus($device->device_id);
 
-            if (!isset($plcStatus->status) || $plcStatus->status != 1) {
-                $device->status = 'routerNotConnected';
-            } else if (
-                !$device->teltonikaConfiguration
-                || ($device->teltonikaConfiguration && !$device->teltonikaConfiguration->plc_status)
-            ) {
+            // if (!isset($plcStatus->status)) {
+            //     $device->status = 'routerNotConnected';
+            // } else {
+            //     if($plcStatus->status != 1) {
+            //         $device->status = 'routerNotConnected';
+            //     } else if (!$plcLinkStatus) {
+            //         $device->status = 'plcNotConnected';
+            //     } else if ($running) {
+            //         $device->status = 'running';
+            //     } else {
+            //         $device->status = 'shutOff';
+            //     }
+            // }
+
+            if (!$plcLinkStatus) {
                 $device->status = 'plcNotConnected';
-            } else if ($this->isPlcRunning($device->machine_id, $device->teltonikaConfiguration->plc_serial_number)) {
+            } else if ($running) {
                 $device->status = 'running';
+            } else {
+                $device->status = 'shutOff';
             }
         }
 
