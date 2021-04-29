@@ -109,7 +109,7 @@ class DeviceController extends Controller
         }
 
         $pageNumber = min($query->count() / 7, $pageNumber);
-        
+
         $devices = $query->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
         $companies = Company::select('id', 'name')->get();
 
@@ -265,7 +265,7 @@ class DeviceController extends Controller
                     ]
                 ]
             );
-            
+
         	$devices = json_decode($response->getBody())->data;
             foreach ($devices as $key => $device) {
                 $exisitng_device = $existing_devices->where('serial_number', $device->serial)->first();
@@ -282,7 +282,7 @@ class DeviceController extends Controller
                        'name' => $device->name,
                        'customer_assigned_name' => $device->name,
                        'serial_number' => $device->serial,
-        	           'imei' => $device->imei, 
+        	           'imei' => $device->imei,
         	           'lan_mac_address' => $device->mac,
                        'iccid' => substr($device->iccid, 0, -1),
                        'public_ip_sim' => null,
@@ -306,13 +306,13 @@ class DeviceController extends Controller
 
     public function deviceAssigned(Request $request) {
 
-        $validator = Validator::make($request->all(), [ 
+        $validator = Validator::make($request->all(), [
             'plc_ip' => 'required'
         ]);
 
         if ($validator->fails())
         {
-            return response()->json(['error'=>$validator->errors()], 422);            
+            return response()->json(['error'=>$validator->errors()], 422);
         }
 
         $device = Device::findOrFail($request->device_id);
@@ -333,14 +333,14 @@ class DeviceController extends Controller
     */
     public function updateCustomerDevice(Request $request) {
 
-        $validator = Validator::make($request->all(), [ 
+        $validator = Validator::make($request->all(), [
             'id' => 'required',
             'customer_assigned_name' => 'required',
         ]);
 
         if ($validator->fails())
         {
-            return response()->json(['error'=>$validator->errors()], 422);            
+            return response()->json(['error'=>$validator->errors()], 422);
         }
 
         $device = Device::findOrFail($request->id);
@@ -351,7 +351,7 @@ class DeviceController extends Controller
         } else {
             $device->location_id = 0;
         }
-        
+
         $device->zone_id = $request->zone_id;
 
         $device->customer_assigned_name = $request->customer_assigned_name;
@@ -435,7 +435,7 @@ class DeviceController extends Controller
                     ]
                 ]
             );
-            
+
             return $response->getBody();
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
@@ -451,7 +451,7 @@ class DeviceController extends Controller
         $getLink = 'https://rms.teltonika-networks.com/api/devices/' . $deviceid . '/links';
 
         $client = new Client();
-        
+
         try {
             while(1) {
                 $res = $client->post(
@@ -499,7 +499,7 @@ class DeviceController extends Controller
         $getLink = 'https://rms.teltonika-networks.com/api/devices/' . $deviceid . '/links';
 
         $client = new Client();
-        
+
         try {
             while(1) {
                 $res = $client->post(
@@ -555,12 +555,12 @@ class DeviceController extends Controller
                 [
                     'headers' => ['Content-type' => 'application/json'],
                     'auth' => [
-                        'ACSGroup_API', 
+                        'ACSGroup_API',
                         'HBSMYJM2'
                     ],
                     'json' => [
                         "deviceNumber" => $iccid,
-                    ], 
+                    ],
 
                 ]
             );
@@ -592,12 +592,12 @@ class DeviceController extends Controller
                 [
                     'headers' => ['Content-type' => 'application/json'],
                     'auth' => [
-                        'ACSGroup_API', 
+                        'ACSGroup_API',
                         'HBSMYJM2'
                     ],
                     'json' => [
                         "deviceNumber" => $iccid,
-                    ], 
+                    ],
                 ]
             );
 
@@ -628,12 +628,12 @@ class DeviceController extends Controller
                 [
                     'headers' => ['Content-type' => 'application/json'],
                     'auth' => [
-                        'ACSGroup_API', 
+                        'ACSGroup_API',
                         'HBSMYJM2'
                     ],
                     'json' => [
                         "deviceNumber" => $iccid,
-                    ], 
+                    ],
                 ]
             );
             $features = json_decode($response->getBody())->d->lstFeatures;
@@ -651,7 +651,7 @@ class DeviceController extends Controller
                     break;
                 }
             }
-            
+
             $device->save();
 
             return $device;
@@ -696,40 +696,22 @@ class DeviceController extends Controller
         $query->with(['teltonikaConfiguration', 'configuration:id,name']);
         $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
         foreach ($devices as $key => $device) {
-            if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_serial_number) {
-                $running = $this->isPlcRunning($device->machine_id, $device->teltonikaConfiguration->plc_serial_number);
-            } else {
-                $running = false;
-            }
 
-            if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_status) {
-                $plcLinkStatus = true;
-            } else {
-                $plcLinkStatus = false;
-            }
+            //The logic is as follows for the machine status:
+            // - First it checks teltonika to see if router is ON,
+            // - if so, it checks to see if router can talk to machine,
+            // - if so, then it checks to see if machine is running
+            // - else, then status = shutOff
+            $device->status = 'shutOff';
 
-            // $plcStatus = $this->getPlcStatus($device->device_id);
+            $plcStatus = $this->getPlcStatus($device->device_id);
 
-            // if (!isset($plcStatus->status)) {
-            //     $device->status = 'routerNotConnected';
-            // } else {
-            //     if($plcStatus->status != 1) {
-            //         $device->status = 'routerNotConnected';
-            //     } else if (!$plcLinkStatus) {
-            //         $device->status = 'plcNotConnected';
-            //     } else if ($running) {
-            //         $device->status = 'running';
-            //     } else {
-            //         $device->status = 'shutOff';
-            //     }
-            // } 
-
-            if (!$plcLinkStatus) {
-                $device->status = 'plcNotConnected';
-            } else if ($running) {
-                $device->status = 'running';
-            } else {
-                $device->status = 'shutOff';
+            if (!isset($plcStatus->status) || $plcStatus->status != 1) {
+                 $device->status = 'routerNotConnected';
+            } else if (!$device->teltonikaConfiguration && !$device->teltonikaConfiguration->plc_status) {
+                 $device->status = 'plcNotConnected';
+            } else if ($this->isPlcRunning($device->machine_id, $device->teltonikaConfiguration->plc_serial_number)) {
+                 $device->status = 'running';
             }
         }
 
@@ -776,7 +758,7 @@ class DeviceController extends Controller
                 } else {
                     $device->status = 'shutOff';
                 }
-            } 
+            }
         }
 
         return response()->json(compact('devices'));
@@ -867,7 +849,7 @@ class DeviceController extends Controller
                     'json' => $request->all()
                 ]
             );
-            
+
             return $response->getBody();
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
