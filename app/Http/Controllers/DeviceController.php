@@ -707,11 +707,14 @@ class DeviceController extends Controller
             $plcStatus = $this->getPlcStatus($device->device_id);
 
             if (!isset($plcStatus->status) || $plcStatus->status != 1) {
-                 $device->status = 'routerNotConnected';
-            } else if (!$device->teltonikaConfiguration && !$device->teltonikaConfiguration->plc_status) {
-                 $device->status = 'plcNotConnected';
+                $device->status = 'routerNotConnected';
+            } else if (
+                !$device->teltonikaConfiguration
+                || ($device->teltonikaConfiguration && !$device->teltonikaConfiguration->plc_status)
+            ) {
+                $device->status = 'plcNotConnected';
             } else if ($this->isPlcRunning($device->machine_id, $device->teltonikaConfiguration->plc_serial_number)) {
-                 $device->status = 'running';
+                $device->status = 'running';
             }
         }
 
