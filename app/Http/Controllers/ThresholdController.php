@@ -123,7 +123,7 @@ class ThresholdController extends Controller
         $threshold->update([
             'operator' => $request->condition['operator'],
             'value' => $request->condition['value'],
-            'approaching' => $request->condition['approachingValue']
+            'approaching' => $request->condition['approaching']
         ]);
 
         return response()->json([
