@@ -22,6 +22,9 @@ class Threshold extends Model
         'multipled_by',
         'bytes',
         'last_triggered_at',
-        'message_status'
+        'message_status',
+        'approaching',
+        'approaching_status',
+        'approaching_triggered_time'
     ];
 }
