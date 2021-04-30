@@ -33,6 +33,7 @@ class ThresholdController extends Controller
                                 ->where('offset', $offset)
                                 ->where('operator', $condition['operator'])
                                 ->where('value', $condition['value'])
+                                ->where('approaching', $condition['approachingValue'])
                                 ->where('device_id', $request->deviceId)
                                 ->where('user_id', $user->id)
                                 ->first();
@@ -55,7 +56,8 @@ class ThresholdController extends Controller
                 'email_info' => json_encode($request->emailForm),
                 'serial_number' => $device->serial_number,
                 'multipled_by' => $multipled_by,
-                'bytes' => $bytes
+                'bytes' => $bytes,
+                'approaching' => $condition['approachingValue']
             ]);
         }
 
@@ -121,6 +123,7 @@ class ThresholdController extends Controller
         $threshold->update([
             'operator' => $request->condition['operator'],
             'value' => $request->condition['value'],
+            'approaching' => $request->condition['approachingValue']
         ]);
 
         return response()->json([
@@ -153,6 +156,48 @@ class ThresholdController extends Controller
 
         return response()->json(compact('conditions'));
 
+    }
+
+    public function getApproachingThresholds(Request $request) {
+        $user = $request->user('api');
+
+        if ($user->hasRole(['customer_admin'])) {
+            $conditions = Threshold::where('approaching_status', true)->get();
+        } else {
+            $conditions = Threshold::where('user_id', $user->id)->where('approaching_status', true)->get();
+        }
+
+        foreach ($conditions as $key => $condition) {
+            $device = Device::where('device_id', $condition['device_id'])->first();
+
+            $tag = MachineTag::where('configuration_id', $device->machine_id)->where('tag_id', $condition['tag_id'])->where('offset', $condition['offset'])->first();
+
+            if (!$tag) {
+                $tag = AlarmType::where('machine_id', $device->machine_id)->where('tag_id', $condition['tag_id'])->where('offset', $condition['offset'])->first();
+            }
+
+            $condition['tag_name'] = $tag->name;
+            $condition['device_name'] = $device->name;
+            $condition['option'] = $tag->name . " " . $this->getMathExpressionFromString($condition['operator']). " " . $condition['approaching'];
+        }
+
+        return response()->json(compact('conditions'));
+    }
+
+    public function clearApproachingStatus(Request $request) {
+        $thresholds = $request->thresholds;
+
+        foreach ($thresholds as $key => $threshold) {
+            $row = Threshold::where('id', $threshold['id'])->first();
+
+            $row->update([
+                'approaching_status' => false
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Cleared thresholds successfully'
+        ]);
     }
 
     public function clearThresholdStatus(Request $request) {
