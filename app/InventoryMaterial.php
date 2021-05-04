@@ -29,6 +29,8 @@ class InventoryMaterial extends Model
         'company_id'
     ];
 
+    const MATERIAL_KEYS_ARRAY = ['material1_id', 'material2_id', 'material3_id', 'material4_id', 'material5_id', 'material6_id', 'material7_id', 'material8_id'];
+
     public function materialTracks() {
         return $this->hasMany('App\MaterialTrack', 'inventory_material_id');
     }

@@ -45,6 +45,9 @@ Route::group(['prefix' => 'materials'], function () {
 
 	Route::post('/system-inventory-report', 'MaterialController@getSystemInventoryReport')->middleware('auth:customer_admin');
 	Route::post('/system-inventory-report/export', 'MaterialController@exportSystemInventoryReport')->middleware('auth:customer_admin');
+
+	Route::post('/system-inventory-report-data', 'MaterialController@getSystemInventoryReportData')->middleware('auth:customer_admin');
+	Route::post('/system-inventory-report-data/export', 'MaterialController@exportSystemInventoryReportData')->middleware('auth:customer_admin');
 });
 
 Route::apiResource('configurations', ConfigurationController::class)->only(['show', 'update', 'index'])->middleware('auth');
