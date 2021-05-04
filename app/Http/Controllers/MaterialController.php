@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 
@@ -246,7 +247,9 @@ class MaterialController extends Controller
         ]);
     }
 
-
+    /**
+     *  Calculates the total values of materials used for a specified period in a specified location
+     */
     public function getSystemInventoryReportData(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -255,7 +258,7 @@ class MaterialController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error'=>$validator->errors()], 422);
+            return response()->json(['error' => implode(' ', Arr::flatten($validator->errors()->getMessages()))], 422);
         }
 
         $dateFrom = Carbon::parse($request->timeRange['dateFrom'] . ' ' . $request->timeRange['timeFrom'])->timestamp;
@@ -321,15 +324,25 @@ class MaterialController extends Controller
             }
         }
 
-        return collect($keyed_materials)->values()->toArray();
+        return ['keyed_materials' => collect($keyed_materials)->values()->toArray()];
     }
 
-    public function exportSystemInventoryReportData(Request $request) {
+    /**
+     *  Export calculates total values of materials used for a specified period in a specified location
+     *
+     * @reyurn json response
+     */
+    public function exportSystemInventoryReportData(Request $request)
+    {
         $keyed_materials = $this->getSystemInventoryReportData($request);
+
+        if (!isset($keyed_materials['keyed_materials'])) {
+            return $keyed_materials;
+        }
 
         $filename = $request->user('api')->company->name . ' - System Inventory Report' . '.xlsx';
 
-        Excel::store(new SystemInventoryReportExport($keyed_materials), $filename);
+        Excel::store(new SystemInventoryReportExport($keyed_materials['keyed_materials']), $filename);
         File::move(storage_path('app/' . $filename), public_path('assets/app/reports/' . $filename));
 
         return response()->json([
