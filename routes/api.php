@@ -130,6 +130,7 @@ Route::group(['prefix' => 'machines'], function () {
 	Route::get('/get-machines-report', 'MachineController@getMachinesReport');
 	Route::delete('/report/{id}', 'MachineController@deleteMachinesReport');
 	Route::post('/get-blender-weights', 'MachineController@getBlenderWeights');
+	Route::post('/get-alarm-history', 'AlarmController@getProductAlarmHistory');
 });
 
 Route::group(['prefix' => 'analytics'], function () {
