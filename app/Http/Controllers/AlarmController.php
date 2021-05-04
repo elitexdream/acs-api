@@ -11,6 +11,7 @@ use App\Machine;
 use App\Tag;
 use App\Company;
 use App\TeltonikaConfiguration;
+use App\AlarmStatus;
 use DB;
 use \stdClass;
 
@@ -192,6 +193,52 @@ class AlarmController extends Controller
 		}
 
 		return response()->json(compact('alarms', 'alarm_types'));
+	}
+
+	public function getProductAlarmHistory(Request $request) {
+		$alarms_object = AlarmStatus::where('machine_id', $request->machineId)
+									->where('timestamp', '>', $request->from)
+									->where('timestamp', '<', $request->to)
+									->orderBy('tag_id')
+									->orderBy('offset')
+									->orderBy('timestamp')
+									->get();
+
+		$alarm_types = AlarmType::where('machine_id', $request->machineId)->orderBy('id')->get();
+		$alarms = [];
+
+		foreach ($alarm_types as $alarm_type) {
+			$alarms_for_tag = $alarms_object->filter(function ($alarm_object, $key) use ($alarm_type) {
+				return $alarm_object->tag_id == $alarm_type->tag_id && $alarm_object->offset == $alarm_type->offset;
+			});
+
+			if (count($alarms_for_tag) > 0) {
+				$alarm_info = new stdClass();
+				$alarm_info->name = $alarm_type->name;
+
+				if ($alarms_for_tag[0]->is_activate) {
+					for ($i = 0; $i < count($alarms_for_tag); $i++) {
+						if ($i % 2 == 0) {
+							$alarm_info->activate = $alarms_for_tag[$i]->timestamp;
+						} else {
+							$alarm_info->resolved = $alarms_for_tag[$i]->timestamp;
+							array_push($alarms, $alarm_info);
+						}
+					}
+				} else {
+					for ($i = 1; $i < count($alarms_for_tag); $i++) {
+						if ($i % 2 != 0) {
+							$alarm_info->activate = $alarms_for_tag[$i]->timestamp;
+						} else {
+							$alarm_info->resolved = $alarms_for_tag[$i]->timestamp;
+							array_push($alarms, $alarm_info);
+						}
+					}
+				}
+			}
+		}
+
+		return response()->json(compact('alarms'));
 	}
 
 	public function getAlarmsReports(Request $request) {
