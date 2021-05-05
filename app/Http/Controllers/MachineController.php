@@ -1621,6 +1621,11 @@ class MachineController extends Controller
 				if($outlet) $outlets[$i] = round((json_decode($outlet->values)[0] - 32) * 5 / 9, 2);
 				if($target) $targets[$i] = round((json_decode($target->values)[0] - 32) * 5 / 9, 2);
 			}
+
+			$hopperCount = DeviceData::where('serial_number', $request->serialNumber)
+						->where('tag_id', 72)
+						->latest('timedata')
+						->first();
 		} else {
 			$inlets = [0];
 			$outlets = [0];
@@ -1652,7 +1657,8 @@ class MachineController extends Controller
 
 		return response()->json([
 			'items' => $items,
-			'unit' => '℃'
+			'unit' => '℃',
+			'hopperCount' => json_decode($hopperCount->values)[0]
 		]);
 	}
 
@@ -2434,7 +2440,11 @@ class MachineController extends Controller
 				}
 			}
 
-			$average_error = round($diff_sum / count($actual_sd), 3);
+			if (count($actual_sd) != 0) {
+				$average_error = round($diff_sum / count($actual_sd), 3);
+			} else {
+				$average_error = 0;
+			}
 
 			$seryt = new stdClass();
 			$seryt->name = $hopper['name'] . ' Actual';
