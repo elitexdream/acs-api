@@ -215,24 +215,28 @@ class AlarmController extends Controller
 			if (count($alarms_for_tag) > 0) {
 				$alarm_info = new stdClass();
 				$alarm_info->name = $alarm_type->name;
+				$temp = 0;
+				$completed_array = false;
 
-				if ($alarms_for_tag[0]->is_activate) {
-					for ($i = 0; $i < count($alarms_for_tag); $i++) {
-						if ($i % 2 == 0) {
-							$alarm_info->activate = $alarms_for_tag[$i]->timestamp;
-						} else {
-							$alarm_info->resolved = $alarms_for_tag[$i]->timestamp;
-							array_push($alarms, $alarm_info);
-						}
+				for ($i = 0; $i < count($alarms_for_tag); $i ++) {
+					if ($alarms_for_tag[$i]->is_activate && $temp == 0) {
+						$temp = 1;
+						$alarm_info->activate = $alarms_for_tag[$i]->timestamp;
+					} else if (!$alarms_for_tag[$i]->is_activate && $temp == 1) {
+						$temp = 0;
+						$alarm_info->resolve = $alarms_for_tag[$i]->timestamp;
+						$completed_array = true;
 					}
-				} else {
-					for ($i = 1; $i < count($alarms_for_tag); $i++) {
-						if ($i % 2 != 0) {
-							$alarm_info->activate = $alarms_for_tag[$i]->timestamp;
-						} else {
-							$alarm_info->resolved = $alarms_for_tag[$i]->timestamp;
-							array_push($alarms, $alarm_info);
-						}
+
+					if ($completed_array) {
+						array_push($alarms, $alarm_info);
+						$completed_array = false;
+						$temp = 0;
+					}
+
+					if ($i == count($alarms_for_tag) - 1 && $temp == 1) {
+						$alarm_info->resolve = -1;
+						array_push($alarms, $alarm_info);
 					}
 				}
 			}
