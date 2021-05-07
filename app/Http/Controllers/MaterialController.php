@@ -288,38 +288,40 @@ class MaterialController extends Controller
             $inventory_material_array = $inventory_material->toArray();
 
             // 3. account current inventory into materials inventory
-            $hop_material1 = DeviceData::where('serial_number', $inventory_material->plc_id)
+            $hop_material_from = DeviceData::where('serial_number', $inventory_material->plc_id)
                 ->where('tag_id', 15)
                 ->where('timestamp', '>=', $dateFrom)
                 ->oldest('timedata')
                 ->first();
 
-            $hop_material2 = DeviceData::where('serial_number', $inventory_material->plc_id)
+            $hop_material_to = DeviceData::where('serial_number', $inventory_material->plc_id)
                 ->where('tag_id', 15)
                 ->where('timestamp', '<=', $dateTo)
                 ->latest('timedata')
                 ->first();
 
-            $actual_material1 = DeviceData::where('serial_number', $inventory_material->plc_id)
+            $actual_material_from = DeviceData::where('serial_number', $inventory_material->plc_id)
                 ->where('tag_id', 16)
                 ->where('timestamp', '>=', $dateFrom)
                 ->oldest('timedata')
                 ->first();
 
-            $actual_material2 = DeviceData::where('serial_number', $inventory_material->plc_id)
+            $actual_material_to = DeviceData::where('serial_number', $inventory_material->plc_id)
                 ->where('tag_id', 16)
                 ->where('timestamp', '<=', $dateTo)
                 ->latest('timedata')
                 ->first();
 
-            for ($i = 0; $i < 8; $i++) {
-                $material_id = $inventory_material_array[$material_keys[$i]] ?? null;
+            if ($hop_material_from && $actual_material_from && $hop_material_to && $actual_material_to) {
+                $inventory_from = DeviceData::getIventoryParserValues($hop_material_from, $actual_material_from);
+                $inventory_to = DeviceData::getIventoryParserValues($hop_material_to, $actual_material_to);
 
-                if ($material_id) {
-                    $keyed_materials[$material_id]['value'] += (
-                        (json_decode($hop_material2->values)[$i] + json_decode($actual_material2->values)[$i] / 1000) -
-                        (json_decode($hop_material1->values)[$i] + json_decode($actual_material1->values)[$i] / 1000)
-                    );
+                for ($i = 0; $i < 8; $i++) {
+                    $material_id = $inventory_material_array[$material_keys[$i]] ?? null;
+
+                    if ($material_id) {
+                        $keyed_materials[$material_id]['value'] += ($inventory_to[$i] - $inventory_from[$i]);
+                    }
                 }
             }
         }
