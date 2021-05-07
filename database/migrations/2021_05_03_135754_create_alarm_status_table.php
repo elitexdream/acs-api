@@ -17,7 +17,7 @@ class CreateAlarmStatusTable extends Migration
             $table->id();
             $table->unsignedBigInteger('device_id');
             $table->unsignedBigInteger('tag_id');
-            $table->unsignedBigInteger('offset');
+            $table->integer('offset')->default(0);
             $table->unsignedBigInteger('timestamp');
             $table->unsignedBigInteger('machine_id')->default(0);
             $table->boolean('is_activate')->default(true);
