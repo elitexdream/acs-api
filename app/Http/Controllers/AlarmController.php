@@ -200,7 +200,6 @@ class AlarmController extends Controller
 									->where('timestamp', '>', $request->from)
 									->where('timestamp', '<', $request->to)
 									->orderBy('tag_id')
-									->orderBy('offset')
 									->orderBy('timestamp')
 									->get();
 
