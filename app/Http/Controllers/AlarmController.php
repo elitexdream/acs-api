@@ -208,7 +208,7 @@ class AlarmController extends Controller
 
 		foreach ($alarm_types as $alarm_type) {
 			$alarms_for_tag = $alarms_object->filter(function ($alarm_object, $key) use ($alarm_type) {
-				return $alarm_object->tag_id == $alarm_type->tag_id && $alarm_object->offset == $alarm_type->offset;
+				return $alarm_object->tag_id == $alarm_type->tag_id;
 			});
 
 			if (count($alarms_for_tag) > 0) {
