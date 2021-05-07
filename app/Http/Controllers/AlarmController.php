@@ -200,6 +200,7 @@ class AlarmController extends Controller
 									->where('timestamp', '>', $request->from)
 									->where('timestamp', '<', $request->to)
 									->orderBy('tag_id')
+									->orderBy('offset')
 									->orderBy('timestamp')
 									->get();
 
@@ -208,35 +209,39 @@ class AlarmController extends Controller
 
 		foreach ($alarm_types as $alarm_type) {
 			$alarms_for_tag = $alarms_object->filter(function ($alarm_object, $key) use ($alarm_type) {
-				return $alarm_object->tag_id == $alarm_type->tag_id;
+				return $alarm_object->tag_id == $alarm_type->tag_id && $alarm_object->offset == $alarm_type->offset;
 			});
 
 			if (count($alarms_for_tag) > 0) {
 				$alarm_info = new stdClass();
-				$alarm_info->name = $alarm_type->name;
 				$temp = 0;
 				$completed_array = false;
+				$i = 0;
 
-				for ($i = 0; $i < count($alarms_for_tag); $i ++) {
-					if ($alarms_for_tag[$i]->is_activate && $temp == 0) {
+				foreach ($alarms_for_tag as $key => $alarm_for_tag) {
+					$alarm_info->name = $alarm_type->name;
+					if ($alarm_for_tag->is_activate && $temp == 0) {
 						$temp = 1;
-						$alarm_info->activate = $alarms_for_tag[$i]->timestamp;
-					} else if (!$alarms_for_tag[$i]->is_activate && $temp == 1) {
+						$alarm_info->activate = $alarm_for_tag->timestamp;
+					} else if (!$alarm_for_tag->is_activate && $temp == 1) {
 						$temp = 0;
-						$alarm_info->resolve = $alarms_for_tag[$i]->timestamp;
+						$alarm_info->resolve = $alarm_for_tag->timestamp;
 						$completed_array = true;
 					}
 
 					if ($completed_array) {
 						array_push($alarms, $alarm_info);
 						$completed_array = false;
-						$temp = 0;
+						$alarm_info = new stdClass();
 					}
 
 					if ($i == count($alarms_for_tag) - 1 && $temp == 1) {
 						$alarm_info->resolve = -1;
 						array_push($alarms, $alarm_info);
+						$alarm_info = new stdClass();
 					}
+
+					$i++;
 				}
 			}
 		}
