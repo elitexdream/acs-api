@@ -280,7 +280,7 @@ class AlarmController extends Controller
 					$alarm->active = $value32[0];
 				else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
 					$offset = isset($tag['offset']) ? $tag['offset'] : 0;
-					$alarm->active = $value32[$offset] == 1;
+					$alarm->active = !!$value32[$offset] == true;
 				} else if($alarm_type->bytes != 0) {
 					$alarm->active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
 				}
