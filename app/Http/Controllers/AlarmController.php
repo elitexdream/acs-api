@@ -290,16 +290,16 @@ class AlarmController extends Controller
 
 				$machine_info = Device::where('serial_number', $alarm_object->device_id)->first();
 
-				$machine_name = $machine_info ? Machine::where('id', $machine_info->machine_id)->first()->name;
+				$machine_name = $machine_info ? Machine::where('id', $machine_info->machine_id)->first()->name : '';
 
 				$alarm->machine_info = $machine_info ? $machine_info : null;
-				$alarm->machine_name = $machine_name ? $machine_name : '';
-				
+				$alarm->machine_name = $machine_name;
+
 				array_push($alarms, $alarm);
 			}
 		}
 
-		return response()->json(compact('alarms', 'alarm_types'));
+		return response()->json(compact('alarms'));
 	}
 
 	public function getAlarmTypesByMachineId($id) {
