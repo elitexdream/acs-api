@@ -300,19 +300,19 @@ class MachineController extends Controller
 										->where('serial_number', $request->serialNumber)
 										->where('tag_id', 99)
 										->latest('timestamp')
-										->first() 
+										->first();
 
 				$software_version_y = DB::table('device_data')
 										->where('serial_number', $request->serialNumber)
 										->where('tag_id', 100)
 										->latest('timestamp')
-										->first()
+										->first();
 
 				$software_version_z = DB::table('device_data')
 										->where('serial_number', $request->serialNumber)
 										->where('tag_id', 101)
 										->latest('timestamp')
-										->first()
+										->first();
 
 				$version_x = $software_version_x ? json_decode($software_version_x->values)[0] : '0';
 				$version_y = $software_version_y ? sprintf('%02d', json_decode($software_version_y->values)[0]) : '00';
