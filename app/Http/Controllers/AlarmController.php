@@ -290,9 +290,9 @@ class AlarmController extends Controller
 
 				$configuration = TeltonikaConfiguration::where('plc_serial_number', $alarm_type->serial_number)->first();
 
-				$machine_name = Device::where('serial_number', $configuration->teltonika_id)->first()->name;
+				$machine_info = Device::where('serial_number', $configuration->teltonika_id)->first();
 
-				$alarm->machine_name = $machine_name;
+				$alarm->machine_info = $machine_info;
 
 				array_push($alarms, $alarm);
 			}
