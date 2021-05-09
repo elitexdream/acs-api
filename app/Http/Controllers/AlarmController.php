@@ -273,6 +273,8 @@ class AlarmController extends Controller
 			foreach ($alarm_types_for_tag as $alarm_type) {
 
 				$alarm = new stdClass();
+				$configuration = null;
+				$machine_info = false;
 
 				$alarm->id = $alarm_object->id;
 				$alarm->tag_id = $alarm_object->tag_id;
@@ -290,14 +292,9 @@ class AlarmController extends Controller
 
 				$configuration = TeltonikaConfiguration::where('plc_serial_number', $alarm_object->serial_number)->first();
 
-				if ($configuration) {
-					$machine_info = Device::where('serial_number', $configuration->teltonika_id)->first();
-				}
+				$machine_info = $configuration ? Device::where('serial_number', $configuration->teltonika_id)->first() : false;
 
-				if ($machine_info) {
-					$alarm->machine_info = $machine_info;
-				}
-
+				$alarm->machine_info = $machine_info ? $machine_info : null;
 				array_push($alarms, $alarm);
 			}
 		}
