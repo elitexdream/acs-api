@@ -296,7 +296,9 @@ class AlarmController extends Controller
 				$alarm->machine_name = $machine_name;
 				$alarm->alarm_name = $alarm_type->name;
 
-				array_push($alarms, $alarm);
+				if ($alarm->active) {
+					array_push($alarms, $alarm);
+				}
 			}
 		}
 
