@@ -22,7 +22,8 @@
         "s-ichikawa/laravel-sendgrid-driver": "^3.0",
         "sendgrid/sendgrid": "^7.9",
         "sentry/sentry-laravel": "^2.3",
-        "twilio/sdk": "^6.13"
+        "twilio/sdk": "^6.13",
+        "doctrine/dbal": "v2.4.2"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
