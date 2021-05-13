@@ -9,6 +9,14 @@ class Tag extends Model
 {
     use QueryCacheable;
 
+    protected $table = 'tags';
+
+    protected $fillable = [
+        'tag_name',
+        'configuration_id',
+        'tag_id'
+    ];
+
     // All available tag names
     const NAMES = [
         'DEVICE_TYPE'          => 'device_type',

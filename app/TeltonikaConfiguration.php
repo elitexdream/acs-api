@@ -7,7 +7,7 @@ use DB;
 
 class TeltonikaConfiguration extends Model
 {
-    public $table = 'device_configurations';
+    protected $table = 'device_configurations';
 
     public function machineBySerialNumber($serial_number) {
     	if($this->plc_serial_number == $serial_number)

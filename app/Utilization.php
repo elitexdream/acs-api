@@ -7,7 +7,17 @@ use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Utilization extends Model
 {
-    public $table = 'utilizations';
+    protected $table = 'utilizations';
+
+    protected $fillable = [
+        'device_id',
+        'tag_id',
+        'timestamp',
+        'values',
+        'serial_number',
+        'machine_id',
+        'timedata'
+    ];
+
     public $timestamps = false;
-    public $fillable = ['id', 'device_id', 'tag_id', 'timestamp', 'values', 'customer_id', 'machine_id'];
 }

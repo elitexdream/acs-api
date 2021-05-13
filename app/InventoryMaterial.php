@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class InventoryMaterial extends Model
 {
-    public $table = 'inventory_materials';
+    protected $table = 'inventory_materials';
 
-    public $fillable = [
+    protected $fillable = [
     	'plc_id',
     	'material1_id',
     	'material2_id',

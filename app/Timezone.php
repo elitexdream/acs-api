@@ -4,12 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserRole extends Model
+class Timezone extends Model
 {
-    protected $table = 'user_roles';
+    protected $table = 'timezones';
 
     protected $fillable = [
-        'user_id', 'role_id'
+        'name'
     ];
 
     public $timestamps = false;

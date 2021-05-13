@@ -3,11 +3,10 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Rennokki\QueryCache\Traits\QueryCacheable;
 
-class Alarm extends Model
+class SoftwareBuild extends Model
 {
-    protected $table = 'alarms';
+    protected $table = 'software_builds';
 
     protected $fillable = [
         'device_id',
@@ -15,7 +14,8 @@ class Alarm extends Model
         'timestamp',
         'values',
         'machine_id',
-        'timedata',
-        'serial_number'
+        'serial_number',
     ];
+
+    public $timestamps = false;
 }

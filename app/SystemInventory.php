@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class SystemInventory extends Model
 {
+    protected $table = 'system_inventories';
+
     protected $fillable = [
         'material_id',
         'location_id',
