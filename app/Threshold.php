@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Threshold extends Model
 {
-    public $table = 'thresholds';
+    protected $table = 'thresholds';
 
     protected $fillable = [
         'user_id',

@@ -7,7 +7,18 @@ use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class EnergyConsumption extends Model
 {
-    public $table = 'energy_consumptions';
+    protected $table = 'energy_consumptions';
+
+    protected $fillable = [
+        'device_id',
+        'tag_id',
+        'timestamp',
+        'values',
+        'machine_id',
+        'serial_number',
+        'timedata',
+        'customer_id'
+    ];
+
     public $timestamps = false;
-    public $fillable = ['id', 'device_id', 'tag_id', 'timestamp', 'values', 'customer_id', 'machine_id'];
 }

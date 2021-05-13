@@ -6,8 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
+    protected $table = 'roles';
+
+    protected $fillable = [
+        'key', 'name'
+    ];
+
 	public $timestamps = false;
-	
+
 	/**
     * The users that have this role.
     *

@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class Device extends Model
 {
+    protected $table = 'devices';
+
     protected $fillable = [
         'device_id',
         'name',
@@ -15,13 +17,20 @@ class Device extends Model
         'imei',
         'lan_mac_address',
         'iccid',
-        'carrier',
         'registered',
         'public_ip_sim',
         'sim_status',
+        'plc_link',
+        'carrier',
+        'checkin',
+        'tcu_added',
+        'plc_ip',
+        'hash1',
+        'hash2',
         'location_id',
         'zone_id',
-        'checkin'
+        'company_id',
+        'machine_id',
     ];
 
     public function configuration() {

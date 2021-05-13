@@ -6,5 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class City extends Model
 {
-    public $table = "cities";
+    protected $table = "cities";
+
+    protected $fillable = [
+        'zip', 'city', 'state'
+    ];
+
+    public $timestamps = false;
 }
