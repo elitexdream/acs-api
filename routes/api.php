@@ -75,6 +75,7 @@ Route::group(['prefix' => 'downtime-plans'], function () {
 });
 
 Route::apiResource('users', UserController::class)->only(['edit', 'update', 'index', 'store'])->middleware('auth');
+Route::post('users/delete', 'UserController@deleteUser');
 
 Route::group(['prefix' => 'app-settings'], function () {
 	Route::post('/grab-colors', 'SwatchController@grabColors');

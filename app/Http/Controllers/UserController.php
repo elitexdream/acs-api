@@ -228,7 +228,7 @@ class UserController extends Controller
 
         $password_string = md5(uniqid($request->email, true));
         
-        if(in_array($request->role, [ROLE_ACS_ADMIN])) {
+        if(in_array($request->role, [ROLE_ACS_ADMIN, ROLE_ACS_MANAGER, ROLE_ACS_VIEWER])) {
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -325,5 +325,20 @@ class UserController extends Controller
         }
 
         return response()->json('Updated successfully.');
+    }
+
+    public function deleteUser(Request $request) {
+        $user = User::where('email', $request->email)->first();
+
+        if(!$user) {
+            return response()->json('Email not found', 404);
+        }
+
+        $user->role()->delete();
+        $user->profile()->delete();
+
+        $user->delete();
+
+        return response()->json('Deleted successfully.');
     }
 }

@@ -83,6 +83,16 @@ class User extends Authenticatable
     }
 
     /**
+    * The role that belong to the user.
+    *
+    * @return mixed
+    */
+    public function role()
+    {
+        return $this->hasOne('App\UserRole');
+    }
+
+    /**
     * Check if the user has a specific role.
     *
     * @param mixed $roles The roles to ckeck on.
