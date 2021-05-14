@@ -193,6 +193,8 @@ class UserController extends Controller
 
         foreach ($users as $key => $user) {
             $user->role = $user->roles->first();
+
+            // add company name of the user
             $user->company_name = Company::where('id', $user->company_id)->first()->name;
         }
 
