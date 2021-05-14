@@ -30,7 +30,7 @@ class PasswordReset extends Mailable
      */
     public function build()
     {
-        return $this->from(env('SENDGRID_FROM_EMAIL'))
+        return $this->from(config('mail.from.address'), config('mail.from.name'))
                 ->markdown('emails.password-reset', ['password' => $this->password]);
     }
 }
