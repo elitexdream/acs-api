@@ -9,6 +9,25 @@ class TeltonikaConfiguration extends Model
 {
     protected $table = 'device_configurations';
 
+    protected $fillable = [
+        'teltonika_id',
+        'plc_type',
+        'plc_serial_number',
+        'plc_status',
+        'tcu_type',
+        'tcu_serial_number',
+        'tcu_status',
+        'body'
+    ];
+
+    public function device() {
+        return $this->belongsTo(Device::class, 'serial_number', 'teltonika_id');
+    }
+
+    public function alarms() {
+        return $this->hasMany(Alarm::class, 'serial_number', 'plc_serial_number');
+    }
+
     public function machineBySerialNumber($serial_number) {
     	if($this->plc_serial_number == $serial_number)
     		return Machine::where('device_type', $this->plc_type)->first();

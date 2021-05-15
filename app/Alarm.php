@@ -18,4 +18,12 @@ class Alarm extends Model
         'timedata',
         'serial_number'
     ];
+
+    public function device() {
+        return $this->belongsTo(Device::class, 'machine_id', 'machine_id');
+    }
+
+    public function machineType() {
+        return $this->belongsTo(Machine::class, 'id', 'machine_id');
+    }
 }

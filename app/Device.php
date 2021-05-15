@@ -41,6 +41,30 @@ class Device extends Model
         return $this->hasMany('App\Note');
     }
 
+    public function alarmTypes() {
+        return $this->hasMany(AlarmType::class, 'machine_id', 'machine_id');
+    }
+
+    public function alarms() {
+        return $this->hasMany(Alarm::class, 'machine_id', 'machine_id');
+    }
+
+    public function deviceData() {
+        return $this->hasMany(DeviceData::class, 'device_id', 'serial_number');
+    }
+
+    public function teltonikaConfiguration() {
+        return $this->hasOne(TeltonikaConfiguration::class, 'teltonika_id', 'serial_number');
+    }
+
+    public function machines() {
+        return $this->hasMany(Machine::class, 'id', 'machine_id');
+    }
+
+    public function checkin() {
+        return $this->hasOne(DeviceCheckin::class, 'device_id', 'serial_number');
+    }
+
     public function isRunning() {
         if (!$config = $this->configuration) {
             return false;
@@ -65,7 +89,50 @@ class Device extends Model
         return false;
     }
 
-    public function teltonikaConfiguration() {
-        return $this->hasOne(TeltonikaConfiguration::class, 'teltonika_id', 'serial_number');
+    public function scopeWhereSimActive($query, $filters = [])
+    {
+        if (is_array($filters) && in_array('active', $filters)) {
+            $query->where('sim_status', 'Active');
+        }
+
+        return $query;
+    }
+
+    public function scopeWhereVisibleOnly($query)
+    {
+        if ((new Setting())->getTypeVisibleValue() === 'configured') {
+            $query->whereIn('serial_number', DeviceConfiguration::all()->pluck('teltonika_id'));
+        }
+
+        return $query;
+    }
+
+    public function scopeWherePlcLink($query, $filters = [])
+    {
+        if(is_array($filters) && in_array('PLCLink', $filters)) {
+            $query->where('plc_link', true);
+        }
+
+        return $query;
+    }
+
+    public function scopeWhereRegistered($query, $filters = [])
+    {
+        if (is_array($filters) && in_array('registered', $filters)) {
+            $query->where('registered', true);
+        }
+
+        return $query;
+    }
+
+    public function scopeWhereSearchQuery($query, $search_query = '')
+    {
+        if (trim($search_query) !== '') {
+            $query->where('name', 'ilike', '%' . $search_query . '%')
+                ->orWhere('customer_assigned_name', 'ilike', '%' . $search_query . '%')
+                ->orWhere('serial_number', 'ilike', '%' . $search_query . '%');
+        }
+
+        return $query;
     }
 }
