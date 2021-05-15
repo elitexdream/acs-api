@@ -185,7 +185,7 @@ class UserController extends Controller
     public function index(Request $request) {
         $user = $request->user('api');
         if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
-            $ids = UserRole::whereIn('role_id', [ROLE_ACS_ADMIN, ROLE_ACS_MANAGER, ROLE_ACS_VIEWER])->pluck('user_id');
+            $ids = UserRole::whereNotIn('role_id', [ROLE_SUPER_ADMIN])->pluck('user_id');
             $users = User::whereIn('id', $ids)->get();
         } else {
             $users = $user->company->users;
@@ -193,6 +193,9 @@ class UserController extends Controller
 
         foreach ($users as $key => $user) {
             $user->role = $user->roles->first();
+
+            // add company name of the user
+            $user->company_name = Company::where('id', $user->company_id)->first()->name;
         }
 
         return response()->json(compact('users'));
@@ -225,12 +228,12 @@ class UserController extends Controller
 
         $password_string = md5(uniqid($request->email, true));
         
-        if(in_array($request->role, [ROLE_ACS_ADMIN])) {
+        if(in_array($request->role, [ROLE_ACS_ADMIN, ROLE_ACS_MANAGER, ROLE_ACS_VIEWER])) {
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => bcrypt($password_string),
-                'company_id' => 0,
+                'company_id' => $request->user('api')->company_id,
             ]);
 
             $user->roles()->attach($request->role);
@@ -322,5 +325,20 @@ class UserController extends Controller
         }
 
         return response()->json('Updated successfully.');
+    }
+
+    public function deleteUser(Request $request) {
+        $user = User::where('email', $request->email)->first();
+
+        if(!$user) {
+            return response()->json('Email not found', 404);
+        }
+
+        $user->role()->delete();
+        $user->profile()->delete();
+
+        $user->delete();
+
+        return response()->json('Deleted successfully.');
     }
 }
