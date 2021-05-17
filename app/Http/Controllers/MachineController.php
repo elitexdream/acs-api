@@ -12,6 +12,8 @@ use App\Location;
 use App\Zone;
 use App\SavedMachine;
 use App\User;
+use App\Role;
+use App\UserRole;
 use App\Device;
 use App\TeltonikaConfiguration;
 use App\DowntimePlan;
