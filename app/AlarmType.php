@@ -15,4 +15,8 @@ class AlarmType extends Model
         'bytes',
         'offset'
     ];
+
+    public function device() {
+        return $this->belongsTo(Device::class, 'machine_id', 'machine_id');
+    }
 }

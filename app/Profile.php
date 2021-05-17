@@ -24,4 +24,9 @@ class Profile extends Model
     {
     	return $this->belongsTo('App\User');
     }
+
+    public function cities()
+    {
+    	return $this->hasMany(City::class, 'state', 'state');
+    }
 }

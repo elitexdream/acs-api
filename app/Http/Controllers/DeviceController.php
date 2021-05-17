@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Setting;
 use Illuminate\Http\Request;
 use App\Device;
 use App\Company;
@@ -80,77 +81,56 @@ class DeviceController extends Controller
     }
 
 	public function getACSDevices(Request $request) {
-        $pageNumber = $request->page ? $request->page : 1;
-        $is_all_devices_visible = DB::table('settings')->where('type', 'is_all_devices_visible')->first()->value;
-        $teltonika_ids = DB::table('device_configurations')->pluck('teltonika_id');
 
-        $query = Device::orderBy('sim_status')->orderBy('id');
+        $devices_paginated = Device::orderBy('sim_status')
+                ->orderBy('id')
+                ->whereVisibleOnly()
+                ->whereSimActive($request->filterForm['filters'])
+                ->wherePlcLink($request->filterForm['filters'])
+                ->whereRegistered($request->filterForm['filters'])
+                ->whereSearchQuery($request->filterForm['searchQuery'] ?? '')
+                ->with('checkin')
+                ->paginate(config('settings.num_per_page'));
 
-        if($is_all_devices_visible == 'configured') {
-            $query->whereIn('serial_number', $teltonika_ids);
-        }
 
-        if(in_array('active', $request->filterForm['filters'])) {
-            $query->where('sim_status', 'Active');
-        }
+        $devices_paginated_array = $devices_paginated->toArray();
 
-        if(in_array('PLCLink', $request->filterForm['filters'])) {
-            $query->where('plc_link', true);
-        }
-
-        if(in_array('registered', $request->filterForm['filters'])) {
-            $query->where('registered', true);
-        }
-
-        if($request->filterForm['searchQuery']) {
-            $query->where('name', 'ilike', '%' . $request->filterForm['searchQuery'] . '%')
-                    ->orWhere('customer_assigned_name', 'ilike', '%' . $request->filterForm['searchQuery'] . '%')
-                    ->orWhere('serial_number', 'ilike', '%' . $request->filterForm['searchQuery'] . '%');
-        }
-
-        $pageNumber = min($query->count() / 7, $pageNumber);
-
-        $devices = $query->paginate(config('settings.num_per_page'), ['*'], 'page', $pageNumber);
-        $companies = Company::select('id', 'name')->get();
-
-        foreach ($devices as $key => $device) {
-            if(!$device->public_ip_sim) {
+        $devices = collect($devices_paginated_array['data'])
+            ->each(function ($device, $key) {
                 try {
-                    $device->public_ip_sim = $this->publicIP($device->iccid)->public_ip_sim;
-                }
-                catch( \Exception $e ) {
-                }
-            }
-            if(!$device->sim_status) {
 
-                try {
-                    $device->sim_status = $this->querySIM($device->iccid)->sim_status;
-                } catch( \Exception $e ) {
+                    if (!isset($device['public_ip_sim']) || !$device['public_ip_sim']) {
+                        $device['public_ip_sim'] = $this->publicIP($device['iccid'])->public_ip_sim ?? null;
+                    }
 
-                }
-            }
-            if(!$device->carrier) {
+                    if (!isset($device['sim_status']) || !$device['sim_status']) {
+                        $device['sim_status'] = $this->querySIM($device['iccid'])->sim_status ?? null;
+                    }
 
-                try {
-                    $device->carrier = $this->carrierFromKoreAPI($device->iccid)->carrier;
-                } catch( \Exception $e ) {
+                    if (!isset($device['carrier']) || !$device['carrier']) {
+                        $device->carrier = $this->carrierFromKoreAPI($device['iccid'])->carrier ?? null;
+                    }
+
+                } catch (\Exception $e) {
 
                 }
-            }
-
-            $device_checkin = DB::table('device_checkins')->where('device_id', $device->serial_number)->first();
-            if($device_checkin)
-                $device->checkin = true;
-
-            $device->teltonikaConfiguration = $device->teltonikaConfiguration;
-        }
+            });
 
         return response()->json([
-            'is_visible_only' => $is_all_devices_visible == 'configured',
-            'hidden_devices' => Device::count() - $devices->total(),
-            'devices' => $devices->items(),
-            'companies' => $companies,
-            'last_page' => $devices->lastPage()
+            'is_visible_only' => (new Setting())->getTypeVisibleValue() == 'configured',
+            'hidden_devices' => Device::count() - $devices->count(),
+            'devices' => $devices,
+            'companies' => Company::select('id', 'name')->get(),
+            'last_page' => $devices_paginated_array['last_page'],
+            'first_page_url' => $devices_paginated_array['first_page_url'],
+            'from' => $devices_paginated_array['from'],
+            'last_page_url' => $devices_paginated_array['last_page_url'],
+            'next_page_url' => $devices_paginated_array['next_page_url'],
+            'path' => $devices_paginated_array['path'],
+            'per_page' => $devices_paginated_array['per_page'],
+            'prev_page_url' => $devices_paginated_array['prev_page_url'],
+            'to' => $devices_paginated_array['to'],
+            'total' => $devices_paginated_array['total'],
         ]);
 	}
 

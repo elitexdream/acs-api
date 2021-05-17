@@ -13,4 +13,12 @@ class Setting extends Model
     ];
 
     public $timestamps = true;
+
+    const TYPE_IS_ALL_DEVICES_VISIBLE = 'is_all_devices_visible';
+
+    public function getTypeVisibleValue() {
+       $data = self::where('type', static::TYPE_IS_ALL_DEVICES_VISIBLE)->first();
+
+       return ($data && $data->value) ? $data->value : null;
+    }
 }
