@@ -90,7 +90,7 @@ Route::group(['prefix' => 'app-settings'], function () {
 });
 
 Route::group(['prefix' => 'dashboard'], function () {
-	Route::get('/init-locations-table', 'MachineController@getLocationsTableData');
+	Route::post('/init-locations-table', 'MachineController@getLocationsTableData');
 	Route::get('/init-zones-table/{id}', 'MachineController@getZonesTableData');
 	Route::get('/init-machines-table/{id}', 'MachineController@getMachinesTableData');
 	Route::post('/devices-for-dashboard-table', 'DeviceController@getDashboardMachinesTable');

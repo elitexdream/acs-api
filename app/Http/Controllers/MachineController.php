@@ -2269,7 +2269,13 @@ class MachineController extends Controller
 	public function getLocationsTableData(Request $request) {
 		$user = $request->user('api');
 
-		$locations = $user->getMyLocations();
+		if ($request->companyId == 0) {
+			$locations = $user->getMyLocations();
+		} else {
+			$customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
+			$customer_admin = $customer_admin_role->users->where('company_id', $request->companyId)->first();
+			$locations = $customer_admin->getMyLocations();
+		}
 
 		foreach ($locations as $key => $location) {
 			$downtime_distribution = $this->getDowntimeDistribution(1106550521);
