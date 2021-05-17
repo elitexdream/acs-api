@@ -2270,13 +2270,19 @@ class MachineController extends Controller
 
 	public function getLocationsTableData(Request $request) {
 		$user = $request->user('api');
+		$locations = [];
 
 		if ($request->companyId == 0) {
 			$locations = $user->getMyLocations();
 		} else {
 			$customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
-			$customer_admin = $customer_admin_role->users->where('company_id', $request->companyId)->first();
-			$locations = $customer_admin->getMyLocations();
+			$customer_admins = $customer_admin_role->users->where('company_id', $request->companyId)->get();
+
+			foreach ($customer_admins as $customer_admin) {
+				$location = Location::where('customer_id', $customer_admin->id)->get();
+
+				array_merge($locations, $locations);
+			}
 		}
 
 		foreach ($locations as $key => $location) {

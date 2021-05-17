@@ -679,18 +679,29 @@ class DeviceController extends Controller
         $itemsPerPage = $request->itemsPerPage;
 
         $query = null;
-        if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
-            if($location) {
-                $query = Device::where('location_id', $location)->orderBy('sim_status')->orderBy('id');
+
+        if ($request->company_id == 0) {
+            if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+                if($location) {
+                    $query = Device::where('location_id', $location)->orderBy('sim_status')->orderBy('id');
+                }
+                else
+                    $query = Device::orderBy('sim_status')->orderBy('id');
+            } else {
+                if($location) {
+                    $query = $user->company->devices()->where('location_id', $location)->orderBy('sim_status')->orderBy('id');
+                }
+                else
+                    $query = $user->company->devices()->orderBy('sim_status')->orderBy('id');
             }
-            else
-                $query = Device::orderBy('sim_status')->orderBy('id');
         } else {
-            if($location) {
-                $query = $user->company->devices()->where('location_id', $location)->orderBy('sim_status')->orderBy('id');
+            $company = Company::where('id', $request->company_id)->first();
+
+            if ($location) {
+                $query = $company->devices()->where('location_id', $location)->orderBy('sim_status')->orderBy('id');
+            } else {
+                $query = $company->devices()->orderBy('sim_status')->orderBy('id');
             }
-            else
-                $query = $user->company->devices()->orderBy('sim_status')->orderBy('id');
         }
 
         $query->with(['teltonikaConfiguration', 'configuration:id,name']);
