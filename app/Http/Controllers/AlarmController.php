@@ -252,7 +252,12 @@ class AlarmController extends Controller
 
 	public function getAlarmsReports(Request $request) {
 		$user = $request->user('api');
-		$machine_ids = $user->company->devices->pluck('machine_id');
+		if ($request->companyId == 0) {
+			$machine_ids = $user->company->devices->pluck('machine_id');
+		} else {
+			$company = Company::where('id', $request->companyId)->first();
+			$machine_ids = $company->devices->pluck('machine_id');
+		}
 		$alarm_types = AlarmType::whereIn('machine_id', $machine_ids)->orderBy('id')->get();
 		$tag_ids = $alarm_types->unique('tag_id')->pluck('tag_id');
 
