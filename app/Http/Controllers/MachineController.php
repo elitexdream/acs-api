@@ -1644,7 +1644,7 @@ class MachineController extends Controller
 			}
 		}
 
-		$items = [$inlets, $outlets, $targets];
+		$items = [$inlets, $targets, $outlets];
 
 		return response()->json([
 			'items' => $items,
