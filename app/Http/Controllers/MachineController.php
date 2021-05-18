@@ -1624,7 +1624,7 @@ class MachineController extends Controller
 
 			$tag_ids = [9, 11, 10];
 
-			for ($i=0; $i < 1; $i++) {
+			for ($i=0; $i < 3; $i++) {
 				$inlet = DeviceData::where('serial_number', $request->serialNumber)
 						->where('tag_id', $tag_ids[0])
 						->latest('timedata')
