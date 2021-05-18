@@ -1641,6 +1641,8 @@ class MachineController extends Controller
 				if($inlet) $inlets[$i] = round((json_decode($inlet->values)[0] - 32) * 5 / 9, 2);
 				if($outlet) $outlets[$i] = round((json_decode($outlet->values)[0] - 32) * 5 / 9, 2);
 				if($target) $targets[$i] = round((json_decode($target->values)[0] - 32) * 5 / 9, 2);
+
+				$hopperCount = false;
 			}
 		}
 
