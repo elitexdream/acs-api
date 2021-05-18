@@ -162,10 +162,6 @@ class GraphSeeder extends Seeder
                 'graph_name' => 'Capability Utilization'
             ], [
                 'machine_id' => 6,
-                'graph_id' => 2,
-                'graph_name' => 'Energy Consumption'
-            ], [
-                'machine_id' => 6,
                 'graph_id' => 3,
                 'graph_name' => 'Drying Hopper States'
             ], [
@@ -194,10 +190,6 @@ class GraphSeeder extends Seeder
                 'machine_id' => 7,
                 'graph_id' => 1,
                 'graph_name' => 'Capability Utilization'
-            ], [
-                'machine_id' => 7,
-                'graph_id' => 2,
-                'graph_name' => 'Energy Consumption'
             ],
 
             [
