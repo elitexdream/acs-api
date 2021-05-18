@@ -50,7 +50,7 @@ class User extends Authenticatable
             // Mail::to($user->email)->send(new NewUserWelcomeMail());
         });
     }
-    
+
     /**
     * The roles that belong to the user.
     *
@@ -131,9 +131,9 @@ class User extends Authenticatable
     */
     public function getMyLocations() {
         if($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
-            return Location::get();
+            return Location::all();
         } else if($this->hasRole(['customer_admin'])) {
-            return $this->customerLocations;
+            return $this->company->locations;
         } else {
             return $this->locations;
         }
@@ -146,9 +146,9 @@ class User extends Authenticatable
     */
     public function getMyzones() {
         if($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
-            return Zone::get();
+            return Zone::all();
         } else if($this->hasRole(['customer_admin'])) {
-            return $this->customerZones;
+            return $this->company->zones;
         } else {
             return $this->zones;
         }
