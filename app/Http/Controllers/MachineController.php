@@ -1649,7 +1649,7 @@ class MachineController extends Controller
 		return response()->json([
 			'items' => $items,
 			'unit' => '℃',
-			'hopperCount' => json_decode($hopperCount->values)[0]
+			'hopperCount' => $hopperCount ? json_decode($hopperCount->values)[0] : 3
 		]);
 	}
 
