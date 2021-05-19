@@ -45,4 +45,12 @@ class Company extends Model
     public function downtimePlans() {
         return $this->hasMany('App\DowntimePlan');
     }
+
+    public function locations() {
+        return $this->hasMany('App\Location', 'company_id');
+    }
+
+    public function zones() {
+        return $this->hasMany('App\Zone', 'company_id');
+    }
 }

@@ -29,13 +29,13 @@ class UserController extends Controller
     use MailTrait;
 
 	public function login(Request $request) {
-	    $validator = Validator::make($request->all(), [ 
-	        'email' => 'required|email', 
-	        'password' => 'required', 
+	    $validator = Validator::make($request->all(), [
+	        'email' => 'required|email',
+	        'password' => 'required',
 	    ]);
 
 	    if ($validator->fails()) {
-            return response()->json(['error'=>$validator->errors()], 422);            
+            return response()->json(['error'=>$validator->errors()], 422);
         }
 
         $credentials = request(['email', 'password']);
@@ -67,7 +67,7 @@ class UserController extends Controller
     }
 
     public function passwordReset(Request $request) {
-        $validator = Validator::make($request->all(), [ 
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email'
         ]);
 
@@ -98,7 +98,7 @@ class UserController extends Controller
                     return response()->json(false);
             }
             $user->role = $user->roles->first()->key;
-            
+
             return response()->json($user);
     	} else {
     		return response()->json(false);
@@ -113,7 +113,7 @@ class UserController extends Controller
     }
 
     public function updatePassword(Request $request) {
-        $validator = Validator::make($request->all(), [ 
+        $validator = Validator::make($request->all(), [
             'current_password' => 'required',
             'new_password' => 'required|min:6|max:200',
         ]);
@@ -141,7 +141,7 @@ class UserController extends Controller
     }
 
     public function updateTimezone(Request $request) {
-        $validator = Validator::make($request->all(), [ 
+        $validator = Validator::make($request->all(), [
             'timezone' => 'required',
         ]);
 
@@ -195,7 +195,7 @@ class UserController extends Controller
             $user->role = $user->roles->first();
 
             // add company name of the user
-            $user->company_name = Company::where('id', $user->company_id)->first()->name;
+            $user->company_name = $user->company_id > 0 ? Company::where('id', $user->company_id)->first()->name : ' - ';
         }
 
         return response()->json(compact('users'));
@@ -209,7 +209,7 @@ class UserController extends Controller
             ], 401);
         }
 
-        $validator = Validator::make($request->all(), [ 
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|max:255|unique:users,email',
             'role' => 'required|exists:roles,id',
@@ -223,11 +223,11 @@ class UserController extends Controller
 
         if ($validator->fails())
         {
-            return response()->json(['error'=>$validator->errors()], 422);            
+            return response()->json(['error'=>$validator->errors()], 422);
         }
 
         $password_string = md5(uniqid($request->email, true));
-        
+
         if(in_array($request->role, [ROLE_ACS_ADMIN, ROLE_ACS_MANAGER, ROLE_ACS_VIEWER])) {
             $user = User::create([
                 'name' => $request->name,
@@ -277,12 +277,12 @@ class UserController extends Controller
 
             Mail::to($user->email)->send(new CustomerInvitation($password_string));
         }
-        
+
         return response()->json('Created successfully.', 201);
     }
 
     public function update(User $user, Request $request) {
-        $validator = Validator::make($request->all(), [ 
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'role' => 'required|exists:roles,id',
@@ -296,12 +296,12 @@ class UserController extends Controller
 
         if ($validator->fails())
         {
-            return response()->json(['error'=>$validator->errors()], 422);            
+            return response()->json(['error'=>$validator->errors()], 422);
         }
 
         $user->name = $request->name;
         $user->email = $request->email;
-        
+
         $profile = $user->profile;
 
         $profile->address_1 = $request->address_1;

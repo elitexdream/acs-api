@@ -37,16 +37,16 @@ class LocationController extends Controller
 
 	    if ($validator->fails())
 	    {
-            return response()->json(['error' => $validator->errors()], 422);            
+            return response()->json(['error' => $validator->errors()], 422);
         }
 
-        $user->customerLocations()->create($request->all());
+        $user->company->locations()->create($request->all());
 
         return response()->json('Successfully created.');
     }
 
 	public function update(Location $location, Request $request) {
-        $validator = Validator::make($request->all(), [ 
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'state' => 'required',
             'city' => 'required',
@@ -55,7 +55,7 @@ class LocationController extends Controller
 
         if ($validator->fails())
         {
-            return response()->json(['error'=>$validator->errors()], 422);            
+            return response()->json(['error'=>$validator->errors()], 422);
         }
 
         $location->name = $request->name;

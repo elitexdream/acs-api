@@ -21,35 +21,35 @@ class ZoneController extends Controller
         $user = $request->user('api');
 
         $zones = $user->getMyZones();
-        
+
         return response()->json($zones);
     }
 
     public function store(Request $request) {
         $user = $request->user('api');
 
-    	$validator = Validator::make($request->all(), [ 
+    	$validator = Validator::make($request->all(), [
 	        'name' => 'required',
             'location_id' => 'required'
 	    ]);
 
 	    if ($validator->fails()) {
-            return response()->json(['error'=>$validator->errors()], 422);            
+            return response()->json(['error'=>$validator->errors()], 422);
         }
 
-        $user->customerZones()->create($request->all());
+        $user->company->zones()->create($request->all());
 
         return response()->json('Successfully created.');
     }
 
     public function update(Zone $zone, Request $request) {
-        $validator = Validator::make($request->all(), [ 
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'location_id' => 'required'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error'=>$validator->errors()], 422);            
+            return response()->json(['error'=>$validator->errors()], 422);
         }
 
         $zone->name = $request->name;
