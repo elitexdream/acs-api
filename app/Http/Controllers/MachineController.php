@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Running;
+use App\SerialNumberMonth;
+use App\SerialNumberUnit;
+use App\SerialNumberYear;
+use App\SoftwareBuild;
+use App\SoftwareVersion;
+use App\Timezone;
 use Illuminate\Http\Request;
 
 use App\Company;
@@ -43,7 +50,7 @@ class MachineController extends Controller
     public function __construct()
     {
     	$user = auth('api')->user();
-		$timezone = DB::Table('timezones')->where('id', $user->profile->timezone)->first();
+		$timezone = Timezone::where('id', $user->profile->timezone)->first();
 		if($timezone) {
 			date_default_timezone_set($timezone->name);
 
@@ -94,8 +101,7 @@ class MachineController extends Controller
             ->first();
 
         if ($tag) {
-            $running = DB::table('runnings')
-                ->where('serial_number', $serialNumber)
+            $running = Running::where('serial_number', $serialNumber)
                 ->where('tag_id', $tag->tag_id)
                 ->latest('timestamp')
                 ->first();
@@ -159,7 +165,7 @@ class MachineController extends Controller
                 ]);
             }
 
-            File::move(storage_path('app/report.xlsx'), public_path('assets/app/reports/' . $request->reportTitle . '.xlsx'));
+            File::move(storage_path('app/report.xlsx'), public_path(Report::REPORT_PATH . $request->reportTitle . '.xlsx'));
 
             Report::where('filename', $request->reportTitle)->updateOrCreate([
                 'filename' => $request->reportTitle
@@ -192,8 +198,8 @@ class MachineController extends Controller
 		$report = Report::where('id', $id)->first();
 
 		if ($report) {
-			if (File::exists(public_path('assets/app/reports/' . $report->filename . '.xlsx'))) {
-				File::delete(public_path('assets/app/reports/' . $report->filename . '.xlsx'));
+			if (File::exists(public_path(Report::REPORT_PATH . $report->filename . '.xlsx'))) {
+				File::delete(public_path(Report::REPORT_PATH . $report->filename . '.xlsx'));
 				$status = true;
 				$message = 'Report deleted successfully.';
 			} else {
@@ -204,12 +210,10 @@ class MachineController extends Controller
 			$report->delete();
 		}
 
-		$reports = Report::all();
-
 		return response()->json([
 			'status' => $status,
 			'message' => $message,
-			'reports' => $reports
+			'reports' => Report::all()
 		]);
 
 	}
@@ -286,8 +290,7 @@ class MachineController extends Controller
 				}
 
 				// product version
-				if($version_object = DB::table('device_data')
-									->where('serial_number', $request->serialNumber)
+				if($version_object = DeviceData::where('serial_number', $request->serialNumber)
 									->where('tag_id', $tag_software_version)
 									->latest('timestamp')
 									->first()) {
@@ -298,20 +301,17 @@ class MachineController extends Controller
 					}
 				}
 			} else if($request->machineId == MACHINE_GP_PORTABLE_CHILLER) {
-				$software_version_x = DB::table('device_data')
-										->where('serial_number', $request->serialNumber)
+				$software_version_x = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 99)
 										->latest('timestamp')
 										->first();
 
-				$software_version_y = DB::table('device_data')
-										->where('serial_number', $request->serialNumber)
+				$software_version_y = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 100)
 										->latest('timestamp')
 										->first();
 
-				$software_version_z = DB::table('device_data')
-										->where('serial_number', $request->serialNumber)
+				$software_version_z = DeviceData::where('serial_number', $request->serialNumber)
 										->where('tag_id', 101)
 										->latest('timestamp')
 										->first();
@@ -319,7 +319,7 @@ class MachineController extends Controller
 				$version_x = $software_version_x ? json_decode($software_version_x->values)[0] : '0';
 				$version_y = $software_version_y ? sprintf('%02d', json_decode($software_version_y->values)[0]) : '00';
 				$version_z = $software_version_z ? sprintf('%03d', json_decode($software_version_z->values)[0]) : '000';
-				
+
 				$product->version = mb_convert_encoding($version_x . "." . $version_y . "." . $version_z, 'UTF-8', 'UTF-8');
 			} else {
 				$tag_software_version = Tag::where('tag_name', 'software_version')->where('configuration_id', $request->machineId)->first();
@@ -328,8 +328,7 @@ class MachineController extends Controller
 				}
 
 				// product version
-				if($version_object = DB::table('software_version')
-									->where('serial_number', $request->serialNumber)
+				if($version_object = SoftwareVersion::where('serial_number', $request->serialNumber)
 									->where('tag_id', $tag_software_version->tag_id)
 									->latest('timestamp')
 									->first()) {
@@ -345,8 +344,7 @@ class MachineController extends Controller
 			$tag_software_build = Tag::where('tag_name', 'software_build')->where('configuration_id', $request->machineId)->first();
 
 			if($tag_software_build) {
-				if($software_build_object = DB::table('software_builds')
-												->where('serial_number', $request->serialNumber)
+				if($software_build_object = SoftwareBuild::where('serial_number', $request->serialNumber)
 												->where('tag_id', $tag_software_build->tag_id)
 												->latest('timestamp')
 												->first()) {
@@ -410,8 +408,7 @@ class MachineController extends Controller
 				$tag_serial_unit = Tag::where('tag_name', 'serial_number_unit')->where('configuration_id', $request->machineId)->first();
 
 				if($tag_serial_year) {
-					$serial_year_object = DB::table('serial_number_year')
-												->where('serial_number', $request->serialNumber)
+					$serial_year_object = SerialNumberYear::where('serial_number', $request->serialNumber)
 												->where('tag_id', $tag_serial_year->tag_id)
 												->latest('timestamp')
 												->first();
@@ -423,8 +420,7 @@ class MachineController extends Controller
 				}
 
 				if($tag_serial_month) {
-					$serial_month_object = DB::table('serial_number_month')
-												->where('serial_number', $request->serialNumber)
+					$serial_month_object = SerialNumberMonth::where('serial_number', $request->serialNumber)
 												->where('tag_id', $tag_serial_month->tag_id)
 												->latest('timestamp')
 												->first();
@@ -436,8 +432,7 @@ class MachineController extends Controller
 				}
 
 				if($tag_serial_unit) {
-					$serial_unit_object = DB::table('serial_number_unit')
-											->where('serial_number', $request->serialNumber)
+					$serial_unit_object = SerialNumberUnit::where('serial_number', $request->serialNumber)
 											->where('tag_id', $tag_serial_unit->tag_id)
 											->latest('timestamp')
 											->first();
@@ -494,7 +489,7 @@ class MachineController extends Controller
 			} else {
 				$product->status = 'shutOff';
 			}
-		} 
+		}
 
 		if (!$saved_machine) {
 			$product->isSavedMachine = false;
@@ -2204,8 +2199,7 @@ class MachineController extends Controller
 	public function getWeeklyRunningHours($id) {
 		$ret = [0, 0, 0, 0, 0, 0, 0];
 
-		$running_values = DB::table('device_data')
-							->where('machine_id', $id)
+		$running_values = DeviceData::where('machine_id', $id)
 							->where('tag_id', 9)
 							->get()
 							->toArray();
@@ -2477,16 +2471,14 @@ class MachineController extends Controller
 
 		if(!$device) return $ret;
 
-		$running_values = DB::table('runnings')
-							->where('device_id', $id)
+		$running_values = Running::where('device_id', $id)
 							->where('tag_id', 9)
 							->where('timestamp', '>', $start)
 							->where('timestamp', '<', $end)
 							->orderBy('timestamp')
 							->get();
 
-		$last_before_start = DB::table('runnings')
-							->where('device_id', $id)
+		$last_before_start = Running::where('device_id', $id)
 							->where('tag_id', 9)
 							->where('timestamp', '<', $start)
 							->orderBy('timestamp')
@@ -2643,19 +2635,19 @@ class MachineController extends Controller
     public function Stand_Deviation($arr)
     {
         $num_of_elements = count($arr);
-          
+
         $variance = 0.0;
-          
+
 		// calculating mean using array_sum() method
         $average = array_sum($arr)/$num_of_elements;
-          
+
         foreach($arr as $i)
         {
-            // sum of squares of differences between 
+            // sum of squares of differences between
 			// all numbers and means.
             $variance += pow(($i - $average), 2);
         }
-          
+
         return (float)sqrt($variance/$num_of_elements);
     }
 }

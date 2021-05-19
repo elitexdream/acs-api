@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Running;
 use App\Setting;
 use Illuminate\Http\Request;
 use App\Device;
@@ -15,6 +16,7 @@ use App\EnergyConsumption;
 use App\Utilization;
 use App\TeltonikaConfiguration;
 use App\Tag;
+use App\EnabledProperty;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
@@ -66,8 +68,7 @@ class DeviceController extends Controller
             ->first();
 
         if ($tag) {
-            $running = DB::table('runnings')
-                ->where('serial_number', $serialNumber)
+            $running = Running::where('serial_number', $serialNumber)
                 ->where('tag_id', $tag->tag_id)
                 ->latest('timestamp')
                 ->first();
@@ -170,38 +171,30 @@ class DeviceController extends Controller
     {
         $user = $request->user('api');
 
-        $rows = DB::table('enabled_properties')->where('user_id', $user->id)->where('serial_number', $request->serial_number);
-        if($rows->count()) {
-            $obj = $rows->first();
-            $ids = [];
-            $existing_ids = json_decode($obj->property_ids);
+        $obj = EnabledProperty::firstOrCreate([
+            'serial_number' => $request->serial_number,
+            'user_id' => $user->id,
+        ], [
+            'property_ids' => json_encode($request->enabled_properties)
+        ]);
 
-            if($request->isImportant) {
-                foreach ($existing_ids as $value) {
-                    if($value > 100) array_push($ids, $value);
-                }
-                $ids = array_merge($ids, $request->enabled_properties);
-            } else {
-                foreach ($existing_ids as $value) {
-                    if($value < 100) array_push($ids, $value);
-                }
-                $ids = array_merge($ids, $request->enabled_properties);
+        $ids = [];
+        $existing_ids = json_decode($obj->property_ids);
+
+        if ($request->isImportant) {
+            foreach ($existing_ids as $value) {
+                if ($value > 100) array_push($ids, $value);
             }
 
-            $rows->update(
-                [
-                    'property_ids' => json_encode($ids)
-                ]
-            );
         } else {
-            DB::table('enabled_properties')->insert(
-                [
-                    'serial_number' => $request->serial_number,
-                    'user_id' => $user->id,
-                    'property_ids' => json_encode($request->enabled_properties)
-                ]
-            );
+            foreach ($existing_ids as $value) {
+                if ($value < 100) array_push($ids, $value);
+            }
         }
+
+        EnabledProperty::whereId($obj->id)->update([
+            'property_ids' => json_encode(array_merge($ids, $request->enabled_properties))
+        ]);
 
         return response()->json('Updated successfully');
     }
@@ -224,8 +217,13 @@ class DeviceController extends Controller
         ]);
     }
 
-    public function getAllDevices() {
-        $devices = Device::orderBy('sim_status', 'ASC')->where('iccid', '<>', 0)->whereNotNull('iccid')->select('name', 'id', 'customer_assigned_name', 'tcu_added')->get();
+    public function getAllDevices()
+    {
+        $devices = Device::orderBy('sim_status', 'ASC')
+            ->where('iccid', '<>', 0)
+            ->whereNotNull('iccid')
+            ->select('name', 'id', 'customer_assigned_name', 'tcu_added')
+            ->get();
 
         return response()->json(compact('devices'));
     }

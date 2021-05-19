@@ -183,6 +183,6 @@ class User extends Authenticatable
 
     public function enabledProperties()
     {
-        return DB::table('enabled_properties')->where('user_id', $this->id)->get();
+        return $this->hasMany('App\EnabledProperty', 'user_id');
     }
 }

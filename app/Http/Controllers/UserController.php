@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Timezone;
 use Illuminate\Http\Request;
 use Validator;
 use Auth;
@@ -135,7 +136,7 @@ class UserController extends Controller
     }
 
     public function getTimezones() {
-        $timezones = DB::Table('timezones')->get();
+        $timezones = Timezone::all();
 
         return response()->json(compact('timezones'));
     }
@@ -151,7 +152,7 @@ class UserController extends Controller
 
         $profile = $request->user('api')->profile;
 
-        $timezone = DB::Table('timezones')->where('id', $request->timezone)->first();
+        $timezone = Timezone::where('id', $request->timezone)->first();
 
         if($timezone) {
             $profile->timezone = $request->timezone;

@@ -75,8 +75,7 @@ class Device extends Model
             ->first();
 
         if ($tag) {
-            $running = DB::table('runnings')
-                ->where('device_id', $this->serial_number)
+            $running = Running::where('device_id', $this->serial_number)
                 ->where('tag_id', $tag->tag_id)
                 ->latest('timestamp')
                 ->first();
