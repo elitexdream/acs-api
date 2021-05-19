@@ -1111,7 +1111,7 @@ class MachineController extends Controller
 			$saved_machine->delete();
 			return response()->json([
 				'status' => false,
-				'message' => 'Removed from the favorite'
+				'message' => 'Removed from Favorite'
 			]);
 		} else {
 			SavedMachine::create([
@@ -1550,10 +1550,10 @@ class MachineController extends Controller
 
 		$items = [];
 
-		$tag_ids = $request->machineId === 6 ? [22, 20, 21, 23] : [16, 14, 15, 17];
-		$names = ['Set Point', 'Regen Left', 'Regen Right', 'regen exhaust'];
+		$tag_ids = $request->machineId === 6 ? [22, 20, 21, 23, 22] : [16, 14, 15, 17, 16];
+		$names = ['Set Point', 'Regen Left', 'Regen Right', 'Regen Exhaust', 'Regen Air Set Point'];
 
-		for ($i=0; $i < 4; $i++) {
+		for ($i=0; $i < 5; $i++) {
 			$obj = DeviceData::where('serial_number', $request->serialNumber)
 											->where('tag_id', $tag_ids[$i])
 											->orderBy('timestamp')

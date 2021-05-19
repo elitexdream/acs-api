@@ -119,7 +119,7 @@ class GraphSeeder extends Seeder
             [
                 'machine_id' => 4,
                 'graph_id' => 1,
-                'graph_name' => 'Capability Utilization'
+                'graph_name' => 'Capacity Utilization'
             ], [
                 'machine_id' => 4,
                 'graph_id' => 2,
@@ -129,7 +129,7 @@ class GraphSeeder extends Seeder
             [
                 'machine_id' => 5,
                 'graph_id' => 1,
-                'graph_name' => 'Capability Utilization'
+                'graph_name' => 'Capacity Utilization'
             ], [
                 'machine_id' => 5,
                 'graph_id' => 2,
@@ -159,7 +159,7 @@ class GraphSeeder extends Seeder
             [
                 'machine_id' => 6,
                 'graph_id' => 1,
-                'graph_name' => 'Capability Utilization'
+                'graph_name' => 'Capacity Utilization'
             ], [
                 'machine_id' => 6,
                 'graph_id' => 3,
@@ -189,13 +189,13 @@ class GraphSeeder extends Seeder
             [
                 'machine_id' => 7,
                 'graph_id' => 1,
-                'graph_name' => 'Capability Utilization'
+                'graph_name' => 'Capacity Utilization'
             ],
 
             [
                 'machine_id' => 8,
                 'graph_id' => 1,
-                'graph_name' => 'Capability Utilization'
+                'graph_name' => 'Capacity Utilization'
             ], [
                 'machine_id' => 8,
                 'graph_id' => 2,
@@ -205,7 +205,7 @@ class GraphSeeder extends Seeder
             [
                 'machine_id' => 9,
                 'graph_id' => 1,
-                'graph_name' => 'Capability Utilization'
+                'graph_name' => 'Capacity Utilization'
             ], [
                 'machine_id' => 9,
                 'graph_id' => 2,
@@ -227,7 +227,7 @@ class GraphSeeder extends Seeder
             ], [
                 'machine_id' => 11,
                 'graph_id' => 3,
-                'graph_name' => 'Capability Utilization'
+                'graph_name' => 'Capacity Utilization'
             ]
         ];
         
