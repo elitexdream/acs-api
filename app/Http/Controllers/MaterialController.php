@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Report;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -239,7 +240,7 @@ class MaterialController extends Controller
         $filename = 'Blender - ' . $track->id . '.xlsx';
 
         Excel::store(new ReportExport($reportItems), 'report.xlsx');
-        File::move(storage_path('app/report.xlsx'), public_path('assets/app/reports/' . $filename));
+        File::move(storage_path('app/report.xlsx'), public_path(Report::REPORT_PATH . $filename));
 
         return response()->json([
             'mesage' => 'Successfully exported',
@@ -345,7 +346,7 @@ class MaterialController extends Controller
         $filename = $request->user('api')->company->name . ' - System Inventory Report' . '.xlsx';
 
         Excel::store(new SystemInventoryReportExport($keyed_materials['keyed_materials']), $filename);
-        File::move(storage_path('app/' . $filename), public_path('assets/app/reports/' . $filename));
+        File::move(storage_path('app/' . $filename), public_path(Report::REPORT_PATH . $filename));
 
         return response()->json([
             'mesage' => 'Successfully exported',
@@ -482,7 +483,7 @@ class MaterialController extends Controller
         $filename = $request->user('api')->company->name . ' - System Inventory Report' . '.xlsx';
 
         Excel::store(new SystemInventoryReportExport($keyed_materials), 'report.xlsx');
-        File::move(storage_path('app/report.xlsx'), public_path('assets/app/reports/' . $filename));
+        File::move(storage_path('app/report.xlsx'), public_path(Report::REPORT_PATH . $filename));
 
         return response()->json([
             'mesage' => 'Successfully exported',

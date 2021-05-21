@@ -11,4 +11,6 @@ class Report extends Model
     protected $fillable = [
         'filename', 'from', 'to'
     ];
+
+    const REPORT_PATH = 'assets/app/reports/';
 }
