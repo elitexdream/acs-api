@@ -115,6 +115,9 @@ Route::group(['prefix' => 'devices'], function () {
 	Route::post('/suspend-device', 'DeviceController@suspendDevice')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/device-configuration', 'DeviceController@sendDeviceConfiguration')->middleware('auth:acs_admin,acs_manager');
 	Route::post('/enabled-properties', 'DeviceController@updateEnabledProperties');
+	Route::post('/get-downtime-graph-data', 'DeviceController@getDowntimeGraphData');
+	Route::post('/get-downtime-by-type-graph-data', 'DeviceController@getDowntimeByTypeGraphData');
+	Route::post('/get-downtime-by-reason-graph-data', 'DeviceController@getDowntimeByReasonGraphData');
 
 	Route::get('/query-sim/{iccid}', 'DeviceController@querySIM')->middleware('auth:acs_admin,acs_manager');
 	Route::get('/suspend-sim/{iccid}', 'DeviceController@suspendSIM')->middleware('auth:acs_admin,acs_manager');
