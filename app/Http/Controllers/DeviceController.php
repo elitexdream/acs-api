@@ -17,6 +17,7 @@ use App\Utilization;
 use App\TeltonikaConfiguration;
 use App\Tag;
 use App\EnabledProperty;
+use App\Downtime;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
@@ -829,6 +830,232 @@ class DeviceController extends Controller
         }
 
         return response()->json(compact('devices'));
+    }
+
+    public function getDowntimeGraphData(Request $request) {
+        $timeFrom = $request->from / 1000;
+        $timeTo = $request->to / 1000;
+
+        $dates = [];
+
+        $query = "select
+                sq2.reason_name as name,
+                json_agg(ROUND(sq2.sum::numeric, 3) order by sq2.generated_date_int) as data
+            from (
+                select
+                    sq.reason_name,
+                    sq.generated_date_int,
+                    coalesce(sum(corrected_end_dt_int - corrected_start_dt_int)/(60*60), 0) as sum
+                from (
+                    with
+                    datetime_filter as (
+                        select " .
+                            $timeFrom . " as start_dt," .
+                            $timeTo . " as end_dt
+                    ),
+                    generated_date as (
+                        select generate_series(
+                            date_trunc('day', to_timestamp(start_dt)),
+                            date_trunc('day', to_timestamp(end_dt)),
+                            interval '1 day'
+                        ) as generated_date
+                        from datetime_filter
+                    ),
+                    generated_date_int as (
+                        select
+                            extract(epoch from generated_date) as dt
+                        from generated_date
+                    )
+                    select       
+                        generated_date_int.dt as generated_date_int,
+                        r.name as reason_name,
+                        case when d.start_time is not null then
+                            case when d.start_time < generated_date_int.dt then greatest(generated_date_int.dt, datetime_filter.start_dt) else greatest(d.start_time, datetime_filter.start_dt) end
+                        else null end as corrected_start_dt_int,
+                    
+                        case when d.end_time is not null then
+                            case when d.end_time > generated_date_int.dt + 60*60*24 
+                            then 
+                                case when datetime_filter.end_dt = generated_date_int.dt
+                                    then generated_date_int.dt + 60*60*24
+                                    else least(datetime_filter.end_dt, generated_date_int.dt + 60*60*24)
+                                end
+                            else least(d.end_time, generated_date_int.dt + 60*60*24)
+                            end
+                        else null 
+                        end as corrected_end_dt_int
+                    from datetime_filter
+                    left join generated_date_int on 0 = 0
+                    left join downtime_reasons r on 0 = 0
+                    left join downtimes d on d.reason_id = r.id
+                        and d.start_time < case when generated_date_int.dt = datetime_filter.end_dt then generated_date_int.dt + 60*60*24 else least(generated_date_int.dt + 60*60*24, datetime_filter.end_dt) end
+                        and d.end_time > greatest(generated_date_int.dt, datetime_filter.start_dt)
+                    order by generated_date_int.dt, r.name, d.start_time
+                ) as sq
+                group by sq.reason_name, sq.generated_date_int
+            ) as sq2
+            group by sq2.reason_name";
+
+        $date_generate_query = "select generate_series(
+            date_trunc('day', to_timestamp(".$timeFrom.")),
+            date_trunc('day', to_timestamp(".$timeTo.")),
+            interval '1 day'
+            )::date as generated_date";
+
+        $series = DB::select($query);
+        $generated_dates = DB::select($date_generate_query);
+
+        foreach ($series as $data) {
+            $data->data = json_decode($data->data);
+        };
+
+        foreach ($generated_dates as $date) {
+            array_push($dates, $date->generated_date);
+        };
+
+        return response()->json(compact('series', 'dates'));
+    }
+
+    public function getDowntimeByTypeGraphData(Request $request) {
+        $timeFrom = $request->from / 1000;
+        $timeTo = $request->to / 1000;
+
+        $query = "select
+                sq2.type_name as name,
+                ROUND(sum(sum)::numeric, 3) as data
+            from (
+                select
+                    sq.type_name,
+                    sq.generated_date_int,
+                    coalesce(sum(corrected_end_dt_int - corrected_start_dt_int)/(60*60), 0) as sum
+                from (
+                    with
+                    datetime_filter as (
+                        select " .
+                            $timeFrom . " as start_dt," .
+                            $timeTo . " as end_dt
+                    ),
+                    generated_date as (
+                        select generate_series(
+                            date_trunc('day', to_timestamp(start_dt)),
+                            date_trunc('day', to_timestamp(end_dt)),
+                            interval '1 day'
+                        ) as generated_date
+                        from datetime_filter
+                    ),
+                    generated_date_int as (
+                        select
+                            extract(epoch from generated_date) as dt
+                        from generated_date
+                    )
+                    select       
+                        generated_date_int.dt as generated_date_int,
+                        t.name as type_name,
+                        case when d.start_time is not null then
+                            case when d.start_time < generated_date_int.dt then greatest(generated_date_int.dt, datetime_filter.start_dt) else greatest(d.start_time, datetime_filter.start_dt) end
+                        else null end as corrected_start_dt_int,
+                    
+                        case when d.end_time is not null then
+                            case when d.end_time > generated_date_int.dt + 60*60*24 
+                            then 
+                                case when datetime_filter.end_dt = generated_date_int.dt
+                                    then generated_date_int.dt + 60*60*24
+                                    else least(datetime_filter.end_dt, generated_date_int.dt + 60*60*24)
+                                end
+                            else least(d.end_time, generated_date_int.dt + 60*60*24)
+                            end
+                        else null 
+                        end as corrected_end_dt_int
+                    from datetime_filter
+                    left join generated_date_int on 0 = 0
+                    left join downtime_type t on 0 = 0
+                    left join downtimes d on d.type = t.id
+                        and d.start_time < case when generated_date_int.dt = datetime_filter.end_dt then generated_date_int.dt + 60*60*24 else least(generated_date_int.dt + 60*60*24, datetime_filter.end_dt) end
+                        and d.end_time > greatest(generated_date_int.dt, datetime_filter.start_dt)
+                    order by generated_date_int.dt, t.name, d.start_time
+                ) as sq
+                group by sq.type_name, sq.generated_date_int
+            ) as sq2
+            group by sq2.type_name";
+
+        $series = DB::select($query);
+
+        foreach ($series as $data) {
+            $data->data = json_decode($data->data);
+        };
+
+        return response()->json(compact('series'));
+    }
+
+    public function getDowntimeByReasonGraphData(Request $request) {
+        $timeFrom = $request->from / 1000;
+        $timeTo = $request->to / 1000;
+
+        $query = "select
+                sq2.reason_name as name,
+                ROUND(sum(sum)::numeric, 3) as data
+            from (
+                select
+                    sq.reason_name,
+                    sq.generated_date_int,
+                    coalesce(sum(corrected_end_dt_int - corrected_start_dt_int)/(60*60), 0) as sum
+                from (
+                    with
+                    datetime_filter as (
+                        select " .
+                            $timeFrom . " as start_dt, " .
+                            $timeTo . " as end_dt
+                    ),
+                    generated_date as (
+                        select generate_series(
+                            date_trunc('day', to_timestamp(start_dt)),
+                            date_trunc('day', to_timestamp(end_dt)),
+                            interval '1 day'
+                        ) as generated_date
+                        from datetime_filter
+                    ),
+                    generated_date_int as (
+                        select
+                            extract(epoch from generated_date) as dt
+                        from generated_date
+                    )
+                    select       
+                        generated_date_int.dt as generated_date_int,
+                        r.name as reason_name,
+                        case when d.start_time is not null then
+                            case when d.start_time < generated_date_int.dt then greatest(generated_date_int.dt, datetime_filter.start_dt) else greatest(d.start_time, datetime_filter.start_dt) end
+                        else null end as corrected_start_dt_int,
+                    
+                        case when d.end_time is not null then
+                            case when d.end_time > generated_date_int.dt + 60*60*24 
+                            then 
+                                case when datetime_filter.end_dt = generated_date_int.dt
+                                    then generated_date_int.dt + 60*60*24
+                                    else least(datetime_filter.end_dt, generated_date_int.dt + 60*60*24)
+                                end
+                            else least(d.end_time, generated_date_int.dt + 60*60*24)
+                            end
+                        else null 
+                        end as corrected_end_dt_int
+                    from datetime_filter
+                    left join generated_date_int on 0 = 0
+                    left join downtime_reasons r on 0 = 0
+                    left join downtimes d on d.reason_id = r.id
+                        and d.start_time < case when generated_date_int.dt = datetime_filter.end_dt then generated_date_int.dt + 60*60*24 else least(generated_date_int.dt + 60*60*24, datetime_filter.end_dt) end
+                        and d.end_time > greatest(generated_date_int.dt, datetime_filter.start_dt)
+                    order by generated_date_int.dt, r.name, d.start_time
+                ) as sq
+                group by sq.reason_name, sq.generated_date_int
+            ) as sq2
+            group by sq2.reason_name";
+
+        $series = DB::select($query);
+
+        foreach ($series as $data) {
+            $data->data = json_decode($data->data);
+        };
+
+        return response()->json(compact('series'));
     }
 
     public function testFunction(Request $request) {
