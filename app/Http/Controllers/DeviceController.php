@@ -1035,7 +1035,7 @@ class DeviceController extends Controller
                                 end
                             else least(d.end_time, generated_date_int.dt + 60*60*24)
                             end
-                        else null 
+                        else null
                         end as corrected_end_dt_int
                     from datetime_filter
                     left join generated_date_int on 0 = 0
