@@ -15,6 +15,11 @@ class Downtimes extends Model
         'timestamp',
         'type',
         'reason',
-        'comment'
+        'comment',
+        'running_start_id',
+        'running_end_id',
+        'idle_start_id',
+        'idle_end_id',
+        'foreign_type'
     ];
 }
