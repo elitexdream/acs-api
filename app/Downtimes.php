@@ -14,7 +14,7 @@ class Downtimes extends Model
         'end_time',
         'timestamp',
         'type',
-        'reason',
+        'reason_id',
         'comment',
         'running_start_id',
         'running_end_id',

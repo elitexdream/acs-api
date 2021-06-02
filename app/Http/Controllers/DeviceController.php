@@ -17,7 +17,9 @@ use App\Utilization;
 use App\TeltonikaConfiguration;
 use App\Tag;
 use App\EnabledProperty;
-use App\Downtime;
+use App\Downtimes;
+use App\DowntimeType;
+use App\DowntimeReason;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
@@ -1056,6 +1058,45 @@ class DeviceController extends Controller
         };
 
         return response()->json(compact('series'));
+    }
+
+    public function getDowntimeTableData(Request $request) {
+        $user = $request->user('api');
+
+        $device_ids = $user->company->devices->pluck('serial_number');
+        $devices = $user->company->devices()->with('teltonikaConfiguration', 'configuration:id,name')->get();
+        $downtimeTypes = DowntimeType::get();
+        $locations = Location::get();
+        $zones = Zone::get();
+        $reasons = DowntimeReason::get();
+
+        $downtimes = Downtimes::whereIn('device_id', $device_ids)
+                                ->orderBy('id')
+                                ->get();
+
+        return response()->json(compact('downtimes', 'devices', 'downtimeTypes', 'locations', 'zones', 'reasons'));
+    }
+
+    public function updateDowntime(Request $request) {
+        $downtime = Downtimes::where('id', $request->id)->first();
+
+        try {
+            $downtime->update([
+                'reason_id' => $request->reason['id'],
+                'type' => $request->type['id'],
+                'comment' => $request->comment
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Updated successfully'
+            ]);
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Failed to update downtime'
+            ]);
+        };
     }
 
     public function testFunction(Request $request) {
