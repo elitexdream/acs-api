@@ -841,66 +841,87 @@ class DeviceController extends Controller
         $dates = [];
 
         $query = "select
-                sq2.reason_name as name,
-                json_agg(ROUND(sq2.sum::numeric, 3) order by sq2.generated_date_int) as data
+                aggregated_subquery.reason_name as name,
+                json_agg(ROUND(aggregated_subquery.hours_sum::numeric, 3) order by aggregated_subquery.output_date_int) as data
             from (
                 select
-                    sq.reason_name,
-                    sq.generated_date_int,
-                    coalesce(sum(corrected_end_dt_int - corrected_start_dt_int)/(60*60), 0) as sum
+                    detailed_subquery.reason_name as reason_name,
+                    detailed_subquery.output_date_int as output_date_int,
+                    coalesce(sum(detailed_subquery.corrected_downtime_end_int - detailed_subquery.corrected_downtime_start_int)/(60*60), 0) as hours_sum
                 from (
                     with
-                    datetime_filter as (
-                        select " .
-                            $timeFrom . " as start_dt," .
-                            $timeTo . " as end_dt
+                    input_params as (
+                        select
+                            $timeFrom as start_datetime,
+                            $timeTo as end_datetime
                     ),
-                    generated_date as (
+                    datetime_config as (
+                        select 60*60*24 as day_duration
+                    ),
+                    output_dates as (
                         select generate_series(
-                            date_trunc('day', to_timestamp(start_dt)),
-                            date_trunc('day', to_timestamp(end_dt)),
+                            date_trunc('day', to_timestamp(input_params.start_datetime)),
+                            case when 
+                                extract(hour from to_timestamp(input_params.end_datetime)) = 0 
+                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0 
+                                and extract(second from to_timestamp(input_params.end_datetime)) = 0
+                            then
+                                date_trunc('day', to_timestamp(input_params.end_datetime - datetime_config.day_duration))
+                            else
+                                to_timestamp(input_params.end_datetime)
+                            end,
                             interval '1 day'
                         ) as generated_date
-                        from datetime_filter
+                        from input_params, datetime_config
                     ),
-                    generated_date_int as (
+                    output_dates_int as (
                         select
-                            extract(epoch from generated_date) as dt
-                        from generated_date
+                            extract(epoch from generated_date) as date
+                        from output_dates
                     )
-                    select       
-                        generated_date_int.dt as generated_date_int,
-                        r.name as reason_name,
-                        case when d.start_time is not null then
-                            case when d.start_time < generated_date_int.dt then greatest(generated_date_int.dt, datetime_filter.start_dt) else greatest(d.start_time, datetime_filter.start_dt) end
-                        else null end as corrected_start_dt_int,
                     
-                        case when d.end_time is not null then
-                            case when d.end_time > generated_date_int.dt + 60*60*24 
-                            then 
-                                case when datetime_filter.end_dt = generated_date_int.dt
-                                    then generated_date_int.dt + 60*60*24
-                                    else least(datetime_filter.end_dt, generated_date_int.dt + 60*60*24)
-                                end
-                            else least(d.end_time, generated_date_int.dt + 60*60*24)
-                            end
-                        else null 
-                        end as corrected_end_dt_int
-                    from datetime_filter
-                    left join generated_date_int on 0 = 0
-                    left join downtime_reasons r on 0 = 0
-                    left join downtimes d on d.reason_id = r.id
-                        and d.start_time < case when generated_date_int.dt = datetime_filter.end_dt then generated_date_int.dt + 60*60*24 else least(generated_date_int.dt + 60*60*24, datetime_filter.end_dt) end
-                        and d.end_time > greatest(generated_date_int.dt, datetime_filter.start_dt)
-                    order by generated_date_int.dt, r.name, d.start_time
-                ) as sq
-                group by sq.reason_name, sq.generated_date_int
-            ) as sq2
-            group by sq2.reason_name";
+                    select
+                        output_dates_int.date as output_date_int,
+                        downtime_reasons.name as reason_name,
+                    
+                        case when downtimes.start_time is not null then
+                            greatest(input_params.start_datetime, output_dates_int.date, downtimes.start_time)
+                        else
+                            null
+                        end as corrected_downtime_start_int,
+                    
+                        case when downtimes.start_time is not null then
+                            least(input_params.end_datetime, output_dates_int.date + datetime_config.day_duration, downtimes.end_time)
+                        else
+                            null
+                        end as corrected_downtime_end_int
+                    
+                    from input_params
+                    left join output_dates_int on 0 = 0
+                    left join downtime_reasons on 0 = 0
+                    left join datetime_config on 0 = 0
+                    left join downtimes on downtimes.reason_id = downtime_reasons.id
+                        and downtimes.start_time <= least(output_dates_int.date + datetime_config.day_duration, input_params.end_datetime)
+                        and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
+                    order by output_dates_int.date, downtime_reasons.name, downtimes.start_time
+                    
+                ) as detailed_subquery
+                group by detailed_subquery.reason_name, detailed_subquery.output_date_int
+                
+            ) as aggregated_subquery
+            group by aggregated_subquery.reason_name";
 
         $date_generate_query = "select generate_series(
-            date_trunc('day', to_timestamp(".$timeFrom.")),
-            date_trunc('day', to_timestamp(".$timeTo.")),
+            date_trunc('day', to_timestamp($timeFrom)),
+            case when
+                extract(hour from to_timestamp($timeTo)) = 0
+                and extract(minute from to_timestamp($timeTo)) = 0
+                and extract(second from to_timestamp($timeTo)) = 0
+            then
+                date_trunc('day', to_timestamp($timeTo - 60*60*24))
+            else
+                to_timestamp($timeTo)
+            end,
             interval '1 day'
             )::date as generated_date";
 
@@ -923,62 +944,74 @@ class DeviceController extends Controller
         $timeTo = $request->to / 1000;
 
         $query = "select
-                sq2.type_name as name,
-                ROUND(sum(sum)::numeric, 3) as data
+                overall_subquery.type_name as name,
+                ROUND(sum(overall_subquery.hours_sum)::numeric, 3) as data
             from (
                 select
-                    sq.type_name,
-                    sq.generated_date_int,
-                    coalesce(sum(corrected_end_dt_int - corrected_start_dt_int)/(60*60), 0) as sum
+                    detailed_subquery.type_name as type_name,
+                    detailed_subquery.output_date_int as output_date_int,
+                    coalesce(sum(detailed_subquery.corrected_downtime_end_int - detailed_subquery.corrected_downtime_start_int)/(60*60), 0) as hours_sum
                 from (
                     with
-                    datetime_filter as (
-                        select " .
-                            $timeFrom . " as start_dt," .
-                            $timeTo . " as end_dt
+                    input_params as (
+                        select
+                            $timeFrom as start_datetime,
+                            $timeTo as end_datetime
                     ),
-                    generated_date as (
+                    datetime_config as (
+                        select 60*60*24 as day_duration
+                    ),
+                    output_dates as (
                         select generate_series(
-                            date_trunc('day', to_timestamp(start_dt)),
-                            date_trunc('day', to_timestamp(end_dt)),
+                            date_trunc('day', to_timestamp(input_params.start_datetime)),
+                            case when 
+                                extract(hour from to_timestamp(input_params.end_datetime)) = 0 
+                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0 
+                                and extract(second from to_timestamp(input_params.end_datetime)) = 0
+                            then
+                                date_trunc('day', to_timestamp(input_params.end_datetime - datetime_config.day_duration))
+                            else
+                                to_timestamp(input_params.end_datetime)
+                            end,
                             interval '1 day'
                         ) as generated_date
-                        from datetime_filter
+                        from input_params, datetime_config
                     ),
-                    generated_date_int as (
+                    output_dates_int as (
                         select
-                            extract(epoch from generated_date) as dt
-                        from generated_date
+                            extract(epoch from generated_date) as date
+                        from output_dates
                     )
-                    select       
-                        generated_date_int.dt as generated_date_int,
-                        t.name as type_name,
-                        case when d.start_time is not null then
-                            case when d.start_time < generated_date_int.dt then greatest(generated_date_int.dt, datetime_filter.start_dt) else greatest(d.start_time, datetime_filter.start_dt) end
-                        else null end as corrected_start_dt_int,
                     
-                        case when d.end_time is not null then
-                            case when d.end_time > generated_date_int.dt + 60*60*24 
-                            then 
-                                case when datetime_filter.end_dt = generated_date_int.dt
-                                    then generated_date_int.dt + 60*60*24
-                                    else least(datetime_filter.end_dt, generated_date_int.dt + 60*60*24)
-                                end
-                            else least(d.end_time, generated_date_int.dt + 60*60*24)
-                            end
-                        else null 
-                        end as corrected_end_dt_int
-                    from datetime_filter
-                    left join generated_date_int on 0 = 0
-                    left join downtime_type t on 0 = 0
-                    left join downtimes d on d.type = t.id
-                        and d.start_time < case when generated_date_int.dt = datetime_filter.end_dt then generated_date_int.dt + 60*60*24 else least(generated_date_int.dt + 60*60*24, datetime_filter.end_dt) end
-                        and d.end_time > greatest(generated_date_int.dt, datetime_filter.start_dt)
-                    order by generated_date_int.dt, t.name, d.start_time
-                ) as sq
-                group by sq.type_name, sq.generated_date_int
-            ) as sq2
-            group by sq2.type_name";
+                    select
+                        output_dates_int.date as output_date_int,
+                        downtime_type.name as type_name,
+                    
+                        case when downtimes.start_time is not null then
+                            greatest(input_params.start_datetime, output_dates_int.date, downtimes.start_time)
+                        else
+                            null
+                        end as corrected_downtime_start_int,
+                    
+                        case when downtimes.start_time is not null then
+                            least(input_params.end_datetime, output_dates_int.date + datetime_config.day_duration, downtimes.end_time)
+                        else
+                            null
+                        end as corrected_downtime_end_int
+                    
+                    from input_params
+                    left join output_dates_int on 0 = 0
+                    left join downtime_type on 0 = 0
+                    left join datetime_config on 0 = 0
+                    left join downtimes on downtimes.type = downtime_type.id
+                        and downtimes.start_time <= least(output_dates_int.date + datetime_config.day_duration, input_params.end_datetime)
+                        and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
+                    order by output_dates_int.date, downtime_type.name, downtimes.start_time
+                    
+                ) as detailed_subquery
+                group by detailed_subquery.type_name, detailed_subquery.output_date_int
+            ) as overall_subquery
+            group by overall_subquery.type_name";
 
         $series = DB::select($query);
 
@@ -994,62 +1027,74 @@ class DeviceController extends Controller
         $timeTo = $request->to / 1000;
 
         $query = "select
-                sq2.reason_name as name,
-                ROUND(sum(sum)::numeric, 3) as data
+                overall_subquery.reason_name as name,
+                ROUND(sum(hours_sum)::numeric, 3) as data
             from (
                 select
-                    sq.reason_name,
-                    sq.generated_date_int,
-                    coalesce(sum(corrected_end_dt_int - corrected_start_dt_int)/(60*60), 0) as sum
+                    detailed_subquery.reason_name as reason_name,
+                    detailed_subquery.output_date_int as output_date_int,
+                    coalesce(sum(detailed_subquery.corrected_downtime_end_int - detailed_subquery.corrected_downtime_start_int)/(60*60), 0) as hours_sum
                 from (
                     with
-                    datetime_filter as (
-                        select " .
-                            $timeFrom . " as start_dt, " .
-                            $timeTo . " as end_dt
+                    input_params as (
+                        select
+                            $timeFrom as start_datetime,
+                            $timeTo as end_datetime
                     ),
-                    generated_date as (
+                    datetime_config as (
+                        select 60*60*24 as day_duration
+                    ),
+                    output_dates as (
                         select generate_series(
-                            date_trunc('day', to_timestamp(start_dt)),
-                            date_trunc('day', to_timestamp(end_dt)),
+                            date_trunc('day', to_timestamp(input_params.start_datetime)),
+                            case when 
+                                extract(hour from to_timestamp(input_params.end_datetime)) = 0 
+                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0 
+                                and extract(second from to_timestamp(input_params.end_datetime)) = 0
+                            then
+                                date_trunc('day', to_timestamp(input_params.end_datetime - datetime_config.day_duration))
+                            else
+                                to_timestamp(input_params.end_datetime)
+                            end,
                             interval '1 day'
                         ) as generated_date
-                        from datetime_filter
+                        from input_params, datetime_config
                     ),
-                    generated_date_int as (
+                    output_dates_int as (
                         select
-                            extract(epoch from generated_date) as dt
-                        from generated_date
+                            extract(epoch from generated_date) as date
+                        from output_dates
                     )
-                    select       
-                        generated_date_int.dt as generated_date_int,
-                        r.name as reason_name,
-                        case when d.start_time is not null then
-                            case when d.start_time < generated_date_int.dt then greatest(generated_date_int.dt, datetime_filter.start_dt) else greatest(d.start_time, datetime_filter.start_dt) end
-                        else null end as corrected_start_dt_int,
                     
-                        case when d.end_time is not null then
-                            case when d.end_time > generated_date_int.dt + 60*60*24 
-                            then 
-                                case when datetime_filter.end_dt = generated_date_int.dt
-                                    then generated_date_int.dt + 60*60*24
-                                    else least(datetime_filter.end_dt, generated_date_int.dt + 60*60*24)
-                                end
-                            else least(d.end_time, generated_date_int.dt + 60*60*24)
-                            end
-                        else null
-                        end as corrected_end_dt_int
-                    from datetime_filter
-                    left join generated_date_int on 0 = 0
-                    left join downtime_reasons r on 0 = 0
-                    left join downtimes d on d.reason_id = r.id
-                        and d.start_time < case when generated_date_int.dt = datetime_filter.end_dt then generated_date_int.dt + 60*60*24 else least(generated_date_int.dt + 60*60*24, datetime_filter.end_dt) end
-                        and d.end_time > greatest(generated_date_int.dt, datetime_filter.start_dt)
-                    order by generated_date_int.dt, r.name, d.start_time
-                ) as sq
-                group by sq.reason_name, sq.generated_date_int
-            ) as sq2
-            group by sq2.reason_name";
+                    select
+                        output_dates_int.date as output_date_int,
+                        downtime_reasons.name as reason_name,
+                    
+                        case when downtimes.start_time is not null then
+                            greatest(input_params.start_datetime, output_dates_int.date, downtimes.start_time)
+                        else
+                            null
+                        end as corrected_downtime_start_int,
+                    
+                        case when downtimes.start_time is not null then
+                            least(input_params.end_datetime, output_dates_int.date + datetime_config.day_duration, downtimes.end_time)
+                        else
+                            null
+                        end as corrected_downtime_end_int
+                    
+                    from input_params
+                    left join output_dates_int on 0 = 0
+                    left join downtime_reasons on 0 = 0
+                    left join datetime_config on 0 = 0
+                    left join downtimes on downtimes.reason_id = downtime_reasons.id
+                        and downtimes.start_time <= least(output_dates_int.date + datetime_config.day_duration, input_params.end_datetime)
+                        and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
+                    order by output_dates_int.date, downtime_reasons.name, downtimes.start_time
+                    
+                ) as detailed_subquery
+                group by detailed_subquery.reason_name, detailed_subquery.output_date_int
+            ) as overall_subquery
+            group by overall_subquery.reason_name";
 
         $series = DB::select($query);
 
