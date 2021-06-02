@@ -22,8 +22,8 @@ class AddForeignKeysToDowntimes extends Migration
 
             $table->foreign('running_start_id')->references('id')->on('runnings');
             $table->foreign('running_end_id')->references('id')->on('runnings');
-            $table->foreign('idle_start_id')->references('id')->on('runnings');
-            $table->foreign('idle_end_id')->references('id')->on('runnings');
+            $table->foreign('idle_start_id')->references('id')->on('idle');
+            $table->foreign('idle_end_id')->references('id')->on('idle');
         });
     }
 

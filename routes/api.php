@@ -118,6 +118,8 @@ Route::group(['prefix' => 'devices'], function () {
 	Route::post('/get-downtime-graph-data', 'DeviceController@getDowntimeGraphData');
 	Route::post('/get-downtime-by-type-graph-data', 'DeviceController@getDowntimeByTypeGraphData');
 	Route::post('/get-downtime-by-reason-graph-data', 'DeviceController@getDowntimeByReasonGraphData');
+	Route::get('/get-downtime-table-data', 'DeviceController@getDowntimeTableData');
+	Route::put('/update-downtime/{id}', 'DeviceController@updateDowntime');
 
 	Route::get('/query-sim/{iccid}', 'DeviceController@querySIM')->middleware('auth:acs_admin,acs_manager');
 	Route::get('/suspend-sim/{iccid}', 'DeviceController@suspendSIM')->middleware('auth:acs_admin,acs_manager');
