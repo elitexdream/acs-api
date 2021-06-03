@@ -835,10 +835,25 @@ class DeviceController extends Controller
     }
 
     public function getDowntimeGraphData(Request $request) {
+        $user = $request->user('api');
+
         $timeFrom = $request->from / 1000;
         $timeTo = $request->to / 1000;
 
+        $total_downtime = 0;
+        $average_downtime = new stdClass();
+        $average_downtime->name = 'Average Downtime';
+        $average_downtime->type = 'line';
+        $average_downtime->data = [];
         $dates = [];
+
+        $devices = null;
+        $location = $request->location_id;
+        $zone = $request->zone_id;
+
+        $devices = $user->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
+
+        $ids = implode(", ", $devices);
 
         $query = "select
                 aggregated_subquery.reason_name as name,
@@ -903,6 +918,7 @@ class DeviceController extends Controller
                     left join downtimes on downtimes.reason_id = downtime_reasons.id
                         and downtimes.start_time <= least(output_dates_int.date + datetime_config.day_duration, input_params.end_datetime)
                         and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
+                        and downtimes.device_id in ($ids)
                     order by output_dates_int.date, downtime_reasons.name, downtimes.start_time
                     
                 ) as detailed_subquery
@@ -930,18 +946,33 @@ class DeviceController extends Controller
 
         foreach ($series as $data) {
             $data->data = json_decode($data->data);
+            $data->type = 'column';
+            $total_downtime += array_sum($data->data);
         };
 
         foreach ($generated_dates as $date) {
             array_push($dates, $date->generated_date);
+            array_push($average_downtime->data, round($total_downtime / count($generated_dates), 3));
         };
+
+        array_push($series, $average_downtime);
 
         return response()->json(compact('series', 'dates'));
     }
 
     public function getDowntimeByTypeGraphData(Request $request) {
+        $user = $request->user('api');
+
         $timeFrom = $request->from / 1000;
         $timeTo = $request->to / 1000;
+
+        $devices = null;
+        $location = $request->location_id;
+        $zone = $request->zone_id;
+
+        $devices = $user->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
+
+        $ids = implode(", ", $devices);
 
         $query = "select
                 overall_subquery.type_name as name,
@@ -1006,12 +1037,14 @@ class DeviceController extends Controller
                     left join downtimes on downtimes.type = downtime_type.id
                         and downtimes.start_time <= least(output_dates_int.date + datetime_config.day_duration, input_params.end_datetime)
                         and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
+                        and downtimes.device_id in ($ids)
                     order by output_dates_int.date, downtime_type.name, downtimes.start_time
                     
                 ) as detailed_subquery
                 group by detailed_subquery.type_name, detailed_subquery.output_date_int
             ) as overall_subquery
-            group by overall_subquery.type_name";
+            group by overall_subquery.type_name
+            order by data desc";
 
         $series = DB::select($query);
 
@@ -1023,8 +1056,18 @@ class DeviceController extends Controller
     }
 
     public function getDowntimeByReasonGraphData(Request $request) {
+        $user = $request->user('api');
+
         $timeFrom = $request->from / 1000;
         $timeTo = $request->to / 1000;
+
+        $devices = null;
+        $location = $request->location_id;
+        $zone = $request->zone_id;
+
+        $devices = $user->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
+
+        $ids = implode(", ", $devices);
 
         $query = "select
                 overall_subquery.reason_name as name,
@@ -1089,12 +1132,14 @@ class DeviceController extends Controller
                     left join downtimes on downtimes.reason_id = downtime_reasons.id
                         and downtimes.start_time <= least(output_dates_int.date + datetime_config.day_duration, input_params.end_datetime)
                         and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
+                        and downtimes.device_id in ($ids)
                     order by output_dates_int.date, downtime_reasons.name, downtimes.start_time
                     
                 ) as detailed_subquery
                 group by detailed_subquery.reason_name, detailed_subquery.output_date_int
             ) as overall_subquery
-            group by overall_subquery.reason_name";
+            group by overall_subquery.reason_name
+            order by data desc";
 
         $series = DB::select($query);
 
