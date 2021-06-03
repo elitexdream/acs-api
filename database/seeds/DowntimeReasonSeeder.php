@@ -30,7 +30,7 @@ class DowntimeReasonSeeder extends Seeder
                 'name' => 'Other',
             ], [
                 'id' => 6,
-                'name' => 'Charger Over',
+                'name' => 'Change Over',
             ]
         ];
         DB::table('downtime_reasons')->insert($downtime_reasons);
