@@ -1069,32 +1069,6 @@ class DeviceController extends Controller
 
         $ids = implode(", ", $devices);
 
-        if ($request->company_id == 0) {
-            if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
-                if($location) {
-                    $devices = Device::where('location_id', $location)->get()->pluck('serial_number')->toArray();
-                }
-                else
-                    $devices = Device::get()->pluck('serial_number')->toArray();
-            } else {
-                if($location) {
-                    $devices = $user->company->devices()->where('location_id', $location)->get()->pluck('serial_number')->toArray();
-                }
-                else
-                    $devices = $user->company->devices()->get()->pluck('serial_number')->toArray();
-            }
-        } else {
-            $company = Company::where('id', $request->company_id)->first();
-
-            if ($location) {
-                $devices = $company->devices()->where('location_id', $location)->get()->pluck('serial_number')->toArray();
-            } else {
-                $devices = $company->devices()->orderBy('sim_status')->get()->pluck('serial_number')->toArray();
-            }
-        }
-
-        $ids = implode(", ", $devices);
-
         $query = "select
                 overall_subquery.reason_name as name,
                 ROUND(sum(hours_sum)::numeric, 3) as data
