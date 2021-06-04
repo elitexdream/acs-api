@@ -1,0 +1,14 @@
+### Store alarms info to the database
+
+- When we receive the data from the device, first get tag info to determine if it is the alarm.
+- If so, get last value of that alarm from the "alarm_status" table.
+- Compare that last value with streaming value.
+- If there is no last value in the table, only save streaming value if it is true as alarm activated time.
+- If last value is false and streaming value is true, save streaming value into the "alarm_status" table as alarm activated time.
+- If last value is true and streaming value is false, save streaming value into the "alarm_status" table as alarm resolved time.
+
+
+### Display alarms
+
+- Get last value of the machine's alarms and display it in the alarms list if it is activated.
+- Get the list of alarm history from the "alarm_status" table and display it in the alarm history list.
