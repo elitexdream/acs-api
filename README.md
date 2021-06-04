@@ -1,6 +1,6 @@
-# ACS Backend REST API
+# ACS API
 
-ACS backend REST API powered by laravel
+For backend API
 
 ### Tech
 * [Laravel 7.2](https://laravel.com) - PHP MVC framework

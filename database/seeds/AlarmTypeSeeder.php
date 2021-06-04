@@ -198,7 +198,7 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'System Not Stable',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 7,
+                'offset' => 8,
                 'bytes' => 1
             ], [
                 'name' => 'Out of Material',
@@ -210,61 +210,61 @@ class AlarmTypeSeeder extends Seeder
                 'name' => 'Load Cell Failure',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 5,
+                'offset' => 6,
                 'bytes' => 1
             ], [
                 'name' => 'No Extruder Flow',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 3,
+                'offset' => 4,
                 'bytes' => 1
             ], [
                 'name' => 'No Extruder RPM',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 2,
+                'offset' => 3,
                 'bytes' => 1
             ], [
                 'name' => 'Extruder Drive Failure',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 16,
+                'offset' => 17,
                 'bytes' => 1
             ], [
                 'name' => 'Hauloff Drive Failure',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 4,
+                'offset' => 5,
                 'bytes' => 1
             ], [
                 'name' => 'Extruder Underspeed',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 10,
+                'offset' => 11,
                 'bytes' => 1
             ], [
                 'name' => 'Extruder Overspeed',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 9,
+                'offset' => 10,
                 'bytes' => 1
             ], [
                 'name' => 'Hauloff Underspeed',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 13,
+                'offset' => 14,
                 'bytes' => 1
             ], [
                 'name' => 'Hauloff Overspeed',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 12,
+                'offset' => 13,
                 'bytes' => 1
             ], [
                 'name' => 'Hopper Over Max Flow',
                 'machine_id' => MACHINE_GH_GRAVIMETRIC_EXTRUSION_CONTROL_HOPPER,
                 'tag_id' => 30,
-                'offset' => 8,
+                'offset' => 9,
                 'bytes' => 1
             ], [
                 'name' => 'Out of Material (Feeder 1)',
