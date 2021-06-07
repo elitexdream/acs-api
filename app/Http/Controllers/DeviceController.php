@@ -20,6 +20,7 @@ use App\EnabledProperty;
 use App\Downtimes;
 use App\DowntimeType;
 use App\DowntimeReason;
+use App\Role;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
