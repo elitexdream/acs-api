@@ -16,6 +16,7 @@ use App\TeltonikaConfiguration;
 use App\InventoryMaterial;
 use App\Device;
 use App\SystemInventory;
+use App\Location;
 
 use \stdClass;
 use File;
@@ -343,7 +344,9 @@ class MaterialController extends Controller
             return $keyed_materials;
         }
 
-        $filename = $request->user('api')->company->name . ' - System Inventory Report' . '.xlsx';
+        $location = Location::where('id', $request->location)->first()->name;
+
+        $filename = $request->user('api')->company->name . ' - ' . $location . ' - ' . $request->timeRange['dateFrom'] . ' ' . str_replace(':', '_', $request->timeRange['timeFrom']) . ' ~ ' . $request->timeRange['dateTo'] . ' ' . str_replace(':', '_', $request->timeRange['timeTo']) . ' - System Inventory Report' . '.xlsx';
 
         Excel::store(new SystemInventoryReportExport($keyed_materials['keyed_materials']), $filename);
         File::move(storage_path('app/' . $filename), public_path(Report::REPORT_PATH . $filename));
