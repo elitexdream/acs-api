@@ -865,6 +865,10 @@ class DeviceController extends Controller
         }
 
         $ids = implode(", ", $devices);
+        
+        if (!$devices) {
+            $ids = 0;
+        }
 
         $query = "select
                 aggregated_subquery.reason_name as name,
@@ -991,6 +995,10 @@ class DeviceController extends Controller
 
         $ids = implode(", ", $devices);
 
+        if (!$devices) {
+            $ids = 0;
+        }
+
         $query = "select
                 overall_subquery.type_name as name,
                 ROUND(sum(overall_subquery.hours_sum)::numeric, 3) as data
@@ -1091,6 +1099,10 @@ class DeviceController extends Controller
         }
 
         $ids = implode(", ", $devices);
+
+        if (!$devices) {
+            $ids = 0;
+        }
 
         $query = "select
                 overall_subquery.reason_name as name,
