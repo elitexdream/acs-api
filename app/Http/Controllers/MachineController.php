@@ -29,6 +29,7 @@ use App\InventoryMaterial;
 use App\SystemInventory;
 use App\MachineTag;
 use App\Report;
+use App\Alarm;
 use App\HopperClearedTime;
 use App\Exports\MachinesReportSheetExport;
 use App\Mail\RequestService;
@@ -2276,14 +2277,10 @@ class MachineController extends Controller
 		}
 
 		foreach ($locations as $key => $location) {
-			$downtime_distribution = $this->getDowntimeDistribution(1106550521);
-			$location->utilization = '32%';
-			$location->color = 'green';
-			$location->value = 75;
-			$location->oee = '93.1%';
-			$location->performance = '78%';
-			$location->rate = 56;
-			$location->downtimeDistribution = $downtime_distribution;
+			$downtime_distribution = $this->getDowntimeDistribution($location->id);
+			// $alarms_for_locations = $this->getAlarmsForLocation($location->id);
+			$location->downtimeByReason = $downtime_distribution;
+			// $location->alarmsForLocation = $alarms_for_locations;
 		}
 
 		return response()->json(compact('locations'));
@@ -2460,92 +2457,97 @@ class MachineController extends Controller
 	*/
 	public function getDowntimeDistribution($id, $start = 0, $end = 0) {
 
-		if(!$start) $start = strtotime("-7 days");
+		if(!$start) $start = strtotime("-1 day");
 		if(!$end) $end = time();
 
-		$ret = [0, 0, 0];	// 0 - Planned
-							// 1 - Unplanned
-							// 2 - Idle
+		$devices = Device::where('location_id', $id)->pluck('serial_number')->toArray();
 
-		$device = Device::where('serial_number', $id)->first();
+		$ids = implode(", ", $devices);
 
-		if(!$device) return $ret;
-
-		$running_values = Running::where('device_id', $id)
-							->where('tag_id', 9)
-							->where('timestamp', '>', $start)
-							->where('timestamp', '<', $end)
-							->orderBy('timestamp')
-							->get();
-
-		$last_before_start = Running::where('device_id', $id)
-							->where('tag_id', 9)
-							->where('timestamp', '<', $start)
-							->orderBy('timestamp')
-							->first();
-
-		if ($last_before_start) {
-			$last_before_start_running = json_decode($last_before_start->values)[0];
+		if ($ids == "") {
+			$additional_query = "and downtimes.device_id in (0)";
 		} else {
-			$last_before_start_running = 1;
+			$additional_query = "and downtimes.device_id in ($ids)";
 		}
 
-		$count = $running_values->count();
+		$query  = "select
+				overall_subquery.reason_name as name,
+				ROUND(sum(overall_subquery.hours_sum)::numeric, 3) as data
+			from (
+				select
+					detailed_subquery.reason_name as reason_name,
+					detailed_subquery.output_date_int as output_date_int,
+					coalesce(sum(detailed_subquery.corrected_downtime_end_int - detailed_subquery.corrected_downtime_start_int)/(60*60), 0) as hours_sum
+				from (
+					with
+					input_params as (
+						select
+							$start as start_datetime,
+							$end as end_datetime
+					),
+					datetime_config as (
+						select 60*60*24 as day_duration
+					),
+					output_dates as (
+						select generate_series(
+							date_trunc('day', to_timestamp(input_params.start_datetime)),
+							case when 
+								extract(hour from to_timestamp(input_params.end_datetime)) = 0 
+								and extract(minute from to_timestamp(input_params.end_datetime)) = 0 
+								and extract(second from to_timestamp(input_params.end_datetime)) = 0
+							then
+								date_trunc('day', to_timestamp(input_params.end_datetime - datetime_config.day_duration))
+							else
+								to_timestamp(input_params.end_datetime)
+							end,
+							interval '1 day'
+						) as generated_date
+						from input_params, datetime_config
+					),
+					output_dates_int as (
+						select
+							extract(epoch from generated_date) as date
+						from output_dates
+					)
+					
+					select
+						output_dates_int.date as output_date_int,
+						downtime_reasons.name as reason_name,
+					
+						case when downtimes.start_time is not null then
+							greatest(input_params.start_datetime, output_dates_int.date, downtimes.start_time)
+						else
+							null
+						end as corrected_downtime_start_int,
+					
+						case when downtimes.start_time is not null then
+							least(input_params.end_datetime, output_dates_int.date + datetime_config.day_duration, downtimes.end_time)
+						else
+							null
+						end as corrected_downtime_end_int
+					
+					from input_params
+					left join output_dates_int on 0 = 0
+					left join downtime_reasons on 0 = 0
+					left join datetime_config on 0 = 0
+					left join downtimes on downtimes.reason_id = downtime_reasons.id
+						and downtimes.start_time <= least(output_dates_int.date + datetime_config.day_duration, input_params.end_datetime)
+						and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
+						$additional_query
+					order by output_dates_int.date, downtime_reasons.name, downtimes.start_time
+					
+				) as detailed_subquery
+				group by detailed_subquery.reason_name, detailed_subquery.output_date_int
+			) as overall_subquery
+			group by overall_subquery.reason_name";
 
-		if(!$count && !$last_before_start) {
-			return $ret;
-		}
+		$series = DB::select($query);
 
-		$downtime_plans = DowntimePlan::where('machine_id', $id)->get();
+		foreach ($series as $data) {
+			$data->data = json_decode($data->data);
+		};
 
-		foreach ($running_values as $KEY => $item) {
-			if(!$KEY) {
-				if($last_before_start_running == 0) {
-					// calculate downtime seconds
-					$planned = 0;
-					foreach ($downtime_plans as $key => $downtime_plan) {
-						$planned += $this->overlapInSeconds(
-							$start,
-							$item->timestamp,
-							strtotime($downtime_plan->dateFrom . ' ' . $downtime_plan->timeFrom),
-							strtotime($downtime_plan->dateTo . ' ' . $downtime_plan->timeTo)
-						);
-					}
-					$ret[0] += $planned;
-					$ret[1] += ($item->timestamp - $start - $planned);
-				}
-			} else {
-				if(json_decode($running_values[$KEY - 1]->values)[0] == 0) {
-					$planned = 0;
-					foreach ($downtime_plans as $key => $downtime_plan) {
-						$planned += $this->overlapInSeconds(
-							$running_values[$KEY - 1]->timestamp,
-							$item->timestamp,
-							strtotime($downtime_plan->dateFrom . ' ' . $downtime_plan->timeFrom),
-							strtotime($downtime_plan->dateTo . ' ' . $downtime_plan->timeTo)
-						);
-					}
-					$ret[0] += $planned;
-					$ret[1] += ($item->timestamp - $running_values[$KEY - 1]->timestamp - $planned);
-				}
-			}
-		}
-
-		if($count && json_decode($running_values[$count - 1]->values)[0] == 0) {
-			$planned = 0;
-			foreach ($downtime_plans as $key => $downtime_plan) {
-				$planned += $this->overlapInSeconds(
-					$running_values[$count - 1]->timestamp,
-					$end,
-					strtotime($downtime_plan->dateFrom . ' ' . $downtime_plan->timeFrom),
-					strtotime($downtime_plan->dateTo . ' ' . $downtime_plan->timeTo)
-				);
-			}
-			$ret[0] += $planned;
-			$ret[1] += ($end - $running_values[$count - 1]->timestamp - $planned);
-		}
-
-		return $ret;
+		return $series;
 	}
 
 	/**
@@ -2650,4 +2652,62 @@ class MachineController extends Controller
 
         return (float)sqrt($variance/$num_of_elements);
     }
+
+	// get active alarms for the location
+	public function getAlarmsForLocation($id) {
+		$device_ids = Device::where('location_id', $id)->pluck('serial_number')->toArray();
+		$machine_ids = Device::where('location_id', $id)->pluck('machine_id')->toArray();
+
+		$alarm_types = AlarmType::whereIn('machine_id', $machine_ids)->orderBy('id')->get();
+		$tag_ids = $alarm_types->unique('tag_id')->pluck('tag_id');
+
+		$alarms_object = Alarm::whereIn('tag_id', $tag_ids)
+								->whereIn('device_id', $device_ids)
+								->orderBy('timestamp', 'DESC')
+								->get()
+								->unique('tag_id');
+
+		$alarms = [];
+
+		foreach ($alarms_object as $alarm_object) {
+			$value32 = json_decode($alarm_object->values);
+
+			$alarm_types_for_tag = $alarm_types->filter(function ($alarm_type, $key) use ($alarm_object) {
+			    return $alarm_type->tag_id == $alarm_object->tag_id;
+			});
+
+			foreach ($alarm_types_for_tag as $alarm_type) {
+
+				$alarm = new stdClass();
+
+				$alarm->id = $alarm_object->id;
+				$alarm->tag_id = $alarm_object->tag_id;
+				$alarm->timestamp = $alarm_object->timestamp * 1000;
+				if($alarm_type->bytes == 0 && $alarm_type->offset == 0)
+					$alarm->active = $value32[0];
+				else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
+					$offset = isset($tag['offset']) ? $tag['offset'] : 0;
+					$alarm->active = !!$value32[$offset] == true;
+				} else if($alarm_type->bytes != 0) {
+					$alarm->active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
+				}
+
+				$alarm->type_id = $alarm_type->id;
+
+				$machine_info = Device::where('serial_number', $alarm_object->device_id)->first();
+
+				$machine_name = $machine_info ? Machine::where('id', $machine_info->machine_id)->first()->name : '';
+
+				$alarm->machine_info = $machine_info ? $machine_info : null;
+				$alarm->machine_name = $machine_name;
+				$alarm->alarm_name = $alarm_type->name;
+
+				if ($alarm->active) {
+					array_push($alarms, $alarm);
+				}
+			}
+		}
+
+		return response()->json(compact('alarms'));
+	}
 }
