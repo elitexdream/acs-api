@@ -21,6 +21,7 @@ use App\Downtimes;
 use App\DowntimeType;
 use App\DowntimeReason;
 use App\Role;
+use App\AvailabilityPlanTime;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
@@ -965,14 +966,42 @@ class DeviceController extends Controller
             $total_downtime += array_sum($data->data);
         };
 
-        foreach ($generated_dates as $date) {
+        $availability_target = new stdClass();
+        $availability_target->name = 'Target Availability';
+        $availability_target->data = [];
+
+        $availability_actual = new stdClass();
+        $availability_actual->name = 'Actual Availability';
+        $availability_actual->data = [];
+
+        $availability_series = [];
+
+        foreach ($generated_dates as $key => $date) {
             array_push($dates, $date->generated_date);
             array_push($average_downtime->data, round($total_downtime / count($generated_dates), 3));
+            $target = AvailabilityPlanTime::where('timestamp', '<=', strtotime($date->generated_date))->orderBy('timestamp', 'DESC')->first();
+            if ($target) {
+                array_push($availability_target->data, round($target->hours / 24, 3));
+                $actual = 0;
+                foreach ($series as $data) {
+                    $actual += $data->data[$key];
+                }
+                array_push($availability_actual->data, round(($target->hours - $actual) / $target->hours, 3));
+            } else {
+                array_push($availability_target->data, round(16 / 24, 3));
+                $actual = 0;
+                foreach ($series as $data) {
+                    $actual += $data->data[$key];
+                }
+                array_push($availability_actual->data, round((16 - $actual) / 16, 3));
+            }
         };
 
         array_push($series, $average_downtime);
+        array_push($availability_series, $availability_target);
+        array_push($availability_series, $availability_actual);
 
-        return response()->json(compact('series', 'dates'));
+        return response()->json(compact('series', 'dates', 'availability_series'));
     }
 
     public function getDowntimeByTypeGraphData(Request $request) {
@@ -1306,6 +1335,41 @@ class DeviceController extends Controller
         };
 
         return $series;
+    }
+
+    public function setAvailabilityPlanTime(Request $request) {
+        $user = $request->user('api');
+        $time = $request->date / 1000;
+
+        try {
+            $plan = AvailabilityPlanTime::where('timestamp', $time)->where('company_id', $user->company->id)->first();
+
+            if ($plan) {
+                $plan->update([
+                    'timestamp' => $time,
+                    'hours' => $request->time
+                ]);
+            } else {
+                AvailabilityPlanTime::create([
+                    'timestamp' => $time,
+                    'company_id' => $user->company->id,
+                    'hours' => $request->time
+                ]);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Availability plan time has been set successfully'
+            ]);
+
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Failed to set plan time'
+            ]);
+        };
+
+        
     }
 
     public function testFunction(Request $request) {
