@@ -58,16 +58,6 @@ Route::apiResource('configurations', ConfigurationController::class)->only(['sho
 // 	Route::patch('/{id}', 'ConfigurationController@update')->middleware('auth:super_admin');
 // });
 
-Route::group(['prefix' => 'devices'], function () {
-	Route::get('/{id}/configuration', 'DeviceController@getDeviceConfiguration');
-	Route::get('/customer-devices', 'DeviceController@getCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
-	Route::get('/all', 'DeviceController@getAllDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
-	Route::post('/toggle-active-devices', 'DeviceController@toggleActiveDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
-	Route::post('/devices-analytics', 'DeviceController@getDevicesAnalytics')->middleware('auth:customer_admin,customer_manager,customer_operator,acs_admin,acs_manager,acs_viewer');
-	Route::post('/saved-machines', 'DeviceController@getSavedMachines')->middleware('auth:customer_admin,customer_manager,customer_operator,acs_admin,acs_manager,acs_viewer');
-	Route::post('/assign-zone', 'DeviceController@updateCustomerDevice')->middleware('auth:customer_admin,customer_manager,customer_operator');
-});
-
 Route::group(['prefix' => 'downtime-plans'], function () {
 	Route::get('/', 'DowntimePlanController@index')->middleware('auth:customer_admin,customer_manager,customer_operator');
 	Route::post('/store', 'DowntimePlanController@store')->middleware('auth:customer_admin,customer_manager,customer_operator');
@@ -120,6 +110,15 @@ Route::group(['prefix' => 'devices'], function () {
 	Route::post('/get-downtime-by-reason-graph-data', 'DeviceController@getDowntimeByReasonGraphData');
 	Route::get('/get-downtime-table-data', 'DeviceController@getDowntimeTableData');
 	Route::put('/update-downtime/{id}', 'DeviceController@updateDowntime');
+	Route::post('/set-availability-plan-time', 'DeviceController@setAvailabilityPlanTime');
+
+	Route::get('/{id}/configuration', 'DeviceController@getDeviceConfiguration');
+	Route::get('/customer-devices', 'DeviceController@getCustomerDevices')->middleware('auth:customer_admin,customer_manager,customer_operator');
+	Route::get('/all', 'DeviceController@getAllDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
+	Route::post('/toggle-active-devices', 'DeviceController@toggleActiveDevices')->middleware('auth:acs_admin,acs_manager,acs_viewer');
+	Route::post('/devices-analytics', 'DeviceController@getDevicesAnalytics')->middleware('auth:customer_admin,customer_manager,customer_operator,acs_admin,acs_manager,acs_viewer');
+	Route::post('/saved-machines', 'DeviceController@getSavedMachines')->middleware('auth:customer_admin,customer_manager,customer_operator,acs_admin,acs_manager,acs_viewer');
+	Route::post('/assign-zone', 'DeviceController@updateCustomerDevice')->middleware('auth:customer_admin,customer_manager,customer_operator');
 
 	Route::get('/query-sim/{iccid}', 'DeviceController@querySIM')->middleware('auth:acs_admin,acs_manager');
 	Route::get('/suspend-sim/{iccid}', 'DeviceController@suspendSIM')->middleware('auth:acs_admin,acs_manager');
