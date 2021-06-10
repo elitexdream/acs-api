@@ -797,8 +797,6 @@ class DeviceController extends Controller
         $devices = $query->paginate($request->itemsPerPage, ['*'], 'page', $page);
 
         foreach ($devices as $key => $device) {
-            $downtime_distribution = [0, 0, 0];
-
             if ($device->teltonikaConfiguration && $device->teltonikaConfiguration->plc_serial_number) {
                 $running = $this->isPlcRunning($device->machine_id, $device->teltonikaConfiguration->plc_serial_number);
             } else {
@@ -827,13 +825,10 @@ class DeviceController extends Controller
                 }
             }
 
-            $device->utilization = '32%';
-            $device->color = 'green';
-            $device->value = 75;
-            $device->oee = '93.1%';
-            $device->performance = '78%';
-            $device->rate = 56;
-            $device->downtimeDistribution = $downtime_distribution;
+            $downtime_by_reason = $this->getMachineDowntime($device->serial_number);
+			$downtime_availability = $this->getMachineDowntimeAvailability($device->serial_number);
+			$device->downtimeByReason = $downtime_by_reason;
+			$device->downtimeAvailability = $downtime_availability;
 
         }
 
@@ -1368,9 +1363,242 @@ class DeviceController extends Controller
                 'message' => 'Failed to set plan time'
             ]);
         };
-
-        
     }
+
+    /**
+	 * Get machine's downtime by reason
+	 * 
+	 * @param $id		integer
+	 * @param $start 	timestamp
+	 * @param $end 		timestamp
+	 * @return 			object
+	 */
+	public function getMachineDowntime($id, $start = 0, $end = 0) {
+		if(!$start) $start = strtotime("-1 day");
+		if(!$end) $end = time();
+
+		$query  = "select
+				overall_subquery.reason_name as name,
+				ROUND(sum(overall_subquery.hours_sum)::numeric, 3) as data
+			from (
+				select
+					detailed_subquery.reason_name as reason_name,
+					detailed_subquery.output_date_int as output_date_int,
+					coalesce(sum(detailed_subquery.corrected_downtime_end_int - detailed_subquery.corrected_downtime_start_int)/(60*60), 0) as hours_sum
+				from (
+					with
+					input_params as (
+						select
+							$start as start_datetime,
+							$end as end_datetime
+					),
+					datetime_config as (
+						select 60*60*24 as day_duration
+					),
+					output_dates as (
+						select generate_series(
+							date_trunc('day', to_timestamp(input_params.start_datetime)),
+							case when 
+								extract(hour from to_timestamp(input_params.end_datetime)) = 0 
+								and extract(minute from to_timestamp(input_params.end_datetime)) = 0 
+								and extract(second from to_timestamp(input_params.end_datetime)) = 0
+							then
+								date_trunc('day', to_timestamp(input_params.end_datetime - datetime_config.day_duration))
+							else
+								to_timestamp(input_params.end_datetime)
+							end,
+							interval '1 day'
+						) as generated_date
+						from input_params, datetime_config
+					),
+					output_dates_int as (
+						select
+							extract(epoch from generated_date) as date
+						from output_dates
+					)
+					
+					select
+						output_dates_int.date as output_date_int,
+						downtime_reasons.name as reason_name,
+					
+						case when downtimes.start_time is not null then
+							greatest(input_params.start_datetime, output_dates_int.date, downtimes.start_time)
+						else
+							null
+						end as corrected_downtime_start_int,
+					
+						case when downtimes.start_time is not null then
+							least(input_params.end_datetime, output_dates_int.date + datetime_config.day_duration, downtimes.end_time)
+						else
+							null
+						end as corrected_downtime_end_int
+					
+					from input_params
+					left join output_dates_int on 0 = 0
+					left join downtime_reasons on 0 = 0
+					left join datetime_config on 0 = 0
+					left join downtimes on downtimes.reason_id = downtime_reasons.id
+						and downtimes.start_time <= least(output_dates_int.date + datetime_config.day_duration, input_params.end_datetime)
+						and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
+						and downtimes.device_id = $id
+					order by output_dates_int.date, downtime_reasons.name, downtimes.start_time
+					
+				) as detailed_subquery
+				group by detailed_subquery.reason_name, detailed_subquery.output_date_int
+			) as overall_subquery
+			group by overall_subquery.reason_name";
+
+		$series = DB::select($query);
+
+		foreach ($series as $data) {
+			$data->data = json_decode($data->data);
+		};
+
+		return $series;
+	}
+
+	/**
+	 * Get downtime availability of machine
+	 * 
+	 * @param $id		integer
+	 * @param $start 	timestamp
+	 * @param $end 		timestamp
+	 * @return 			object
+	 */
+	public function getMachineDowntimeAvailability($id, $start = 0, $end = 0) {
+		if(!$start) $start = strtotime("-1 day");
+		if(!$end) $end = time();
+
+		$dates = [];
+
+		$query = "select
+                aggregated_subquery.reason_name as name,
+                json_agg(ROUND(aggregated_subquery.hours_sum::numeric, 3) order by aggregated_subquery.output_date_int) as data
+            from (
+                select
+                    detailed_subquery.reason_name as reason_name,
+                    detailed_subquery.output_date_int as output_date_int,
+                    coalesce(sum(detailed_subquery.corrected_downtime_end_int - detailed_subquery.corrected_downtime_start_int)/(60*60), 0) as hours_sum
+                from (
+                    with
+                    input_params as (
+                        select
+                            $start as start_datetime,
+                            $end as end_datetime
+                    ),
+                    datetime_config as (
+                        select 60*60*24 as day_duration
+                    ),
+                    output_dates as (
+                        select generate_series(
+                            date_trunc('day', to_timestamp(input_params.start_datetime)),
+                            case when 
+                                extract(hour from to_timestamp(input_params.end_datetime)) = 0 
+                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0 
+                                and extract(second from to_timestamp(input_params.end_datetime)) = 0
+                            then
+                                date_trunc('day', to_timestamp(input_params.end_datetime - datetime_config.day_duration))
+                            else
+                                to_timestamp(input_params.end_datetime)
+                            end,
+                            interval '1 day'
+                        ) as generated_date
+                        from input_params, datetime_config
+                    ),
+                    output_dates_int as (
+                        select
+                            extract(epoch from generated_date) as date
+                        from output_dates
+                    )
+                    
+                    select
+                        output_dates_int.date as output_date_int,
+                        downtime_reasons.name as reason_name,
+                    
+                        case when downtimes.start_time is not null then
+                            greatest(input_params.start_datetime, output_dates_int.date, downtimes.start_time)
+                        else
+                            null
+                        end as corrected_downtime_start_int,
+                    
+                        case when downtimes.start_time is not null then
+                            least(input_params.end_datetime, output_dates_int.date + datetime_config.day_duration, downtimes.end_time)
+                        else
+                            null
+                        end as corrected_downtime_end_int
+                    
+                    from input_params
+                    left join output_dates_int on 0 = 0
+                    left join downtime_reasons on 0 = 0
+                    left join datetime_config on 0 = 0
+                    left join downtimes on downtimes.reason_id = downtime_reasons.id
+                        and downtimes.start_time <= least(output_dates_int.date + datetime_config.day_duration, input_params.end_datetime)
+                        and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
+                        and downtimes.device_id = $id
+                    order by output_dates_int.date, downtime_reasons.name, downtimes.start_time
+                    
+                ) as detailed_subquery
+                group by detailed_subquery.reason_name, detailed_subquery.output_date_int
+                
+            ) as aggregated_subquery
+            group by aggregated_subquery.reason_name";
+
+		$date_generate_query = "select generate_series(
+			date_trunc('day', to_timestamp($start)),
+			case when
+				extract(hour from to_timestamp($end)) = 0
+				and extract(minute from to_timestamp($end)) = 0
+				and extract(second from to_timestamp($end)) = 0
+			then
+				date_trunc('day', to_timestamp($end - 60*60*24))
+			else
+				to_timestamp($end)
+			end,
+			interval '1 day'
+			)::date as generated_date";
+
+		$series = DB::select($query);
+		$generated_dates = DB::select($date_generate_query);
+
+		foreach ($series as $data) {
+            $data->data = json_decode($data->data);
+        };
+
+		$availability_target = new stdClass();
+		$availability_target->name = 'Target Availability';
+		$availability_target->data = [];
+
+		$availability_actual = new stdClass();
+		$availability_actual->name = 'Actual Availability';
+		$availability_actual->data = [];
+
+		$availability_series = [];
+
+		foreach ($generated_dates as $key => $date) {
+			array_push($dates, $date->generated_date);
+			$target = AvailabilityPlanTime::where('timestamp', '<=', strtotime($date->generated_date))->orderBy('timestamp', 'DESC')->first();
+			if ($target) {
+				array_push($availability_target->data, round($target->hours / 24, 3));
+				$actual = 0;
+				foreach ($series as $data) {
+					$actual += $data->data[$key];
+				}
+				array_push($availability_actual->data, round(($target->hours - $actual) / $target->hours, 3));
+			} else {
+				array_push($availability_target->data, round(16 / 24, 3));
+				$actual = 0;
+				foreach ($series as $data) {
+					$actual += $data->data[$key];
+				}
+				array_push($availability_actual->data, round((16 - $actual) / 16, 3));
+			}
+		};
+
+		array_push($availability_series, $availability_target);
+        array_push($availability_series, $availability_actual);
+
+		return $availability_series;
+	}
 
     public function testFunction(Request $request) {
         set_time_limit(0);
