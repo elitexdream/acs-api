@@ -1089,8 +1089,10 @@ class MachineController extends Controller
 	}
 
 	public function requestService(Request $request) {
+		$user = $request->user('api');
 		$company = Company::where('id', $request->user['companyId'])->first();
 		$request['company_name'] = $company->name;
+		$request['phone'] = $user->profile->phone;
 		Mail::to($request->email)->send(new RequestService($request));
 		return response()->json([
 			'message' => 'Sent service request successfully'
