@@ -1547,7 +1547,7 @@ class MachineController extends Controller
 		$items = [];
 
 		$tag_ids = $request->machineId === 6 ? [22, 20, 21, 23] : [16, 14, 15, 17];
-		$names = ['Set Point', 'Regen Left', 'Regen Right', 'Regen Exhaust', 'Regen Air Set Point'];
+		$names = ['Set Point', 'Regen Left', 'Regen Right', 'Regen Exhaust'];
 
 		for ($i=0; $i < 4; $i++) {
 			$obj = DeviceData::where('serial_number', $request->serialNumber)
