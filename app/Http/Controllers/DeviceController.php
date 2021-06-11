@@ -829,7 +829,6 @@ class DeviceController extends Controller
 			$downtime_availability = $this->getMachineDowntimeAvailability($device->serial_number);
 			$device->downtimeByReason = $downtime_by_reason;
 			$device->downtimeAvailability = $downtime_availability;
-
         }
 
         return response()->json(compact('devices'));

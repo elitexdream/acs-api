@@ -2282,10 +2282,10 @@ class MachineController extends Controller
 		foreach ($locations as $key => $location) {
 			$downtime_by_reason = $this->getDowntimeDistribution($location->id);
 			$downtime_availability = $this->getDowntimeAvailability($location->id);
-			// $alarms_for_locations = $this->getAlarmsForLocation($location->id);
+			$alarms_count = $this->getAlarmsForLocation($location->id);
 			$location->downtimeByReason = $downtime_by_reason;
 			$location->downtimeAvailability = $downtime_availability;
-			// $location->alarmsForLocation = $alarms_for_locations;
+			$location->alarmsCount = $alarms_count;
 		}
 
 		return response()->json(compact('locations'));
@@ -2299,28 +2299,13 @@ class MachineController extends Controller
 		foreach ($zones as $key => $zone) {
 			$downtime_by_reason = $this->getDowntimeDistribution($location->id, $zone->id);
 			$downtime_availability = $this->getDowntimeAvailability($location->id, $zone->id);
+			$alarms_count = $this->getAlarmsForLocation($location->id, $zone->id);
 			$zone->downtimeByReason = $downtime_by_reason;
 			$zone->downtimeAvailability = $downtime_availability;
+			$zone->alarmsCount = $alarms_count;
 		}
 
 		return response()->json(compact('zones'));
-	}
-
-	public function getMachinesTableData($zone_id) {
-		$devices = Device::where('zone_id', $zone_id)->get();
-
-		foreach ($devices as $key => $device) {
-			$downtime_distribution = $this->getDowntimeDistribution(1106550521);
-			$device->utilization = '32%';
-			$device->color = 'green';
-			$device->value = 75;
-			$device->oee = '93.1%';
-			$device->performance = '78%';
-			$device->rate = 56;
-			$device->downtimeDistribution = $downtime_distribution;
-		}
-
-		return response()->json(compact('devices'));
 	}
 
 	public function getDataToolSeries(Request $request) {
@@ -2441,10 +2426,16 @@ class MachineController extends Controller
 			$seryt->name = $hopper['name'] . ' Actual';
 			$seryt->type = 'line';
 			$seryt->data = $sss;
-			$seryt->sd = round($this->Stand_Deviation($actual_sd->toArray()), 3);
+			if (count($actual_sd) != 0) {
+				$seryt->sd = round($this->Stand_Deviation($actual_sd->toArray()), 3);
+				$seryt->min = min($actual_sd->toArray());
+				$seryt->max = max($actual_sd->toArray());
+			} else {
+				$seryt->sd = 0;
+				$seryt->min = 0;
+				$seryt->max = 0;
+			}
 			$seryt->average_error = $average_error;
-			$seryt->min = min($actual_sd->toArray());
-			$seryt->max = max($actual_sd->toArray());
 
 			array_push($series, $seryt);
 		}
@@ -2812,61 +2803,100 @@ class MachineController extends Controller
         return (float)sqrt($variance/$num_of_elements);
     }
 
-	// get active alarms for the location
-	public function getAlarmsForLocation($id) {
-		$device_ids = Device::where('location_id', $id)->pluck('serial_number')->toArray();
-		$machine_ids = Device::where('location_id', $id)->pluck('machine_id')->toArray();
-
-		$alarm_types = AlarmType::whereIn('machine_id', $machine_ids)->orderBy('id')->get();
-		$tag_ids = $alarm_types->unique('tag_id')->pluck('tag_id');
-
-		$alarms_object = Alarm::whereIn('tag_id', $tag_ids)
-								->whereIn('device_id', $device_ids)
-								->orderBy('timestamp', 'DESC')
-								->get()
-								->unique('tag_id');
-
-		$alarms = [];
-
-		foreach ($alarms_object as $alarm_object) {
-			$value32 = json_decode($alarm_object->values);
-
-			$alarm_types_for_tag = $alarm_types->filter(function ($alarm_type, $key) use ($alarm_object) {
-			    return $alarm_type->tag_id == $alarm_object->tag_id;
-			});
-
-			foreach ($alarm_types_for_tag as $alarm_type) {
-
-				$alarm = new stdClass();
-
-				$alarm->id = $alarm_object->id;
-				$alarm->tag_id = $alarm_object->tag_id;
-				$alarm->timestamp = $alarm_object->timestamp * 1000;
-				if($alarm_type->bytes == 0 && $alarm_type->offset == 0)
-					$alarm->active = $value32[0];
-				else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
-					$offset = isset($tag['offset']) ? $tag['offset'] : 0;
-					$alarm->active = !!$value32[$offset] == true;
-				} else if($alarm_type->bytes != 0) {
-					$alarm->active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
-				}
-
-				$alarm->type_id = $alarm_type->id;
-
-				$machine_info = Device::where('serial_number', $alarm_object->device_id)->first();
-
-				$machine_name = $machine_info ? Machine::where('id', $machine_info->machine_id)->first()->name : '';
-
-				$alarm->machine_info = $machine_info ? $machine_info : null;
-				$alarm->machine_name = $machine_name;
-				$alarm->alarm_name = $alarm_type->name;
-
-				if ($alarm->active) {
-					array_push($alarms, $alarm);
-				}
-			}
+	/**
+	 * Get number of alarms
+	 * 
+	 * @param $location		integer
+	 * @param $zone 		integer
+	 */
+	public function getAlarmsForLocation($location, $zone = 0) {
+		if (!$zone) {
+			$additional_query = "devices.location_id = $location";
+		} else {
+			$additional_query = "devices.location_id = $location and devices.zone_id = $zone";
 		}
 
-		return response()->json(compact('alarms'));
+		$query = "select
+				sum(enriched_alarm_details.sensor_last_value)
+			from (
+				select
+					alarm_details.tag_id,
+					alarm_details.machine_id,
+					alarm_details.device_id,
+					alarm_details.latest_values_array,
+					alarm_details.bytes,
+					alarm_details.offset,
+					case
+					when alarm_details.bytes = 1 then
+						-- when bytes = 1 and values array length > 1 there is a wrong value in values data; do not mean it
+						case
+						when json_array_length(alarm_details.latest_values_array) > 1 then 0
+						else
+							case
+							when (trim(lower(alarm_details.latest_values_array ->> 0)) = 'true' or alarm_details.latest_values_array ->> 0 = '1') then 1
+							when (trim(lower(alarm_details.latest_values_array ->> 0)) = 'false' or alarm_details.latest_values_array ->> 0 = '0') then 0
+							-- when it is bigint value then cast it into binary, make right shift for offset value and then takes last digit from binary representaion of new value
+							else ((latest_values_array ->> 0)::bigint::bit(32) >> alarm_details.offset)::bigint::bit(1)::integer
+							end
+						end
+					when alarm_details.bytes = 0 then
+						case
+						when alarm_details.offset >= json_array_length(alarm_details.latest_values_array) then 0
+						else
+							case
+							when (trim(lower(alarm_details.latest_values_array ->> alarm_details.offset)) = 'true' or alarm_details.latest_values_array ->> alarm_details.offset = '1') then 1
+							when (trim(lower(alarm_details.latest_values_array ->> alarm_details.offset)) = 'false' or alarm_details.latest_values_array ->> alarm_details.offset = '0') then 0
+							else 1
+							end
+						end
+					else 0
+					end as sensor_last_value
+				from (
+					with
+					-- get devices set with filter by location_id
+					devices as (
+						select
+							devices.serial_number as serial_number
+						from devices
+						where
+							$additional_query
+					),
+					aggregated_alarms as (
+						select
+							tag_id,
+							machine_id,
+							device_id,
+							(
+								select
+									latest_alarm.values
+								from alarms as latest_alarm
+								where
+									latest_alarm.device_id = alarms.device_id
+									and latest_alarm.tag_id = alarms.tag_id
+									and latest_alarm.machine_id = alarms.machine_id
+								order by latest_alarm.timestamp desc
+								limit 1
+							) as latest_values_array
+						from devices
+						join alarms on alarms.device_id = devices.serial_number::bigint
+							-- TODO: stub for incorrect data trouble bypassing; delete after improvements
+							and alarms.machine_id != 11
+						group by tag_id, machine_id, device_id
+					)
+					select
+						aggregated_alarms.tag_id,
+						aggregated_alarms.machine_id,
+						aggregated_alarms.device_id,
+						aggregated_alarms.latest_values_array,
+						alarm_types.bytes,
+						alarm_types.offset
+					from aggregated_alarms
+					left join alarm_types on alarm_types.tag_id = aggregated_alarms.tag_id and alarm_types.machine_id = aggregated_alarms.machine_id
+				) as alarm_details
+			) as enriched_alarm_details";
+
+		$alarm_count = DB::select($query);
+		
+		return $alarm_count ? $alarm_count : 0;
 	}
 }
