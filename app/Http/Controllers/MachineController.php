@@ -2282,10 +2282,10 @@ class MachineController extends Controller
 		foreach ($locations as $key => $location) {
 			$downtime_by_reason = $this->getDowntimeDistribution($location->id);
 			$downtime_availability = $this->getDowntimeAvailability($location->id);
-			$alarms_count = $this->getAlarmsForLocation($location->id);
+			// $alarms_count = $this->getAlarmsForLocation($location->id);
 			$location->downtimeByReason = $downtime_by_reason;
 			$location->downtimeAvailability = $downtime_availability;
-			$location->alarmsCount = $alarms_count;
+			// $location->alarmsCount = $alarms_count;
 		}
 
 		return response()->json(compact('locations'));
@@ -2299,10 +2299,10 @@ class MachineController extends Controller
 		foreach ($zones as $key => $zone) {
 			$downtime_by_reason = $this->getDowntimeDistribution($location->id, $zone->id);
 			$downtime_availability = $this->getDowntimeAvailability($location->id, $zone->id);
-			$alarms_count = $this->getAlarmsForLocation($location->id, $zone->id);
+			// $alarms_count = $this->getAlarmsForLocation($location->id, $zone->id);
 			$zone->downtimeByReason = $downtime_by_reason;
 			$zone->downtimeAvailability = $downtime_availability;
-			$zone->alarmsCount = $alarms_count;
+			// $zone->alarmsCount = $alarms_count;
 		}
 
 		return response()->json(compact('zones'));
