@@ -99,6 +99,7 @@ class UserController extends Controller
                     return response()->json(false);
             }
             $user->role = $user->roles->first()->key;
+            $user->companyName = $user->company->name;
 
             return response()->json($user);
     	} else {
