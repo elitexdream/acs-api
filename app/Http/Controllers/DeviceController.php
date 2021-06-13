@@ -790,6 +790,9 @@ class DeviceController extends Controller
                     $device->status = 'shutOff';
                 }
             }
+
+            $capacity_utilization = $this->getCapacityUtilizationForMachine($device->serial_number, $device->machine_id);
+            $device->capacityUtilization = $capacity_utilization;
         }
 
         return response()->json(compact('devices'));
