@@ -22,6 +22,7 @@ use App\DowntimeType;
 use App\DowntimeReason;
 use App\Role;
 use App\AvailabilityPlanTime;
+use App\Timezone;
 use App\Imports\DevicesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
@@ -44,6 +45,18 @@ class DeviceController extends Controller
 
     private $teltonika_import_url = "https://rms.teltonika-networks.com/api/devices?limit=100";
     private $bearer_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI2MjQxODgwMjFiMWIwY2UwNTA5ZDE3OWUzY2IxMDgxOGM2YmUzMjlhNjY3NTMwOGU0ZGI4NTEwODU4OThlZGUzNjY0NDQwODA1MDkwZWJjNSIsImlzcyI6Imh0dHBzOlwvXC9ybXMudGVsdG9uaWthLW5ldHdvcmtzLmNvbVwvYWNjb3VudCIsImlhdCI6MTYwNTY2NzMyNywibmJmIjoxNjA1NjY3MzI3LCJleHAiOjE2MzcyMDMzMjcsInN1YiI6IjI3OTcwIiwiY2xpZW50X2lkIjoiOTEyM2VhNjYtMmYxZC00MzljLWIxYzItMzExYWMwMTBhYWFkIiwiZmlyc3RfcGFydHkiOmZhbHNlfQ.I0kEBbsYDzIsBr3KFY9utxhSuKLM0zRgrPUBcUUNrIU3V58tce3LUgfV6r8yip5_pOe3ybVQdEoyIXNuehPUDIa8ZxJYadGw15cs9PLDyvM00ipAggnCgi0QinxUcb_5QjaMqfemhTlil9Zquly-P9tGy8GuT-QKAxMMCwGgou_LA3JH-5c7hoImbINMMyWQaHIrK3IiSVXyb0k_tP2tczy7TIjM5NFdzTMZXlVYEwTRZJ7U-_Vyb0ZnyyTJ_Y6_6CNp79vtQ8kVD_Xs_MVCQ0vQbO9qPRAxNu8noq7ZVo1eRdc1Q411puyzm3MeVSg1bWqqG4QboGiMYTyYclwhqA";
+    private $timeshift = 0;
+
+    public function __construct()
+    {
+    	$user = auth('api')->user();
+		$timezone = Timezone::where('id', $user->profile->timezone)->first();
+		if($timezone) {
+			date_default_timezone_set($timezone->name);
+
+			$this->timeshift = date('Z');
+		}
+    }
 
     public function getPlcStatus($deviceId) {
 		$getLink = 'https://rms.teltonika-networks.com/api/devices/' . $deviceId;
@@ -727,8 +740,10 @@ class DeviceController extends Controller
             }
 
             $downtime_by_reason = $this->getDowntimeByReasonForMachine($device->serial_number);
+            $capacity_utilization = $this->getCapacityUtilizationForMachine($device->serial_number, $device->machine_id);
 
             $device->downtimeByReason = $downtime_by_reason;
+            $device->capacityUtilization = $capacity_utilization;
         }
 
         return response()->json(compact('devices'));
@@ -1598,6 +1613,69 @@ class DeviceController extends Controller
 
 		return $availability_series;
 	}
+
+    public function getCapacityUtilizationForMachine($serial_number, $machine_id) {
+        $from = strtotime("-1 day");
+		$to = time();
+
+		if ($machine_id == 11) {
+			$utilizations_object = DB::table('utilizations')
+									->where('device_id', $serial_number)
+									->where('tag_id', 28)
+									->where('timestamp', '>', $from)
+									->where('timestamp', '<', $to)
+									->orderBy('timestamp')
+									->get();
+
+			if (!$utilizations_object) {
+				$utilizations_object = DB::table('utilizations')
+									->where('device_id', $serial_number)
+									->where('tag_id', 29)
+									->where('timestamp', '>', $from)
+									->where('timestamp', '<', $to)
+									->orderBy('timestamp')
+									->get();
+			}
+
+			$utilizations = $this->averagedSeries($utilizations_object, 200, 10);
+			
+		} else {
+			$tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $machine_id)->first();
+
+			if(!$tag_utilization) {
+				return [];
+			}
+
+			$utilizations_object = DB::table('utilizations')
+									->where('device_id', $serial_number)
+									->where('tag_id', $tag_utilization->tag_id)
+									->where('timestamp', '>', $from)
+									->where('timestamp', '<', $to)
+									->orderBy('timestamp')
+									->get();
+
+			$utilizations = $this->averagedSeries($utilizations_object, 200, 10);
+
+		}
+		$items = [$utilizations];
+
+		return $items;
+    }
+
+    public function averagedSeries($collection, $series_count = 200, $devide_by = 1) {
+    	$total = $collection->count();
+		$chunks = $collection->chunk($total / $series_count + 1);
+
+		$ret = $chunks->map(function($chunk) use ($devide_by) {
+			$timestamp = ($chunk->first()->timestamp + $this->timeshift) * 1000;
+			$values = $chunk->map(function($value) use ($devide_by) {
+				return json_decode($value->values)[0] / $devide_by;
+			});
+			return [$timestamp, round(array_sum($values->all()) / $chunk->count(), 2)];
+		});
+
+		return $ret;
+    }
 
     public function testFunction(Request $request) {
         set_time_limit(0);
