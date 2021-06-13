@@ -1643,7 +1643,7 @@ class DeviceController extends Controller
 			$tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $machine_id)->first();
 
 			if(!$tag_utilization) {
-				return [];
+				return [[]];
 			}
 
 			$utilizations_object = DB::table('utilizations')
