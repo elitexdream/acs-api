@@ -19,10 +19,10 @@ class ThresholdController extends Controller
         $device = Device::where('device_id', $request->deviceId)->first();
 
         foreach ($conditions as $key => $condition) {
-            $tag = MachineTag::where('configuration_id', $device->machine_id)->where('id', $condition['telemetry'])->first();
+            $tag = MachineTag::where('configuration_id', $device->machine_id)->where('id', $condition['parameter'])->first();
 
             if (!$tag) {
-                $tag = AlarmType::where('machine_id', $device->machine_id)->where('id', $condition['telemetry'])->first();
+                $tag = AlarmType::where('machine_id', $device->machine_id)->where('id', $condition['parameter'])->first();
             }
 
             $multipled_by = isset($tag['divided_by']) ? $tag['divided_by'] : 1;
@@ -36,6 +36,7 @@ class ThresholdController extends Controller
                                 ->where('approaching', $condition['approachingValue'])
                                 ->where('device_id', $request->deviceId)
                                 ->where('user_id', $user->id)
+                                ->where('is_running', $condition['isRunning'])
                                 ->first();
 
             if ($option) {
@@ -57,7 +58,8 @@ class ThresholdController extends Controller
                 'serial_number' => $device->serial_number,
                 'multipled_by' => $multipled_by,
                 'bytes' => $bytes,
-                'approaching' => $condition['approachingValue']
+                'approaching' => $condition['approachingValue'],
+                'is_running' => $condition['isRunning']
             ]);
         }
 
@@ -123,7 +125,8 @@ class ThresholdController extends Controller
         $threshold->update([
             'operator' => $request->condition['operator'],
             'value' => $request->condition['value'],
-            'approaching' => $request->condition['approaching']
+            'approaching' => $request->condition['approaching'],
+            'is_running' => $request->condition['is_running']
         ]);
 
         return response()->json([
