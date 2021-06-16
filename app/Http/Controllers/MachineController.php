@@ -1513,7 +1513,12 @@ class MachineController extends Controller
 			$states->hopper3 = json_decode($hopper3->values)[0];
 		}
 
-		return response()->json(compact('states'));
+		$hopperCount = DeviceData::where('serial_number', $request->serialNumber)
+						->where('tag_id', 72)
+						->latest('timedata')
+						->first();
+
+		return response()->json(compact('states', 'hopperCount'));
 	}
 
 	/*
