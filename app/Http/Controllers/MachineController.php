@@ -1518,7 +1518,9 @@ class MachineController extends Controller
 						->latest('timedata')
 						->first();
 
-		return response()->json(compact('states', 'hopperCount'));
+		$numberOfHoppers = $hopperCount ? json_decode($hopperCount->values)[0] : 1;
+
+		return response()->json(compact('states', 'numberOfHoppers'));
 	}
 
 	/*
