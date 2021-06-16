@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\DownTimeTableDataResource;
+use App\QueryFilters\Sort;
 use App\Running;
 use App\Setting;
 use Illuminate\Http\Request;
@@ -24,6 +26,8 @@ use App\Role;
 use App\AvailabilityPlanTime;
 use App\Timezone;
 use App\Imports\DevicesImport;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Pipeline\Pipeline;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
 use Validator;
@@ -878,7 +882,7 @@ class DeviceController extends Controller
         }
 
         $ids = implode(", ", $devices);
-        
+
         if (!$devices) {
             $ids = 0;
         }
@@ -904,9 +908,9 @@ class DeviceController extends Controller
                     output_dates as (
                         select generate_series(
                             date_trunc('day', to_timestamp(input_params.start_datetime)),
-                            case when 
-                                extract(hour from to_timestamp(input_params.end_datetime)) = 0 
-                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0 
+                            case when
+                                extract(hour from to_timestamp(input_params.end_datetime)) = 0
+                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0
                                 and extract(second from to_timestamp(input_params.end_datetime)) = 0
                             then
                                 date_trunc('day', to_timestamp(input_params.end_datetime - datetime_config.day_duration))
@@ -922,23 +926,23 @@ class DeviceController extends Controller
                             extract(epoch from generated_date) as date
                         from output_dates
                     )
-                    
+
                     select
                         output_dates_int.date as output_date_int,
                         downtime_reasons.name as reason_name,
-                    
+
                         case when downtimes.start_time is not null then
                             greatest(input_params.start_datetime, output_dates_int.date, downtimes.start_time)
                         else
                             null
                         end as corrected_downtime_start_int,
-                    
+
                         case when downtimes.start_time is not null then
                             least(input_params.end_datetime, output_dates_int.date + datetime_config.day_duration, downtimes.end_time)
                         else
                             null
                         end as corrected_downtime_end_int
-                    
+
                     from input_params
                     left join output_dates_int on 0 = 0
                     left join downtime_reasons on 0 = 0
@@ -948,10 +952,10 @@ class DeviceController extends Controller
                         and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
                         and downtimes.device_id in ($ids)
                     order by output_dates_int.date, downtime_reasons.name, downtimes.start_time
-                    
+
                 ) as detailed_subquery
                 group by detailed_subquery.reason_name, detailed_subquery.output_date_int
-                
+
             ) as aggregated_subquery
             group by aggregated_subquery.reason_name";
 
@@ -1061,9 +1065,9 @@ class DeviceController extends Controller
                     output_dates as (
                         select generate_series(
                             date_trunc('day', to_timestamp(input_params.start_datetime)),
-                            case when 
-                                extract(hour from to_timestamp(input_params.end_datetime)) = 0 
-                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0 
+                            case when
+                                extract(hour from to_timestamp(input_params.end_datetime)) = 0
+                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0
                                 and extract(second from to_timestamp(input_params.end_datetime)) = 0
                             then
                                 date_trunc('day', to_timestamp(input_params.end_datetime - datetime_config.day_duration))
@@ -1079,23 +1083,23 @@ class DeviceController extends Controller
                             extract(epoch from generated_date) as date
                         from output_dates
                     )
-                    
+
                     select
                         output_dates_int.date as output_date_int,
                         downtime_type.name as type_name,
-                    
+
                         case when downtimes.start_time is not null then
                             greatest(input_params.start_datetime, output_dates_int.date, downtimes.start_time)
                         else
                             null
                         end as corrected_downtime_start_int,
-                    
+
                         case when downtimes.start_time is not null then
                             least(input_params.end_datetime, output_dates_int.date + datetime_config.day_duration, downtimes.end_time)
                         else
                             null
                         end as corrected_downtime_end_int
-                    
+
                     from input_params
                     left join output_dates_int on 0 = 0
                     left join downtime_type on 0 = 0
@@ -1105,7 +1109,7 @@ class DeviceController extends Controller
                         and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
                         and downtimes.device_id in ($ids)
                     order by output_dates_int.date, downtime_type.name, downtimes.start_time
-                    
+
                 ) as detailed_subquery
                 group by detailed_subquery.type_name, detailed_subquery.output_date_int
             ) as overall_subquery
@@ -1166,9 +1170,9 @@ class DeviceController extends Controller
                     output_dates as (
                         select generate_series(
                             date_trunc('day', to_timestamp(input_params.start_datetime)),
-                            case when 
-                                extract(hour from to_timestamp(input_params.end_datetime)) = 0 
-                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0 
+                            case when
+                                extract(hour from to_timestamp(input_params.end_datetime)) = 0
+                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0
                                 and extract(second from to_timestamp(input_params.end_datetime)) = 0
                             then
                                 date_trunc('day', to_timestamp(input_params.end_datetime - datetime_config.day_duration))
@@ -1184,23 +1188,23 @@ class DeviceController extends Controller
                             extract(epoch from generated_date) as date
                         from output_dates
                     )
-                    
+
                     select
                         output_dates_int.date as output_date_int,
                         downtime_reasons.name as reason_name,
-                    
+
                         case when downtimes.start_time is not null then
                             greatest(input_params.start_datetime, output_dates_int.date, downtimes.start_time)
                         else
                             null
                         end as corrected_downtime_start_int,
-                    
+
                         case when downtimes.start_time is not null then
                             least(input_params.end_datetime, output_dates_int.date + datetime_config.day_duration, downtimes.end_time)
                         else
                             null
                         end as corrected_downtime_end_int
-                    
+
                     from input_params
                     left join output_dates_int on 0 = 0
                     left join downtime_reasons on 0 = 0
@@ -1210,7 +1214,7 @@ class DeviceController extends Controller
                         and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
                         and downtimes.device_id in ($ids)
                     order by output_dates_int.date, downtime_reasons.name, downtimes.start_time
-                    
+
                 ) as detailed_subquery
                 group by detailed_subquery.reason_name, detailed_subquery.output_date_int
             ) as overall_subquery
@@ -1226,21 +1230,39 @@ class DeviceController extends Controller
         return response()->json(compact('series'));
     }
 
-    public function getDowntimeTableData(Request $request) {
+    public function getDowntimeTableData(Request $request)
+    {
         $user = $request->user('api');
 
         $device_ids = $user->company->devices->pluck('serial_number');
-        $devices = $user->company->devices()->with('teltonikaConfiguration', 'configuration:id,name')->get();
         $downtimeTypes = DowntimeType::get();
         $locations = Location::get();
         $zones = Zone::get();
         $reasons = DowntimeReason::get();
 
-        $downtimes = Downtimes::whereIn('device_id', $device_ids)
-                                ->orderBy('id')
-                                ->get();
+        //Using pipelines and query filters for sorting
+        $downtimes = app(Pipeline::class)
+            ->send(Downtimes::whereIn('downtimes.device_id', $device_ids)
+                ->join('devices', 'devices.serial_number', '=', 'downtimes.device_id')
+                ->join('machines', 'devices.machine_id', '=', 'machines.id')
+                ->join('locations', 'locations.id', '=', 'devices.location_id')
+                ->join('downtime_type', 'downtimes.type', '=', 'downtime_type.id')
+                ->join('zones','locations.id','=','zones.location_id')
+                ->join('downtime_reasons','downtimes.reason_id','=','downtime_reasons.id')
+                ->select('downtimes.*', 'downtimes.device_id as serial_number', 'machines.name as machine_name',
+                    'locations.name as location_name','downtime_type.name as downtime_type_name',
+                    'zones.name as zone_name','downtime_reasons.name as downtime_reason'
+                ))
+            ->through([
+                Sort::class
+            ])
+            ->thenReturn()
+            ->paginate(request()->has('items') ? (request('items') == -1) ? 15 : request('items') : 10);
 
-        return response()->json(compact('downtimes', 'devices', 'downtimeTypes', 'locations', 'zones', 'reasons'));
+        $downtimes = new DownTimeTableDataResource($downtimes);
+
+
+        return response()->json(compact('downtimes', 'downtimeTypes', 'locations', 'zones', 'reasons'));
     }
 
     public function updateDowntime(Request $request) {
@@ -1290,9 +1312,9 @@ class DeviceController extends Controller
                     output_dates as (
                         select generate_series(
                             date_trunc('day', to_timestamp(input_params.start_datetime)),
-                            case when 
-                                extract(hour from to_timestamp(input_params.end_datetime)) = 0 
-                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0 
+                            case when
+                                extract(hour from to_timestamp(input_params.end_datetime)) = 0
+                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0
                                 and extract(second from to_timestamp(input_params.end_datetime)) = 0
                             then
                                 date_trunc('day', to_timestamp(input_params.end_datetime - datetime_config.day_duration))
@@ -1308,23 +1330,23 @@ class DeviceController extends Controller
                             extract(epoch from generated_date) as date
                         from output_dates
                     )
-                    
+
                     select
                         output_dates_int.date as output_date_int,
                         downtime_reasons.name as reason_name,
-                    
+
                         case when downtimes.start_time is not null then
                             greatest(input_params.start_datetime, output_dates_int.date, downtimes.start_time)
                         else
                             null
                         end as corrected_downtime_start_int,
-                    
+
                         case when downtimes.start_time is not null then
                             least(input_params.end_datetime, output_dates_int.date + datetime_config.day_duration, downtimes.end_time)
                         else
                             null
                         end as corrected_downtime_end_int
-                    
+
                     from input_params
                     left join output_dates_int on 0 = 0
                     left join downtime_reasons on 0 = 0
@@ -1334,7 +1356,7 @@ class DeviceController extends Controller
                         and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
                         and downtimes.device_id = $device_id
                     order by output_dates_int.date, downtime_reasons.name, downtimes.start_time
-                    
+
                 ) as detailed_subquery
                 group by detailed_subquery.reason_name, detailed_subquery.output_date_int
             ) as overall_subquery
@@ -1384,7 +1406,7 @@ class DeviceController extends Controller
 
     /**
 	 * Get machine's downtime by reason
-	 * 
+	 *
 	 * @param $id		integer
 	 * @param $start 	timestamp
 	 * @param $end 		timestamp
@@ -1415,9 +1437,9 @@ class DeviceController extends Controller
 					output_dates as (
 						select generate_series(
 							date_trunc('day', to_timestamp(input_params.start_datetime)),
-							case when 
-								extract(hour from to_timestamp(input_params.end_datetime)) = 0 
-								and extract(minute from to_timestamp(input_params.end_datetime)) = 0 
+							case when
+								extract(hour from to_timestamp(input_params.end_datetime)) = 0
+								and extract(minute from to_timestamp(input_params.end_datetime)) = 0
 								and extract(second from to_timestamp(input_params.end_datetime)) = 0
 							then
 								date_trunc('day', to_timestamp(input_params.end_datetime - datetime_config.day_duration))
@@ -1433,23 +1455,23 @@ class DeviceController extends Controller
 							extract(epoch from generated_date) as date
 						from output_dates
 					)
-					
+
 					select
 						output_dates_int.date as output_date_int,
 						downtime_reasons.name as reason_name,
-					
+
 						case when downtimes.start_time is not null then
 							greatest(input_params.start_datetime, output_dates_int.date, downtimes.start_time)
 						else
 							null
 						end as corrected_downtime_start_int,
-					
+
 						case when downtimes.start_time is not null then
 							least(input_params.end_datetime, output_dates_int.date + datetime_config.day_duration, downtimes.end_time)
 						else
 							null
 						end as corrected_downtime_end_int
-					
+
 					from input_params
 					left join output_dates_int on 0 = 0
 					left join downtime_reasons on 0 = 0
@@ -1459,7 +1481,7 @@ class DeviceController extends Controller
 						and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
 						and downtimes.device_id = $id
 					order by output_dates_int.date, downtime_reasons.name, downtimes.start_time
-					
+
 				) as detailed_subquery
 				group by detailed_subquery.reason_name, detailed_subquery.output_date_int
 			) as overall_subquery
@@ -1476,7 +1498,7 @@ class DeviceController extends Controller
 
 	/**
 	 * Get downtime availability of machine
-	 * 
+	 *
 	 * @param $id		integer
 	 * @param $start 	timestamp
 	 * @param $end 		timestamp
@@ -1509,9 +1531,9 @@ class DeviceController extends Controller
                     output_dates as (
                         select generate_series(
                             date_trunc('day', to_timestamp(input_params.start_datetime)),
-                            case when 
-                                extract(hour from to_timestamp(input_params.end_datetime)) = 0 
-                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0 
+                            case when
+                                extract(hour from to_timestamp(input_params.end_datetime)) = 0
+                                and extract(minute from to_timestamp(input_params.end_datetime)) = 0
                                 and extract(second from to_timestamp(input_params.end_datetime)) = 0
                             then
                                 date_trunc('day', to_timestamp(input_params.end_datetime - datetime_config.day_duration))
@@ -1527,23 +1549,23 @@ class DeviceController extends Controller
                             extract(epoch from generated_date) as date
                         from output_dates
                     )
-                    
+
                     select
                         output_dates_int.date as output_date_int,
                         downtime_reasons.name as reason_name,
-                    
+
                         case when downtimes.start_time is not null then
                             greatest(input_params.start_datetime, output_dates_int.date, downtimes.start_time)
                         else
                             null
                         end as corrected_downtime_start_int,
-                    
+
                         case when downtimes.start_time is not null then
                             least(input_params.end_datetime, output_dates_int.date + datetime_config.day_duration, downtimes.end_time)
                         else
                             null
                         end as corrected_downtime_end_int
-                    
+
                     from input_params
                     left join output_dates_int on 0 = 0
                     left join downtime_reasons on 0 = 0
@@ -1553,10 +1575,10 @@ class DeviceController extends Controller
                         and downtimes.end_time >= greatest(output_dates_int.date, input_params.start_datetime)
                         and downtimes.device_id = $id
                     order by output_dates_int.date, downtime_reasons.name, downtimes.start_time
-                    
+
                 ) as detailed_subquery
                 group by detailed_subquery.reason_name, detailed_subquery.output_date_int
-                
+
             ) as aggregated_subquery
             group by aggregated_subquery.reason_name";
 
@@ -1641,7 +1663,7 @@ class DeviceController extends Controller
 			}
 
 			$utilizations = $this->averagedSeries($utilizations_object, 200, 10);
-			
+
 		} else {
 			$tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $machine_id)->first();
 
