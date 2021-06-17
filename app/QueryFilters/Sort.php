@@ -4,11 +4,19 @@
 namespace App\QueryFilters;
 
 
-class Sort extends Filter
+use Closure;
+
+class Sort
 {
-    protected function applyFilter($builder)
+    public function handle($request, Closure $next)
     {
-        switch (request('sort')){
+        if (!request()->has('sort')) {
+            return $next($request);
+        }
+
+        $builder = $next($request);
+
+        switch (request('sort')) {
             case 'location':
                 $sort = 'locations.name';
                 break;
