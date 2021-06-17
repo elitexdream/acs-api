@@ -252,16 +252,26 @@ class AlarmController extends Controller
 
 	public function getAlarmsReports(Request $request) {
 		$user = $request->user('api');
+		$location = $request->locationId;
+        $zone = $request->zoneId;
+		$machine_ids = [];
+		$device_ids = [];
+
 		if ($request->companyId == 0) {
-			$machine_ids = $user->company->devices->pluck('machine_id');
+			$machine_ids = $user->getMyDevices($location, $zone)->pluck('machine_id');
+			$device_ids = $user->getMyDevices($location, $zone)->pluck('serial_number');
 		} else {
-			$company = Company::where('id', $request->companyId)->first();
-			$machine_ids = $company->devices->pluck('machine_id');
+			$customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
+			$customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
+			$device_ids = $customer_admin->getMyDevices($location, $zone)->pluck('serial_number');
+			$machine_ids = $customer_admin->getMyDevices($location, $zone)->pluck('machine_id');
 		}
+
 		$alarm_types = AlarmType::whereIn('machine_id', $machine_ids)->orderBy('id')->get();
 		$tag_ids = $alarm_types->unique('tag_id')->pluck('tag_id');
 
 		$alarms_object = Alarm::whereIn('tag_id', $tag_ids)
+								->whereIn('device_id', $device_ids)
 								->orderBy('timestamp', 'DESC')
 								->get()
 								->unique('tag_id');
@@ -280,8 +290,6 @@ class AlarmController extends Controller
 				$alarm = new stdClass();
 
 				$alarm->id = $alarm_object->id;
-				$alarm->tag_id = $alarm_object->tag_id;
-				$alarm->timestamp = $alarm_object->timestamp * 1000;
 				if($alarm_type->bytes == 0 && $alarm_type->offset == 0)
 					$alarm->active = $value32[0];
 				else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
@@ -291,10 +299,7 @@ class AlarmController extends Controller
 					$alarm->active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
 				}
 
-				$alarm->type_id = $alarm_type->id;
-
 				$machine_info = Device::where('serial_number', $alarm_object->device_id)->first();
-
 				$machine_name = $machine_info ? Machine::where('id', $machine_info->machine_id)->first()->name : '';
 
 				$alarm->machine_info = $machine_info ? $machine_info : null;
