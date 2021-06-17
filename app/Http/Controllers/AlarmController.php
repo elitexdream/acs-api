@@ -262,7 +262,7 @@ class AlarmController extends Controller
 			$device_ids = $user->getMyDevices($location, $zone)->pluck('serial_number');
 		} else {
 			$customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
-			$customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
+			$customer_admin = $customer_admin_role->users->where('company_id', $request->companyId)->first();
 			$device_ids = $customer_admin->getMyDevices($location, $zone)->pluck('serial_number');
 			$machine_ids = $customer_admin->getMyDevices($location, $zone)->pluck('machine_id');
 		}
