@@ -18,8 +18,10 @@ class DowntimeFilter
         if (request()->has('location') && !request()->has('zone')) {
             return $builder->where('locations.id', request('location'));
         } elseif (request()->has('location') && request()->has('zone')) {
-            return $builder->where('locations.id', request('location'))
-                ->where('zones.id', request('zone'));
+            return $builder->where([
+                'locations.id' => request('location'),
+                'zones.id' => request('zone')
+            ]);
         } elseif (!request()->has('location') && request()->has('zone')) {
             return $builder->where('zones.id', request('zone'));
         } else
