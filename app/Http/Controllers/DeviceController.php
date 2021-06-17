@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\DownTimeTableDataResource;
+use App\QueryFilters\DowntimeFilter;
 use App\QueryFilters\Sort;
 use App\Running;
 use App\Setting;
@@ -53,39 +54,41 @@ class DeviceController extends Controller
 
     public function __construct()
     {
-    	$user = auth('api')->user();
-		$timezone = Timezone::where('id', $user->profile->timezone)->first();
-		if($timezone) {
-			date_default_timezone_set($timezone->name);
+        $user = auth('api')->user();
+        $timezone = Timezone::where('id', $user->profile->timezone)->first();
+        if ($timezone) {
+            date_default_timezone_set($timezone->name);
 
-			$this->timeshift = date('Z');
-		}
+            $this->timeshift = date('Z');
+        }
     }
 
-    public function getPlcStatus($deviceId) {
-		$getLink = 'https://rms.teltonika-networks.com/api/devices/' . $deviceId;
+    public function getPlcStatus($deviceId)
+    {
+        $getLink = 'https://rms.teltonika-networks.com/api/devices/' . $deviceId;
 
-		$client = new Client();
+        $client = new Client();
 
-		try {
-			$response = $client->get(
-				$getLink,
-				[
-					'headers' => [
-						'Authorization' => "Bearer " . $this->bearer_token,
-						'Accept' => "application/json"
-					]
-				]
-			);
+        try {
+            $response = $client->get(
+                $getLink,
+                [
+                    'headers' => [
+                        'Authorization' => "Bearer " . $this->bearer_token,
+                        'Accept' => "application/json"
+                    ]
+                ]
+            );
 
-			return json_decode($response->getBody())->data;
-		} catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return json_decode($response->getBody())->data;
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             return response()->json(json_decode($e->getResponse()->getBody()->getContents(), true), $e->getCode());
         }
-	}
+    }
 
-    public function isPlcRunning($machineId, $serialNumber) {
-		$tag = Tag::where('configuration_id', $machineId)
+    public function isPlcRunning($machineId, $serialNumber)
+    {
+        $tag = Tag::where('configuration_id', $machineId)
             ->where('tag_name', Tag::NAMES['RUNNING'])
             ->first();
 
@@ -103,17 +106,18 @@ class DeviceController extends Controller
         return false;
     }
 
-	public function getACSDevices(Request $request) {
+    public function getACSDevices(Request $request)
+    {
 
         $devices_paginated = Device::orderBy('sim_status')
-                ->orderBy('id')
-                ->whereVisibleOnly()
-                ->whereSimActive($request->filterForm['filters'])
-                ->wherePlcLink($request->filterForm['filters'])
-                ->whereRegistered($request->filterForm['filters'])
-                ->whereSearchQuery($request->filterForm['searchQuery'] ?? '')
-                ->with('checkin')
-                ->paginate(config('settings.num_per_page'));
+            ->orderBy('id')
+            ->whereVisibleOnly()
+            ->whereSimActive($request->filterForm['filters'])
+            ->wherePlcLink($request->filterForm['filters'])
+            ->whereRegistered($request->filterForm['filters'])
+            ->whereSearchQuery($request->filterForm['searchQuery'] ?? '')
+            ->with('checkin')
+            ->paginate(config('settings.num_per_page'));
 
 
         $devices_paginated_array = $devices_paginated->toArray();
@@ -155,14 +159,15 @@ class DeviceController extends Controller
             'to' => $devices_paginated_array['to'],
             'total' => $devices_paginated_array['total'],
         ]);
-	}
+    }
 
-    public function getDeviceConfiguration(Request $request, $id) {
+    public function getDeviceConfiguration(Request $request, $id)
+    {
         $user = $request->user('api');
 
         $teltonika_configuration = TeltonikaConfiguration::where('teltonika_id', $id)->first();
 
-        if(!$teltonika_configuration) {
+        if (!$teltonika_configuration) {
             return response()->json([
                 'status' => 'device_not_connected',
                 'message' => 'Device not connected yet'], 404);
@@ -221,10 +226,11 @@ class DeviceController extends Controller
         return response()->json('Updated successfully');
     }
 
-    public function toggleActiveDevices() {
+    public function toggleActiveDevices()
+    {
         $is_all_devices_visible_object = DB::table('settings')->where('type', 'is_all_devices_visible');
 
-        if($is_all_devices_visible_object->first()->value == 'configured')
+        if ($is_all_devices_visible_object->first()->value == 'configured')
             $is_all_devices_visible_object->update([
                 'value' => 'all'
             ]);
@@ -250,10 +256,11 @@ class DeviceController extends Controller
         return response()->json(compact('devices'));
     }
 
-    public function importDevices(Request $request) {
-    	$existing_devices = Device::all();
-    	$numAdded = 0;
-    	$numDuplicates = 0;
+    public function importDevices(Request $request)
+    {
+        $existing_devices = Device::all();
+        $numAdded = 0;
+        $numDuplicates = 0;
 
         $client = new Client();
         try {
@@ -266,31 +273,31 @@ class DeviceController extends Controller
                 ]
             );
 
-        	$devices = json_decode($response->getBody())->data;
+            $devices = json_decode($response->getBody())->data;
             foreach ($devices as $key => $device) {
                 $exisitng_device = $existing_devices->where('serial_number', $device->serial)->first();
-            	if ($exisitng_device) {
+                if ($exisitng_device) {
                     $exisitng_device->update([
                         'name' => $device->name,
                         'lan_mac_address' => $device->mac,
                     ]);
-            		$numDuplicates++;
-            		continue;
-            	} else {
-                	Device::create([
-        	           'device_id' => $device->id,
-                       'name' => $device->name,
-                       'customer_assigned_name' => $device->name,
-                       'serial_number' => $device->serial,
-        	           'imei' => $device->imei,
-        	           'lan_mac_address' => $device->mac,
-                       'iccid' => substr($device->iccid, 0, -1),
-                       'public_ip_sim' => null,
-                       'machine_id' => null,
-                       'company_id' => null,
-                       'registered' => false
-                	]);
-                	$numAdded++;
+                    $numDuplicates++;
+                    continue;
+                } else {
+                    Device::create([
+                        'device_id' => $device->id,
+                        'name' => $device->name,
+                        'customer_assigned_name' => $device->name,
+                        'serial_number' => $device->serial,
+                        'imei' => $device->imei,
+                        'lan_mac_address' => $device->mac,
+                        'iccid' => substr($device->iccid, 0, -1),
+                        'public_ip_sim' => null,
+                        'machine_id' => null,
+                        'company_id' => null,
+                        'registered' => false
+                    ]);
+                    $numAdded++;
                 }
             }
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
@@ -299,20 +306,20 @@ class DeviceController extends Controller
 
 
         return response()->json([
-    		'numAdded' => $numAdded,
-    		'numDuplicates' => $numDuplicates
+            'numAdded' => $numAdded,
+            'numDuplicates' => $numDuplicates
         ]);
     }
 
-    public function deviceAssigned(Request $request) {
+    public function deviceAssigned(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'plc_ip' => 'required'
         ]);
 
-        if ($validator->fails())
-        {
-            return response()->json(['error'=>$validator->errors()], 422);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
         }
 
         $device = Device::findOrFail($request->device_id);
@@ -331,21 +338,21 @@ class DeviceController extends Controller
     /*
         Assign zone to a device and update machine name in machine mapping page
     */
-    public function updateCustomerDevice(Request $request) {
+    public function updateCustomerDevice(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'id' => 'required',
             'customer_assigned_name' => 'required',
         ]);
 
-        if ($validator->fails())
-        {
-            return response()->json(['error'=>$validator->errors()], 422);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
         }
 
         $device = Device::findOrFail($request->id);
 
-        if($request->zone_id) {
+        if ($request->zone_id) {
             $location = Zone::findOrFail($request->zone_id)->location;
             $device->location_id = $location->id;
         } else {
@@ -361,7 +368,8 @@ class DeviceController extends Controller
         return response()->json('Successfully assigned.');
     }
 
-    public function sendDeviceConfiguration(Request $request) {
+    public function sendDeviceConfiguration(Request $request)
+    {
         $device = Device::findOrFail($request->device_id);
 
         $device_configuration = new stdClass();
@@ -386,7 +394,7 @@ class DeviceController extends Controller
         $device_configuration->batch_timeout = 60;
         $device_configuration->cmd = 'daemon_config';
 
-        if(!$request->device_configuration_form['tcuAdded'])
+        if (!$request->device_configuration_form['tcuAdded'])
             $device_configuration_tcu->port = '';
 
         $device_configuration->plc = $device_configuration_plc;
@@ -413,10 +421,11 @@ class DeviceController extends Controller
         }
     }
 
-    public function suspendSIM($iccid) {
+    public function suspendSIM($iccid)
+    {
         $device = Device::where('iccid', $iccid)->first();
 
-        if(!$device) {
+        if (!$device) {
             return response()->json('Device Not Found', 404);
         }
 
@@ -442,9 +451,10 @@ class DeviceController extends Controller
         }
     }
 
-    public function remoteWeb($deviceid) {
+    public function remoteWeb($deviceid)
+    {
         $device = Device::where('device_id', $deviceid)->first();
-        if(!$device) {
+        if (!$device) {
             return response()->json('Device Not Found', 404);
         }
         $postControl = 'https://rms.teltonika-networks.com/api/devices/' . $deviceid . '/connect/webui';
@@ -453,7 +463,7 @@ class DeviceController extends Controller
         $client = new Client();
 
         try {
-            while(1) {
+            while (1) {
                 $res = $client->post(
                     $postControl,
                     [
@@ -481,7 +491,7 @@ class DeviceController extends Controller
                     );
                     $data = json_decode($response->getBody()->getContents())->data;
 
-                    if(count($data))
+                    if (count($data))
                         return response()->json($data);
                 }
             }
@@ -490,9 +500,10 @@ class DeviceController extends Controller
         }
     }
 
-    public function remoteCli($deviceid) {
+    public function remoteCli($deviceid)
+    {
         $device = Device::where('device_id', $deviceid)->first();
-        if(!$device) {
+        if (!$device) {
             return response()->json('Device Not Found', 404);
         }
         $postControl = 'https://rms.teltonika-networks.com/api/devices/' . $deviceid . '/connect/cli';
@@ -501,7 +512,7 @@ class DeviceController extends Controller
         $client = new Client();
 
         try {
-            while(1) {
+            while (1) {
                 $res = $client->post(
                     $postControl,
                     [
@@ -528,7 +539,7 @@ class DeviceController extends Controller
 
                     $data = json_decode($response->getBody()->getContents())->data;
 
-                    if(count($data))
+                    if (count($data))
                         return response()->json($data);
                 }
             }
@@ -537,14 +548,15 @@ class DeviceController extends Controller
         }
     }
 
-    public function querySIM($iccid) {
-        if(!$iccid) {
+    public function querySIM($iccid)
+    {
+        if (!$iccid) {
             return response()->json('Invalid ICCID', 404);
         }
 
         $device = Device::where('iccid', $iccid)->first();
 
-        if(!$device) {
+        if (!$device) {
             return response()->json('Device Not Found', 404);
         }
 
@@ -574,14 +586,15 @@ class DeviceController extends Controller
         }
     }
 
-    public function publicIP($iccid) {
-        if(!$iccid) {
+    public function publicIP($iccid)
+    {
+        if (!$iccid) {
             return response()->json('Invalid ICCID', 404);
         }
 
         $device = Device::where('iccid', $iccid)->first();
 
-        if(!$device) {
+        if (!$device) {
             return response()->json('Device Not Found', 404);
         }
 
@@ -610,14 +623,15 @@ class DeviceController extends Controller
         }
     }
 
-    public function carrierFromKoreAPI($iccid) {
-        if(!$iccid) {
+    public function carrierFromKoreAPI($iccid)
+    {
+        if (!$iccid) {
             return response()->json('Invalid ICCID', 404);
         }
 
         $device = Device::where('iccid', $iccid)->first();
 
-        if(!$device) {
+        if (!$device) {
             return response()->json('Device Not Found', 404);
         }
 
@@ -641,11 +655,11 @@ class DeviceController extends Controller
                 if (strpos($feature, 'FEAT015100') !== false) {
                     $feature = str_replace("FEAT015100: ", "", $feature);
 
-                    if(strpos($feature, 'KTUSA') !== false) {
+                    if (strpos($feature, 'KTUSA') !== false) {
                         $device->carrier = str_replace("KTUSA", "T-Mobile", $feature);
-                    } else if(strpos($feature, 'KUSG') !== false) {
+                    } else if (strpos($feature, 'KUSG') !== false) {
                         $device->carrier = str_replace("KUSG", "AT&T", $feature);
-                    } else if(strpos($feature, 'VZWLTE') !== false) {
+                    } else if (strpos($feature, 'VZWLTE') !== false) {
                         $device->carrier = str_replace("VZWLTE", "Verizon", $feature);
                     }
                     break;
@@ -660,7 +674,8 @@ class DeviceController extends Controller
         }
     }
 
-    public function getCustomerDevices(Request $request) {
+    public function getCustomerDevices(Request $request)
+    {
         $user = $request->user('api');
         $devices = $user->company->devices;
 
@@ -672,7 +687,8 @@ class DeviceController extends Controller
     /*
         Get devices with analytics
     */
-    public function getDevicesAnalytics(Request $request) {
+    public function getDevicesAnalytics(Request $request)
+    {
         $user = $request->user('api');
         $location = $request->location_id;
         $page = $request->page;
@@ -681,17 +697,15 @@ class DeviceController extends Controller
         $query = null;
 
         if ($request->company_id == 0) {
-            if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
-                if($location) {
+            if ($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+                if ($location) {
                     $query = Device::where('location_id', $location)->orderBy('sim_status')->orderBy('id');
-                }
-                else
+                } else
                     $query = Device::orderBy('sim_status')->orderBy('id');
             } else {
-                if($location) {
+                if ($location) {
                     $query = $user->company->devices()->where('location_id', $location)->orderBy('sim_status')->orderBy('id');
-                }
-                else
+                } else
                     $query = $user->company->devices()->orderBy('sim_status')->orderBy('id');
             }
         } else {
@@ -753,7 +767,8 @@ class DeviceController extends Controller
         return response()->json(compact('devices'));
     }
 
-    public function getSavedMachines(Request $request) {
+    public function getSavedMachines(Request $request)
+    {
         $user = $request->user('api');
         $page = $request->page;
         $itemsPerPage = $request->itemsPerPage;
@@ -761,8 +776,8 @@ class DeviceController extends Controller
         $query = null;
 
         $query = Device::join('saved_machines', 'saved_machines.device_id', '=', 'devices.id')
-                        ->where('saved_machines.user_id', $user->id)
-                        ->select('devices.*')->orderBy('sim_status')->orderBy('id');
+            ->where('saved_machines.user_id', $user->id)
+            ->select('devices.*')->orderBy('sim_status')->orderBy('id');
         $query->with(['teltonikaConfiguration', 'configuration:id,name']);
         $devices = $query->paginate($itemsPerPage, ['*'], 'page', $page);
 
@@ -784,7 +799,7 @@ class DeviceController extends Controller
             if (!isset($plcStatus->status)) {
                 $device->status = 'routerNotConnected';
             } else {
-                if($plcStatus->status != 1) {
+                if ($plcStatus->status != 1) {
                     $device->status = 'routerNotConnected';
                 } else if (!$plcLinkStatus) {
                     $device->status = 'plcNotConnected';
@@ -802,14 +817,15 @@ class DeviceController extends Controller
         return response()->json(compact('devices'));
     }
 
-    public function getDashboardMachinesTable(Request $request) {
+    public function getDashboardMachinesTable(Request $request)
+    {
         $user = $request->user('api');
 
         $location = $request->location;
         $zone = $request->zone;
         $page = $request->page;
 
-        if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+        if ($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
             $query = Device::where('location_id', $location)->where('zone_id', $zone);
         } else {
             $query = $user->company->devices()->where('location_id', $location)->where('zone_id', $zone);
@@ -836,7 +852,7 @@ class DeviceController extends Controller
             if (!isset($plcStatus->status)) {
                 $device->status = 'routerNotConnected';
             } else {
-                if($plcStatus->status != 1) {
+                if ($plcStatus->status != 1) {
                     $device->status = 'routerNotConnected';
                 } else if (!$plcLinkStatus) {
                     $device->status = 'plcNotConnected';
@@ -848,15 +864,16 @@ class DeviceController extends Controller
             }
 
             $downtime_by_reason = $this->getMachineDowntime($device->serial_number);
-			$downtime_availability = $this->getMachineDowntimeAvailability($device->serial_number);
-			$device->downtimeByReason = $downtime_by_reason;
-			$device->downtimeAvailability = $downtime_availability;
+            $downtime_availability = $this->getMachineDowntimeAvailability($device->serial_number);
+            $device->downtimeByReason = $downtime_by_reason;
+            $device->downtimeAvailability = $downtime_availability;
         }
 
         return response()->json(compact('devices'));
     }
 
-    public function getDowntimeGraphData(Request $request) {
+    public function getDowntimeGraphData(Request $request)
+    {
         $user = $request->user('api');
 
         $timeFrom = $request->from / 1000;
@@ -877,8 +894,8 @@ class DeviceController extends Controller
             $devices = $user->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
         } else {
             $customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
-			$customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
-			$devices = $customer_admin->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
+            $customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
+            $devices = $customer_admin->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
         }
 
         $ids = implode(", ", $devices);
@@ -1020,7 +1037,8 @@ class DeviceController extends Controller
         return response()->json(compact('series', 'dates', 'availability_series'));
     }
 
-    public function getDowntimeByTypeGraphData(Request $request) {
+    public function getDowntimeByTypeGraphData(Request $request)
+    {
         $user = $request->user('api');
 
         $timeFrom = $request->from / 1000;
@@ -1034,8 +1052,8 @@ class DeviceController extends Controller
             $devices = $user->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
         } else {
             $customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
-			$customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
-			$devices = $customer_admin->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
+            $customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
+            $devices = $customer_admin->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
         }
 
         $ids = implode(", ", $devices);
@@ -1125,7 +1143,8 @@ class DeviceController extends Controller
         return response()->json(compact('series'));
     }
 
-    public function getDowntimeByReasonGraphData(Request $request) {
+    public function getDowntimeByReasonGraphData(Request $request)
+    {
         $user = $request->user('api');
 
         $timeFrom = $request->from / 1000;
@@ -1139,8 +1158,8 @@ class DeviceController extends Controller
             $devices = $user->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
         } else {
             $customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
-			$customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
-			$devices = $customer_admin->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
+            $customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
+            $devices = $customer_admin->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
         }
 
         $ids = implode(", ", $devices);
@@ -1247,25 +1266,25 @@ class DeviceController extends Controller
                 ->join('machines', 'devices.machine_id', '=', 'machines.id')
                 ->join('locations', 'locations.id', '=', 'devices.location_id')
                 ->join('downtime_type', 'downtimes.type', '=', 'downtime_type.id')
-                ->join('zones','locations.id','=','zones.location_id')
-                ->join('downtime_reasons','downtimes.reason_id','=','downtime_reasons.id')
+                ->join('zones', 'locations.id', '=', 'zones.location_id')
+                ->join('downtime_reasons', 'downtimes.reason_id', '=', 'downtime_reasons.id')
                 ->select('downtimes.*', 'downtimes.device_id as serial_number', 'machines.name as machine_name',
-                    'locations.name as location_name','downtime_type.name as downtime_type_name',
-                    'zones.name as zone_name','downtime_reasons.name as downtime_reason'
+                    'locations.name as location_name', 'downtime_type.name as downtime_type_name',
+                    'zones.name as zone_name', 'downtime_reasons.name as downtime_reason', 'locations.id as location_id',
+                    'zones.id as zone_id'
                 ))
             ->through([
-                Sort::class
+                DowntimeFilter::class,
+                Sort::class,
             ])
-            ->thenReturn()
-            ->paginate(request()->has('items') ? (request('items') == -1) ? 15 : request('items') : 10);
+            ->thenReturn();
 
-        $downtimes = new DownTimeTableDataResource($downtimes);
-
-
+        $downtimes = new DownTimeTableDataResource($downtimes->paginate(request()->has('items') ? request('items') : 10));
         return response()->json(compact('downtimes', 'downtimeTypes', 'locations', 'zones', 'reasons'));
     }
 
-    public function updateDowntime(Request $request) {
+    public function updateDowntime(Request $request)
+    {
         $downtime = Downtimes::where('id', $request->id)->first();
 
         try {
@@ -1287,9 +1306,10 @@ class DeviceController extends Controller
         };
     }
 
-    public function getDowntimeByReasonForMachine($device_id, $start = 0, $end = 0) {
-        if(!$start) $start = strtotime("-1 day");
-		if(!$end) $end = time();
+    public function getDowntimeByReasonForMachine($device_id, $start = 0, $end = 0)
+    {
+        if (!$start) $start = strtotime("-1 day");
+        if (!$end) $end = time();
 
         $query = "select
                 overall_subquery.reason_name as name,
@@ -1371,7 +1391,8 @@ class DeviceController extends Controller
         return $series;
     }
 
-    public function setAvailabilityPlanTime(Request $request) {
+    public function setAvailabilityPlanTime(Request $request)
+    {
         $user = $request->user('api');
         $time = $request->date / 1000;
 
@@ -1405,18 +1426,19 @@ class DeviceController extends Controller
     }
 
     /**
-	 * Get machine's downtime by reason
-	 *
-	 * @param $id		integer
-	 * @param $start 	timestamp
-	 * @param $end 		timestamp
-	 * @return 			object
-	 */
-	public function getMachineDowntime($id, $start = 0, $end = 0) {
-		if(!$start) $start = strtotime("-1 day");
-		if(!$end) $end = time();
+     * Get machine's downtime by reason
+     *
+     * @param $id        integer
+     * @param $start    timestamp
+     * @param $end        timestamp
+     * @return            object
+     */
+    public function getMachineDowntime($id, $start = 0, $end = 0)
+    {
+        if (!$start) $start = strtotime("-1 day");
+        if (!$end) $end = time();
 
-		$query  = "select
+        $query = "select
 				overall_subquery.reason_name as name,
 				ROUND(sum(overall_subquery.hours_sum)::numeric, 3) as data
 			from (
@@ -1487,30 +1509,31 @@ class DeviceController extends Controller
 			) as overall_subquery
 			group by overall_subquery.reason_name";
 
-		$series = DB::select($query);
+        $series = DB::select($query);
 
-		foreach ($series as $data) {
-			$data->data = json_decode($data->data);
-		};
+        foreach ($series as $data) {
+            $data->data = json_decode($data->data);
+        };
 
-		return $series;
-	}
+        return $series;
+    }
 
-	/**
-	 * Get downtime availability of machine
-	 *
-	 * @param $id		integer
-	 * @param $start 	timestamp
-	 * @param $end 		timestamp
-	 * @return 			object
-	 */
-	public function getMachineDowntimeAvailability($id, $start = 0, $end = 0) {
-		if(!$start) $start = strtotime("-1 day");
-		if(!$end) $end = time();
+    /**
+     * Get downtime availability of machine
+     *
+     * @param $id        integer
+     * @param $start    timestamp
+     * @param $end        timestamp
+     * @return            object
+     */
+    public function getMachineDowntimeAvailability($id, $start = 0, $end = 0)
+    {
+        if (!$start) $start = strtotime("-1 day");
+        if (!$end) $end = time();
 
-		$dates = [];
+        $dates = [];
 
-		$query = "select
+        $query = "select
                 aggregated_subquery.reason_name as name,
                 json_agg(ROUND(aggregated_subquery.hours_sum::numeric, 3) order by aggregated_subquery.output_date_int) as data
             from (
@@ -1582,7 +1605,7 @@ class DeviceController extends Controller
             ) as aggregated_subquery
             group by aggregated_subquery.reason_name";
 
-		$date_generate_query = "select generate_series(
+        $date_generate_query = "select generate_series(
 			date_trunc('day', to_timestamp($start)),
 			case when
 				extract(hour from to_timestamp($end)) = 0
@@ -1596,113 +1619,116 @@ class DeviceController extends Controller
 			interval '1 day'
 			)::date as generated_date";
 
-		$series = DB::select($query);
-		$generated_dates = DB::select($date_generate_query);
+        $series = DB::select($query);
+        $generated_dates = DB::select($date_generate_query);
 
-		foreach ($series as $data) {
+        foreach ($series as $data) {
             $data->data = json_decode($data->data);
         };
 
-		$availability_target = new stdClass();
-		$availability_target->name = 'Target Availability';
-		$availability_target->data = [];
+        $availability_target = new stdClass();
+        $availability_target->name = 'Target Availability';
+        $availability_target->data = [];
 
-		$availability_actual = new stdClass();
-		$availability_actual->name = 'Actual Availability';
-		$availability_actual->data = [];
+        $availability_actual = new stdClass();
+        $availability_actual->name = 'Actual Availability';
+        $availability_actual->data = [];
 
-		$availability_series = [];
+        $availability_series = [];
 
-		foreach ($generated_dates as $key => $date) {
-			array_push($dates, $date->generated_date);
-			$target = AvailabilityPlanTime::where('timestamp', '<=', strtotime($date->generated_date))->orderBy('timestamp', 'DESC')->first();
-			if ($target) {
-				array_push($availability_target->data, round($target->hours / 24, 3));
-				$actual = 0;
-				foreach ($series as $data) {
-					$actual += $data->data[$key];
-				}
-				array_push($availability_actual->data, round(($target->hours - $actual) / $target->hours, 3));
-			} else {
-				array_push($availability_target->data, round(16 / 24, 3));
-				$actual = 0;
-				foreach ($series as $data) {
-					$actual += $data->data[$key];
-				}
-				array_push($availability_actual->data, round((16 - $actual) / 16, 3));
-			}
-		};
+        foreach ($generated_dates as $key => $date) {
+            array_push($dates, $date->generated_date);
+            $target = AvailabilityPlanTime::where('timestamp', '<=', strtotime($date->generated_date))->orderBy('timestamp', 'DESC')->first();
+            if ($target) {
+                array_push($availability_target->data, round($target->hours / 24, 3));
+                $actual = 0;
+                foreach ($series as $data) {
+                    $actual += $data->data[$key];
+                }
+                array_push($availability_actual->data, round(($target->hours - $actual) / $target->hours, 3));
+            } else {
+                array_push($availability_target->data, round(16 / 24, 3));
+                $actual = 0;
+                foreach ($series as $data) {
+                    $actual += $data->data[$key];
+                }
+                array_push($availability_actual->data, round((16 - $actual) / 16, 3));
+            }
+        };
 
-		array_push($availability_series, $availability_target);
+        array_push($availability_series, $availability_target);
         array_push($availability_series, $availability_actual);
 
-		return $availability_series;
-	}
+        return $availability_series;
+    }
 
-    public function getCapacityUtilizationForMachine($serial_number, $machine_id) {
+    public function getCapacityUtilizationForMachine($serial_number, $machine_id)
+    {
         $from = strtotime("-1 day");
-		$to = time();
+        $to = time();
 
-		if ($machine_id == 11) {
-			$utilizations_object = DB::table('utilizations')
-									->where('device_id', $serial_number)
-									->where('tag_id', 28)
-									->where('timestamp', '>', $from)
-									->where('timestamp', '<', $to)
-									->orderBy('timestamp')
-									->get();
+        if ($machine_id == 11) {
+            $utilizations_object = DB::table('utilizations')
+                ->where('device_id', $serial_number)
+                ->where('tag_id', 28)
+                ->where('timestamp', '>', $from)
+                ->where('timestamp', '<', $to)
+                ->orderBy('timestamp')
+                ->get();
 
-			if (!$utilizations_object) {
-				$utilizations_object = DB::table('utilizations')
-									->where('device_id', $serial_number)
-									->where('tag_id', 29)
-									->where('timestamp', '>', $from)
-									->where('timestamp', '<', $to)
-									->orderBy('timestamp')
-									->get();
-			}
+            if (!$utilizations_object) {
+                $utilizations_object = DB::table('utilizations')
+                    ->where('device_id', $serial_number)
+                    ->where('tag_id', 29)
+                    ->where('timestamp', '>', $from)
+                    ->where('timestamp', '<', $to)
+                    ->orderBy('timestamp')
+                    ->get();
+            }
 
-			$utilizations = $this->averagedSeries($utilizations_object, 200, 10);
+            $utilizations = $this->averagedSeries($utilizations_object, 200, 10);
 
-		} else {
-			$tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $machine_id)->first();
+        } else {
+            $tag_utilization = Tag::where('tag_name', 'capacity_utilization')->where('configuration_id', $machine_id)->first();
 
-			if(!$tag_utilization) {
-				return [[]];
-			}
+            if (!$tag_utilization) {
+                return [[]];
+            }
 
-			$utilizations_object = DB::table('utilizations')
-									->where('device_id', $serial_number)
-									->where('tag_id', $tag_utilization->tag_id)
-									->where('timestamp', '>', $from)
-									->where('timestamp', '<', $to)
-									->orderBy('timestamp')
-									->get();
+            $utilizations_object = DB::table('utilizations')
+                ->where('device_id', $serial_number)
+                ->where('tag_id', $tag_utilization->tag_id)
+                ->where('timestamp', '>', $from)
+                ->where('timestamp', '<', $to)
+                ->orderBy('timestamp')
+                ->get();
 
-			$utilizations = $this->averagedSeries($utilizations_object, 200, 10);
+            $utilizations = $this->averagedSeries($utilizations_object, 200, 10);
 
-		}
-		$items = [$utilizations];
+        }
+        $items = [$utilizations];
 
-		return $items;
+        return $items;
     }
 
-    public function averagedSeries($collection, $series_count = 200, $devide_by = 1) {
-    	$total = $collection->count();
-		$chunks = $collection->chunk($total / $series_count + 1);
+    public function averagedSeries($collection, $series_count = 200, $devide_by = 1)
+    {
+        $total = $collection->count();
+        $chunks = $collection->chunk($total / $series_count + 1);
 
-		$ret = $chunks->map(function($chunk) use ($devide_by) {
-			$timestamp = ($chunk->first()->timestamp + $this->timeshift) * 1000;
-			$values = $chunk->map(function($value) use ($devide_by) {
-				return json_decode($value->values)[0] / $devide_by;
-			});
-			return [$timestamp, round(array_sum($values->all()) / $chunk->count(), 2)];
-		});
+        $ret = $chunks->map(function ($chunk) use ($devide_by) {
+            $timestamp = ($chunk->first()->timestamp + $this->timeshift) * 1000;
+            $values = $chunk->map(function ($value) use ($devide_by) {
+                return json_decode($value->values)[0] / $devide_by;
+            });
+            return [$timestamp, round(array_sum($values->all()) / $chunk->count(), 2)];
+        });
 
-		return $ret;
+        return $ret;
     }
 
-    public function testFunction(Request $request) {
+    public function testFunction(Request $request)
+    {
         set_time_limit(0);
 
         $limit = $request->limit;
@@ -1718,7 +1744,8 @@ class DeviceController extends Controller
         dd($devices);
     }
 
-    public function testAzureJson(Request $request) {
+    public function testAzureJson(Request $request)
+    {
         $client = new Client();
         try {
             $response = $client->post(
