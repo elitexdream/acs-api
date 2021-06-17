@@ -12,6 +12,7 @@ use App\Tag;
 use App\Company;
 use App\TeltonikaConfiguration;
 use App\AlarmStatus;
+use App\Role;
 use DB;
 use \stdClass;
 
