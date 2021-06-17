@@ -313,8 +313,6 @@ class AlarmController extends Controller
 			}
 		}
 
-		return response()->json('test');
-
 		return response()->json(compact('alarms'));
 	}
 
