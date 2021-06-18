@@ -353,12 +353,15 @@ class AlarmController extends Controller
 		$alarms = json_decode($result[0]->data);
 		$activeAlarms = [];
 
-		foreach ($alarms as $alarm) {
-			if ($alarm->sensor_last_value == 1) {
-				array_push($activeAlarms, $alarm);
+		if ($alarms) {
+			foreach ($alarms as $alarm) {
+				if ($alarm->sensor_last_value == 1) {
+					array_push($activeAlarms, $alarm);
+				}
 			}
 		}
-		$alarmsCount = $result[0]->count;
+		
+		$alarmsCount = $result[0]->count ? $result[0]->count : 0;
 		
 		return response()->json(compact('activeAlarms', 'alarmsCount'));
 	}
