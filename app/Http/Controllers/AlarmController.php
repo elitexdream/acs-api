@@ -299,7 +299,7 @@ class AlarmController extends Controller
 							devices.name as device_name
 						from devices
 						where
-							devices.company_id = $comapny_id
+							devices.company_id = $company_id
 					),
 					aggregated_alarms as (
 						select
