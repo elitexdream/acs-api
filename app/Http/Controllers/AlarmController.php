@@ -343,9 +343,16 @@ class AlarmController extends Controller
 		$result = DB::select($query);
 
 		$alarms = json_decode($result[0]->data);
+		$activeAlarms = [];
+
+		foreach ($alarms as $alarm) {
+			if ($alarm->sensor_last_value == 1) {
+				array_push($activeAlarms, $alarm);
+			}
+		}
 		$alarmsCount = $result[0]->count;
 		
-		return response()->json(compact('alarms', 'alarmsCount'));
+		return response()->json(compact('activeAlarms', 'alarmsCount'));
 	}
 
 	public function getAlarmTypesByMachineId($id) {
