@@ -253,67 +253,98 @@ class AlarmController extends Controller
 
 	public function getAlarmsReports(Request $request) {
 		$user = $request->user('api');
-		$location = $request->locationId;
-        $zone = $request->zoneId;
-		$machine_ids = [];
-		$device_ids = [];
+		$company_id = $request->companyId == 0 ? $user->company->id : $request->companyId;
 
-		if ($request->companyId == 0) {
-			$machine_ids = $user->getMyDevices($location, $zone)->pluck('machine_id');
-			$device_ids = $user->getMyDevices($location, $zone)->pluck('serial_number');
-		} else {
-			$customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
-			$customer_admin = $customer_admin_role->users->where('company_id', $request->companyId)->first();
-			$device_ids = $customer_admin->getMyDevices($location, $zone)->pluck('serial_number');
-			$machine_ids = $customer_admin->getMyDevices($location, $zone)->pluck('machine_id');
-		}
+		$query = "select
+				SUM(enriched_alarm_details.sensor_last_value),
+				json_agg(enriched_alarm_details)
+			from (
+				select
+					alarm_details.machine_id,
+					alarm_details.device_id,
+					alarm_details.device_name,
+					alarm_details.alarm_name,
+					alarm_details.machine_name,
+					case
+					when alarm_details.bytes = 1 then
+						-- when bytes = 1 and values array length > 1 there is a wrong value in values data; do not mean it
+						case
+						when json_array_length(alarm_details.latest_values_array) > 1 then 0
+						else
+							case
+							when (trim(lower(alarm_details.latest_values_array ->> 0)) = 'true' or alarm_details.latest_values_array ->> 0 = '1') then 1
+							when (trim(lower(alarm_details.latest_values_array ->> 0)) = 'false' or alarm_details.latest_values_array ->> 0 = '0') then 0
+							-- when it is bigint value then cast it into binary, make right shift for offset value and then takes last digit from binary representaion of new value
+							else ((latest_values_array ->> 0)::bigint::bit(32) >> alarm_details.offset)::bigint::bit(1)::integer
+							end
+						end
+					when alarm_details.bytes = 0 then
+						case
+						when alarm_details.offset >= json_array_length(alarm_details.latest_values_array) then 0
+						else
+							case
+							when (trim(lower(alarm_details.latest_values_array ->> alarm_details.offset)) = 'true' or alarm_details.latest_values_array ->> alarm_details.offset = '1') then 1
+							when (trim(lower(alarm_details.latest_values_array ->> alarm_details.offset)) = 'false' or alarm_details.latest_values_array ->> alarm_details.offset = '0') then 0
+							else 1
+							end
+						end
+					else 0
+					end as sensor_last_value
+				from (
+					with
+					-- get devices set with filter by location_id
+					devices as (
+						select
+							devices.serial_number as serial_number,
+							devices.name as device_name
+						from devices
+						where
+							devices.company_id = $comapny_id
+					),
+					aggregated_alarms as (
+						select
+							tag_id,
+							machine_id,
+							device_id,
+							device_name,
+							(
+								select
+									latest_alarm.values
+								from alarms as latest_alarm
+								where
+									latest_alarm.device_id = alarms.device_id
+									and latest_alarm.tag_id = alarms.tag_id
+									and latest_alarm.machine_id = alarms.machine_id
+								order by latest_alarm.timestamp desc
+								limit 1
+							) as latest_values_array
+						from devices
+						join alarms on alarms.device_id = devices.serial_number::bigint
+							-- TODO: stub for incorrect data trouble bypassing; delete after improvements
+							and alarms.machine_id != 11
+						group by tag_id, machine_id, device_id, device_name
+					)
+					select
+						aggregated_alarms.tag_id,
+						aggregated_alarms.machine_id,
+						aggregated_alarms.device_id,
+						aggregated_alarms.latest_values_array,
+						aggregated_alarms.device_name,
+						alarm_types.bytes,
+						alarm_types.offset,
+						alarm_types.name as alarm_name,
+						machines.name as machine_name
+					from aggregated_alarms
+					left join alarm_types on alarm_types.tag_id = aggregated_alarms.tag_id and alarm_types.machine_id = aggregated_alarms.machine_id
+					left join machines on machines.id = aggregated_alarms.machine_id
+				) as alarm_details
+			) as enriched_alarm_details";
 
-		$alarm_types = AlarmType::whereIn('machine_id', $machine_ids)->orderBy('id')->get();
-		$tag_ids = $alarm_types->unique('tag_id')->pluck('tag_id');
-
-		$alarms_object = Alarm::whereIn('tag_id', $tag_ids)
-								->whereIn('device_id', $device_ids)
-								->orderBy('timestamp', 'DESC')
-								->get()
-								->unique('tag_id');
-
-		$alarms = [];
-
-		foreach ($alarms_object as $alarm_object) {
-			$value32 = json_decode($alarm_object->values);
-
-			$alarm_types_for_tag = $alarm_types->filter(function ($alarm_type, $key) use ($alarm_object) {
-			    return $alarm_type->tag_id == $alarm_object->tag_id;
-			});
-
-			foreach ($alarm_types_for_tag as $alarm_type) {
-
-				$alarm = new stdClass();
-
-				$alarm->id = $alarm_object->id;
-				if($alarm_type->bytes == 0 && $alarm_type->offset == 0)
-					$alarm->active = $value32[0];
-				else if($alarm_type->bytes == 0 && $alarm_type->offset != 0) {
-					$offset = isset($tag['offset']) ? $tag['offset'] : 0;
-					$alarm->active = !!$value32[$offset] == true;
-				} else if($alarm_type->bytes != 0) {
-					$alarm->active = ($value32[0] >> $alarm_type->offset) & $alarm_type->bytes;
-				}
-
-				$machine_info = Device::where('serial_number', $alarm_object->device_id)->first();
-				$machine_name = $machine_info ? Machine::where('id', $machine_info->machine_id)->first()->name : '';
-
-				$alarm->machine_info = $machine_info ? $machine_info : null;
-				$alarm->machine_name = $machine_name;
-				$alarm->alarm_name = $alarm_type->name;
-
-				if ($alarm->active) {
-					array_push($alarms, $alarm);
-				}
-			}
-		}
-
-		return response()->json(compact('alarms'));
+		$result = DB::select($query);
+		$alarmsCount = $result[0];
+		$alarms = json_decode($result[1]);
+		
+		return response()->json(compact('alarms', 'alarmsCount'));
 	}
 
 	public function getAlarmTypesByMachineId($id) {
