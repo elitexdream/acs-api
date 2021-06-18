@@ -256,8 +256,8 @@ class AlarmController extends Controller
 		$company_id = $request->companyId == 0 ? $user->company->id : $request->companyId;
 
 		$query = "select
-				SUM(enriched_alarm_details.sensor_last_value),
-				json_agg(enriched_alarm_details)
+				SUM(enriched_alarm_details.sensor_last_value) as alarmsCount,
+				json_agg(enriched_alarm_details) as data
 			from (
 				select
 					alarm_details.machine_id,
@@ -341,8 +341,8 @@ class AlarmController extends Controller
 			) as enriched_alarm_details";
 
 		$result = DB::select($query);
-		$alarmsCount = $result[0];
-		$alarms = json_decode($result[1]);
+		$alarmsCount = $result->alarmsCount;
+		$alarms = json_decode($result->data);
 		
 		return response()->json(compact('alarms', 'alarmsCount'));
 	}
