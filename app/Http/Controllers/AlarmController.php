@@ -321,7 +321,6 @@ class AlarmController extends Controller
 								where
 									latest_alarm.device_id = alarms.device_id
 									and latest_alarm.tag_id = alarms.tag_id
-									and latest_alarm.machine_id = alarms.machine_id
 								order by latest_alarm.timestamp desc
 								limit 1
 							) as latest_values_array
@@ -329,7 +328,7 @@ class AlarmController extends Controller
 						join alarms on alarms.device_id = devices.serial_number::bigint
 							-- TODO: stub for incorrect data trouble bypassing; delete after improvements
 							and alarms.machine_id != 11
-						group by tag_id, devices.machine_id, alarms.machine_id, device_id, device_name, location_id, zone_id
+						group by tag_id, devices.machine_id, device_id, device_name, location_id, zone_id
 					)
 					select
 						aggregated_alarms.tag_id,
