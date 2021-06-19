@@ -2863,7 +2863,8 @@ class MachineController extends Controller
 					-- get devices set with filter by location_id
 					devices as (
 						select
-							devices.serial_number as serial_number
+							devices.serial_number as serial_number,
+							devices.machine_id as machine_id
 						from devices
 						where
 							$additional_query
@@ -2871,7 +2872,7 @@ class MachineController extends Controller
 					aggregated_alarms as (
 						select
 							tag_id,
-							machine_id,
+							devices.machine_id,
 							device_id,
 							(
 								select
@@ -2880,7 +2881,6 @@ class MachineController extends Controller
 								where
 									latest_alarm.device_id = alarms.device_id
 									and latest_alarm.tag_id = alarms.tag_id
-									and latest_alarm.machine_id = alarms.machine_id
 								order by latest_alarm.timestamp desc
 								limit 1
 							) as latest_values_array
@@ -2888,7 +2888,7 @@ class MachineController extends Controller
 						join alarms on alarms.device_id = devices.serial_number::bigint
 							-- TODO: stub for incorrect data trouble bypassing; delete after improvements
 							and alarms.machine_id != 11
-						group by tag_id, machine_id, device_id
+						group by tag_id, devices.machine_id, device_id
 					)
 					select
 						aggregated_alarms.tag_id,
