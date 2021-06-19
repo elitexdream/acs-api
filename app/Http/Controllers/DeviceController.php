@@ -891,6 +891,11 @@ class DeviceController extends Controller
         $location = $request->location_id;
         $zone = $request->zone_id;
 
+        /**
+         * Pass Query Filters here to get the data based on
+         * location zone serial number and device id
+         *
+         */
         if ($request->company_id == 0) {
             $devices = $user->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
         } else {
@@ -898,6 +903,9 @@ class DeviceController extends Controller
             $customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
             $devices = $customer_admin->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
         }
+
+
+        /* End of query filters */
 
         $ids = implode(", ", $devices);
 
@@ -1049,6 +1057,12 @@ class DeviceController extends Controller
         $location = $request->location_id;
         $zone = $request->zone_id;
 
+        /**
+         * Pass Query Filters here to get the data based on
+         * location zone serial number and device id
+         *
+         */
+
         if ($request->company_id == 0) {
             $devices = $user->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
         } else {
@@ -1154,6 +1168,12 @@ class DeviceController extends Controller
         $devices = null;
         $location = $request->location_id;
         $zone = $request->zone_id;
+
+        /**
+         * Pass Query Filters here to get the data based on
+         * location zone serial number and device id
+         *
+         */
 
         if ($request->company_id == 0) {
             $devices = $user->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
