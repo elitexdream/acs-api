@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -52,20 +53,20 @@ class User extends Authenticatable
     }
 
     /**
-    * The roles that belong to the user.
-    *
-    * @return mixed
-    */
+     * The roles that belong to the user.
+     *
+     * @return mixed
+     */
     public function roles()
     {
         return $this->belongsToMany('App\Role', 'user_roles', 'user_id', 'role_id');
     }
 
     /**
-    * The companies that belong to the user.
-    *
-    * @return mixed
-    */
+     * The companies that belong to the user.
+     *
+     * @return mixed
+     */
 
     public function company()
     {
@@ -73,34 +74,34 @@ class User extends Authenticatable
     }
 
     /**
-    * The profile that belong to the user.
-    *
-    * @return mixed
-    */
+     * The profile that belong to the user.
+     *
+     * @return mixed
+     */
     public function profile()
     {
         return $this->hasOne('App\Profile');
     }
 
     /**
-    * The role that belong to the user.
-    *
-    * @return mixed
-    */
+     * The role that belong to the user.
+     *
+     * @return mixed
+     */
     public function role()
     {
         return $this->hasOne('App\UserRole');
     }
 
     /**
-    * Check if the user has a specific role.
-    *
-    * @param mixed $roles The roles to ckeck on.
-    * @return boolean
-    */
+     * Check if the user has a specific role.
+     *
+     * @param mixed $roles The roles to ckeck on.
+     * @return boolean
+     */
     public function hasRole($roles = [])
     {
-        $roles = (array) $roles;
+        $roles = (array)$roles;
 
         foreach ($this->roles as $role) {
             if (in_array($role->key, $roles)) {
@@ -116,11 +117,13 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Location', 'user_locations', 'user_id', 'location_id');
     }
 
-    public function customerLocations() {
+    public function customerLocations()
+    {
         return $this->hasMany('App\Location', 'customer_id');
     }
 
-    public function customerZones() {
+    public function customerZones()
+    {
         return $this->hasMany('App\Zone', 'customer_id');
     }
 
@@ -129,10 +132,11 @@ class User extends Authenticatable
         if acs user, return all locations
         else if customer user, return customer locations
     */
-    public function getMyLocations() {
-        if($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+    public function getMyLocations()
+    {
+        if ($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
             return Location::all();
-        } else if($this->hasRole(['customer_admin'])) {
+        } else if ($this->hasRole(['customer_admin'])) {
             return $this->company->locations;
         } else {
             return $this->locations;
@@ -144,34 +148,56 @@ class User extends Authenticatable
         if acs user, return all zones
         else if customer user, return customer zones
     */
-    public function getMyzones() {
-        if($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+    public function getMyzones()
+    {
+        if ($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
             return Zone::all();
-        } else if($this->hasRole(['customer_admin'])) {
+        } else if ($this->hasRole(['customer_admin'])) {
             return $this->company->zones;
         } else {
             return $this->zones;
         }
     }
 
-    public function getMyDevices($location = 0, $zone = 0) {
-        if($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
-            if($location) {
-                if($zone)
+    public function getMyDevicesForProductData($location = 0, $zone = 0)
+    {
+        if ($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+            if ($location) {
+                if ($zone)
+                    return Device::where('location_id', $location)->where('zone_id', $zone);
+                else
+                    return Device::where('location_id', $location);
+            } else
+                return new Device();
+        } else {
+            if ($location) {
+                if ($zone)
+                    return $this->company->devices()->where('location_id', $location)->where('zone_id', $zone);
+                else
+                    return $this->company->devices()->where('location_id', $location);
+            } else {
+                return $this->company->devices();
+            }
+        }
+    }
+
+    public function getMyDevices($location = 0, $zone = 0)
+    {
+        if ($this->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+            if ($location) {
+                if ($zone)
                     return Device::where('location_id', $location)->where('zone_id', $zone)->get();
                 else
                     return Device::where('location_id', $location)->get();
-            }
-            else
+            } else
                 return Device::get();
         } else {
-            if($location) {
-                if($zone)
+            if ($location) {
+                if ($zone)
                     return $this->company->devices()->where('location_id', $location)->where('zone_id', $zone)->get();
                 else
                     return $this->company->devices()->where('location_id', $location)->get();
-            }
-            else
+            } else
                 return $this->company->devices;
         }
     }

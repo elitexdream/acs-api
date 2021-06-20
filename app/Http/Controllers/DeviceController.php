@@ -898,7 +898,7 @@ class DeviceController extends Controller
          */
         if ($request->company_id == 0) {
             $devices = app(Pipeline::class)
-                ->send($user->getMyDevices($location, $zone))
+                ->send($user->getMyDevicesForProductData($location, $zone))
                 ->through([
                     MachineFilter::class
                 ])
@@ -907,7 +907,7 @@ class DeviceController extends Controller
             $customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
             $customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
             $devices = app(Pipeline::class)
-                ->send($customer_admin->getMyDevices($location, $zone))
+                ->send($customer_admin->getMyDevicesForProductData($location, $zone))
                 ->through([
                     MachineFilter::class
                 ])
@@ -1058,12 +1058,12 @@ class DeviceController extends Controller
 
     public function getDowntimeByTypeGraphData(Request $request)
     {
+
         $user = $request->user('api');
 
         $timeFrom = $request->from / 1000;
         $timeTo = $request->to / 1000;
 
-        $devices = null;
         $location = $request->location_id;
         $zone = $request->zone_id;
 
@@ -1074,8 +1074,9 @@ class DeviceController extends Controller
          */
 
         if ($request->company_id == 0) {
+
             $devices = app(Pipeline::class)
-                ->send($user->getMyDevices($location, $zone))
+                ->send($user->getMyDevicesForProductData($location, $zone))
                 ->through([
                     MachineFilter::class
                 ])
@@ -1084,7 +1085,7 @@ class DeviceController extends Controller
             $customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
             $customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
             $devices = app(Pipeline::class)
-                ->send($customer_admin->getMyDevices($location, $zone))
+                ->send($customer_admin->getMyDevicesForProductData($location, $zone))
                 ->through([
                     MachineFilter::class
                 ])
@@ -1197,7 +1198,7 @@ class DeviceController extends Controller
 
         if ($request->company_id == 0) {
             $devices = app(Pipeline::class)
-                ->send($user->getMyDevices($location, $zone))
+                ->send($user->getMyDevicesForProductData($location, $zone))
                 ->through([
                     MachineFilter::class
                 ])
@@ -1206,7 +1207,7 @@ class DeviceController extends Controller
             $customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
             $customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
             $devices = app(Pipeline::class)
-                ->send($customer_admin->getMyDevices($location, $zone))
+                ->send($customer_admin->getMyDevicesForProductData($location, $zone))
                 ->through([
                     MachineFilter::class
                 ])
@@ -1355,7 +1356,7 @@ class DeviceController extends Controller
                 'status' => 'failed',
                 'message' => 'Failed to update downtime'
             ]);
-        };
+        }
     }
 
     public function getDowntimeByReasonForMachine($device_id, $start = 0, $end = 0)
