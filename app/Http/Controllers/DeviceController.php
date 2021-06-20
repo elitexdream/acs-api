@@ -1074,11 +1074,21 @@ class DeviceController extends Controller
          */
 
         if ($request->company_id == 0) {
-            $devices = $user->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
+            $devices = app(Pipeline::class)
+                ->send($user->getMyDevices($location, $zone))
+                ->through([
+                    MachineFilter::class
+                ])
+                ->thenReturn()->pluck('serial_number')->toArray();
         } else {
             $customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
             $customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
-            $devices = $customer_admin->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
+            $devices = app(Pipeline::class)
+                ->send($customer_admin->getMyDevices($location, $zone))
+                ->through([
+                    MachineFilter::class
+                ])
+                ->thenReturn()->pluck('serial_number')->toArray();
         }
 
         $ids = implode(", ", $devices);
@@ -1186,11 +1196,21 @@ class DeviceController extends Controller
          */
 
         if ($request->company_id == 0) {
-            $devices = $user->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
+            $devices = app(Pipeline::class)
+                ->send($user->getMyDevices($location, $zone))
+                ->through([
+                    MachineFilter::class
+                ])
+                ->thenReturn()->pluck('serial_number')->toArray();
         } else {
             $customer_admin_role = Role::findOrFail(ROLE_CUSTOMER_ADMIN);
             $customer_admin = $customer_admin_role->users->where('company_id', $request->company_id)->first();
-            $devices = $customer_admin->getMyDevices($location, $zone)->pluck('serial_number')->toArray();
+            $devices = app(Pipeline::class)
+                ->send($customer_admin->getMyDevices($location, $zone))
+                ->through([
+                    MachineFilter::class
+                ])
+                ->thenReturn()->pluck('serial_number')->toArray();
         }
 
         $ids = implode(", ", $devices);
