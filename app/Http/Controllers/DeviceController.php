@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\DownTimeTableDataResource;
 use App\QueryFilters\DowntimeFilter;
+use App\QueryFilters\MachineFilter;
 use App\QueryFilters\Sort;
 use App\Running;
 use App\Setting;
@@ -1271,11 +1272,12 @@ class DeviceController extends Controller
                 ->select('downtimes.*', 'downtimes.device_id as serial_number', 'machines.name as machine_name',
                     'locations.name as location_name', 'downtime_type.name as downtime_type_name',
                     'zones.name as zone_name', 'downtime_reasons.name as downtime_reason', 'locations.id as location_id',
-                    'zones.id as zone_id'
+                    'zones.id as zone_id', 'devices.machine_id as machine_id', 'devices.serial_number as device_serial_number'
                 ))
             ->through([
                 DowntimeFilter::class,
                 Sort::class,
+                MachineFilter::class
             ])
             ->thenReturn();
 
