@@ -198,7 +198,9 @@ class AlarmController extends Controller
 	}
 
 	public function getProductAlarmHistory(Request $request) {
+		$device_id = TeltonikaConfiguration::where('plc_serial_number', $request->serialNumber)->first()->teltonika_id;
 		$alarms_object = AlarmStatus::where('machine_id', $request->machineId)
+									->where('device_id', $device_id)
 									->where('timestamp', '>', $request->from)
 									->where('timestamp', '<', $request->to)
 									->orderBy('tag_id')
