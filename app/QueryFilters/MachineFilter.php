@@ -14,6 +14,7 @@ class MachineFilter
             return $next($request);
         }
         $builder = $next($request);
+
         $builder->where(['devices.machine_id' => request('machine_id'),
             'devices.serial_number' => request('serial_number')
         ]);
