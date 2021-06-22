@@ -65,7 +65,7 @@ class MachineController extends Controller
 		$chunks = $collection->chunk($total / $series_count + 1);
 
 		$ret = $chunks->map(function($chunk) use ($devide_by) {
-			$timestamp = ($chunk->first()->timestamp + $this->timeshift) * 1000;
+			$timestamp = ($chunk->first()->timestamp) * 1000;
 			$values = $chunk->map(function($value) use ($devide_by) {
 				return json_decode($value->values)[0] / $devide_by;
 			});
