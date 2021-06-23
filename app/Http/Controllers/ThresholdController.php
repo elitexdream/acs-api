@@ -59,7 +59,9 @@ class ThresholdController extends Controller
                 'multipled_by' => $multipled_by,
                 'bytes' => $bytes,
                 'approaching' => $condition['approachingValue'],
-                'is_running' => $condition['isRunning']
+                'is_running' => $condition['isRunning'],
+                'sms_checked' => $request->isSmsChecked,
+                'email_checked' => $request->isEmailChecked
             ]);
         }
 
