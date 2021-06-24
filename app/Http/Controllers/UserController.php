@@ -344,4 +344,31 @@ class UserController extends Controller
 
         return response()->json('Deleted successfully.');
     }
+
+    public function updateProfile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'phone' => 'required',
+            'email' => 'required|email'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        $user = $request->user('api');
+
+        $user->update([
+           'name' => $request->get('name'),
+           'email' => $request->get('email'),
+        ]);
+
+        $user->profile()->update([
+           'phone' => $request->get('phone')
+        ]);
+
+        return response()->json('Updated successfully.');
+
+    }
 }
