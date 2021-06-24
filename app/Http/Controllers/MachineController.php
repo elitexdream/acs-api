@@ -554,7 +554,7 @@ class MachineController extends Controller
 				'inventories' => $inventories,
 				'inventory_material' => $inventory_material,
 				'unit' => $isImperial ? 'lbs' : 'kgs',
-				'last_cleared_time' => $last_cleared ? $last_cleared->last_cleared_time : ''
+				'last_cleared_time' => $last_cleared ? $last_cleared->timestamp * 1000 : 0
 			]
 		]);
 	}
