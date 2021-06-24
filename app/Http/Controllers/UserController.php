@@ -29,18 +29,19 @@ class UserController extends Controller
 {
     use MailTrait;
 
-	public function login(Request $request) {
-	    $validator = Validator::make($request->all(), [
-	        'email' => 'required|email',
-	        'password' => 'required',
-	    ]);
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-	    if ($validator->fails()) {
-            return response()->json(['error'=>$validator->errors()], 422);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
         }
 
         $credentials = request(['email', 'password']);
-        if(!Auth::attempt($credentials))
+        if (!Auth::attempt($credentials))
             return response()->json([
                 'message' => 'Email and password incorrect.'
             ], 401);
@@ -60,25 +61,27 @@ class UserController extends Controller
         ]);
     }
 
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         $request->user('api')->token()->revoke();
         return response()->json([
             'message' => 'Successfully logged out'
         ]);
     }
 
-    public function passwordReset(Request $request) {
+    public function passwordReset(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error'=>$validator->errors()], 422);
+            return response()->json(['error' => $validator->errors()], 422);
         }
 
         $user = User::where('email', $request->email)->first();
 
-        if(!$user) {
+        if (!$user) {
             return response()->json('Email not found', 404);
         }
 
@@ -91,11 +94,12 @@ class UserController extends Controller
         return response()->json('Email sent successfully.');
     }
 
-    public function check(Request $request) {
-    	if (Auth::guard('api')->check()) {
+    public function check(Request $request)
+    {
+        if (Auth::guard('api')->check()) {
             $user = $request->user('api');
-            if(!empty($request->role)) {
-                if(!$user->hasRole($request->role))
+            if (!empty($request->role)) {
+                if (!$user->hasRole($request->role))
                     return response()->json(false);
             }
             $user->role = $user->roles->first()->key;
@@ -103,26 +107,28 @@ class UserController extends Controller
             $user->phoneNumber = $user->profile->phone;
 
             return response()->json($user);
-    	} else {
-    		return response()->json(false);
-    	}
+        } else {
+            return response()->json(false);
+        }
     }
 
-    public function getUser(Request $request) {
+    public function getUser(Request $request)
+    {
         $user = $request->user('api');
         $user->profile = $user->profile;
 
         return response()->json(compact('user'));
     }
 
-    public function updatePassword(Request $request) {
+    public function updatePassword(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required',
             'new_password' => 'required|min:6|max:200',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error'=>$validator->errors()], 422);
+            return response()->json(['error' => $validator->errors()], 422);
         }
 
         $user = $request->user('api');
@@ -137,26 +143,28 @@ class UserController extends Controller
         }
     }
 
-    public function getTimezones() {
+    public function getTimezones()
+    {
         $timezones = Timezone::all();
 
         return response()->json(compact('timezones'));
     }
 
-    public function updateTimezone(Request $request) {
+    public function updateTimezone(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'timezone' => 'required',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error'=>$validator->errors()], 422);
+            return response()->json(['error' => $validator->errors()], 422);
         }
 
         $profile = $request->user('api')->profile;
 
         $timezone = Timezone::where('id', $request->timezone)->first();
 
-        if($timezone) {
+        if ($timezone) {
             $profile->timezone = $request->timezone;
             $profile->save();
 
@@ -166,7 +174,8 @@ class UserController extends Controller
         }
     }
 
-    public function edit(User $user) {
+    public function edit(User $user)
+    {
         $user->role = $user->roles->first()->id;
         $user->selected_locations = $user->locations->pluck('id');
         $user->selected_zones = $user->zones->pluck('id');
@@ -185,9 +194,10 @@ class UserController extends Controller
         return response()->json(compact('user', 'cities'));
     }
 
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $user = $request->user('api');
-        if($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
+        if ($user->hasRole(['acs_admin', 'acs_manager', 'acs_viewer'])) {
             $ids = UserRole::whereNotIn('role_id', [ROLE_SUPER_ADMIN])->pluck('user_id');
             $users = User::whereIn('id', $ids)->get();
         } else {
@@ -204,9 +214,10 @@ class UserController extends Controller
         return response()->json(compact('users'));
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         // this can be go in to authorization hook
-        if(!$request->user('api')->hasRole(['acs_admin', 'customer_admin'])) {
+        if (!$request->user('api')->hasRole(['acs_admin', 'customer_admin'])) {
             return response()->json([
                 'message' => 'Unauthorized'
             ], 401);
@@ -224,14 +235,13 @@ class UserController extends Controller
             'phone' => 'required'
         ]);
 
-        if ($validator->fails())
-        {
-            return response()->json(['error'=>$validator->errors()], 422);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
         }
 
         $password_string = md5(uniqid($request->email, true));
 
-        if(in_array($request->role, [ROLE_ACS_ADMIN, ROLE_ACS_MANAGER, ROLE_ACS_VIEWER])) {
+        if (in_array($request->role, [ROLE_ACS_ADMIN, ROLE_ACS_MANAGER, ROLE_ACS_VIEWER])) {
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -263,7 +273,7 @@ class UserController extends Controller
 
             $user->roles()->attach($request->role);
 
-            if($request->role != ROLE_CUSTOMER_ADMIN) {
+            if ($request->role != ROLE_CUSTOMER_ADMIN) {
                 // add locations and zones only to customer operator and customer manager, not customer admin
                 $user->locations()->attach($request->locations);
                 $user->zones()->attach($request->zones);
@@ -284,7 +294,8 @@ class UserController extends Controller
         return response()->json('Created successfully.', 201);
     }
 
-    public function update(User $user, Request $request) {
+    public function update(User $user, Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
@@ -297,9 +308,8 @@ class UserController extends Controller
             'phone' => 'required'
         ]);
 
-        if ($validator->fails())
-        {
-            return response()->json(['error'=>$validator->errors()], 422);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
         }
 
         $user->name = $request->name;
@@ -319,7 +329,7 @@ class UserController extends Controller
 
         $user->roles()->sync([$request->role]);
 
-        if($request->role == ROLE_CUSTOMER_ADMIN || $request->role == ROLE_ACS_ADMIN || $request->role == ROLE_ACS_MANAGER || $request->role == ROLE_ACS_VIEWER) {
+        if ($request->role == ROLE_CUSTOMER_ADMIN || $request->role == ROLE_ACS_ADMIN || $request->role == ROLE_ACS_MANAGER || $request->role == ROLE_ACS_VIEWER) {
             $user->locations()->sync([]);
             $user->zones()->sync([]);
         } else {
@@ -330,10 +340,11 @@ class UserController extends Controller
         return response()->json('Updated successfully.');
     }
 
-    public function deleteUser(Request $request) {
+    public function deleteUser(Request $request)
+    {
         $user = User::where('email', $request->email)->first();
 
-        if(!$user) {
+        if (!$user) {
             return response()->json('Email not found', 404);
         }
 
@@ -360,15 +371,15 @@ class UserController extends Controller
         $user = $request->user('api');
 
         $user->update([
-           'name' => $request->get('data')['name'],
-           'email' => $request->get('data')['email'],
+            'name' => $request->get('data')['name'],
+            'email' => $request->get('data')['email'],
         ]);
 
         $user->profile()->update([
-           'phone' => $request->get('data')['phone']
+            'phone' => $request->get('data')['phone']
         ]);
 
-        return response()->json('Updated successfully.');
+        return response()->json(['message' => 'Updated successfully.']);
 
     }
 }
