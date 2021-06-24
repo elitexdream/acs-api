@@ -17,7 +17,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
 	Route::post('/profile/timezone', 'UserController@updateTimezone');
 	Route::get('/profile/timezones', 'UserController@getTimezones');
-	Route::get('/profile/update', 'UserController@getTimezones');
+	Route::get('/profile/update', 'UserController@updateProfile');
 });
 
 // Route::group(['prefix' => 'locations'], function () {
