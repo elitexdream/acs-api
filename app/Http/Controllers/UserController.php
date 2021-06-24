@@ -348,9 +348,9 @@ class UserController extends Controller
     public function updateProfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'phone' => 'nullable',
-            'email' => 'required|email'
+            'data.name' => 'required',
+            'data.phone' => 'nullable',
+            'data.email' => 'required|email'
         ]);
 
         if ($validator->fails()) {
@@ -360,12 +360,12 @@ class UserController extends Controller
         $user = $request->user('api');
 
         $user->update([
-           'name' => $request->get('name'),
-           'email' => $request->get('email'),
+           'name' => $request->get('data')['name'],
+           'email' => $request->get('data')['email'],
         ]);
 
         $user->profile()->update([
-           'phone' => $request->get('phone')
+           'phone' => $request->get('data')['phone']
         ]);
 
         return response()->json('Updated successfully.');
