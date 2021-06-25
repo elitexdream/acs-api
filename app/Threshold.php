@@ -28,6 +28,8 @@ class Threshold extends Model
         'approaching_triggered_time',
         'is_running',
         'email_checked',
-        'sms_checked'
+        'sms_checked',
+        'threshold_activated',
+        'approaching_activated'
     ];
 }
